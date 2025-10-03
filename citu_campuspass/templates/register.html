@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIT-U Campus Pass - Register</title>
+    <link rel="stylesheet" href="{% static 'campuspass/css/register.css' %}">
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo-section">
+            <div class="logo-circle">CIT</div>
+            <h1>Campus Pass</h1>
+            <p class="subtitle">Cebu Institute of Technology - University</p>
+            <p class="welcome-text">Create your visitor account</p>
+        </div>
+
+        <form id="registerForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" placeholder="Enter first name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" placeholder="Enter last name" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="purpose">Purpose of Visit</label>
+                <select id="purpose" name="purpose" required>
+                    <option value="">Select purpose</option>
+                    <option value="meeting">Meeting</option>
+                    <option value="event">Event</option>
+                    <option value="delivery">Delivery</option>
+                    <option value="consultation">Consultation</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Create a password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+            </div>
+
+            <div class="terms-agreement">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="terms" required>
+                    <span>I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a></span>
+                </label>
+            </div>
+
+            <button type="submit" class="register-btn">Create Account</button>
+        </form>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <div class="login-link">
+            Already have an account? <a href="index.html">Login here</a>
+        </div>
+
+        <div class="footer-text">
+            © 2025 CIT-U Campus Pass. All rights reserved.
+        </div>
+    </div>
+
+    <script src="register-script.js"></script>
+</body>
+</html>
