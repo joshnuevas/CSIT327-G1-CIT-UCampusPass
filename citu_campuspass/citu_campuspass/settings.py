@@ -55,7 +55,7 @@ ROOT_URLCONF = 'citu_campuspass.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates/campuspass/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
