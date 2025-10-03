@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - CITU CampusPass</title>
+</head>
+<body>
+    <h1>Register</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="username">Username:</label>
+        <input type="text" name="username" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" name="email" required><br>
+
+        <label for="password1">Password:</label>
+        <input type="password" name="password1" required><br>
+
+        <label for="password2">Confirm Password:</label>
+        <input type="password" name="password2" required><br>
+
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
