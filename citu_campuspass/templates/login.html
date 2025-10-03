@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIT-U Campus Pass - Login</title>
+    <link rel="stylesheet" href="{% static 'campuspass/css/login.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <div class="logo-circle">CIT</div>
+            <h1>Campus Pass</h1>
+            <p class="subtitle">Cebu Institute of Technology - University</p>
+            <p class="welcome-text">Welcome back! Please login to your account</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-toggle">
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+            </div>
+
+            <div class="remember-forgot">
+                <label class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <span>Remember me</span>
+                </label>
+                <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <div class="register-link">
+            Don't have an account? <a href="#">Register here</a>
+        </div>
+
+        <div class="footer-text">
+            © 2025 CIT-U Campus Pass. All rights reserved.
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
