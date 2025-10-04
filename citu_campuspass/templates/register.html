@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CIT-U Campus Pass - Register</title>
-    <link rel="stylesheet" href="{% static 'campuspass/css/register.css' %}">
+    <link rel="stylesheet" href="{% static 'campuspass/css/register.css' %}?v={{ now|date:'U' }}">
 </head>
 <body>
     <div class="register-container">
         <div class="logo-section">
-            <div class="logo-circle">CIT</div>
-            <h1>Campus Pass</h1>
+            <div class="logo-circle"></div>
+            <h1>CAMPUS PASS</h1>
             <p class="subtitle">Cebu Institute of Technology - University</p>
             <p class="welcome-text">Create your visitor account</p>
         </div>
@@ -40,18 +40,6 @@
             </div>
 
             <div class="form-group">
-                <label for="purpose">Purpose of Visit</label>
-                <select id="purpose" name="purpose" required>
-                    <option value="">Select purpose</option>
-                    <option value="meeting">Meeting</option>
-                    <option value="event">Event</option>
-                    <option value="delivery">Delivery</option>
-                    <option value="consultation">Consultation</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-
-            <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Create a password" required>
             </div>
@@ -76,7 +64,7 @@
         </div>
 
         <div class="login-link">
-            Already have an account? <a href="index.html">Login here</a>
+            Already have an account? <a href="{% url 'login' %}">Login here</a>
         </div>
 
         <div class="footer-text">

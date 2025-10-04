@@ -6,7 +6,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #800000 0%, #a52a2a 50%, #d4af37 100%);
+    background: linear-gradient(270deg, #4b0000, #6b1a1a, #8b4513, #5c0a0a);
+    background-size: 600% 600%;
+    animation: gradientPaint 18s ease infinite;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -14,14 +16,26 @@ body {
     padding: 20px;
 }
 
+@keyframes gradientPaint {
+    0% { background-position: 0% 50%; filter: brightness(1); }
+    50% { background-position: 100% 50%; filter: brightness(0.95); }
+    100% { background-position: 0% 50%; filter: brightness(1); }
+}
+
 .login-container {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     width: 100%;
     max-width: 420px;
     padding: 40px;
     backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 70px rgba(75, 0, 0, 0.35);
 }
 
 .logo-section {
@@ -32,31 +46,29 @@ body {
 .logo-circle {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #800000, #a52a2a);
+    background: url("https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png") no-repeat center;
+    background-size: contain;
     border-radius: 50%;
     margin: 0 auto 15px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
-    color: #d4af37;
-    font-weight: bold;
 }
 
 h1 {
-    color: #800000;
+    color: #5c0a0a;
     font-size: 28px;
     margin-bottom: 8px;
 }
 
 .subtitle {
-    color: #666;
+    color: #444;
     font-size: 14px;
     margin-bottom: 10px;
 }
 
 .welcome-text {
-    color: #888;
+    color: #555;
     font-size: 13px;
 }
 
@@ -76,7 +88,7 @@ input[type="email"],
 input[type="password"] {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid #d4af37;
     border-radius: 10px;
     font-size: 15px;
     transition: all 0.3s ease;
@@ -86,8 +98,8 @@ input[type="password"] {
 input[type="email"]:focus,
 input[type="password"]:focus {
     outline: none;
-    border-color: #800000;
-    box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+    border-color: #6b1a1a;
+    box-shadow: 0 0 0 3px rgba(107, 26, 26, 0.2);
 }
 
 .password-toggle {
@@ -116,38 +128,48 @@ input[type="password"]:focus {
 }
 
 .forgot-password {
-    color: #800000;
+    color: #6b1a1a;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease;
 }
 
 .forgot-password:hover {
-    color: #a52a2a;
+    color: #8b4513;
     text-decoration: underline;
 }
 
 .login-btn {
     width: 100%;
     padding: 15px;
-    background: linear-gradient(135deg, #800000, #a52a2a);
-    color: #d4af37;
+    background: linear-gradient(135deg, #6b1a1a, #8b4513);
+    color: #e0c97f;
     border: none;
     border-radius: 10px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(128, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(75, 0, 0, 0.3);
+    background-size: 300% 300%;
+    animation: buttonGradient 6s ease infinite;
 }
 
 .login-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(128, 0, 0, 0.4);
+    box-shadow: 0 6px 20px rgba(75, 0, 0, 0.4);
 }
 
 .login-btn:active {
     transform: translateY(0);
+}
+
+@keyframes buttonGradient {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 50%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .divider {
@@ -163,13 +185,13 @@ input[type="password"]:focus {
     top: 50%;
     width: 100%;
     height: 1px;
-    background: #e0e0e0;
+    background: #c2a848;
 }
 
 .divider span {
     background: white;
     padding: 0 15px;
-    color: #888;
+    color: #666;
     font-size: 14px;
     position: relative;
     z-index: 1;
@@ -177,26 +199,26 @@ input[type="password"]:focus {
 
 .register-link {
     text-align: center;
-    color: #666;
+    color: #444;
     font-size: 14px;
 }
 
 .register-link a {
-    color: #800000;
+    color: #6b1a1a;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
 .register-link a:hover {
-    color: #a52a2a;
+    color: #8b4513;
     text-decoration: underline;
 }
 
 .footer-text {
     text-align: center;
     margin-top: 25px;
-    color: #999;
+    color: #777;
     font-size: 12px;
 }
 
