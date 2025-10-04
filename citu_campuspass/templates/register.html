@@ -16,7 +16,15 @@
             <p class="welcome-text">Create your visitor account</p>
         </div>
 
-        <form id="registerForm">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <form method="POST" action="{% url 'register' %}">
+            {% csrf_token %}
             <div class="form-row">
                 <div class="form-group">
                     <label for="firstName">First Name</label>
@@ -51,7 +59,7 @@
 
             <div class="terms-agreement">
                 <label class="checkbox-label">
-                    <input type="checkbox" id="terms" required>
+                    <input type="checkbox" id="terms" name="terms" required>
                     <span>I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a></span>
                 </label>
             </div>

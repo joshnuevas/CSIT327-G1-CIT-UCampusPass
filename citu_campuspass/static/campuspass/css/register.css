@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(270deg, #4b0000, #6b1a1a, #8b4513, #5c0a0a);
+    background: linear-gradient(270deg, #8B1538, #6B0F2A, #5c0a0a, #8B1538);
     background-size: 600% 600%;
     animation: gradientPaint 18s ease infinite;
     min-height: 100vh;
@@ -31,12 +31,12 @@ body {
     padding: 40px;
     backdrop-filter: blur(10px);
     margin: 20px 0;
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Added for hover */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .register-container:hover {
     transform: translateY(-5px);
-    box-shadow: 0 25px 70px rgba(75, 0, 0, 0.35);
+    box-shadow: 0 25px 70px rgba(139, 21, 56, 0.35);
 }
 
 .logo-section {
@@ -54,20 +54,152 @@ body {
 }
 
 h1 {
-    color: #5c0a0a;
+    color: #8B1538;
     font-size: 28px;
     margin-bottom: 8px;
+    font-weight: 700;
 }
 
 .subtitle {
     color: #444;
     font-size: 14px;
     margin-bottom: 10px;
+    font-weight: 500;
 }
 
 .welcome-text {
     color: #555;
     font-size: 13px;
+}
+
+/* Message Styles */
+.messages {
+    list-style: none;
+    margin-bottom: 20px;
+    padding: 0;
+}
+
+.messages li {
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    animation: slideIn 0.4s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success Message */
+.messages li.success,
+.messages li[class*="success"] {
+    background: linear-gradient(135deg, #D4F4DD, #A8E6CF);
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.messages li.success::before,
+.messages li[class*="success"]::before {
+    content: "✓";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: #28a745;
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Error Message */
+.messages li.error,
+.messages li[class*="error"] {
+    background: linear-gradient(135deg, #FFE5E5, #FFD6D6);
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.messages li.error::before,
+.messages li[class*="error"]::before {
+    content: "✕";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Warning Message */
+.messages li.warning,
+.messages li[class*="warning"] {
+    background: linear-gradient(135deg, #FFF4E5, #FFE8CC);
+    color: #856404;
+    border-left: 4px solid #ffc107;
+}
+
+.messages li.warning::before,
+.messages li[class*="warning"]::before {
+    content: "!";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: #ffc107;
+    color: #1a1a1a;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Info Message */
+.messages li.info,
+.messages li[class*="info"] {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+    color: #004085;
+    border-left: 4px solid #0dcaf0;
+}
+
+.messages li.info::before,
+.messages li[class*="info"]::before {
+    content: "i";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: #0dcaf0;
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Default message style */
+.messages li:not([class]) {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+    color: #004085;
+    border-left: 4px solid #0dcaf0;
 }
 
 .form-row {
@@ -110,14 +242,14 @@ input[type="tel"]:focus,
 input[type="password"]:focus,
 select:focus {
     outline: none;
-    border-color: #6b1a1a;
-    box-shadow: 0 0 0 3px rgba(107, 26, 26, 0.2);
+    border-color: #8B1538;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
 }
 
 select {
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b1a1a' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B1538' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 16px center;
     padding-right: 40px;
@@ -142,38 +274,39 @@ select {
     cursor: pointer;
     margin-top: 2px;
     flex-shrink: 0;
+    accent-color: #8B1538;
 }
 
 .checkbox-label a {
-    color: #6b1a1a;
+    color: #8B1538;
     text-decoration: none;
     font-weight: 500;
 }
 
 .checkbox-label a:hover {
+    color: #D4AF37;
     text-decoration: underline;
 }
 
-/* Animated gradient register button */
 .register-btn {
     width: 100%;
     padding: 15px;
-    background: linear-gradient(135deg, #6b1a1a, #8b4513);
-    color: #e0c97f;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: #FFFFFF;
     border: none;
     border-radius: 10px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(75, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
     background-size: 300% 300%;
     animation: buttonGradient 6s ease infinite;
 }
 
 .register-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(75, 0, 0, 0.4);
+    box-shadow: 0 6px 20px rgba(139, 21, 56, 0.4);
 }
 
 .register-btn:active {
@@ -201,7 +334,7 @@ select {
     top: 50%;
     width: 100%;
     height: 1px;
-    background: #c2a848;
+    background: #D4AF37;
 }
 
 .divider span {
@@ -220,14 +353,14 @@ select {
 }
 
 .login-link a {
-    color: #6b1a1a;
+    color: #8B1538;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
 .login-link a:hover {
-    color: #8b4513;
+    color: #D4AF37;
     text-decoration: underline;
 }
 
