@@ -36,21 +36,21 @@
             </div>
             <div class="user-info">
                 <div class="notification-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-                {% if notifications|length > 0 %}
-                <span class="notification-badge">{{ notifications|length }}</span>
-                {% endif %}
-            </div>
-                <div class="user-avatar">{{ request.user.first_name|default:"JD"|slice:":2"|upper }}</div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    {% if notifications|length > 0 %}
+                    <span class="notification-badge">{{ notifications|length }}</span>
+                    {% endif %}
+                </div>
+                <div class="user-avatar">{{ user_first_name|default:"JD"|slice:":2"|upper }}</div>
             </div>
         </div>
 
         <div class="content-area">
             <div class="welcome-section">
-                <h1>Welcome back, {{ request.user.first_name }}!</h1>
+                <h1>Welcome back, {{ user_first_name }}!</h1>
                 <p>Here's what's happening with your campus visits today</p>
             </div>
 

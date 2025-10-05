@@ -1,98 +1,76 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from supabase import create_client
+import os
+from dotenv import load_dotenv
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from datetime import datetime
 
-User = get_user_model()
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-def login_view(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        try:
-            user_obj = User.objects.get(email=email)
-            user = authenticate(request, username=user_obj.username, password=password)
-        except User.DoesNotExist:
-            user = None
-
-        if user is not None:
-            login(request, user)
-            return redirect("dashboard")
-        else:
-            messages.error(request, "Invalid email or password")
-
-    return render(request, "login.html")
-
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def register_view(request):
-    if request.method == "POST":
-        first_name = request.POST.get("firstName")
-        last_name = request.POST.get("lastName")
-        email = request.POST.get("email")
-        phone = request.POST.get("phone")
-        password = request.POST.get("password")
-        confirm_password = request.POST.get("confirmPassword")
+    if request.method == 'POST':
+        first_name = request.POST.get('firstName')
+        last_name = request.POST.get('lastName')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirmPassword')
 
         if password != confirm_password:
-            messages.error(request, "Passwords do not match")
-            return redirect("register")
+            return render(request, 'register.html', {"error": "Passwords do not match."})
 
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered")
-            return redirect("register")
+        existing = supabase.table("users").select("*").eq("email", email).execute()
+        if existing.data:
+            return render(request, 'register.html', {"error": "Email already registered."})
 
-        user = User.objects.create_user(
-            username=email,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name
-        )
+        supabase.table("users").insert({
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "phone": phone,
+            "password": password
+        }).execute()
 
-        messages.success(request, "Account created successfully! Please login.")
-        return redirect("login")
+        return redirect('login')
 
-    return render(request, "register.html")
+    return render(request, 'register.html')
+
+
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = supabase.table("users").select("*").eq("email", email).eq("password", password).execute()
+        if user.data:
+            request.session['user_email'] = email
+            request.session['user_first_name'] = user.data[0].get('first_name')
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Invalid email or password.")  # <-- use messages
+            return redirect('login')
+
+    return render(request, 'login.html')
+
+
+def dashboard_view(request):
+    if 'user_email' not in request.session:
+        return redirect('login')
+
+    context = {
+        "user_email": request.session.get('user_email'),
+        "user_first_name": request.session.get('user_first_name'),  # <-- this
+        "visits": [],
+        "active_visits": [],
+        "upcoming_visits": [],
+        "notifications": [],
+    }
+    return render(request, 'dashboard.html', context)
 
 
 def logout_view(request):
-    logout(request)
-    return redirect("login")
-
-
-@login_required
-def dashboard_view(request):
-    #Sample Visits Only
-    visits = [
-        {
-            "code": "LIB123",
-            "status": "Active",
-            "date": datetime(2025, 10, 5),
-            "start_time": datetime.strptime("08:00", "%H:%M").time(),
-            "end_time": datetime.strptime("10:00", "%H:%M").time(),
-            "purpose": "Library Visit"
-        },
-        {
-            "code": "GYM456",
-            "status": "Upcoming",
-            "date": datetime(2025, 10, 10),
-            "start_time": datetime.strptime("14:00", "%H:%M").time(),
-            "end_time": datetime.strptime("16:00", "%H:%M").time(),
-            "purpose": "Gym Workout"
-        }
-    ]
-
-    active_pass = len([v for v in visits if v["status"] == "Active"])
-    upcoming_visits = len([v for v in visits if v["status"] == "Upcoming"])
-    total_visits = len(visits)
-
-    context = {
-        "user_name": request.user.first_name or request.user.username,
-        "active_pass": active_pass,
-        "upcoming_visits": upcoming_visits,
-        "total_visits": total_visits,
-        "visits": visits
-    }
-
-    return render(request, "dashboard.html", context)
+    request.session.flush()
+    return redirect('login')
