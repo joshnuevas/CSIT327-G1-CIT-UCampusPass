@@ -6,20 +6,28 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(270deg, #8B1538, #6B0F2A, #5c0a0a, #8B1538);
-    background-size: 600% 600%;
-    animation: gradientPaint 18s ease infinite;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
+    background: linear-gradient(270deg, #8B1538, #6B0F2A, #5c0a0a, #8B1538);
+    background-size: 800% 800%;
+    animation: animatedGradient 20s ease infinite, subtleGlow 6s ease-in-out infinite alternate;
 }
 
-@keyframes gradientPaint {
-    0% { background-position: 0% 50%; filter: brightness(1); }
-    50% { background-position: 100% 50%; filter: brightness(0.95); }
-    100% { background-position: 0% 50%; filter: brightness(1); }
+@keyframes animatedGradient {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 50%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes subtleGlow {
+    0% { filter: brightness(1); transform: scale(1); }
+    50% { filter: brightness(1.05); transform: scale(1.01); }
+    100% { filter: brightness(1); transform: scale(1); }
 }
 
 .register-container {
