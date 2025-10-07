@@ -48,13 +48,13 @@ def login_view(request):
         if user.data:
             request.session['user_email'] = email
             request.session['user_first_name'] = user.data[0].get('first_name')
-            return redirect('dashboard')
+            messages.success(request, "Login Successful!")
+            return redirect('login')  # <-- stay on login page
         else:
-            messages.error(request, "Invalid email or password.")  # <-- use messages
+            messages.error(request, "Invalid email or password.")
             return redirect('login')
 
     return render(request, 'login.html')
-
 
 def dashboard_view(request):
     if 'user_email' not in request.session:
