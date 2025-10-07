@@ -54,14 +54,16 @@ def login_view(request):
         if user_resp.data:
             request.session['user_email'] = email
             request.session['user_first_name'] = user_resp.data[0].get('first_name')
-            messages.success(request, "Login successful!")
+
+            # Add tag so modal shows
+            messages.add_message(request, messages.SUCCESS, "Login successful!", extra_tags='login-success')
+
             return redirect('dashboard')
         else:
             messages.error(request, "Invalid email or password.")
             return redirect('login')
 
     return render(request, 'login.html')
-
 
 # ---------------- Dashboard ----------------
 from django.shortcuts import render, redirect
@@ -184,6 +186,5 @@ def book_visit_view(request):
 
 # ---------------- Logout ----------------
 def logout_view(request):
-    request.session.flush()  # clear session
-    list(messages.get_messages(request))  # consume/clear all existing messages
+    request.session.flush()
     return redirect('login')
