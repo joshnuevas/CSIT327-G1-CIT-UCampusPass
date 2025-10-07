@@ -184,5 +184,6 @@ def book_visit_view(request):
 
 # ---------------- Logout ----------------
 def logout_view(request):
-    request.session.flush()
+    request.session.flush()  # clear session
+    list(messages.get_messages(request))  # consume/clear all existing messages
     return redirect('login')
