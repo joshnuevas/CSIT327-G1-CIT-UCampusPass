@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIT-U Campus Pass - Book a Visit</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Book a Visit</h1>
+        <form method="POST" action="{% url 'book_visit' %}">
+            {% csrf_token %}
+
+            <!-- Purpose -->
+            <div class="form-group">
+                <label for="purpose">Purpose</label>
+                <select name="purpose" id="purpose" onchange="toggleOther('purpose')">
+                    <option value="" selected disabled>Select Purpose</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="Tuition Payment">Tuition Payment</option>
+                    <option value="Delivery">Delivery</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="text" name="purpose_other" id="purpose_other" placeholder="Enter purpose" style="display:none;">
+            </div>
+
+            <!-- Visitor Type -->
+            <div class="form-group">
+                <label for="visitor_type">Visitor Type</label>
+                <select name="visitor_type" id="visitor_type" onchange="toggleOther('visitor_type')">
+                    <option value="" selected disabled>Select Visitor Type</option>
+                    <option value="Student">Student</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Staff">Staff</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="text" name="visitor_type_other" id="visitor_type_other" placeholder="Enter visitor type" style="display:none;">
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+                <label for="department">Department</label>
+                <select name="department" id="department" onchange="toggleOther('department')">
+                    <option value="" selected disabled>Select Department</option>
+                    <option value="Admissions">Admissions</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Library">Library</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="text" name="department_other" id="department_other" placeholder="Enter department" style="display:none;">
+            </div>
+
+            <!-- Date -->
+            <div class="form-group">
+                <label for="visit_date">Date</label>
+                <input type="date" name="visit_date" id="visit_date" required>
+            </div>
+
+            <!-- Time -->
+            <div class="form-group">
+                <label for="start_time">Start Time</label>
+                <input type="time" name="start_time" id="start_time" required>
+            </div>
+
+            <div class="form-group">
+                <label for="end_time">End Time</label>
+                <input type="time" name="end_time" id="end_time" required>
+            </div>
+
+            <button type="submit">Book Visit</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleOther(field) {
+            const select = document.getElementById(field);
+            const otherInput = document.getElementById(field + '_other');
+            if (select.value === 'Other') {
+                otherInput.style.display = 'block';
+            } else {
+                otherInput.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
