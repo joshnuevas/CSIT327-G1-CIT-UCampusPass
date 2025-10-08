@@ -168,18 +168,32 @@ input[type="password"],
 select {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #d4af37;
+    border: 2px solid #8B1538;
     border-radius: 10px;
     font-size: 15px;
     transition: all 0.3s ease;
     background: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+input::placeholder {
+    color: #6c757d; 
+    opacity: 1; 
+}
+
+#visitorType:required:invalid {
+    color: #6c757d;
+}
+
+#visitorType:required:valid {
+    color: #333; 
 }
 
 input:focus,
 select:focus {
     outline: none;
-    border-color: #8B1538;
+    border-color: #d4af37; 
     box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
 }
 
@@ -263,6 +277,7 @@ select {
 .register-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(139, 21, 56, 0.4);
+    background: linear-gradient(135deg, #7e1333, #4d0b1e);
 }
 
 .register-btn:active {

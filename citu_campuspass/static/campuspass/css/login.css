@@ -228,7 +228,7 @@ input[type="email"],
 input[type="password"] {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #d4af37;
+    border: 2px solid #8B1538;
     border-radius: 10px;
     font-size: 15px;
     transition: all 0.3s ease;
@@ -238,7 +238,7 @@ input[type="password"] {
 input[type="email"]:focus,
 input[type="password"]:focus {
     outline: none;
-    border-color: #8B1538;
+    border-color: #d4af37;
     box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
 }
 
@@ -290,15 +290,16 @@ input[type="password"]:focus {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
     background-size: 300% 300%;
     animation: buttonGradient 6s ease infinite;
+    transition: all 0.3s ease-in-out;
 }
 
 .login-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(139, 21, 56, 0.4);
+    background: linear-gradient(135deg, #7e1333, #4d0b1e);
 }
 
 .login-btn:active {
