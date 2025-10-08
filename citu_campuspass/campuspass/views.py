@@ -166,8 +166,14 @@ def book_visit_view(request):
 
         code = generate_visit_code(purpose)
 
+        # Get user_id using the email stored in session
+        user_resp = supabase.table("users").select("user_id").eq("email", user_email).execute()
+        user_id = user_resp.data[0]['user_id']
+
+        # ✅ Insert both user_id (FK) and user_email (for display/reference)
         supabase.table("visits").insert({
-            "user_email": user_email,
+            "user_id": user_id,
+            "user_email": user_email,  # keep this to know who made the visit
             "code": code,
             "purpose": purpose,
             "visitor_type": visitor_type,
@@ -182,7 +188,6 @@ def book_visit_view(request):
         return redirect('dashboard')
 
     return render(request, 'book_visit.html')
-
 
 # ---------------- Logout ----------------
 def logout_view(request):
