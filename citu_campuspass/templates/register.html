@@ -23,6 +23,7 @@
                 {% endfor %}
             </ul>
         {% endif %}
+
         <form method="POST" action="{% url 'register' %}">
             {% csrf_token %}
             <div class="form-row">
@@ -45,6 +46,25 @@
             <div class="form-group">
                 <label for="phone">Phone Number</label>
                 <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+            </div>
+
+            <!-- Visitor Type Section -->
+            <div class="form-group">
+                <label for="visitorType">Visitor Type</label>
+                <select id="visitorType" name="visitorType" required onchange="toggleOtherInput()">
+                    <option value="" disabled selected>Select visitor type</option>
+                    <option value="Student">Student</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Staff">Staff</option>
+                    <option value="Alumni">Alumni</option>
+                    <option value="Guest">Guest</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="otherTypeGroup" style="display: none;">
+                <label for="otherType">Please specify</label>
+                <input type="text" id="otherType" name="otherType" placeholder="Enter other visitor type">
             </div>
 
             <div class="form-group">
@@ -79,5 +99,19 @@
             © 2025 CIT-U Campus Pass. All rights reserved.
         </div>
     </div>
+
+    <script>
+        function toggleOtherInput() {
+            const visitorType = document.getElementById("visitorType").value;
+            const otherGroup = document.getElementById("otherTypeGroup");
+            if (visitorType === "Other") {
+                otherGroup.style.display = "block";
+                document.getElementById("otherType").required = true;
+            } else {
+                otherGroup.style.display = "none";
+                document.getElementById("otherType").required = false;
+            }
+        }
+    </script>
 </body>
 </html>

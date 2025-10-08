@@ -80,7 +80,7 @@ h1 {
     font-size: 13px;
 }
 
-/* Message Styles */
+/* Messages */
 .messages {
     list-style: none;
     margin-bottom: 20px;
@@ -111,7 +111,7 @@ h1 {
     }
 }
 
-/* Success Message */
+/* Message types */
 .messages li.success,
 .messages li[class*="success"] {
     background: linear-gradient(135deg, #D4F4DD, #A8E6CF);
@@ -119,22 +119,6 @@ h1 {
     border-left: 4px solid #28a745;
 }
 
-.messages li.success::before,
-.messages li[class*="success"]::before {
-    content: "✓";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: #28a745;
-    color: white;
-    border-radius: 50%;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-/* Error Message */
 .messages li.error,
 .messages li[class*="error"] {
     background: linear-gradient(135deg, #FFE5E5, #FFD6D6);
@@ -142,22 +126,6 @@ h1 {
     border-left: 4px solid #dc3545;
 }
 
-.messages li.error::before,
-.messages li[class*="error"]::before {
-    content: "✕";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: #dc3545;
-    color: white;
-    border-radius: 50%;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-/* Warning Message */
 .messages li.warning,
 .messages li[class*="warning"] {
     background: linear-gradient(135deg, #FFF4E5, #FFE8CC);
@@ -165,22 +133,6 @@ h1 {
     border-left: 4px solid #ffc107;
 }
 
-.messages li.warning::before,
-.messages li[class*="warning"]::before {
-    content: "!";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: #ffc107;
-    color: #1a1a1a;
-    border-radius: 50%;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-/* Info Message */
 .messages li.info,
 .messages li[class*="info"] {
     background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
@@ -188,28 +140,7 @@ h1 {
     border-left: 4px solid #0dcaf0;
 }
 
-.messages li.info::before,
-.messages li[class*="info"]::before {
-    content: "i";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: #0dcaf0;
-    color: white;
-    border-radius: 50%;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-/* Default message style */
-.messages li:not([class]) {
-    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-    color: #004085;
-    border-left: 4px solid #0dcaf0;
-}
-
+/* Form Layout */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -229,6 +160,7 @@ label {
     font-size: 14px;
 }
 
+/* Inputs and selects */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
@@ -244,10 +176,7 @@ select {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="tel"]:focus,
-input[type="password"]:focus,
+input:focus,
 select:focus {
     outline: none;
     border-color: #8B1538;
@@ -263,6 +192,16 @@ select {
     padding-right: 40px;
 }
 
+/* Smooth transition for the "Other" input */
+#otherTypeGroup {
+    transition: all 0.3s ease;
+}
+
+#otherTypeGroup input {
+    margin-top: 5px;
+}
+
+/* Checkbox & Terms */
 .terms-agreement {
     margin-bottom: 25px;
 }
@@ -296,6 +235,7 @@ select {
     text-decoration: underline;
 }
 
+/* Button */
 .register-btn {
     width: 100%;
     padding: 15px;
@@ -312,6 +252,14 @@ select {
     animation: buttonGradient 6s ease infinite;
 }
 
+@keyframes buttonGradient {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 50%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 .register-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(139, 21, 56, 0.4);
@@ -321,14 +269,7 @@ select {
     transform: translateY(0);
 }
 
-@keyframes buttonGradient {
-    0% { background-position: 0% 50%; }
-    25% { background-position: 50% 50%; }
-    50% { background-position: 100% 50%; }
-    75% { background-position: 50% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
+/* Divider and Links */
 .divider {
     text-align: center;
     margin: 25px 0;
@@ -372,6 +313,7 @@ select {
     text-decoration: underline;
 }
 
+/* Footer */
 .footer-text {
     text-align: center;
     margin-top: 25px;
@@ -379,6 +321,7 @@ select {
     font-size: 12px;
 }
 
+/* Responsive */
 @media (max-width: 480px) {
     .register-container {
         padding: 30px 25px;
