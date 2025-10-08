@@ -301,8 +301,20 @@ body {
 
 .stat-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 8px 30px rgba(139, 21, 56, 0.15);
-    border-color: #8B1538;
+    box-shadow: 0 8px 30px rgba(141, 143, 7, 0.301);
+    border-color: #D4AF37;
+}
+
+.active-pass-stat:hover {
+    transform: translateY(-8px); 
+    box-shadow: 0 8px 30px rgba(76, 175, 80, 0.25); 
+    border-color: #4CAF50; 
+}
+
+.total-visits-stat:hover {
+    transform: translateY(-8px); 
+    box-shadow: 0 8px 30px rgba(7, 7, 7, 0.377); 
+    border-color: #181818; 
 }
 
 .stat-value {
@@ -313,6 +325,20 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 10px;
+}
+
+.active-pass-stat .stat-value {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32); 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.total-visits-stat .stat-value {
+    background: linear-gradient(135deg, #0c0c0c, #535353); 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .stat-label {
@@ -409,8 +435,9 @@ body {
 }
 
 .status-active {
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
     color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
 }
 
 .status-upcoming {
