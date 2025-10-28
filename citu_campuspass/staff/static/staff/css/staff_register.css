@@ -1,0 +1,322 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: url("/static/staff/images/campuspass_bg.png") no-repeat center center fixed;
+    background-size: cover;
+}
+
+@keyframes animatedGradient {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 50%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes subtleGlow {
+    0% { filter: brightness(1); transform: scale(1); }
+    50% { filter: brightness(1.05); transform: scale(1.01); }
+    100% { filter: brightness(1); transform: scale(1); }
+}
+
+.register-container {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 15px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    backdrop-filter: blur(10px);
+    margin: 20px 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.register-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 70px rgba(139, 21, 56, 0.35);
+}
+
+.logo-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-circle {
+    width: 80px;
+    height: 80px;
+    background: url("https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png") no-repeat center;
+    background-size: contain;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+}
+
+h1 {
+    color: #8B1538;
+    font-size: 28px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: #444;
+    font-size: 14px;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.welcome-text {
+    color: #555;
+    font-size: 13px;
+}
+
+/* Messages */
+.messages {
+    list-style: none;
+    margin-bottom: 20px;
+    padding: 0;
+}
+
+.messages li {
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    animation: slideIn 0.4s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Message types */
+.messages li.success,
+.messages li[class*="success"] {
+    background: linear-gradient(135deg, #D4F4DD, #A8E6CF);
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.messages li.error,
+.messages li[class*="error"] {
+    background: linear-gradient(135deg, #FFE5E5, #FFD6D6);
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.messages li.warning,
+.messages li[class*="warning"] {
+    background: linear-gradient(135deg, #FFF4E5, #FFE8CC);
+    color: #856404;
+    border-left: 4px solid #ffc107;
+}
+
+.messages li.info,
+.messages li[class*="info"] {
+    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+    color: #004085;
+    border-left: 4px solid #0dcaf0;
+}
+
+/* Form Layout */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* Password container */
+.password-container {
+   position: relative;
+    display: flex;
+    align-items: center; /* keeps icon vertically centered */
+}
+
+.password-container input[type="password"] {
+    width: 100%;
+    height: 47px;
+    padding: 14px 45px 14px 16px;
+    border: 2px solid #8B1538;
+    border-radius: 10px;
+    font-size: 15px;
+    background: white;
+    color: #333;
+    box-sizing: border-box;
+}
+
+/* Inputs and selects */
+input[type="text"],
+input[type="email"],
+input[type="tel"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #8B1538;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+input::placeholder {
+    color: #6c757d;
+    opacity: 1;
+}
+
+input:focus,
+.password-container input:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
+}
+
+/* Toggle password icon */
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #8B1538;
+    font-size: 18px;
+    line-height: 1;
+    z-index: 2;
+}
+
+.toggle-password:hover {
+    color: #d4af37;
+}
+
+/* Button */
+.register-btn {
+    width: 100%;
+    padding: 15px;
+    background: #8B1538;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
+}
+
+.register-btn:hover {
+    background: #D4AF37;
+    color: #8B1538;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 21, 56, 0.4);
+}
+
+.register-btn:active {
+    transform: translateY(0);
+}
+
+/* Divider and Links */
+.divider {
+    text-align: center;
+    margin: 25px 0;
+    position: relative;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: #D4AF37;
+}
+
+.divider span {
+    background: white;
+    padding: 0 15px;
+    color: #666;
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+.login-link {
+    text-align: center;
+    color: #444;
+    font-size: 14px;
+}
+
+.login-link a {
+    color: #8B1538;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+    color: #D4AF37;
+    text-decoration: underline;
+}
+
+/* Footer */
+.footer-text {
+    text-align: center;
+    margin-top: 25px;
+    color: #777;
+    font-size: 12px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .register-container {
+        padding: 30px 25px;
+        max-width: 90%;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 16px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
