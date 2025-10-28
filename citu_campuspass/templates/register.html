@@ -23,6 +23,12 @@
                 {% endfor %}
             </ul>
         {% endif %}
+                {% if error %}
+            <ul class="messages">
+                <li class="error">⚠️ {{ error }}</li>
+            </ul>
+        {% endif %}
+
 
         <form method="POST" action="{% url 'register' %}">
             {% csrf_token %}

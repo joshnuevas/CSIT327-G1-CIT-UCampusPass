@@ -6,12 +6,34 @@ from django.contrib import messages
 import random
 import string
 from datetime import datetime, date
+import re  # Added for password validation
 
 # ---------------- Supabase Setup ----------------
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
+# ---------------- Password Strength Checker ----------------
+def is_strong_password(password):
+    """
+    Check if a password meets the strength requirements:
+    - At least 8 characters
+    - Contains uppercase, lowercase, number, and special character
+    """
+    if len(password) < 8:
+        return False
+    if not re.search(r"[A-Z]", password):
+        return False
+    if not re.search(r"[a-z]", password):
+        return False
+    if not re.search(r"[0-9]", password):
+        return False
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        return False
+    return True
+
 
 # ---------------- Register ----------------
 def register_view(request):
@@ -24,13 +46,33 @@ def register_view(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirmPassword')
 
+        # Passwords must match
         if password != confirm_password:
             return render(request, 'register.html', {"error": "Passwords do not match."})
 
-        existing = supabase.table("users").select("*").eq("email", email).execute()
-        if existing.data:
+        # Check password strength
+        if not is_strong_password(password):
+            return render(request, 'register.html', {
+                "error": "Password too weak. Must be at least 8 characters and include uppercase, lowercase, number, and special symbol."
+            })
+
+        # ✅ Validate Philippine phone number format
+        if not re.fullmatch(r"09\d{9}$", phone):
+            return render(request, 'register.html', {
+                "error": "Invalid phone number. It must start with '09' and be 11 digits long (e.g. 09123456789)."
+            })
+
+        # ✅ Check if email already exists
+        existing_email = supabase.table("users").select("*").eq("email", email).execute()
+        if existing_email.data:
             return render(request, 'register.html', {"error": "Email already registered."})
 
+        # ✅ Check if phone number already exists
+        existing_phone = supabase.table("users").select("*").eq("phone", phone).execute()
+        if existing_phone.data:
+            return render(request, 'register.html', {"error": "Phone number already registered."})
+
+        # ✅ Insert user into database
         supabase.table("users").insert({
             "first_name": first_name,
             "last_name": last_name,
@@ -44,7 +86,6 @@ def register_view(request):
         return redirect('login')
 
     return render(request, 'register.html')
-
 
 # ---------------- Login ----------------
 def login_view(request):
