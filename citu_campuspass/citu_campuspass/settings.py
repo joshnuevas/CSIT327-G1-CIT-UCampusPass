@@ -24,13 +24,13 @@ load_dotenv(BASE_DIR / ".env")
 # fallback to sqlite if DATABASE_URL not provided (safe for local dev)
 default_sqlite = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL", default_sqlite),
-        conn_max_age=600,     # persistent connections (good for poolers)
-        ssl_require=True      # enforce SSL (Supabase requires)
-    )
-}
+# DATABASES = {
+#     "default": dj_database_url.config(
+#         default=os.getenv("DATABASE_URL", default_sqlite),
+#         conn_max_age=600,     # persistent connections (good for poolers)
+#         ssl_require=True      # enforce SSL (Supabase requires)
+#     )
+# }
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -70,7 +70,7 @@ ROOT_URLCONF = 'citu_campuspass.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -89,11 +89,13 @@ WSGI_APPLICATION = 'citu_campuspass.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Use Supabase if DATABASE_URL is set, otherwise fallback to SQLite
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL", default_sqlite),
+        conn_max_age=600,     # persistent connections (good for poolers)
+        ssl_require=True      # enforce SSL (Supabase requires)
+    )
 }
 
 
@@ -133,7 +135,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    # os.path.join(BASE_DIR, "static"),  # Removed since we moved static files to app directory
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 

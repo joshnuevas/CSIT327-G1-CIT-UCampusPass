@@ -48,29 +48,29 @@ def register_view(request):
 
         # Passwords must match
         if password != confirm_password:
-            return render(request, 'register.html', {"error": "Passwords do not match."})
-
-        # Check password strength
-        if not is_strong_password(password):
-            return render(request, 'register.html', {
-                "error": "Password too weak. Must be at least 8 characters and include uppercase, lowercase, number, and special symbol."
-            })
-
-        # ✅ Validate Philippine phone number format
-        if not re.fullmatch(r"09\d{9}$", phone):
-            return render(request, 'register.html', {
-                "error": "Invalid phone number. It must start with '09' and be 11 digits long (e.g. 09123456789)."
-            })
-
-        # ✅ Check if email already exists
-        existing_email = supabase.table("users").select("*").eq("email", email).execute()
-        if existing_email.data:
-            return render(request, 'register.html', {"error": "Email already registered."})
-
-        # ✅ Check if phone number already exists
-        existing_phone = supabase.table("users").select("*").eq("phone", phone).execute()
-        if existing_phone.data:
-            return render(request, 'register.html', {"error": "Phone number already registered."})
+            return render(request, 'campuspass/register.html', {"error": "Passwords do not match."})
+    
+            # Check password strength
+            if not is_strong_password(password):
+                return render(request, 'campuspass/register.html', {
+                    "error": "Password too weak. Must be at least 8 characters and include uppercase, lowercase, number, and special symbol."
+                })
+    
+            # ✅ Validate Philippine phone number format
+            if not re.fullmatch(r"09\d{9}$", phone):
+                return render(request, 'campuspass/register.html', {
+                    "error": "Invalid phone number. It must start with '09' and be 11 digits long (e.g. 09123456789)."
+                })
+    
+            # ✅ Check if email already exists
+            existing_email = supabase.table("users").select("*").eq("email", email).execute()
+            if existing_email.data:
+                return render(request, 'campuspass/register.html', {"error": "Email already registered."})
+    
+            # ✅ Check if phone number already exists
+            existing_phone = supabase.table("users").select("*").eq("phone", phone).execute()
+            if existing_phone.data:
+                return render(request, 'campuspass/register.html', {"error": "Phone number already registered."})
 
         # ✅ Insert user into database
         supabase.table("users").insert({
@@ -85,7 +85,7 @@ def register_view(request):
         messages.success(request, "Registration successful! Please login.")
         return redirect('login')
 
-    return render(request, 'register.html')
+    return render(request, 'campuspass/register.html')
 
 # ---------------- Login ----------------
 def login_view(request):
@@ -106,7 +106,7 @@ def login_view(request):
             messages.error(request, "Invalid email or password.")
             return redirect('login')
 
-    return render(request, 'login.html')
+    return render(request, 'campuspass/login.html')
 
 
 # ---------------- Dashboard ----------------
@@ -162,7 +162,7 @@ def dashboard_view(request):
         "today": today,
     }
 
-    return render(request, 'dashboard.html', context)
+    return render(request, 'campuspass/dashboard.html', context)
 
 
 # ---------------- Generate Unique Visit Code ----------------
@@ -206,7 +206,7 @@ def book_visit_view(request):
         messages.success(request, f"Visit booked! Your code: {code}")
         return redirect('dashboard')
 
-    return render(request, 'book_visit.html')
+    return render(request, 'campuspass/book_visit.html')
 
 
 # ---------------- Logout ----------------
