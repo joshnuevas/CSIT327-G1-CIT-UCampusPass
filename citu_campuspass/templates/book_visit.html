@@ -194,6 +194,15 @@
                 }
             }
         });
+
+        // Unfocus select elements after selection
+        document.getElementById('purpose').addEventListener('change', function() {
+            this.blur();
+        });
+
+        document.getElementById('department').addEventListener('change', function() {
+            this.blur();
+        });
     </script>
 </body>
 </html>
