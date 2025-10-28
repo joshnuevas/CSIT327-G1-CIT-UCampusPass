@@ -271,8 +271,7 @@ label {
 
 input[type="text"],
 input[type="date"],
-input[type="time"],
-select {
+input[type="time"] {
     width: 100%;
     padding: 14px 18px;
     border: 2px solid #E0E0E0;
@@ -284,12 +283,38 @@ select {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+select {
+    width: 100%;
+    padding: 14px 45px 14px 18px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    font-size: 15px;
+    background: #FAFAFA;
+    color: #333333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 12,15 18,9"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+}
+
+
 input:focus,
 select:focus {
     outline: none;
     border-color: #8B1538;
     box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
     background: #FFFFFF;
+}
+
+select:focus {
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,15 12,9 18,15"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
 }
 
 /* Submit Button */
