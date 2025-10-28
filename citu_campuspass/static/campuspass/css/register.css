@@ -160,11 +160,29 @@ label {
     font-size: 14px;
 }
 
+/* Password container */
+.password-container {
+   position: relative;
+    display: flex;
+    align-items: center; /* keeps icon vertically centered */
+}
+
+.password-container input[type="password"] {
+    width: 100%;
+    height: 47px;
+    padding: 14px 45px 14px 16px;
+    border: 2px solid #8B1538;
+    border-radius: 10px;
+    font-size: 15px;
+    background: white;
+    color: #333;
+    box-sizing: border-box;
+}
+
 /* Inputs and selects */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
-input[type="password"],
 select {
     width: 100%;
     padding: 14px 16px;
@@ -191,10 +209,29 @@ input::placeholder {
 }
 
 input:focus,
-select:focus {
+select:focus,
+.password-container input:focus {
     outline: none;
-    border-color: #d4af37; 
+    border-color: #d4af37;
     box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
+}
+
+/* Toggle password icon */
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #8B1538;
+    font-size: 18px;
+    line-height: 1;
+    z-index: 2;
+}
+
+
+.toggle-password:hover {
+    color: #d4af37;
 }
 
 select {
