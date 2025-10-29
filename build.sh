@@ -1,8 +1,10 @@
-#!/usr/bin/env bash
-set -o errexit
+#!/bin/bash
+set -o errexit  # Stop script on first error
 
+# Install dependencies
 pip install -r requirements.txt
 
-python manage.py collectstatic --noinput
-python manage.py makemigrations
-python manage.py migrate   
+# Run Django migrations (inside the citu_campuspass folder)
+python citu_campuspass/manage.py migrate --noinput
+
+python citu_campuspass/manage.py collectstatic --noinput
