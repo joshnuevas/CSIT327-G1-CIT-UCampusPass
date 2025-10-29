@@ -18,8 +18,14 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# load .env (this reads DATABASE_URL)
-load_dotenv(BASE_DIR / ".env")
+# Only load .env if it exists (for local development)
+env_path = BASE_DIR / ".env"
+if env_path.exists():
+    load_dotenv(env_path)
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # fallback to sqlite if DATABASE_URL not provided (safe for local dev)
 default_sqlite = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
