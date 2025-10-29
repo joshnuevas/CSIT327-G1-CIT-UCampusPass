@@ -3,12 +3,13 @@
 import os
 import sys
 
-# Add the inner citu_campuspass folder to Python path
+# Add the first-level citu_campuspass folder to Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), "citu_campuspass"))
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'citu_campuspass.settings')
+    # Correct settings module path
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'citu_campuspass.citu_campuspass.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
