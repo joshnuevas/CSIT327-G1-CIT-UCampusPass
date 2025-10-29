@@ -38,12 +38,9 @@ default_sqlite = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-b8r!x^&twa6+#0sb^ek*w2rpe2d@-(u5%kbjwy9gd!$yz94_fj'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = ['*']  # Temporary for testing; replace with your Render URL later
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
-DEBUG = False          # Turn off debug for production
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # Application definition
 
