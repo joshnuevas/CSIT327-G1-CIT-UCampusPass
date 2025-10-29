@@ -4,7 +4,7 @@ import os
 import sys
 
 # Add the first-level citu_campuspass folder to Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), "citu_campuspass"))
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'citu_campuspass.citu_campuspass.settings')
 
 def main():
     """Run administrative tasks."""
