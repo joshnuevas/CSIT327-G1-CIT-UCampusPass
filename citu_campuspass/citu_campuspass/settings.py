@@ -39,7 +39,7 @@ default_sqlite = f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
 SECRET_KEY = 'django-insecure-b8r!x^&twa6+#0sb^ek*w2rpe2d@-(u5%kbjwy9gd!$yz94_fj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
 ALLOWED_HOSTS = ['*']  # Temporary for testing; replace with your Render URL later
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
