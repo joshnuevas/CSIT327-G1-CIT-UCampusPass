@@ -1,0 +1,1 @@
+web: gunicorn citu_campuspass.citu_campuspass.wsgi:application
