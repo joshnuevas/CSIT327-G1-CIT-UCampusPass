@@ -3,7 +3,8 @@
 import os
 import sys
 
-
+# Add the inner citu_campuspass folder to Python path
+sys.path.append(os.path.join(os.path.dirname(__file__), "citu_campuspass"))
 
 def main():
     """Run administrative tasks."""
