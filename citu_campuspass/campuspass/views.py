@@ -7,6 +7,7 @@ import random
 import string
 from datetime import datetime, date
 import re  # Added for password validation
+from django.contrib.auth.hashers import check_password
 
 # ---------------- Supabase Setup ----------------
 load_dotenv()
@@ -36,77 +37,91 @@ def is_strong_password(password):
 
 
 # ---------------- Register ----------------
+from django.contrib.auth.hashers import make_password
+
 def register_view(request):
     if request.method == 'POST':
-        first_name = request.POST.get('firstName')
-        last_name = request.POST.get('lastName')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        visitor_type = request.POST.get('visitorType') or request.POST.get('visitor_type_other')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirmPassword')
+        first_name = request.POST.get('firstName', '').strip()
+        last_name = request.POST.get('lastName', '').strip()
+        email = request.POST.get('email', '').strip().lower()  # normalize email
+        phone = request.POST.get('phone', '').strip()
+        visitor_type = request.POST.get('visitorType') or request.POST.get('visitor_type_other', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirmPassword', '')
 
-        # Passwords must match
+        # 1️⃣ Passwords must match
         if password != confirm_password:
             return render(request, 'campuspass/register.html', {"error": "Passwords do not match."})
-    
-            # Check password strength
-            if not is_strong_password(password):
-                return render(request, 'campuspass/register.html', {
-                    "error": "Password too weak. Must be at least 8 characters and include uppercase, lowercase, number, and special symbol."
-                })
-    
-            # ✅ Validate Philippine phone number format
-            if not re.fullmatch(r"09\d{9}$", phone):
-                return render(request, 'campuspass/register.html', {
-                    "error": "Invalid phone number. It must start with '09' and be 11 digits long (e.g. 09123456789)."
-                })
-    
-            # ✅ Check if email already exists
-            existing_email = supabase.table("users").select("*").eq("email", email).execute()
-            if existing_email.data:
-                return render(request, 'campuspass/register.html', {"error": "Email already registered."})
-    
-            # ✅ Check if phone number already exists
-            existing_phone = supabase.table("users").select("*").eq("phone", phone).execute()
-            if existing_phone.data:
-                return render(request, 'campuspass/register.html', {"error": "Phone number already registered."})
 
-        # ✅ Insert user into database
+        # 2️⃣ Check password strength
+        if not is_strong_password(password):
+            return render(request, 'campuspass/register.html', {
+                "error": "Password too weak. Must be at least 8 characters and include uppercase, lowercase, number, and special symbol."
+            })
+
+        # 3️⃣ Validate Philippine phone number format
+        if not re.fullmatch(r"09\d{9}$", phone):
+            return render(request, 'campuspass/register.html', {
+                "error": "Invalid phone number. It must start with '09' and be 11 digits long (e.g. 09123456789)."
+            })
+
+        # 4️⃣ Check if email already exists (case-insensitive)
+        existing_email = supabase.table("users").select("*").ilike("email", email).execute()
+        if existing_email.data and len(existing_email.data) > 0:
+            return render(request, 'campuspass/register.html', {"error": "Email already registered."})
+
+        # 5️⃣ Check if phone number already exists
+        existing_phone = supabase.table("users").select("*").eq("phone", phone).execute()
+        if existing_phone.data and len(existing_phone.data) > 0:
+            return render(request, 'campuspass/register.html', {"error": "Phone number already registered."})
+
+        # 6️⃣ Hash the password before storing
+        hashed_password = make_password(password)
+
+        # 7️⃣ Insert user into database
         supabase.table("users").insert({
             "first_name": first_name,
             "last_name": last_name,
             "email": email,
             "phone": phone,
             "visitor_type": visitor_type,
-            "password": password
+            "password": hashed_password
         }).execute()
 
+        # 8️⃣ Success message and redirect
         messages.success(request, "Registration successful! Please login.")
         return redirect('login')
 
+    # GET request: render registration form
     return render(request, 'campuspass/register.html')
 
 # ---------------- Login ----------------
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+        email = request.POST.get('email').strip().lower()
+        password = request.POST.get('password', '')
 
-        user_resp = supabase.table("users").select("*").eq("email", email).eq("password", password).execute()
-        if user_resp.data:
-            request.session['user_email'] = email
-            request.session['user_first_name'] = user_resp.data[0].get('first_name')
+        # Fetch the user by email
+        user_resp = supabase.table("users").select("*").eq("email", email).execute()
+        if user_resp.data and len(user_resp.data) > 0:
+            user = user_resp.data[0]
 
-            # Add tag so modal shows
-            messages.add_message(request, messages.SUCCESS, "Login successful!", extra_tags='login-success')
+            # Check the password
+            if check_password(password, user['password']):
+                request.session['user_email'] = email
+                request.session['user_first_name'] = user.get('first_name')
 
-            return redirect('dashboard')
+                messages.add_message(request, messages.SUCCESS, "Login successful!", extra_tags='login-success')
+                return redirect('dashboard')
+            else:
+                messages.error(request, "Invalid email or password.")
         else:
             messages.error(request, "Invalid email or password.")
-            return redirect('login')
+
+        return redirect('login')
 
     return render(request, 'campuspass/login.html')
+
 
 
 # ---------------- Dashboard ----------------
