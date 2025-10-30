@@ -22,32 +22,41 @@ def is_strong_password(password):
 
 def register_view(request):
     if request.method == 'POST':
-        first_name = request.POST.get('firstName', '').strip()
-        last_name = request.POST.get('lastName', '').strip()
-        email = request.POST.get('email', '').strip().lower()
-        phone = request.POST.get('phone', '').strip()
-        visitor_type = request.POST.get('visitorType') or request.POST.get('visitor_type_other', '').strip()
+        data = {
+            "first_name": request.POST.get('firstName', '').strip(),
+            "last_name": request.POST.get('lastName', '').strip(),
+            "email": request.POST.get('email', '').strip().lower(),
+            "phone": request.POST.get('phone', '').strip(),
+            "visitor_type": request.POST.get('visitorType') or request.POST.get('visitor_type_other', '').strip(),
+        }
         password = request.POST.get('password', '')
         confirm_password = request.POST.get('confirmPassword', '')
 
         if password != confirm_password:
-            return render(request, 'user_register/register.html', {"error": "Passwords do not match."})
-        if not is_strong_password(password):
-            return render(request, 'user_register/register.html', {"error": "Password too weak."})
-        if not re.fullmatch(r"09\d{9}$", phone):
-            return render(request, 'user_register/register.html', {"error": "Invalid phone number."})
+            data["error"] = "Passwords do not match."
+            return render(request, 'register_app/register.html', data)
 
-        if supabase.table("users").select("*").ilike("email", email).execute().data:
-            return render(request, 'user_register/register.html', {"error": "Email already registered."})
-        if supabase.table("users").select("*").eq("phone", phone).execute().data:
-            return render(request, 'user_register/register.html', {"error": "Phone number already registered."})
+        if not is_strong_password(password):
+            data["error"] = "Password too weak."
+            return render(request, 'register_app/register.html', data)
+
+        if not re.fullmatch(r"09\d{9}", data["phone"]):
+            data["error"] = "Invalid phone number."
+            data["phone"] = ''
+            return render(request, 'register_app/register.html', data)
+
+        if supabase.table("users").select("*").ilike("email", data["email"]).execute().data:
+            data["error"] = "Email already registered."
+            data["email"] = ''
+            return render(request, 'register_app/register.html', data)
+
+        if supabase.table("users").select("*").eq("phone", data["phone"]).execute().data:
+            data["error"] = "Phone number already registered."
+            data["phone"] = ''
+            return render(request, 'register_app/register.html', data)
 
         supabase.table("users").insert({
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email,
-            "phone": phone,
-            "visitor_type": visitor_type,
+            **data,
             "password": make_password(password)
         }).execute()
 

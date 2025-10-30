@@ -24,54 +24,64 @@
                 {% endfor %}
             </ul>
         {% endif %}
-                {% if error %}
+
+        {% if error %}
             <ul class="messages">
                 <li class="error">⚠️ {{ error }}</li>
             </ul>
         {% endif %}
-
 
         <form method="POST" action="{% url 'register' %}">
             {% csrf_token %}
             <div class="form-row">
                 <div class="form-group">
                     <label for="firstName">First Name</label>
-                    <input type="text" id="firstName" name="firstName" placeholder="Enter first name" required>
+                    <input type="text" id="firstName" name="firstName"
+                           placeholder="Enter first name"
+                           value="{{ first_name|default:'' }}" required>
                 </div>
 
                 <div class="form-group">
                     <label for="lastName">Last Name</label>
-                    <input type="text" id="lastName" name="lastName" placeholder="Enter last name" required>
+                    <input type="text" id="lastName" name="lastName"
+                           placeholder="Enter last name"
+                           value="{{ last_name|default:'' }}" required>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <input type="email" id="email" name="email"
+                       placeholder="Enter your email"
+                       value="{{ email|default:'' }}" required>
             </div>
 
             <div class="form-group">
                 <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                <input type="tel" id="phone" name="phone"
+                       placeholder="Enter your phone number"
+                       maxlength="11"
+                       value="{{ phone|default:'' }}" required>
             </div>
 
-            <!-- Visitor Type Section -->
             <div class="form-group">
                 <label for="visitorType">Visitor Type</label>
                 <select id="visitorType" name="visitorType" required onchange="toggleOtherInput()">
-                    <option value="" disabled selected>Select visitor type</option>
-                    <option value="Student">Student</option>
-                    <option value="Parent">Parent</option>
-                    <option value="Staff">Staff</option>
-                    <option value="Alumni">Alumni</option>
-                    <option value="Guest">Guest</option>
-                    <option value="Other">Other</option>
+                    <option value="" disabled {% if not visitor_type %}selected{% endif %}>Select visitor type</option>
+                    <option value="Student" {% if visitor_type == 'Student' %}selected{% endif %}>Student</option>
+                    <option value="Parent" {% if visitor_type == 'Parent' %}selected{% endif %}>Parent</option>
+                    <option value="Staff" {% if visitor_type == 'Staff' %}selected{% endif %}>Staff</option>
+                    <option value="Alumni" {% if visitor_type == 'Alumni' %}selected{% endif %}>Alumni</option>
+                    <option value="Guest" {% if visitor_type == 'Guest' %}selected{% endif %}>Guest</option>
+                    <option value="Other" {% if visitor_type == 'Other' %}selected{% endif %}>Other</option>
                 </select>
             </div>
 
-            <div class="form-group" id="otherTypeGroup" style="display: none;">
+            <div class="form-group" id="otherTypeGroup" style="display: {% if visitor_type == 'Other' %}block{% else %}none{% endif %};">
                 <label for="otherType">Please specify</label>
-                <input type="text" id="otherType" name="otherType" placeholder="Enter other visitor type">
+                <input type="text" id="otherType" name="visitor_type_other"
+                       placeholder="Enter other visitor type"
+                       value="{{ visitor_type|default:'' }}">
             </div>
 
             <div class="form-group">
@@ -126,23 +136,17 @@
             }
         }
 
-        // Password visibility toggle
         document.addEventListener('DOMContentLoaded', function() {
             const toggleButtons = document.querySelectorAll('.toggle-password');
-
             toggleButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    const targetId = this.getAttribute('data-target');
-                    const passwordInput = document.getElementById(targetId);
-
-                    if (passwordInput.type === 'password') {
-                        passwordInput.type = 'text';
-                        this.classList.remove('fa-eye');
-                        this.classList.add('fa-eye-slash');
+                    const target = document.getElementById(this.dataset.target);
+                    if (target.type === 'password') {
+                        target.type = 'text';
+                        this.classList.replace('fa-eye', 'fa-eye-slash');
                     } else {
-                        passwordInput.type = 'password';
-                        this.classList.remove('fa-eye-slash');
-                        this.classList.add('fa-eye');
+                        target.type = 'password';
+                        this.classList.replace('fa-eye-slash', 'fa-eye');
                     }
                 });
             });
