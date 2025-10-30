@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'campuspass',
+    'dashboard_app',
     'staff',
     'register_app',
     'login_app',

@@ -61,4 +61,4 @@ def dashboard_view(request):
         "today": today,
     }
 
-    return render(request, 'campuspass/dashboard.html', context)
+    return render(request, 'dashboard_app/dashboard.html', context)

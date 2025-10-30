@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CampuspassConfig(AppConfig):
+class DashboardAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'campuspass'
+    name = 'dashboard_app'
