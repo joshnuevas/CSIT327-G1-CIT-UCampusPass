@@ -59,6 +59,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'campuspass',
     'staff',
+    'register_app',
+    'login_app',
+    'book_visit_app',
 ]
 
 MIDDLEWARE = [

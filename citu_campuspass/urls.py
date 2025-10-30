@@ -21,4 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('campuspass.urls')),
     path('staff/', include('staff.urls', namespace='staff')),
+    path('register/', include('register_app.urls')),
+    path('login/', include('login_app.urls')),
+    path('book-visit/', include('book_visit_app.urls')),
 ]
