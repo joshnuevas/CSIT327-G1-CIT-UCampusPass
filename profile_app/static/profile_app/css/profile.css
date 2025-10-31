@@ -429,20 +429,20 @@ body {
 .settings-form {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
 }
 
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 35px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
 }
 
 .form-group label {
@@ -479,7 +479,7 @@ body {
 .form-actions {
     display: flex;
     gap: 12px;
-    margin-top: 10px;
+    margin-top: 28px;
 }
 
 /* ===== Buttons ===== */
@@ -732,19 +732,20 @@ select option {
     padding: 10px;
 }
 
-/* Smooth transition for "Other" input field */
-#otherVisitorTypeGroup {
-    transition: all 0.3s ease;
-    overflow: hidden;
-    margin-bottom: 16px;
+#otherVisitorTypeGroup.form-group {
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+#otherVisitorTypeGroup label {
+    white-space: normal !important;
+    min-width: auto !important;
 }
 
 #otherVisitorTypeGroup input {
-    margin-top: 0;
-}
-
-#otherVisitorTypeGroup.form-group {
-    gap: 20px;
+    width: 100% !important;
 }
 
 /* ===== Responsive Design ===== */

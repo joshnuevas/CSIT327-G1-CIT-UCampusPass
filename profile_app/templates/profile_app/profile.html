@@ -190,7 +190,7 @@
                             <div class="form-group">
                                 <label>Visitor Type</label>
                                 <select name="visitorType" id="visitorTypeSelect" required onchange="toggleOtherVisitorType()">
-                                    <option value="" disabled>Select visitor type</option>
+                                        
                                     <option value="Student" {% if user.visitor_type == 'Student' %}selected{% endif %}>Student</option>
                                     <option value="Parent" {% if user.visitor_type == 'Parent' %}selected{% endif %}>Parent</option>
                                     <option value="Staff" {% if user.visitor_type == 'Staff' %}selected{% endif %}>Staff</option>
@@ -202,9 +202,10 @@
                         </div>
 
                         <div class="form-group" id="otherVisitorTypeGroup" style="display: {% if user.visitor_type not in 'Student,Parent,Staff,Alumni,Guest' and user.visitor_type %}block{% else %}none{% endif %};">
-                            <label>Please specify visitor type</label>
+                            <label style="display: block; margin-bottom: 16px;">Please specify visitor type</label>
                             <input type="text" name="visitor_type_other" id="otherVisitorTypeInput" 
-                                   placeholder="Enter visitor type" 
+                                   placeholder="Enter visitor type"
+                                   style="max-width: 400px;"
                                    value="{% if user.visitor_type not in 'Student,Parent,Staff,Alumni,Guest' %}{{ user.visitor_type }}{% endif %}">
                         </div>
 
