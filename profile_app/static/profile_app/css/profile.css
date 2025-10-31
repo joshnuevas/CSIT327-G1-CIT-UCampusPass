@@ -329,6 +329,9 @@ body {
 }
 
 .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 28px;
     padding-bottom: 20px;
     border-bottom: 2px solid #F5F5F5;
@@ -350,11 +353,83 @@ body {
     color: #8B1538;
 }
 
+/* ===== Edit Button ===== */
+.btn-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
+}
+
+.btn-edit:hover {
+    transform: translateY(-3px);
+    background: linear-gradient(135deg, #6B0F2A, #8B1538);
+    box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4);
+}
+
+.btn-edit svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ===== View/Edit Mode Styles ===== */
+.view-mode {
+    display: block;
+}
+
+.settings-form.edit-mode {
+    display: none;
+}
+
+/* Ensure edit button shows when view mode is active */
+.card-header .btn-edit {
+    display: inline-flex;
+}
+
+.profile-view-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.profile-view-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-view-field .value {
+    font-size: 15px;
+    color: #333;
+    padding: 13px 18px;
+    background: #F8F9FA;
+    border-radius: 10px;
+    border: 2px solid #E9ECEF;
+}
+
+.profile-view-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
 /* ===== Forms ===== */
 .settings-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
 }
 
 .form-row {
@@ -366,34 +441,45 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
 .form-group label {
     font-size: 14px;
     font-weight: 600;
     color: #333333;
-}
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}   
 
 .form-group input {
-    padding: 13px 18px;
-    border: 2px solid #E0E0E0;
+    padding: 14px 18px;
+    border: 2px solid #D0D0D0;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     transition: all 0.3s ease;
-    background: #FAFAFA;
+    background: #FFFFFF;
     color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .form-group input:focus {
     outline: none;
     border-color: #8B1538;
-    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
     background: #FFFFFF;
 }
 
 .form-group input::placeholder {
     color: #999;
+}
+
+/* ===== Form Actions ===== */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
 }
 
 /* ===== Buttons ===== */
@@ -412,7 +498,6 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
-    margin-top: 10px;
 }
 
 .btn-primary:hover {
@@ -441,6 +526,29 @@ body {
     border-color: #8B1538;
     color: #8B1538;
     transform: translateY(-2px);
+}
+
+.btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.btn-cancel:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(108, 117, 125, 0.4);
+    background: linear-gradient(135deg, #5a6268, #6c757d);
 }
 
 .btn-danger {
@@ -582,9 +690,70 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== ADD THESE STYLES TO YOUR profile.css FILE ===== */
+
+/* Select/Dropdown Styling */
+select {
+    width: 100%;
+    padding: 14px 40px 14px 18px;
+    border: 2px solid #D0D0D0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: all 0.3s ease;
+    background: #FFFFFF;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238B1538' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+}
+
+select:focus {
+    outline: none;
+    border-color: #8B1538;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: #FFFFFF;
+}
+
+/* Style for placeholder-like state in select */
+select:required:invalid {
+    color: #999;
+}
+
+select:required:valid {
+    color: #333;
+}
+
+select option {
+    color: #333;
+    padding: 10px;
+}
+
+/* Smooth transition for "Other" input field */
+#otherVisitorTypeGroup {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+#otherVisitorTypeGroup input {
+    margin-top: 0;
+}
+
+#otherVisitorTypeGroup.form-group {
+    gap: 20px;
+}
+
 /* ===== Responsive Design ===== */
 @media (max-width: 1024px) {
     .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-view-row {
         grid-template-columns: 1fr;
     }
 }
@@ -612,7 +781,21 @@ body {
         grid-template-columns: 1fr;
     }
 
+    .profile-view-row {
+        grid-template-columns: 1fr;
+    }
+
     .modal-buttons {
         flex-direction: column;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
     }
 }

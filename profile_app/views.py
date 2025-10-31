@@ -29,7 +29,16 @@ def profile_view(request):
             last_name = request.POST.get('last_name').strip()
             email = request.POST.get('email').strip().lower()
             phone = request.POST.get('phone').strip()
-            visitor_type = request.POST.get('visitor_type').strip()
+            
+            # Handle visitor type - either from dropdown or "Other" input
+            visitor_type_dropdown = request.POST.get('visitorType')
+            if visitor_type_dropdown == 'Other':
+                visitor_type = request.POST.get('visitor_type_other', '').strip()
+                if not visitor_type:
+                    messages.error(request, "Please specify your visitor type.")
+                    return redirect('profile')
+            else:
+                visitor_type = visitor_type_dropdown
 
             # Validate phone format
             if not re.fullmatch(r"09\d{9}$", phone):

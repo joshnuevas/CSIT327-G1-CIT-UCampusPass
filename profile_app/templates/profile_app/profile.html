@@ -123,44 +123,105 @@
                             </svg>
                             <h3>Personal Information</h3>
                         </div>
+                        <button type="button" class="btn-edit" id="editBtn">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                            </svg>
+                            Edit Profile
+                        </button>
                     </div>
-                    <form method="POST" class="settings-form">
+
+                    <!-- View Mode -->
+                    <div id="viewMode" class="view-mode">
+                        <div class="profile-view-row">
+                            <div class="profile-view-field">
+                                <label>First Name</label>
+                                <div class="value">{{ user.first_name }}</div>
+                            </div>
+                            <div class="profile-view-field">
+                                <label>Last Name</label>
+                                <div class="value">{{ user.last_name }}</div>
+                            </div>
+                        </div>
+
+                        <div class="profile-view-field">
+                            <label>Email Address</label>
+                            <div class="value">{{ user.email }}</div>
+                        </div>
+
+                        <div class="profile-view-row">
+                            <div class="profile-view-field">
+                                <label>Phone Number</label>
+                                <div class="value">{{ user.phone }}</div>
+                            </div>
+                            <div class="profile-view-field">
+                                <label>Visitor Type</label>
+                                <div class="value">{{ user.visitor_type }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <form method="POST" id="editMode" class="settings-form edit-mode" style="display: none;">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="update_info">
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label>First Name</label>
-                                <input type="text" name="first_name" value="{{ user.first_name }}" required>
+                                <input type="text" name="first_name" id="firstNameInput" value="{{ user.first_name }}" required>
                             </div>
                             <div class="form-group">
                                 <label>Last Name</label>
-                                <input type="text" name="last_name" value="{{ user.last_name }}" required>
+                                <input type="text" name="last_name" id="lastNameInput" value="{{ user.last_name }}" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Email Address</label>
-                            <input type="email" name="email" value="{{ user.email }}" required>
+                            <input type="email" name="email" id="emailInput" value="{{ user.email }}" required>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Phone Number</label>
-                                <input type="text" name="phone" value="{{ user.phone }}" required>
+                                <input type="text" name="phone" id="phoneInput" value="{{ user.phone }}" required>
                             </div>
                             <div class="form-group">
                                 <label>Visitor Type</label>
-                                <input type="text" name="visitor_type" value="{{ user.visitor_type }}" required>
+                                <select name="visitorType" id="visitorTypeSelect" required onchange="toggleOtherVisitorType()">
+                                    <option value="" disabled>Select visitor type</option>
+                                    <option value="Student" {% if user.visitor_type == 'Student' %}selected{% endif %}>Student</option>
+                                    <option value="Parent" {% if user.visitor_type == 'Parent' %}selected{% endif %}>Parent</option>
+                                    <option value="Staff" {% if user.visitor_type == 'Staff' %}selected{% endif %}>Staff</option>
+                                    <option value="Alumni" {% if user.visitor_type == 'Alumni' %}selected{% endif %}>Alumni</option>
+                                    <option value="Guest" {% if user.visitor_type == 'Guest' %}selected{% endif %}>Guest</option>
+                                    <option value="Other" {% if user.visitor_type not in 'Student,Parent,Staff,Alumni,Guest' and user.visitor_type %}selected{% endif %}>Other</option>
+                                </select>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-primary">
-                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                            </svg>
-                            Update Information
-                        </button>
+                        <div class="form-group" id="otherVisitorTypeGroup" style="display: {% if user.visitor_type not in 'Student,Parent,Staff,Alumni,Guest' and user.visitor_type %}block{% else %}none{% endif %};">
+                            <label>Please specify visitor type</label>
+                            <input type="text" name="visitor_type_other" id="otherVisitorTypeInput" 
+                                   placeholder="Enter visitor type" 
+                                   value="{% if user.visitor_type not in 'Student,Parent,Staff,Alumni,Guest' %}{{ user.visitor_type }}{% endif %}">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Save Changes
+                            </button>
+                            <button type="button" class="btn-cancel" id="cancelBtn">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                                Cancel  
+                            </button>
+                        </div>
                     </form>
                 </div>
 
@@ -263,6 +324,41 @@
     </div>
 
     <script>
+        // Edit Profile Functionality
+        const editBtn = document.getElementById('editBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const viewMode = document.getElementById('viewMode');
+        const editMode = document.getElementById('editMode');
+
+        editBtn.onclick = function() {
+            viewMode.style.display = 'none';
+            editMode.style.display = 'block';
+            editBtn.style.display = 'none';
+        }
+
+        cancelBtn.onclick = function() {
+            viewMode.style.display = 'block';
+            editMode.style.display = 'none';
+            editBtn.style.display = 'inline-flex';
+            // Reset form values to original
+            editMode.reset();
+            // Hide the "Other" input if it's showing
+            document.getElementById('otherVisitorTypeGroup').style.display = 'none';
+        }
+
+        // Toggle "Other" visitor type input
+        function toggleOtherVisitorType() {
+            const visitorType = document.getElementById("visitorTypeSelect").value;
+            const otherGroup = document.getElementById("otherVisitorTypeGroup");
+            if (visitorType === "Other") {
+                otherGroup.style.display = "block";
+                document.getElementById("otherVisitorTypeInput").required = true;
+            } else {
+                otherGroup.style.display = "none";
+                document.getElementById("otherVisitorTypeInput").required = false;
+            }
+        }
+
         // Delete Account Modal
         const deleteAccountBtn = document.getElementById('deleteAccountBtn');
         const deleteModal = document.getElementById('deleteModal');
