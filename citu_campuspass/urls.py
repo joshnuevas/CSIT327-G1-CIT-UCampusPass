@@ -24,5 +24,6 @@ urlpatterns = [
     path('register/', include('register_app.urls')),
     path('login/', include('login_app.urls')),
     path('book-visit/', include('book_visit_app.urls')),
-    path('history/', include('history_app.urls')),  # history app
+    path('history/', include('history_app.urls')),
+    path('profile/', include('profile_app.urls')),
 ]
