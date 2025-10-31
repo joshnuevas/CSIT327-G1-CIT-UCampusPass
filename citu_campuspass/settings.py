@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'register_app',
     'login_app',
     'book_visit_app',
+    'history_app',
 ]
 
 MIDDLEWARE = [
