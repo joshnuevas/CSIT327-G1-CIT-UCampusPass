@@ -158,6 +158,22 @@
         </div>
     </div>
 
+    <!-- Warning Modal for Invalid Selections -->
+    <div id="warningModal" class="modal warning-modal">
+        <div class="modal-content warning-content">
+            <div class="warning-icon">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+            <h2 id="warningTitle">Oops!</h2>
+            <p id="warningMessage">Something went wrong.</p>
+            <button id="warningOkBtn" class="btn-warning">Got it!</button>
+        </div>
+    </div>
+
     <script>
         function toggleOther(field) {
             const select = document.getElementById(field);
@@ -173,26 +189,77 @@
             }
         }
 
+        // ===== WARNING MODAL FUNCTIONALITY =====
+        function showWarning(title, message) {
+            const warningModal = document.getElementById('warningModal');
+            const warningTitle = document.getElementById('warningTitle');
+            const warningMessage = document.getElementById('warningMessage');
+            
+            warningTitle.textContent = title;
+            warningMessage.textContent = message;
+            warningModal.style.display = 'block';
+        }
+
+        document.getElementById('warningOkBtn').onclick = function() {
+            document.getElementById('warningModal').style.display = 'none';
+        }
+
         // Set minimum date to today
         const dateInput = document.getElementById('visit_date');
         const today = new Date().toISOString().split('T')[0];
         dateInput.setAttribute('min', today);
 
-        // Form submission with loading state
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
+        // ===== DATE VALIDATION - Monday-Friday Only =====
+        const visitDateInput = document.getElementById('visit_date');
+
+        visitDateInput.addEventListener('input', function() {
+            const selectedDate = new Date(this.value + 'T00:00:00');
+            const day = selectedDate.getDay();
+            
+            if (day === 0 || day === 6) {
+                showWarning(
+                    '📅 Weekend Not Available',
+                    'Visits cannot be scheduled on Saturdays or Sundays. Please select a weekday (Monday-Friday).'
+                );
+                this.value = '';
+            }
         });
 
-        // Validate end time is after start time
+        // ===== TIME VALIDATION =====
         const startTime = document.getElementById('start_time');
         const endTime = document.getElementById('end_time');
 
+        startTime.setAttribute('min', '07:30');
+        startTime.setAttribute('max', '21:00');
+        endTime.setAttribute('min', '07:30');
+        endTime.setAttribute('max', '21:00');
+
+        startTime.addEventListener('change', function() {
+            if (this.value < '07:30' || this.value > '21:00') {
+                showWarning(
+                    '🕐 Invalid Time',
+                    'Start time must be between 7:30 AM and 9:00 PM.'
+                );
+                this.value = '';
+            }
+        });
+
         endTime.addEventListener('change', function() {
+            if (this.value < '07:30' || this.value > '21:00') {
+                showWarning(
+                    '🕐 Invalid Time',
+                    'End time must be between 7:30 AM and 9:00 PM.'
+                );
+                this.value = '';
+                return;
+            }
+            
             if (startTime.value && endTime.value) {
                 if (endTime.value <= startTime.value) {
-                    alert('End time must be after start time');
+                    showWarning(
+                        '⏰ Time Conflict',
+                        'End time must be after start time. Please adjust your schedule.'
+                    );
                     endTime.value = '';
                 }
             }
@@ -207,7 +274,57 @@
             this.blur();
         });
 
-        // Logout Modal Functionality
+        // ===== FORM SUBMISSION VALIDATION =====
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Validate date is weekday
+            const selectedDate = new Date(visitDateInput.value + 'T00:00:00');
+            const dayOfWeek = selectedDate.getDay();
+            
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                e.preventDefault();
+                showWarning(
+                    '📅 Weekend Not Available',
+                    'Visits cannot be scheduled on Saturdays or Sundays. Please select a weekday.'
+                );
+                return false;
+            }
+            
+            // Validate time range
+            if (startTime.value < '07:30' || startTime.value > '21:00') {
+                e.preventDefault();
+                showWarning(
+                    '🕐 Invalid Time',
+                    'Start time must be between 7:30 AM and 9:00 PM.'
+                );
+                return false;
+            }
+            
+            if (endTime.value < '07:30' || endTime.value > '21:00') {
+                e.preventDefault();
+                showWarning(
+                    '🕐 Invalid Time',
+                    'End time must be between 7:30 AM and 9:00 PM.'
+                );
+                return false;
+            }
+            
+            if (endTime.value <= startTime.value) {
+                e.preventDefault();
+                showWarning(
+                    '⏰ Time Conflict',
+                    'End time must be after start time.'
+                );
+                return false;
+            }
+            
+            // If all validations pass, show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+
+        // ===== LOGOUT MODAL =====
         const logoutBtn = document.getElementById('logoutBtn');
         const logoutModal = document.getElementById('logoutModal');
         const confirmLogout = document.getElementById('confirmLogout');
@@ -226,9 +343,14 @@
             logoutModal.style.display = 'none';
         }
 
+        // ===== CLOSE MODALS - Click outside to close (BOTH modals) =====
         window.onclick = function(e) {
+            const warningModal = document.getElementById('warningModal');
             if(e.target == logoutModal) {
                 logoutModal.style.display = 'none';
+            }
+            if(e.target == warningModal) {
+                warningModal.style.display = 'none';
             }
         }
     </script>

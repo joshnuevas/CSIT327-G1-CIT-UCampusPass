@@ -6,6 +6,7 @@ from django.contrib import messages
 import random
 import string
 from django.core.mail import send_mail
+from datetime import datetime, time
 
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -25,9 +26,25 @@ def book_visit_view(request):
         user_email = request.session['user_email']
         purpose = request.POST.get('purpose_other') or request.POST.get('purpose')
         department = request.POST.get('department_other') or request.POST.get('department')
-        visit_date = request.POST.get('visit_date')
+        visit_date_str = request.POST.get('visit_date')
         start_time = request.POST.get('start_time')
         end_time = request.POST.get('end_time')
+
+        # Validate visit date is not on weekends
+        visit_date = datetime.strptime(visit_date_str, "%Y-%m-%d").date()
+        if visit_date.weekday() >= 5:  # Saturday=5, Sunday=6
+            messages.error(request, "Visits cannot be scheduled on Saturdays or Sundays. Please select a weekday.")
+            return redirect('book_visit')
+
+        # Restriction: Booking allowed only from 7:30 AM to 9:00 PM
+        now = datetime.now()
+        current_time = now.time()
+        start_allowed = time(7, 30)
+        end_allowed = time(21, 0)
+
+        if not (start_allowed <= current_time <= end_allowed):
+            messages.error(request, "Booking is allowed only between 7:30 AM and 9:00 PM.")
+            return redirect('book_visit')
 
         code = generate_visit_code(purpose)
 
@@ -43,7 +60,7 @@ def book_visit_view(request):
             "code": code,
             "purpose": purpose,
             "department": department,
-            "visit_date": visit_date,
+            "visit_date": visit_date_str,
             "start_time": start_time,
             "end_time": end_time,
             "status": "Upcoming"
@@ -54,7 +71,7 @@ def book_visit_view(request):
         message = (
             f"Hi {first_name},\n\n"
             f"Your visit has been successfully booked!\n\n"
-            f"📅 Date: {visit_date}\n"
+            f"📅 Date: {visit_date_str}\n"
             f"🕒 Time: {start_time} - {end_time}\n"
             f"🏢 Department: {department}\n"
             f"🎯 Purpose: {purpose}\n"

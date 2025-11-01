@@ -252,19 +252,33 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     width: 100%;
     max-width: 700px;
-    padding: 40px;
+    padding: 45px;
     border: 2px solid #F0F0F0;
 }
 
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 32px;
+}
+
+/* Spacing for "Other" input fields when they appear */
+#purpose_other,
+#department_other {
+    margin-top: 12px;
+}
+
+/* Helper text styling */
+.helper-text {
+    font-size: 13px;
+    color: #666666;
+    margin-top: 8px;
+    font-style: italic;
 }
 
 label {
     display: block;
     color: #333333;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     font-size: 14px;
     letter-spacing: 0.3px;
 }
@@ -331,7 +345,7 @@ button[type="submit"] {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
     letter-spacing: 0.5px;
-    margin-top: 15px;
+    margin-top: 25px;
 }
 
 button[type="submit"]:hover {
@@ -441,6 +455,81 @@ button[type="submit"]:hover {
         opacity: 1; 
         transform: translateY(0); 
     }
+}
+
+/* ===== WARNING MODAL STYLES - Add to book_visit.css ===== */
+
+.warning-modal .warning-content {
+    background: linear-gradient(135deg, #FFF5E1, #FFF8DC);
+    border: 3px solid #FFD700;
+    animation: shake 0.5s ease-in-out;
+}
+
+.warning-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 1s infinite;
+}
+
+.warning-icon svg {
+    stroke: #8B1538;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.warning-content h2 {
+    color: #8B1538;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.warning-content p {
+    color: #666666;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.btn-warning {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #8B1538;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    letter-spacing: 0.5px;
+}
+
+.btn-warning:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(255, 215, 0, 0.6);
+    background: linear-gradient(135deg, #FFA500, #FFD700);
+}
+
+/* Shake animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Pulse animation for icon */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 /* Responsive Design */
