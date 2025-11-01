@@ -6,65 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CIT-U Campus Pass - Dashboard</title>
     <link rel="stylesheet" href="{% static 'dashboard_app/css/dashboard.css' %}?v={{ now|date:'U' }}">
-    <style>
-        /* ===== Modal Styles ===== */
-        .modal {
-            display: none; 
-            position: fixed;
-            z-index: 999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.45);
-            backdrop-filter: blur(3px);
-            animation: fadeIn 0.3s ease forwards;
-        }
-        .modal-content {
-            background: linear-gradient(135deg, #fff8f5, #fff1e5);
-            margin: 15% auto;
-            padding: 35px 25px;
-            border-radius: 25px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 15px 50px rgba(139, 21, 56, 0.3);
-            transform: translateY(-20px);
-            animation: slideDown 0.4s ease forwards;
-        }
-        .modal-content h2 {
-            color: #8B1538;
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            letter-spacing: 0.5px;
-        }
-        .modal-content button {
-            padding: 14px 30px;
-            background: linear-gradient(135deg, #8B1538, #6B0F2A);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(139, 21, 56, 0.3);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin: 5px;
-        }
-        .modal-content button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(139, 21, 56, 0.35);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
 </head>
 <body>
 
@@ -236,12 +177,14 @@
         {% endif %}
     {% endfor %}
 
-    <!-- ===== Logout Confirmation Modal ===== -->
+    <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
         <div class="modal-content">
             <h2>Are you sure you want to logout?</h2>
-            <button id="confirmLogout">Logout</button>
-            <button id="cancelLogout">Cancel</button>
+            <div class="modal-buttons">
+                <button id="confirmLogout" class="btn-primary">Logout</button>
+                <button id="cancelLogout" class="btn-secondary">Cancel</button>
+            </div>
         </div>
     </div>
 

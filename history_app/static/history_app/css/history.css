@@ -464,7 +464,8 @@ body {
     background: linear-gradient(135deg, #6B0F2A, #8B1538);
 }
 
-/* ===== Modal Styles ===== */
+/* ===== LOGOUT MODAL STYLES ===== */
+
 .modal {
     display: none;
     position: fixed;
@@ -481,10 +482,10 @@ body {
 .modal-content {
     background: linear-gradient(135deg, #fff8f5, #fff1e5);
     margin: 15% auto;
-    padding: 35px 25px;
+    padding: 35px 30px;
     border-radius: 25px;
     width: 90%;
-    max-width: 400px;
+    max-width: 450px;
     text-align: center;
     box-shadow: 0 15px 50px rgba(139, 21, 56, 0.3);
     transform: translateY(-20px);
@@ -495,27 +496,75 @@ body {
     color: #8B1538;
     font-size: 22px;
     font-weight: 700;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     letter-spacing: 0.5px;
 }
 
-.modal-content button {
-    padding: 14px 30px;
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(139, 21, 56, 0.3);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    margin: 5px;
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
 }
 
-.modal-content button:hover {
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4);
+    background: linear-gradient(135deg, #6B0F2A, #8B1538);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: #FFFFFF;
+    color: #666666;
+    border: 2px solid #E0E0E0;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    border-color: #8B1538;
+    color: #8B1538;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(139, 21, 56, 0.35);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 0; 
+        transform: translateY(-20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
 }
 
 @keyframes fadeIn {
