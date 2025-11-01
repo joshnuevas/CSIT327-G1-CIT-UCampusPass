@@ -8,50 +8,59 @@ import string
 from django.core.mail import send_mail
 from datetime import datetime, time
 
+# Load environment variables
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def generate_visit_code(purpose):
+    """Generate a unique visit code based on purpose."""
     random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
     return f"CIT-{purpose[:3].upper()}-{random_str}"
 
-# ---------------- Book Visit ----------------
 def book_visit_view(request):
+    # Redirect if not logged in
     if 'user_email' not in request.session:
         return redirect('login')
 
+    user_email = request.session['user_email']
+
+    # Fetch user info from Supabase
+    user_resp = supabase.table("users").select("user_id", "first_name").eq("email", user_email).execute()
+    if not user_resp.data:
+        messages.error(request, "User not found. Please log in again.")
+        return redirect('login')
+    
+    user = user_resp.data[0]
+    user_id = user['user_id']
+    first_name = user['first_name']
+    
+    # Save first name in session for template use
+    request.session['user_first_name'] = first_name
+
     if request.method == 'POST':
-        user_email = request.session['user_email']
         purpose = request.POST.get('purpose_other') or request.POST.get('purpose')
         department = request.POST.get('department_other') or request.POST.get('department')
         visit_date_str = request.POST.get('visit_date')
         start_time = request.POST.get('start_time')
         end_time = request.POST.get('end_time')
 
-        # Validate visit date is not on weekends
+        # Validate visit date is a weekday
         visit_date = datetime.strptime(visit_date_str, "%Y-%m-%d").date()
         if visit_date.weekday() >= 5:  # Saturday=5, Sunday=6
-            messages.error(request, "Visits cannot be scheduled on Saturdays or Sundays. Please select a weekday.")
+            messages.error(request, "Visits cannot be scheduled on weekends. Please select a weekday.")
             return redirect('book_visit')
 
-        # Restriction: Booking allowed only from 7:30 AM to 9:00 PM
-        now = datetime.now()
-        current_time = now.time()
+        # Restriction: Booking allowed only between 7:30 AM and 9:00 PM
         start_allowed = time(7, 30)
         end_allowed = time(21, 0)
-
-        if not (start_allowed <= current_time <= end_allowed):
+        if not (start_allowed <= datetime.now().time() <= end_allowed):
             messages.error(request, "Booking is allowed only between 7:30 AM and 9:00 PM.")
             return redirect('book_visit')
 
+        # Generate visit code
         code = generate_visit_code(purpose)
-
-        user_resp = supabase.table("users").select("user_id", "first_name").eq("email", user_email).execute()
-        user = user_resp.data[0]
-        user_id = user['user_id']
-        first_name = user['first_name']
 
         # Insert visit record
         supabase.table("visits").insert({
@@ -66,7 +75,7 @@ def book_visit_view(request):
             "status": "Upcoming"
         }).execute()
 
-        # ---------------- Email Notification ----------------
+        # Send confirmation email
         subject = "CIT-U CampusPass | Visit Confirmation"
         message = (
             f"Hi {first_name},\n\n"
@@ -84,7 +93,7 @@ def book_visit_view(request):
             send_mail(
                 subject,
                 message,
-                'your_email@gmail.com',  # same as DEFAULT_FROM_EMAIL
+                'your_email@gmail.com',  # Replace with your email
                 [user_email],
                 fail_silently=False,
             )
@@ -95,4 +104,8 @@ def book_visit_view(request):
 
         return redirect('dashboard')
 
-    return render(request, 'book_visit_app/book_visit.html')
+    # Render page with first name
+    context = {
+        "user_first_name": first_name
+    }
+    return render(request, 'book_visit_app/book_visit.html', context)
