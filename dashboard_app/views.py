@@ -11,7 +11,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def dashboard_view(request):
     if 'user_email' not in request.session:
-        return redirect('login')
+        return redirect('login_app:login')
 
     user_email = request.session['user_email']
     visits_resp = supabase.table("visits").select("*").eq("user_email", user_email).execute()
@@ -74,3 +74,25 @@ def dashboard_view(request):
     }
 
     return render(request, 'dashboard_app/dashboard.html', context)
+
+def admin_dashboard_view(request):
+    if 'admin_username' not in request.session:
+        return redirect('login_app:login')
+
+    context = {
+        "admin_username": request.session['admin_username'],
+        "admin_first_name": request.session.get('admin_first_name'),
+    }
+
+    return render(request, 'dashboard_app/admin_dashboard.html', context)
+
+def staff_dashboard_view(request):
+    if 'staff_username' not in request.session:
+        return redirect('login_app:login')
+
+    context = {
+        "staff_username": request.session['staff_username'],
+        "staff_first_name": request.session.get('staff_first_name'),
+    }
+
+    return render(request, 'dashboard_app/staff_dashboard.html', context)

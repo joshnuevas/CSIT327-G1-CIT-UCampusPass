@@ -224,6 +224,7 @@ label {
     font-size: 14px;
 }
 
+input[type="text"],
 input[type="email"],
 input[type="password"] {
     width: 100%;
@@ -233,6 +234,33 @@ input[type="password"] {
     font-size: 15px;
     transition: all 0.3s ease;
     background: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #8B1538;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    cursor: pointer;
+}
+
+select:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus {
 }
 
 input[type="email"]:focus,
@@ -244,6 +272,22 @@ input[type="password"]:focus {
 
 .password-toggle {
     position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #8B1538;
+    font-size: 18px;
+    line-height: 1;
+    z-index: 2;
+}
+
+.toggle-password:hover {
+    color: #d4af37;
 }
 
 .remember-forgot {

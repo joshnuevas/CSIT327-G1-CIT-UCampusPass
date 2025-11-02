@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CIT-U Campus Pass - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'login_app/css/login.css' %}?v={{ now|date:'U' }}">
     <style>
     /* ===== Modal Styles ===== */
     .modal {
-        display: none; /* Hidden by default */
+        display: none;
         position: fixed;
         z-index: 999;
         left: 0;
@@ -42,6 +43,12 @@
         letter-spacing: 0.5px;
     }
 
+    .modal-content p {
+        color: #333;
+        font-size: 15px;
+        margin-bottom: 25px;
+    }
+
     .modal-content button {
         padding: 14px 30px;
         background: linear-gradient(135deg, #8B1538, #6B0F2A);
@@ -60,7 +67,6 @@
         box-shadow: 0 8px 20px rgba(139, 21, 56, 0.35);
     }
 
-    /* Animations */
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
@@ -70,10 +76,20 @@
         from { opacity: 0; transform: translateY(-20px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Adds spacing for register link */
+    .register-link {
+        text-align: center;
+        color: #444;
+        font-size: 14px;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
     </style>
 </head>
 <body>
     <div class="login-container">
+        <!-- ✅ CIT-U Logo -->
         <div class="logo-section">
             <div class="logo-circle"></div>
             <h1>CAMPUS PASS</h1>
@@ -89,17 +105,31 @@
             </ul>
         {% endif %}
 
-        <form method="POST" action="{% url 'login' %}">
+        <form method="POST" action="{% url 'login_app:login' %}">
             {% csrf_token %}
+            
+            <!-- Role Selection -->
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <label for="role">Role</label>
+                <select name="role" id="role" required>
+                    <option value="visitor">Visitor</option>
+                    <option value="staff">Staff</option>
+                    <option value="admin">Admin</option>
+                </select>
             </div>
 
+            <!-- Dynamic Field: Email or Username -->
+            <div class="form-group">
+                <label for="identifier" id="identifierLabel">Email</label>
+                <input type="text" id="identifier" name="identifier" placeholder="Enter your email" required>
+            </div>
+
+            <!-- Password Field -->
             <div class="form-group">
                 <label for="password">Password</label>
                 <div class="password-toggle">
                     <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <i class="fas fa-eye toggle-password" data-target="password"></i>
                 </div>
             </div>
 
@@ -114,12 +144,9 @@
             <button type="submit" class="login-btn">Login</button>
         </form>
 
-        <div class="divider">
-            <span>OR</span>
-        </div>
-
-        <div class="register-link">
-            Don't have an account? <a href="{% url 'register' %}">Register here</a>
+        <!-- 👇 Register Link (only for visitors) -->
+        <div class="register-link" id="registerLink">
+            Don’t have an account? <a href="{% url 'register_app:register' %}">Register</a>
         </div>
 
         <div class="footer-text">
@@ -134,6 +161,9 @@
                 <div id="successModal" class="modal">
                     <div class="modal-content">
                         <h2>{{ message }}</h2>
+                        {% if request.POST.role == 'staff' or request.POST.role == 'admin' %}
+                            <p>The {{ request.POST.role }} dashboard is under development. Please check back soon.</p>
+                        {% endif %}
                         <button id="continueBtn">Continue</button>
                     </div>
                 </div>
@@ -142,25 +172,70 @@
     {% endif %}
 
     <script>
+    // ===== Modal Handling =====
     window.onload = function() {
         const modal = document.getElementById('successModal');
         const btn = document.getElementById('continueBtn');
 
-        if(modal){
+        if (modal) {
             modal.style.display = 'block';
-
             btn.onclick = function() {
-                window.location.href = "{% url 'dashboard' %}";
-            }
-
-            // Optional: close modal by clicking outside
+                const role = document.getElementById('role').value;
+                if (role === 'admin' || role === 'staff') {
+                    modal.style.display = 'none';
+                } else {
+                    window.location.href = "/";
+                }
+            };
             window.onclick = function(e) {
-                if(e.target == modal) {
+                if (e.target === modal) {
                     modal.style.display = 'none';
                 }
+            };
+        }
+    };
+
+    // ===== Password Visibility Toggle =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                }
+            });
+        });
+
+        // ===== Role-based Field and Register Link Toggle =====
+        const roleSelect = document.getElementById('role');
+        const identifierLabel = document.getElementById('identifierLabel');
+        const identifierInput = document.getElementById('identifier');
+        const registerLink = document.getElementById('registerLink');
+
+        function updateFields() {
+            if (roleSelect.value === 'visitor') {
+                identifierLabel.textContent = 'Email';
+                identifierInput.placeholder = 'Enter your email';
+                registerLink.style.display = 'block';
+            } else {
+                identifierLabel.textContent = 'Username';
+                identifierInput.placeholder = 'Enter your username';
+                registerLink.style.display = 'none';
             }
         }
-    }
+
+        // Initialize + Listen for changes
+        updateFields();
+        roleSelect.addEventListener('change', updateFields);
+    });
     </script>
 </body>
 </html>

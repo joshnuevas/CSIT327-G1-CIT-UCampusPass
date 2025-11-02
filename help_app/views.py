@@ -43,7 +43,7 @@ def help_support_view(request):
         # Validate fields
         if not all([name, email, message]):
             messages.error(request, "Please fill in all required fields.")
-            return redirect('help_support')
+            return redirect('help_app:help_support')
         
         # Validate form_type
         if form_type not in ['feedback', 'support']:
@@ -98,7 +98,7 @@ def help_support_view(request):
         except Exception as e:
             logger.error(f"Failed to save message to database: {str(e)}")
             messages.error(request, "Failed to save your message. Please try again.")
-            return redirect('help_support')
+            return redirect('help_app:help_support')
         
         # Try to send email notification (optional)
         email_sent = False
@@ -123,7 +123,7 @@ def help_support_view(request):
             if not email_sent and settings.EMAIL_HOST_USER:
                 messages.info(request, "Note: Email notification failed, but your message was saved.")
         
-        return redirect('help_support')
+        return redirect('help_app:help_support')
     
     # GET request - render the page
     context = {
