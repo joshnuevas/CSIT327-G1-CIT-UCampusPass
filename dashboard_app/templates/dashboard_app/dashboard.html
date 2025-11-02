@@ -113,8 +113,8 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">My Visit Codes</h3>
-                        <a href="#" class="view-all">View All →</a>
-                    </div>
+                        <a href="{% url 'visit_history' %}" class="view-all">View All →</a>
+                    </div>  
 
                     {% now "Y-m-d" as today %}
                     {% for visit in visits %}
