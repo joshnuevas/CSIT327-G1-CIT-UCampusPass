@@ -26,4 +26,5 @@ urlpatterns = [
     path('book-visit/', include('book_visit_app.urls')),
     path('history/', include('history_app.urls')),
     path('profile/', include('profile_app.urls')),
+    path('help/', include('help_app.urls')),
 ]

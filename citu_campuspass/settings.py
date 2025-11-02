@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'book_visit_app',
     'history_app',
     'profile_app',
+    'help_app',
 ]
 
 MIDDLEWARE = [
