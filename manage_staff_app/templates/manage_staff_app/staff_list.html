@@ -1,0 +1,136 @@
+{% extends "dashboard_app/admin_dashboard_base.html" %}
+{% block staff_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.content-header h1 {
+    font-size: 26px;
+    color: #8B1538;
+    font-weight: 700;
+}
+.add-btn {
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(139, 21, 56, 0.3);
+}
+.add-btn:hover {
+    background: linear-gradient(135deg, #6B0F2A, #8B1538);
+    transform: translateY(-2px);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+th, td {
+    padding: 14px 18px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+}
+th {
+    background-color: #8B1538;
+    color: white;
+    font-weight: 600;
+}
+tr:hover { background-color: #FFF8E1; }
+.action-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    margin-right: 6px;
+}
+.edit-btn { background-color: #D4AF37; color: #1a1a1a; }
+.edit-btn:hover { background-color: #C39B2E; }
+
+.reset-btn { background-color: #8B1538; color: white; }
+.reset-btn:hover { background-color: #6B0F2A; }
+
+.deactivate-btn { background-color: #ccc; color: #333; }
+.deactivate-btn:hover { background-color: #999; }
+
+.status-active { color: #4CAF50; font-weight: 600; background: none; text-shadow: none; }
+.status-inactive { color: #B71C1C; font-weight: 600; }
+
+.message { padding: 12px 18px; margin-bottom: 15px; border-radius: 8px; font-weight: 600; }
+.message-success { background-color: #DFF2BF; color: #4F8A10; }
+.message-error { background-color: #FFBABA; color: #D8000C; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Front Desk Staff</h1>
+    <a href="{% url 'manage_staff_app:staff_create' %}" class="add-btn">+ Add New Staff</a>
+</div>
+
+<!-- Display Django messages -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for staff in staff_list %}
+        <tr>
+            <td>{{ staff.username }}</td>
+            <td>{{ staff.first_name }} {{ staff.last_name }}</td>
+            <td>{{ staff.email }}</td>
+            <td>{{ staff.contact_number }}</td>
+            <td>
+                {% if staff.is_active %}
+                    <span class="status-active">Active</span>
+                {% else %}
+                    <span class="status-inactive">Inactive</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'manage_staff_app:staff_edit' staff.username %}" class="action-btn edit-btn">Edit</a>
+                <a href="{% url 'manage_staff_app:staff_reset_password' staff.username %}" class="action-btn reset-btn">Reset</a>
+                <a href="{% url 'manage_staff_app:staff_deactivate' staff.username %}" class="action-btn deactivate-btn">
+                    {% if staff.is_active %}Deactivate{% else %}Activate{% endif %}
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" style="text-align:center; color:#777;">No staff records found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
