@@ -1,0 +1,89 @@
+{% extends "dashboard_app/admin_dashboard_base.html" %}
+{% block staff_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-container {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 600px;
+    margin: 40px auto;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.form-container h1 {
+    color: #8B1538;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+input:focus {
+    border-color: #8B1538;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+}
+
+.submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(135deg, #6B0F2A, #8B1538);
+    transform: translateY(-2px);
+}
+
+.back-link {
+    display: inline-block;
+    text-align: center;
+    margin-top: 15px;
+    color: #8B1538;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+    color: #D4AF37;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>{% if editing %}Edit Staff{% else %}Add New Staff{% endif %}</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="submit-btn">
+            {% if editing %}Update Staff{% else %}Create Staff{% endif %}
+        </button>
+    </form>
+    <a href="{% url 'manage_staff_app:staff_list' %}" class="back-link">← Back to Staff List</a>
+</div>
+{% endblock %}
