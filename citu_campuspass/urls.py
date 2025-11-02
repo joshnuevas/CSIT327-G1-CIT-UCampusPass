@@ -19,12 +19,11 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('dashboard_app.urls')),
-    path('staff/', include('staff.urls', namespace='staff')),
-    path('register/', include('register_app.urls')),
-    path('login/', include('login_app.urls')),
-    path('book-visit/', include('book_visit_app.urls')),
-    path('history/', include('history_app.urls')),
-    path('profile/', include('profile_app.urls')),
-    path('help/', include('help_app.urls')),
+    path('', include('dashboard_app.urls', namespace="dashboard_app")),
+    path('register/', include('register_app.urls', namespace="register_app")),
+    path('login/', include('login_app.urls', namespace="login_app")),
+    path('book-visit/', include('book_visit_app.urls', namespace="book_visit_app")),
+    path('history/', include('history_app.urls', namespace="history_app")),
+    path('profile/', include('profile_app.urls', namespace="profile_app")),
+    path('help/', include('help_app.urls', namespace="help_app")),
 ]

@@ -31,7 +31,7 @@
             </ul>
         {% endif %}
 
-        <form method="POST" action="{% url 'register' %}">
+        <form method="POST" action="{% url 'register_app:register' %}">
             {% csrf_token %}
             <div class="form-row">
                 <div class="form-group">
@@ -77,11 +77,11 @@
                 </select>
             </div>
 
-            <div class="form-group" id="otherTypeGroup" style="display: {% if visitor_type == 'Other' %}block{% else %}none{% endif %};">
+            <div class="form-group" id="otherTypeGroup" style="display: {% if visitor_type_select == 'Other' %}block{% else %}none{% endif %};">
                 <label for="otherType">Please specify</label>
                 <input type="text" id="otherType" name="visitor_type_other"
                        placeholder="Enter other visitor type"
-                       value="{{ visitor_type|default:'' }}">
+                       value="{{ visitor_type_other|default:'' }}">
             </div>
 
             <div class="form-group">
@@ -115,7 +115,7 @@
         </div>
 
         <div class="login-link">
-            Already have an account? <a href="{% url 'login' %}">Login here</a>
+            Already have an account? <a href="{% url 'login_app:login' %}">Login here</a>
         </div>
 
         <div class="footer-text">

@@ -11,7 +11,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 def history_view(request):
     # Redirect if not logged in
     if 'user_email' not in request.session:
-        return redirect('login')
+        return redirect('login_app:login')
 
     user_email = request.session['user_email']
     visits_resp = supabase.table("visits").select("*").eq("user_email", user_email).execute()

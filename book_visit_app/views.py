@@ -67,7 +67,7 @@ def book_visit_view(request):
     # Redirect if not logged in
     if 'user_email' not in request.session:
         messages.warning(request, "Please log in to book a visit.")
-        return redirect('login')
+        return redirect('login_app:login')
 
     user_email = request.session['user_email']
 
@@ -76,7 +76,7 @@ def book_visit_view(request):
         user_resp = supabase.table("users").select("user_id", "first_name").eq("email", user_email).execute()
         if not user_resp.data:
             messages.error(request, "User not found. Please log in again.")
-            return redirect('login')
+            return redirect('login_app:login')
         
         user = user_resp.data[0]
         user_id = user['user_id']
@@ -87,7 +87,7 @@ def book_visit_view(request):
     except Exception as e:
         logger.error(f"Error fetching user data: {str(e)}")
         messages.error(request, "An error occurred. Please try again.")
-        return redirect('login')
+        return redirect('login_app:login')
 
     if request.method == 'POST':
         try:
@@ -101,13 +101,13 @@ def book_visit_view(request):
             # Validate required fields
             if not all([purpose, department, visit_date_str, start_time, end_time]):
                 messages.error(request, "Please fill in all required fields.")
-                return redirect('book_visit')
+                return redirect('book_visit_app:book_visit')
 
             # Validate visit date is a weekday
             visit_date = datetime.strptime(visit_date_str, "%Y-%m-%d").date()
             if visit_date.weekday() >= 5:  # Saturday=5, Sunday=6
                 messages.error(request, "Visits cannot be scheduled on weekends. Please select a weekday.")
-                return redirect('book_visit')
+                return redirect('book_visit_app:book_visit')
 
             # Validate visit time is within allowed hours (7:30 AM - 9:00 PM)
             try:
@@ -119,14 +119,14 @@ def book_visit_view(request):
                 
                 if not (start_allowed <= visit_start and visit_end <= end_allowed):
                     messages.error(request, "Visits must be scheduled between 7:30 AM and 9:00 PM.")
-                    return redirect('book_visit')
+                    return redirect('book_visit_app:book_visit')
                 
                 if visit_start >= visit_end:
                     messages.error(request, "End time must be after start time.")
-                    return redirect('book_visit')
+                    return redirect('book_visit_app:book_visit')
             except ValueError:
                 messages.error(request, "Invalid time format. Please try again.")
-                return redirect('book_visit')
+                return redirect('book_visit_app:book_visit')
 
             # Generate visit code
             code = generate_visit_code(purpose)
@@ -148,7 +148,7 @@ def book_visit_view(request):
             except Exception as e:
                 logger.error(f"Database error while booking visit: {str(e)}")
                 messages.error(request, "Failed to book visit. Please try again later.")
-                return redirect('book_visit')
+                return redirect('book_visit_app:book_visit')
 
             # Prepare visit details for email
             visit_details = {
@@ -169,16 +169,16 @@ def book_visit_view(request):
                 messages.success(request, f"Visit booked successfully! Your visit code is: {code}")
                 messages.info(request, "Note: Confirmation email could not be sent, but your visit is confirmed.")
 
-            return redirect('dashboard')
+            return redirect('dashboard_app:dashboard')
 
         except ValueError as e:
             logger.error(f"Validation error: {str(e)}")
             messages.error(request, "Invalid date or time format. Please check your input.")
-            return redirect('book_visit')
+            return redirect('book_visit_app:book_visit')
         except Exception as e:
             logger.error(f"Unexpected error during booking: {str(e)}")
             messages.error(request, "An unexpected error occurred. Please try again.")
-            return redirect('book_visit')
+            return redirect('book_visit_app:book_visit')
 
     # GET request - render the booking form
     context = {

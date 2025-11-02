@@ -5,14 +5,29 @@
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
-    background: url("/static/staff/images/campuspass_bg.png") no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(270deg, #8B1538, #6B0F2A, #5c0a0a, #8B1538);
+    background-size: 800% 800%;
+    animation: animatedGradient 20s ease infinite, subtleGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes animatedGradient {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 50%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes subtleGlow {
+    0% { filter: brightness(1); transform: scale(1); }
+    50% { filter: brightness(1.05); transform: scale(1.01); }
+    100% { filter: brightness(1); transform: scale(1); }
 }
 
 .login-container {
@@ -210,6 +225,7 @@ label {
 }
 
 input[type="text"],
+input[type="email"],
 input[type="password"] {
     width: 100%;
     padding: 14px 16px;
@@ -218,12 +234,33 @@ input[type="password"] {
     font-size: 15px;
     transition: all 0.3s ease;
     background: white;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
 }
 
+select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #8B1538;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    cursor: pointer;
+}
+
+select:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
+}
+
 input[type="text"]:focus,
-input[type="password"]:focus {
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus {
     outline: none;
     border-color: #d4af37;
     box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
@@ -286,7 +323,7 @@ input[type="password"]:focus {
 .login-btn {
     width: 100%;
     padding: 15px;
-    background: #8B1538;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
     color: #FFFFFF;
     border: none;
     border-radius: 10px;
@@ -294,18 +331,27 @@ input[type="password"]:focus {
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
+    background-size: 300% 300%;
+    animation: buttonGradient 6s ease infinite;
     transition: all 0.3s ease-in-out;
 }
 
 .login-btn:hover {
-    background: #D4AF37;
-    color: #8B1538;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(139, 21, 56, 0.4);
+    background: linear-gradient(135deg, #7e1333, #4d0b1e);
 }
 
 .login-btn:active {
     transform: translateY(0);
+}
+
+@keyframes buttonGradient {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 50%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .divider {
