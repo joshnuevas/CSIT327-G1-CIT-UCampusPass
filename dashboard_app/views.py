@@ -15,13 +15,13 @@ def dashboard_view(request):
 
     user_email = request.session['user_email']
     visits_resp = supabase.table("visits").select("*").eq("user_email", user_email).execute()
-    visits = visits_resp.data
+    all_visits = visits_resp.data
 
     now = datetime.now()
     today = date.today()
     total_visits_count = 0
 
-    for visit in visits:
+    for visit in all_visits:
         visit_date_obj = datetime.strptime(visit['visit_date'], "%Y-%m-%d").date()
         visit['visit_date_obj'] = visit_date_obj
 
@@ -35,6 +35,9 @@ def dashboard_view(request):
 
         visit_start = datetime.strptime(f"{visit['visit_date']} {visit['start_time']}", "%Y-%m-%d %H:%M:%S")
         visit_end = datetime.strptime(f"{visit['visit_date']} {visit['end_time']}", "%Y-%m-%d %H:%M:%S")
+        
+        # Store datetime for sorting
+        visit['visit_start_datetime'] = visit_start
 
         if visit_start <= now <= visit_end:
             new_status = 'Active'
@@ -50,12 +53,21 @@ def dashboard_view(request):
         if new_status == 'Expired':
             total_visits_count += 1
 
+    # Get Active and Upcoming visits (not expired)
+    active_upcoming = [v for v in all_visits if v['status'] in ['Active', 'Upcoming']]
+    
+    # Sort by start datetime (earliest first)
+    active_upcoming.sort(key=lambda x: x['visit_start_datetime'])
+    
+    # Take the next 3 visits
+    display_visits = active_upcoming[:3]
+
     context = {
         "user_email": user_email,
         "user_first_name": request.session.get('user_first_name'),
-        "visits": visits,
-        "active_visits": [v for v in visits if v['status'] == 'Active'],
-        "upcoming_visits": [v for v in visits if v['status'] == 'Upcoming'],
+        "visits": display_visits,  # Next 3 upcoming/active visits
+        "active_visits": [v for v in all_visits if v['status'] == 'Active'],
+        "upcoming_visits": [v for v in all_visits if v['status'] == 'Upcoming'],
         "total_visits": total_visits_count,
         "notifications": [],
         "today": today,
