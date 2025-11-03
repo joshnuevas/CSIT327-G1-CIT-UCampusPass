@@ -3,134 +3,369 @@
 
 {% block extra_css %}
 <style>
+/* ===== PAGE HEADER ===== */
 .content-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
+
 .content-header h1 {
-    font-size: 26px;
-    color: #8B1538;
-    font-weight: 700;
+  font-size: 26px;
+  color: #8B1538;
+  font-weight: 700;
 }
+
 .add-btn {
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    color: white;
-    border: none;
-    padding: 12px 22px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(139, 21, 56, 0.3);
+  background: linear-gradient(135deg, #8B1538, #6B0F2A);
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 21, 56, 0.3);
 }
+
 .add-btn:hover {
-    background: linear-gradient(135deg, #6B0F2A, #8B1538);
-    transform: translateY(-2px);
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #6B0F2A, #8B1538);
 }
+
+/* ===== TABLE ===== */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
 table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
 }
+
 th, td {
-    padding: 14px 18px;
-    text-align: left;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 14px;
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  white-space: nowrap;
+  vertical-align: middle;
 }
+
 th {
-    background-color: #8B1538;
-    color: white;
-    font-weight: 600;
+  background-color: #8B1538;
+  color: white;
+  font-weight: 600;
 }
-tr:hover { background-color: #FFF8E1; }
-.action-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.3s ease;
-    margin-right: 6px;
+
+tr:hover {
+  background-color: #FFF8E1;
 }
-.edit-btn { background-color: #D4AF37; color: #1a1a1a; }
-.edit-btn:hover { background-color: #C39B2E; }
 
-.reset-btn { background-color: #8B1538; color: white; }
-.reset-btn:hover { background-color: #6B0F2A; }
+/* ===== STATUS ===== */
+.status-active {
+  color: #0b6623;
+  background: #e6f4ea;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-block;
+}
 
-.deactivate-btn { background-color: #ccc; color: #333; }
-.deactivate-btn:hover { background-color: #999; }
+.status-inactive {
+  color: #b71c1c;
+  background: #fdecea;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-block;
+}
 
-.status-active { color: #4CAF50; font-weight: 600; background: none; text-shadow: none; }
-.status-inactive { color: #B71C1C; font-weight: 600; }
+/* ===== ACTION MENU ===== */
+.action-menu {
+  position: relative;
+  display: inline-block;
+  z-index: 5;
+}
 
-.message { padding: 12px 18px; margin-bottom: 15px; border-radius: 8px; font-weight: 600; }
+.action-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #8B1538;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.action-toggle:hover {
+  background: rgba(139, 21, 56, 0.1);
+}
+
+.action-dropdown {
+  position: fixed;
+  display: none;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  overflow: hidden;
+  z-index: 9999;
+  min-width: 170px;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.action-dropdown.active { display: block; }
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.25s ease;
+}
+
+.action-item:hover {
+  background: #fafafa;
+}
+
+.action-item i {
+  color: #8B1538;
+}
+
+/* ===== MESSAGES ===== */
+.message {
+  padding: 12px 18px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  font-weight: 600;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+.message.fade-out { opacity: 0; }
 .message-success { background-color: #DFF2BF; color: #4F8A10; }
 .message-error { background-color: #FFBABA; color: #D8000C; }
+
+/* ===== MODAL ===== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1600;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(3px);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 18px;
+  padding: 28px 38px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content h2 {
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.btn-primary {
+  background: #8B1538;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-secondary {
+  background: #f3f3f3;
+  color: #333;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-primary:hover { background: #6B0F2A; }
+.btn-secondary:hover { background: #e0e0e0; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .content-header h1 { font-size: 22px; }
+  .add-btn { width: 100%; text-align: center; }
+  th, td { font-size: 13px; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="content-header">
-    <h1>Front Desk Staff</h1>
-    <a href="{% url 'manage_staff_app:staff_create' %}" class="add-btn">+ Add New Staff</a>
+  <h1>Front Desk Staff</h1>
+  <a href="{% url 'manage_staff_app:staff_create' %}" class="add-btn">+ Add New Staff</a>
 </div>
 
-<!-- Display Django messages -->
 {% if messages %}
-    {% for message in messages %}
-        <div class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">
-            {{ message }}
-        </div>
-    {% endfor %}
+  {% for message in messages %}
+    <div class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
 {% endif %}
 
-<table>
+<div class="table-container">
+  <table>
     <thead>
-        <tr>
-            <th>Username</th>
-            <th>Full Name</th>
-            <th>Email</th>
-            <th>Contact</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
+      <tr>
+        <th>Username</th>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Contact</th>
+        <th>Status</th>
+        <th style="text-align:center;">Actions</th>
+      </tr>
     </thead>
     <tbody>
-        {% for staff in staff_list %}
-        <tr>
-            <td>{{ staff.username }}</td>
-            <td>{{ staff.first_name }} {{ staff.last_name }}</td>
-            <td>{{ staff.email }}</td>
-            <td>{{ staff.contact_number }}</td>
-            <td>
+      {% for staff in staff_list %}
+      <tr>
+        <td>{{ staff.username }}</td>
+        <td>{{ staff.first_name }} {{ staff.last_name }}</td>
+        <td>{{ staff.email }}</td>
+        <td>{{ staff.contact_number }}</td>
+        <td>
+          {% if staff.is_active %}
+            <span class="status-active">Active</span>
+          {% else %}
+            <span class="status-inactive">Inactive</span>
+          {% endif %}
+        </td>
+        <td style="text-align:center;">
+          <div class="action-menu">
+            <button class="action-toggle"><i class="fas fa-ellipsis-v"></i></button>
+            <div class="action-dropdown">
+              <a href="{% url 'manage_staff_app:staff_edit' staff.username %}" class="action-item">
+                <i class="fas fa-edit"></i> Edit
+              </a>
+              <a href="{% url 'manage_staff_app:staff_reset_password' staff.username %}" 
+                 class="action-item open-modal" data-action="reset" data-username="{{ staff.username }}">
+                <i class="fas fa-key"></i> Reset Password
+              </a>
+              <a href="{% url 'manage_staff_app:staff_deactivate' staff.username %}" 
+                 class="action-item open-modal" data-action="deactivate" data-username="{{ staff.username }}">
                 {% if staff.is_active %}
-                    <span class="status-active">Active</span>
+                  <i class="fas fa-user-slash"></i> Deactivate
                 {% else %}
-                    <span class="status-inactive">Inactive</span>
+                  <i class="fas fa-user-check"></i> Activate
                 {% endif %}
-            </td>
-            <td>
-                <a href="{% url 'manage_staff_app:staff_edit' staff.username %}" class="action-btn edit-btn">Edit</a>
-                <a href="{% url 'manage_staff_app:staff_reset_password' staff.username %}" class="action-btn reset-btn">Reset</a>
-                <a href="{% url 'manage_staff_app:staff_deactivate' staff.username %}" class="action-btn deactivate-btn">
-                    {% if staff.is_active %}Deactivate{% else %}Activate{% endif %}
-                </a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="6" style="text-align:center; color:#777;">No staff records found.</td>
-        </tr>
-        {% endfor %}
+              </a>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="text-align:center; color:#777;">No staff records found.</td>
+      </tr>
+      {% endfor %}
     </tbody>
-</table>
+  </table>
+</div>
+
+<!-- ===== SOFT CONFIRMATION MODAL ===== -->
+<div id="confirmModal" class="modal">
+  <div class="modal-content">
+    <h2 id="confirmMessage">Are you sure?</h2>
+    <div class="modal-buttons">
+      <button id="confirmYes" class="btn-primary">Confirm</button>
+      <button id="confirmCancel" class="btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Dropdown toggle with overflow support
+  const closeAll = () => document.querySelectorAll('.action-dropdown').forEach(dd => dd.classList.remove('active'));
+  document.querySelectorAll('.action-toggle').forEach(btn => {
+    const dropdown = btn.nextElementSibling;
+    document.body.appendChild(dropdown);
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      closeAll();
+      dropdown.classList.add('active');
+      const rect = btn.getBoundingClientRect();
+      dropdown.style.top = `${rect.bottom + 6 + window.scrollY}px`;
+      dropdown.style.left = `${rect.right - dropdown.offsetWidth + window.scrollX}px`;
+    });
+  });
+  document.addEventListener('click', closeAll);
+
+  // Auto fade messages
+  setTimeout(() => {
+    document.querySelectorAll('.message').forEach(m => m.classList.add('fade-out'));
+    setTimeout(() => document.querySelectorAll('.message').forEach(m => m.remove()), 600);
+  }, 3000);
+
+  // Confirmation Modal
+  const modal = document.getElementById('confirmModal');
+  const message = document.getElementById('confirmMessage');
+  let targetUrl = '';
+
+  document.querySelectorAll('.open-modal').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const action = link.dataset.action;
+      const username = link.dataset.username;
+      if (action === 'reset')
+        message.textContent = `Are you sure you want to reset password for '${username}'?`;
+      else {
+        const isActive = link.textContent.includes("Deactivate");
+        message.textContent = isActive
+            ? `Are you sure you want to deactivate '${username}'?`
+            : `Are you sure you want to activate '${username}'?`;
+      }
+      targetUrl = link.href;
+      modal.style.display = 'flex';
+    });
+  });
+
+  document.getElementById('confirmCancel').addEventListener('click', () => modal.style.display = 'none');
+  document.getElementById('confirmYes').addEventListener('click', () => window.location.href = targetUrl);
+  window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+})();
+</script>
 {% endblock %}

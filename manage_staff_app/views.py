@@ -59,7 +59,7 @@ def staff_edit_view(request, username):
     get_resp = services.get_staff_by_username(username)
     staff_data = getattr(get_resp, "data", [])
     if not staff_data:
-        messages.error(request, "Staff not found.")
+        messages.error(request, f"Staff '{username}' not found.")
         return redirect("manage_staff_app:staff_list")
 
     staff = staff_data[0]
@@ -69,10 +69,10 @@ def staff_edit_view(request, username):
             updates = form.cleaned_data
             resp = services.update_staff(username, updates)
             if getattr(resp, "status_code", None) == 200 or getattr(resp, "data", None):
-                messages.success(request, "Staff updated.")
+                messages.success(request, f"Staff '{username}' updated successfully.")
                 return redirect("manage_staff_app:staff_list")
             else:
-                messages.error(request, "Failed to update staff.")
+                messages.error(request, f"Failed to update staff '{username}'.")
     else:
         initial = {
             "first_name": staff.get("first_name"),
@@ -87,11 +87,26 @@ def staff_edit_view(request, username):
 
 @admin_required
 def staff_deactivate_view(request, username):
-    resp = services.deactivate_staff(username)
+    get_resp = services.get_staff_by_username(username)
+    staff_data = getattr(get_resp, "data", [])
+    if not staff_data:
+        messages.error(request, "Staff not found.")
+        return redirect("manage_staff_app:staff_list")
+
+    staff = staff_data[0]
+    current_status = staff.get("is_active", True)
+
+    # Toggle activation
+    new_status = not current_status
+    action = "activated" if new_status else "deactivated"
+
+    resp = services.update_staff(username, {"is_active": new_status})
+
     if getattr(resp, "status_code", None) == 200 or getattr(resp, "data", None):
-        messages.success(request, "Staff deactivated.")
+        messages.success(request, f"Staff '{username}' has been {action}.")
     else:
-        messages.error(request, "Failed to deactivate staff.")
+        messages.error(request, f"Failed to update status for '{username}'.")
+    
     return redirect("manage_staff_app:staff_list")
 
 @admin_required
@@ -100,7 +115,8 @@ def staff_reset_password_view(request, username):
     hashed = hash_password(temp_pw)
     resp = services.update_staff(username, {"password": hashed, "is_temp_password": True})
     if getattr(resp, "status_code", None) == 200 or getattr(resp, "data", None):
-        messages.success(request, f"Password reset. Temporary password is set to '{temp_pw}'.")
+        messages.success(request, f"Password reset for '{username}'. Temporary password: {temp_pw}.")
     else:
-        messages.error(request, "Failed to reset password.")
+        messages.error(request, f"Failed to reset password for '{username}'.")
     return redirect("manage_staff_app:staff_list")
+
