@@ -1,176 +1,291 @@
-{% load static %} 
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}CIT-U Campus Pass{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'dashboard_app/css/dashboard.css' %}?v={{ now|date:'U' }}">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="{% static 'dashboard_app/css/dashboard.css' %}?v={{ now|date:'U' }}"
+  />
   <style>
-    /* ===== MENU TOGGLE ===== */
-    .menu-toggle {
-      display: none;
-      background: none;
-      border: none;
-      font-size: 1.8rem;
-      color: #8B1538;
-      cursor: pointer;
-      margin-right: 10px;
-      z-index: 1000; /* LOWER than sidebar so it sits behind when sidebar opens */
-    }
+        body {
+        overflow-x: hidden;
+        position: relative;
+        }
 
-    /* ===== MOBILE SIDEBAR =====
-       NOTE: breakpoint widened to 1100px so narrow screens reliably get slide behavior */
-    @media (max-width: 1100px) {
-      .sidebar {
+        /* ===== MENU TOGGLE ===== */
+        .menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.8rem;
+        color: #8b1538;
+        cursor: pointer;
+        margin-right: 10px;
+        z-index: 1201;
+        position: relative;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+        width: 260px;
+        background: linear-gradient(180deg, #8b1538 0%, #6b0f2a 100%);
+        color: #fff;
+        height: 100%;
         position: fixed;
         top: 0;
-        left: -270px;
-        width: 260px;
-        height: 100%;
-        transition: left 0.35s ease, transform 0.35s ease;
-        z-index: 1200; /* Ensure sidebar is ABOVE the menu toggle */
-      }
-
-      .sidebar.active {
         left: 0;
-      }
+        border-right: 2px solid #6b0f2a;
+        transition: transform 0.35s ease;
+        z-index: 1300;
+        transform: translateX(0);
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
+        }
 
-      .main-content {
-        margin-left: 0 !important;
-      }
+        .sidebar-header {
+        text-align: center;
+        padding: 30px 15px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
-      .menu-toggle {
-        display: inline-block;
-      }
-    }
+        .sidebar-header h2 {
+        color: #fff;
+        font-size: 18px;
+        margin-bottom: 5px;
+        }
 
-    /* ===== OVERLAY ===== */
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: 1100; /* below sidebar (1200) but above other content */
-    }
+        .sidebar-header p {
+        color: #f2dede;
+        font-size: 14px;
+        }
 
-    .overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
+        .nav-menu {
+        display: flex;
+        flex-direction: column;
+        margin-top: 20px;
+        }
 
-    /* ===== NAV ICONS ===== */
-    .nav-item i {
-      width: 20px;
-      text-align: center;
-      margin-right: 12px;
-      color: #D4AF37;
-    }
+        .nav-item {
+        padding: 14px 22px;
+        color: #fff;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        font-size: 15px;
+        transition: background 0.3s ease, padding-left 0.3s ease;
+        }
 
-    /* ===== NOTIFICATION ICON ===== */
-    .notification-icon {
-      position: relative;
-      cursor: pointer;
-      color: #8B1538;
-      font-size: 18px;
-    }
+        .nav-item:hover,
+        .nav-item.active {
+        background: rgba(255, 255, 255, 0.15);
+        }
 
-    .notification-badge {
-      position: absolute;
-      top: 3px;
-      right: 3px;
-      width: 8px;
-      height: 8px;
-      background: red;
-      border-radius: 50%;
-      display: none; /* Hide by default (no notifications) */
-    }
+        .nav-item i {
+        width: 22px;
+        margin-right: 12px;
+        color: #f5d36a;
+        }
 
-    /* ===== DROPDOWNS ===== */
-    .dropdown {
-      position: absolute;
-      top: 70px;
-      right: 25px;
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
-      display: none;
-      width: 270px;
-      z-index: 1250; /* above overlay + sidebar */
-      overflow: hidden;
-      animation: fadeIn 0.25s ease forwards;
-      padding: 8px 0;
-    }
+        .nav-divider {
+        margin: 20px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.25);
+        }
 
-    .dropdown.active {
-      display: block;
-    }
+        /* ===== MOBILE SIDEBAR ===== */
+        @media (max-width: 1100px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
 
-    .dropdown-header {
-      padding: 14px 20px;
-      background: linear-gradient(135deg, #8B1538, #6B0F2A);
-      color: white;
-      font-weight: 600;
-      font-size: 15px;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-    }
+        .sidebar.active {
+            transform: translateX(0);
+        }
 
-    .dropdown-item {
-      padding: 14px 22px;
-      font-size: 15px;
-      color: #333;
-      cursor: pointer;
-      border-bottom: 1px solid #f2f2f2;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: background 0.25s ease;
-    }
+        .menu-toggle {
+            display: inline-block;
+        }
 
-    .dropdown-item:hover {
-      background: #fafafa;
-    }
+        .main-content {
+            margin-left: 0 !important;
+        }
+        }
 
-    .dropdown-item i {
-      color: #8B1538;
-      width: 20px;
-    }
+        /* ===== OVERLAY ===== */
+        .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1200;
+        }
 
-    .dropdown-empty {
-      padding: 20px;
-      text-align: center;
-      color: #666;
-      font-size: 14px;
-    }
+        .overlay.active {
+        opacity: 1;
+        visibility: visible;
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        /* ===== TOP BAR ===== */
+        .top-bar {
+        background: transparent;
+        border-bottom: 2px solid #8b1538;
+        box-shadow: none;
+        padding: 18px 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 110;
+        flex-wrap: wrap;
+        }
 
-    /* ===== FIX DROPDOWN DISTANCE ===== */
-    .user-info {
-      position: relative;
-    }
+        .search-bar {
+        flex: 1;
+        min-width: 220px;
+        max-width: 500px;
+        transition: max-width 0.3s ease;
+        }
 
-    #notifDropdown {
-      right: 85px;
-    }
+        .search-bar input {
+        width: 100%;
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 30px;
+        padding: 12px 18px;
+        transition: 0.3s;
+        }
 
-    #profileDropdown {
-      right: 20px;
-    }
-  </style>
+        .search-bar input:focus {
+        border-color: #8b1538;
+        box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+        outline: none;
+        }
+
+        /* Smaller search bar on mobile */
+        @media (max-width: 768px) {
+        .search-bar {
+            max-width: 300px;
+            margin-top: 8px;
+        }
+        }
+
+        /* ===== ICON AREA ===== */
+        .user-info {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px; /* reduced gap */
+        }
+
+        .notification-icon {
+        position: relative;
+        cursor: pointer;
+        font-size: 18px;
+        color: #8b1538;
+        }
+
+        .notification-badge {
+        position: absolute;
+        top: 3px;
+        right: 4px;
+        width: 8px;
+        height: 8px;
+        background: red;
+        border-radius: 50%;
+        display: none;
+        }
+
+        /* ===== DROPDOWNS ===== */
+        .dropdown {
+        position: absolute;
+        top: 70px;
+        right: 0;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+        display: none;
+        width: 270px;
+        z-index: 1400;
+        overflow: hidden;
+        animation: fadeIn 0.25s ease forwards;
+        }
+
+        .dropdown.active {
+        display: block;
+        }
+
+        .dropdown-header {
+        padding: 14px 20px;
+        font-weight: 600;
+        font-size: 15px;
+        color: #8b1538;
+        border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-item {
+        padding: 14px 22px;
+        font-size: 15px;
+        color: #333;
+        cursor: pointer;
+        border-bottom: 1px solid #f2f2f2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: background 0.25s ease;
+        }
+
+        .dropdown-item:hover {
+        background: #fafafa;
+        }
+
+        .dropdown-item i {
+        color: #8b1538;
+        width: 20px;
+        }
+
+        .dropdown-empty {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        }
+
+        /* Specific dropdown positions */
+        #notifDropdown {
+        right: 80px;
+        }
+
+        #profileDropdown {
+        right: 20px;
+        }
+
+    </style>
+
   {% block extra_css %}{% endblock %}
 </head>
 <body>
-
   <!-- ===== OVERLAY ===== -->
   <div class="overlay" id="overlay"></div>
 
@@ -206,26 +321,21 @@
       </button>
 
       <div class="search-bar">
-        <input type="text" placeholder="Search admin data, staff, visitors...">
+        <input type="text" placeholder="Search admin data, staff, visitors..." />
       </div>
 
       <div class="user-info">
-        <!-- Notification Button -->
         <div class="notification-icon" id="notifBtn">
           <i class="fas fa-bell"></i>
           <span class="notification-badge" id="notifDot"></span>
         </div>
-
-        <!-- Profile Button -->
         <div class="user-avatar" id="profileBtn">
           {{ request.session.admin_first_name|default:"AD"|slice:":2"|upper }}
         </div>
       </div>
     </div>
 
-    <div class="content-area">
-      {% block content %}{% endblock %}
-    </div>
+    <div class="content-area">{% block content %}{% endblock %}</div>
   </div>
 
   <!-- ===== NOTIFICATION DROPDOWN ===== -->
@@ -238,7 +348,9 @@
   <div class="dropdown" id="profileDropdown">
     <div class="dropdown-header">Administrator</div>
     <div class="dropdown-item"><i class="fas fa-user"></i> Profile</div>
-    <div class="dropdown-item" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</div>
+    <div class="dropdown-item" id="logoutBtn">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </div>
   </div>
 
   <!-- ===== LOGOUT MODAL ===== -->
@@ -254,75 +366,64 @@
 
   <script>
     // ===== SIDEBAR TOGGLE =====
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
 
-    menuToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
-      overlay.classList.toggle('active');
-      // ensure the toggle button doesn't visually sit above the sidebar
-      // (in case some browsers render stacking differently)
-      if (sidebar.classList.contains('active')) {
-        menuToggle.style.zIndex = '900'; // behind sidebar
-      } else {
-        menuToggle.style.zIndex = '1000'; // normal
-      }
+    menuToggle.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
     });
 
-    overlay.addEventListener('click', () => {
-      sidebar.classList.remove('active');
-      overlay.classList.remove('active');
-      menuToggle.style.zIndex = '1000';
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
     });
 
-    // ===== DROPDOWN TOGGLES =====
-    const notifBtn = document.getElementById('notifBtn');
-    const notifDropdown = document.getElementById('notifDropdown');
-    const profileBtn = document.getElementById('profileBtn');
-    const profileDropdown = document.getElementById('profileDropdown');
-    const notifDot = document.getElementById('notifDot');
+    // ===== DROPDOWNS =====
+    const notifBtn = document.getElementById("notifBtn");
+    const notifDropdown = document.getElementById("notifDropdown");
+    const profileBtn = document.getElementById("profileBtn");
+    const profileDropdown = document.getElementById("profileDropdown");
 
-    notifBtn.addEventListener('click', (e) => {
+    notifBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      notifDropdown.classList.toggle('active');
-      profileDropdown.classList.remove('active');
+      notifDropdown.classList.toggle("active");
+      profileDropdown.classList.remove("active");
     });
 
-    profileBtn.addEventListener('click', (e) => {
+    profileBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      profileDropdown.classList.toggle('active');
-      notifDropdown.classList.remove('active');
+      profileDropdown.classList.toggle("active");
+      notifDropdown.classList.remove("active");
     });
 
-    document.addEventListener('click', (e) => {
-      if (!notifDropdown.contains(e.target) && !notifBtn.contains(e.target)) {
-        notifDropdown.classList.remove('active');
-      }
-      if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
-        profileDropdown.classList.remove('active');
-      }
+    document.addEventListener("click", (e) => {
+      if (!notifDropdown.contains(e.target) && !notifBtn.contains(e.target))
+        notifDropdown.classList.remove("active");
+      if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
+        profileDropdown.classList.remove("active");
     });
 
-    // ===== LOGOUT CONFIRMATION =====
-    const logoutBtn = document.getElementById('logoutBtn');
-    const logoutModal = document.getElementById('logoutModal');
-    const confirmLogout = document.getElementById('confirmLogout');
-    const cancelLogout = document.getElementById('cancelLogout');
+    // ===== LOGOUT =====
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutModal = document.getElementById("logoutModal");
+    const confirmLogout = document.getElementById("confirmLogout");
+    const cancelLogout = document.getElementById("cancelLogout");
 
-    logoutBtn.onclick = function(e) {
+    logoutBtn.onclick = function (e) {
       e.preventDefault();
-      profileDropdown.classList.remove('active');
-      logoutModal.style.display = 'block';
+      profileDropdown.classList.remove("active");
+      logoutModal.style.display = "block";
     };
-    confirmLogout.onclick = function() {
+    confirmLogout.onclick = function () {
       window.location.href = "{% url 'login_app:logout' %}";
     };
-    cancelLogout.onclick = function() {
-      logoutModal.style.display = 'none';
+    cancelLogout.onclick = function () {
+      logoutModal.style.display = "none";
     };
-    window.onclick = function(e) {
-      if (e.target === logoutModal) logoutModal.style.display = 'none';
+    window.onclick = function (e) {
+      if (e.target === logoutModal) logoutModal.style.display = "none";
     };
   </script>
 
