@@ -121,7 +121,7 @@
             <!-- Dynamic Field: Email or Username -->
             <div class="form-group">
                 <label for="identifier" id="identifierLabel">Email</label>
-                <input type="email" id="email" name="identifier" placeholder="Enter your email" required>
+                <input type="email" id="identifier" name="identifier" placeholder="Enter your email" required>
             </div>
 
             <!-- Password Field -->
@@ -144,14 +144,13 @@
             <button type="submit" class="login-btn">Login</button>
         </form>
 
-        <!-- 👇 Register Link (only for visitors) -->
-        <div class="register-link" id="registerLink">
-            Don’t have an account? <a href="{% url 'register_app:register' %}">Register</a>
-        </div>
+    <!-- 👇 Register Link (only for visitors) -->
+    <div class="register-link" id="registerLink">
+        Don’t have an account? <a href="{% url 'register_app:register' %}">Register</a>
+    </div>
 
-        <div class="footer-text">
-            © 2025 CIT-U Campus Pass. All rights reserved.
-        </div>
+    <div class="footer-text">
+        © 2025 CIT-U Campus Pass. All rights reserved.
     </div>
 
     <!-- ===== Success Modal ===== -->
@@ -172,70 +171,49 @@
     {% endif %}
 
     <script>
-    // ===== Modal Handling =====
-    window.onload = function() {
-        const modal = document.getElementById('successModal');
-        const btn = document.getElementById('continueBtn');
-
-        if (modal) {
-            modal.style.display = 'block';
-            btn.onclick = function() {
-                const role = document.getElementById('role').value;
-                if (role === 'admin' || role === 'staff') {
-                    modal.style.display = 'none';
-                } else {
-                    window.location.href = "/";
-                }
-            };
-            window.onclick = function(e) {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                }
-            };
-        }
-    };
-
-    // ===== Password Visibility Toggle =====
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleButtons = document.querySelectorAll('.toggle-password');
-        toggleButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    this.classList.remove('fa-eye');
-                    this.classList.add('fa-eye-slash');
-                } else {
-                    passwordInput.type = 'password';
-                    this.classList.remove('fa-eye-slash');
-                    this.classList.add('fa-eye');
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const passwordInput = document.getElementById(targetId);
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        this.classList.remove('fa-eye');
+                        this.classList.add('fa-eye-slash');
+                    } else {
+                        passwordInput.type = 'password';
+                        this.classList.remove('fa-eye-slash');
+                        this.classList.add('fa-eye');
+                    }
+                });
             });
-        });
 
-        // ===== Role-based Field and Register Link Toggle =====
-        const roleSelect = document.getElementById('role');
-        const identifierLabel = document.getElementById('identifierLabel');
-        const identifierInput = document.getElementById('identifier');
-        const registerLink = document.getElementById('registerLink');
+            // ===== Role-based Field and Register Link Toggle =====
+            const roleSelect = document.getElementById('role');
+            const identifierLabel = document.getElementById('identifierLabel');
+            const identifierInput = document.getElementById('identifier');
+            const registerLink = document.getElementById('registerLink');
 
-        function updateFields() {
-            if (roleSelect.value === 'visitor') {
-                identifierLabel.textContent = 'Email';
-                identifierInput.placeholder = 'Enter your email';
-                registerLink.style.display = 'block';
-            } else {
-                identifierLabel.textContent = 'Username';
-                identifierInput.placeholder = 'Enter your username';
-                registerLink.style.display = 'none';
+            function updateFields() {
+                if (roleSelect.value === 'visitor') {
+                    identifierLabel.textContent = 'Email';
+                    identifierInput.type = 'email';
+                    identifierInput.placeholder = 'Enter your email';
+                    registerLink.style.display = 'block';
+                } else {
+                    identifierLabel.textContent = 'Username';
+                    identifierInput.type = 'text';
+                    identifierInput.placeholder = 'Enter your username';
+                    registerLink.style.display = 'none';
+                }
             }
-        }
 
-        // Initialize + Listen for changes
-        updateFields();
-        roleSelect.addEventListener('change', updateFields);
-    });
+            // Initialize + Listen for changes
+            updateFields();
+            roleSelect.addEventListener('change', updateFields);
+        });
     </script>
+
 </body>
 </html>
