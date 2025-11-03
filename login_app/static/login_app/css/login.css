@@ -224,7 +224,6 @@ label {
     font-size: 14px;
 }
 
-input[type="text"],
 input[type="email"],
 input[type="password"] {
     width: 100%;
@@ -247,7 +246,7 @@ select {
     transition: all 0.3s ease;
     background: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
+    color: #6b0e0e;
     cursor: pointer;
 }
 
@@ -257,11 +256,6 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-select:focus {
-}
 
 input[type="email"]:focus,
 input[type="password"]:focus {
