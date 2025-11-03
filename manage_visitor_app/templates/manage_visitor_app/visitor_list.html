@@ -1,0 +1,67 @@
+{% extends "dashboard_app/admin_dashboard_base.html" %}
+{% load static %}
+{% block visitor_active %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'manage_visitor_app/css/visitor_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <h1>Registered Visitors</h1>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Visitor Type</th>
+        <th>Register Date</th> <!-- ✅ Renamed -->
+        <th style="text-align:center;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in visitors %}
+      <tr>
+        <td>{{ v.user_id }}</td>
+        <td>{{ v.first_name }} {{ v.last_name }}</td>
+        <td>{{ v.email }}</td>
+        <td>{{ v.phone }}</td>
+        <td>{{ v.visitor_type|default:"N/A" }}</td>
+        <td>
+            {% if v.created_at %}
+                {{ v.created_at|slice:":10" }}
+            {% else %}
+                N/A
+            {% endif %}
+        </td>
+
+
+        <td style="text-align:center;">
+          <a href="{% url 'manage_visitor_app:visitor_deactivate' v.user_id %}" 
+             class="action-item open-modal" data-action="delete" data-username="{{ v.first_name }} {{ v.last_name }}">
+            <i class="fas fa-trash-alt"></i> Remove
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" style="text-align:center; color:#777;">No visitors found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

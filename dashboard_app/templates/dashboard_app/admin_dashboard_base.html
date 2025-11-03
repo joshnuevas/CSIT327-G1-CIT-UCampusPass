@@ -305,7 +305,7 @@
       <a href="{% url 'manage_staff_app:staff_list' %}" class="nav-item {% block staff_active %}{% endblock %}">
         <i class="fas fa-users-cog"></i> Staff Management
       </a>
-      <a href="#" class="nav-item"><i class="fas fa-user-friends"></i> Visitor Management</a>
+      <a href="{% url 'manage_visitor_app:visitor_list' %}" class="nav-item"><i class="fas fa-user-friends"></i> Visitor Management</a>
       <a href="#" class="nav-item"><i class="fas fa-calendar-check"></i> Visit Records</a>
       <div class="nav-divider"></div>
       <a href="#" class="nav-item"><i class="fas fa-file-alt"></i> Reports & Logs</a>

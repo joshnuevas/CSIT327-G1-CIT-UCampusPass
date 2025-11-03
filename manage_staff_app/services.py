@@ -11,7 +11,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 TABLE = "front_desk_staff"
 
 def list_staff(limit=100, offset=0):
-    resp = supabase.table(TABLE).select("*").order("created_at", desc=True).limit(limit).offset(offset).execute()
+    resp = supabase.table(TABLE).select("*").order("created_at", desc=False).limit(limit).offset(offset).execute()
     return resp
 
 def get_staff_by_username(username):

@@ -27,4 +27,6 @@ urlpatterns = [
     path('profile/', include('profile_app.urls', namespace="profile_app")),
     path('help/', include('help_app.urls', namespace="help_app")),
     path("manage-staff/", include("manage_staff_app.urls", namespace="manage_staff_app")),
+    path("manage-visitors/", include("manage_visitor_app.urls", namespace="manage_visitor_app")),
+
 ]
