@@ -58,12 +58,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'dashboard_app',
-    'staff',
     'register_app',
     'login_app',
     'book_visit_app',
     'history_app',
     'profile_app',
+    'help_app',
+    'manage_staff_app',
 ]
 
 MIDDLEWARE = [

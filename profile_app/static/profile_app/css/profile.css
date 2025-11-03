@@ -134,6 +134,7 @@ body {
     margin-top: auto;
     border-top: 1px solid rgba(212, 175, 55, 0.3);
     padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 /* ===== Main Content ===== */
@@ -534,7 +535,7 @@ body {
     justify-content: center;
     gap: 10px;
     padding: 14px 28px;
-    background: linear-gradient(135deg, #6c757d, #5a6268);
+    background: linear-gradient(135deg, #495057, #6c757d);
     color: #FFFFFF;
     border: none;
     border-radius: 50px;
@@ -542,13 +543,13 @@ body {
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    box-shadow: 0 4px 15px rgba(73, 80, 87, 0.4);
 }
 
 .btn-cancel:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 25px rgba(108, 117, 125, 0.4);
-    background: linear-gradient(135deg, #5a6268, #6c757d);
+    box-shadow: 0 6px 25px rgba(73, 80, 87, 0.5);
+    background: linear-gradient(135deg, #6c757d, #495057);
 }
 
 .btn-danger {

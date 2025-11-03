@@ -22,15 +22,26 @@ def is_strong_password(password):
 
 def register_view(request):
     if request.method == 'POST':
+        visitor_type_select = request.POST.get('visitorType', '').strip()
+        visitor_type_other = request.POST.get('visitor_type_other', '').strip()
+        if visitor_type_select == "Other":
+            visitor_type = visitor_type_other
+        else:
+            visitor_type = visitor_type_select
+
         data = {
             "first_name": request.POST.get('firstName', '').strip(),
             "last_name": request.POST.get('lastName', '').strip(),
             "email": request.POST.get('email', '').strip().lower(),
             "phone": request.POST.get('phone', '').strip(),
-            "visitor_type": request.POST.get('visitorType') or request.POST.get('visitor_type_other', '').strip(),
+            "visitor_type": visitor_type,
         }
         password = request.POST.get('password', '')
         confirm_password = request.POST.get('confirmPassword', '')
+
+        # Add to data for template rendering on error
+        data["visitor_type_select"] = visitor_type_select
+        data["visitor_type_other"] = visitor_type_other
 
         if password != confirm_password:
             data["error"] = "Passwords do not match."
@@ -61,6 +72,6 @@ def register_view(request):
         }).execute()
 
         messages.success(request, "Registration successful! Please login.")
-        return redirect('login')
+        return redirect('login_app:login')
 
     return render(request, 'register_app/register.html')

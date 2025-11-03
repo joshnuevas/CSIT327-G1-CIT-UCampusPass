@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CIT-U Campus Pass{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'dashboard_app/css/dashboard.css' %}?v={{ now|date:'U' }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar">
+        <div class="school-logo"></div>
+        <div class="sidebar-header">
+            <h2>CIT-U Campus Pass</h2>
+            <p>Administrator Panel</p>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="{% url 'dashboard_app:admin_dashboard' %}" class="nav-item {% block dashboard_active %}{% endblock %}">Dashboard</a>
+
+            <a href="#" class="nav-item">Admin Management</a>
+
+            <a href="{% url 'manage_staff_app:staff_list' %}" class="nav-item {% block staff_active %}{% endblock %}">Staff Management</a>
+
+            <a href="#" class="nav-item">Visitor Management</a>
+
+            <a href="#" class="nav-item">Visit Records</a>
+
+            <div class="nav-divider"></div>
+
+            <a href="#" class="nav-item">Reports & Logs</a>
+            <a href="#" class="nav-item">System Settings</a>
+
+            <a href="#" class="nav-item logout-item" id="logoutBtn">Logout</a>
+        </nav>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="search-bar">
+                <input type="text" placeholder="Search admin data, staff, visitors...">
+            </div>
+            <div class="user-info">
+                <div class="notification-icon">
+                    <span class="notification-badge">3</span>
+                </div>
+                <div class="user-avatar">{{ request.session.admin_first_name|default:"AD"|slice:":2"|upper }}</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- ===== LOGOUT MODAL ===== -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <h2>Are you sure you want to logout?</h2>
+            <div class="modal-buttons">
+                <button id="confirmLogout" class="btn-primary">Logout</button>
+                <button id="cancelLogout" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Logout Confirmation =====
+        const logoutBtn = document.getElementById('logoutBtn');
+        const logoutModal = document.getElementById('logoutModal');
+        const confirmLogout = document.getElementById('confirmLogout');
+        const cancelLogout = document.getElementById('cancelLogout');
+
+        logoutBtn.onclick = function(e) {
+            e.preventDefault();
+            logoutModal.style.display = 'block';
+        }
+        confirmLogout.onclick = function() {
+            window.location.href = "{% url 'login_app:logout' %}";
+        }
+        cancelLogout.onclick = function() {
+            logoutModal.style.display = 'none';
+        }
+        window.onclick = function(e) {
+            if (e.target === logoutModal) logoutModal.style.display = 'none';
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
