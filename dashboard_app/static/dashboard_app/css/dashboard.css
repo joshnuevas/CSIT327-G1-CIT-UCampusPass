@@ -612,6 +612,14 @@ body {
     transform: translateY(-2px);
 }
 
+.empty-placeholder {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
