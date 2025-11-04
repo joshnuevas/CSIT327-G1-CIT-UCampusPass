@@ -1,0 +1,132 @@
+{% extends "dashboard_app/admin_dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Admin Profile - CIT-U Campus Pass{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'profile_app/css/admin_profile.css' %}?v={{ now|date:'U' }}">
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="welcome-section">
+    <h1>Profile Settings</h1>
+  </div>
+
+  <div class="settings-grid">
+    <!-- ===== PERSONAL INFORMATION ===== -->
+    <div class="settings-card">
+      <div class="card-header">
+        <div class="card-title-section">
+          <i class="fas fa-user-shield"></i>
+          <h3>Personal Information</h3>
+        </div>
+        <button class="btn-edit" id="editBtn">
+          <i class="fas fa-edit"></i> Edit Profile
+        </button>
+      </div>
+
+      <!-- ===== VIEW MODE ===== -->
+      <div id="viewMode" class="view-mode">
+        <div class="profile-view-row">
+          <div class="profile-view-field">
+            <label>First Name</label>
+            <div class="value">{{ admin.first_name }}</div>
+          </div>
+          <div class="profile-view-field">
+            <label>Last Name</label>
+            <div class="value">{{ admin.last_name }}</div>
+          </div>
+        </div>
+        <div class="profile-view-field">
+          <label>Username</label>
+          <div class="value">{{ admin.username }}</div>
+        </div>
+        <div class="profile-view-field">
+          <label>Email Address</label>
+          <div class="value">{{ admin.email }}</div>
+        </div>
+      </div>
+
+      <!-- ===== EDIT MODE ===== -->
+      <form method="POST" id="editMode" class="settings-form edit-mode" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_info">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" name="first_name" value="{{ admin.first_name }}" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" name="last_name" value="{{ admin.last_name }}" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" name="email" value="{{ admin.email }}" required>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-check"></i> Save Changes
+          </button>
+          <button type="button" class="btn-cancel" id="cancelBtn">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ===== PASSWORD CHANGE SECTION ===== -->
+    <div class="settings-card">
+      <div class="card-header">
+        <div class="card-title-section">
+          <i class="fas fa-lock"></i>
+          <h3>Change Password</h3>
+        </div>
+      </div>
+
+      <form method="POST" class="settings-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="change_password">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" name="current_password" required>
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" name="new_password" required>
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" name="confirm_password" required>
+        </div>
+        <button type="submit" class="btn-primary">
+          <i class="fas fa-key"></i> Change Password
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JS for Edit/Cancel ===== -->
+<script>
+  const editBtn = document.getElementById('editBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const viewMode = document.getElementById('viewMode');
+  const editMode = document.getElementById('editMode');
+
+  editBtn.onclick = () => {
+    viewMode.style.display = 'none';
+    editMode.style.display = 'block';
+    editBtn.style.display = 'none';
+  };
+
+  cancelBtn.onclick = () => {
+    viewMode.style.display = 'block';
+    editMode.style.display = 'none';
+    editBtn.style.display = 'inline-flex';
+    editMode.reset();
+  };
+</script>
+{% endblock %}

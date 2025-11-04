@@ -101,3 +101,33 @@ def profile_view(request):
             return redirect('login_app:login')
 
     return render(request, 'profile_app/profile.html', {"user": user})
+
+def admin_profile_view(request):
+    if 'admin_username' not in request.session:
+        return redirect('login_app:login')
+
+    username = request.session['admin_username']
+    response = supabase.table("administrator").select("*").eq("username", username).execute()
+    admin_data = response.data[0] if response.data else {}
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "update_info":
+            first_name = request.POST["first_name"]
+            last_name = request.POST["last_name"]
+            email = request.POST["email"]
+            supabase.table("administrator").update({
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": email
+            }).eq("username", username).execute()
+
+            request.session["admin_first_name"] = first_name  # update header initials
+            return redirect("profile_app:admin_profile")
+
+        elif action == "change_password":
+            # Handle password change logic if needed
+            pass
+
+    context = {"admin": admin_data}
+    return render(request, "profile_app/admin_profile.html", context)
