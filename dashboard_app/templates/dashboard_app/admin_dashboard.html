@@ -5,20 +5,19 @@
 {% block content %}
 <div class="welcome-section">
     <h1>System Admin</h1>
-    <p>Manage your campus operations efficiently from this dashboard.</p>
 </div>
 
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-value">{{ total_admins|default:"5" }}</div>
+        <div class="stat-value">{{ total_admins }}</div>
         <div class="stat-label">Total Admins</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">{{ total_staff|default:"12" }}</div>
+        <div class="stat-value">{{ total_staff }}</div>
         <div class="stat-label">Front Desk Staff</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">{{ total_visitors|default:"256" }}</div>
+        <div class="stat-value">{{ total_visitors }}</div>
         <div class="stat-label">Registered Visitors</div>
     </div>
 </div>
@@ -29,25 +28,39 @@
             <h3 class="card-title">Recent Activities</h3>
             <a href="#" class="view-all">View Logs →</a>
         </div>
-        <p>• Admin <strong>cit_admin02</strong> added new staff.<br>
-           • Visitor registration approved by <strong>cit_admin01</strong>.<br>
-           • Staff <strong>cit_staff03</strong> reset their password.</p>
+
+        {% if recent_activities %}
+            <ul>
+                {% for activity in recent_activities %}
+                    <li>{{ activity }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-placeholder">No recent activities available.</p>
+        {% endif %}
     </div>
 
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">System Notifications</h3>
         </div>
-        <div class="notification-item">
-            <div class="notification-icon-small">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="notification-content">
-                <h4>New Visitor Registrations</h4>
-                <p>3 new visitors have registered today.</p>
-                <div class="notification-time">5 mins ago</div>
-            </div>
-        </div>
+
+        {% if notifications %}
+            {% for notif in notifications %}
+                <div class="notification-item">
+                    <div class="notification-icon-small">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="notification-content">
+                        <h4>{{ notif.title }}</h4>
+                        <p>{{ notif.message }}</p>
+                        <div class="notification-time">{{ notif.time }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="empty-placeholder">No new notifications.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
