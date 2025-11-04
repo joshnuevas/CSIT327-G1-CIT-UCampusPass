@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'help_app',
     'manage_staff_app',
     'manage_visitor_app',
+    'manage_admin_app',
 ]
 
 MIDDLEWARE = [
@@ -148,9 +149,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",  # optional, if you have a global static folder
-]
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",  # optional, if you have a global static folder
+# ]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Default primary key field type
