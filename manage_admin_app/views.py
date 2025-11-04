@@ -5,9 +5,18 @@ from . import services
 from .forms import AdminCreateForm, AdminEditForm
 from .helpers import hash_password, generate_admin_username, generate_temp_password
 from manage_staff_app.views import admin_required
+from django.http import HttpResponseForbidden
 
+def superadmin_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.session.get("user_is_superadmin"):
+            messages.error(request, "Access denied: Super admin privileges required.")
+            return redirect("dashboard_app:admin_dashboard")
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 @admin_required
+@superadmin_required
 def admin_list_view(request):
     """
     Display the list of administrators.
@@ -18,6 +27,7 @@ def admin_list_view(request):
 
 
 @admin_required
+@superadmin_required
 def admin_create_view(request):
     """
     Create a new administrator with auto-generated username and temporary password.
@@ -66,6 +76,7 @@ def admin_create_view(request):
 
 
 @admin_required
+@superadmin_required
 def admin_edit_view(request, username):
     """
     Edit an existing administrator.
@@ -105,6 +116,7 @@ def admin_edit_view(request, username):
 
 
 @admin_required
+@superadmin_required
 def admin_toggle_active_view(request, username):
     """
     Toggle an admin's active/inactive status.
@@ -131,6 +143,7 @@ def admin_toggle_active_view(request, username):
 
 
 @admin_required
+@superadmin_required
 def admin_reset_password_view(request, username):
     """
     Reset an administrator's password to the fixed temporary password.
