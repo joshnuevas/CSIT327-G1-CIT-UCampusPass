@@ -1,0 +1,62 @@
+{% extends "dashboard_app/admin_dashboard_base.html" %}
+{% load static %}
+{% block visit_records_active %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'manage_visit_records_app/css/visit_records.css' %}?v={{ now|date:'U' }}">
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <h1>Visit Records</h1>
+
+  <div class="filter-bar">
+    <div class="status-dropdown">
+      <select id="statusFilter">
+        <option value="All">All</option>
+        <option value="Upcoming">Upcoming</option>
+        <option value="Ongoing">Ongoing</option>
+        <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+    <button id="exportCSV" class="export-btn">Export CSV</button>
+  </div>
+</div>
+
+<div class="table-container">
+  <table id="visitsTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Register Date</th>
+        <th>Code</th>
+        <th>Visitor</th>
+        <th>Purpose</th>
+        <th>Department</th>
+        <th>Start - End</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="visitsTbody">
+      <!-- JS will populate here -->
+    </tbody>
+  </table>
+</div>
+
+<div id="pagination" class="pagination"></div>
+
+<!-- Visit Detail Modal -->
+<div id="visitModal" class="modal">
+  <div class="modal-content" id="visitModalContent"></div>
+</div>
+
+<!-- JSON data for JS -->
+<script id="visits-data" type="application/json">
+  {{ visits|safe }}
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'manage_visit_records_app/js/visit_records.js' %}?v={{ now|date:'U' }}"></script>
+{% endblock %}

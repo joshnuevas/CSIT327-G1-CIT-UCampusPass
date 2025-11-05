@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'manage_staff_app',
     'manage_visitor_app',
     'manage_admin_app',
+    'manage_visit_records_app',
 ]
 
 MIDDLEWARE = [
