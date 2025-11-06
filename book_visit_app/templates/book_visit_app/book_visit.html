@@ -72,6 +72,33 @@
 
     <!-- Main Content -->
     <div class="main-content">
+        
+        <!-- Messages Display Section -->
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
+                <div class="alert-content">
+                    <span class="alert-icon">
+                        {% if message.tags == 'success' %}
+                            ✅
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            ❌
+                        {% elif message.tags == 'warning' %}
+                            ⚠️
+                        {% else %}
+                            ℹ️
+                        {% endif %}
+                    </span>
+                    <span class="alert-text">{{ message }}</span>
+                    <button class="alert-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <!-- End Messages Display -->
+
         <div class="top-bar">
             <div class="page-title">
                 <h1>Book a Visit</h1>
@@ -353,6 +380,20 @@
                 warningModal.style.display = 'none';
             }
         }
+
+        // ===== AUTO-DISMISS MESSAGES AFTER 5 SECONDS =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateX(400px)';
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 500);
+                }, 5000); // 5 seconds
+            });
+        });
     </script>
 </body>
 </html>

@@ -30,10 +30,24 @@ def send_confirmation_email(user_email, first_name, visit_details, code):
     Send confirmation email with proper error handling.
     Returns True if sent successfully, False otherwise.
     """
+    print("\n" + "="*60)
+    print("ATTEMPTING TO SEND EMAIL")
+    print("="*60)
+    print(f"To: {user_email}")
+    print(f"First Name: {first_name}")
+    print(f"Visit Code: {code}")
+    
     # Skip email if not configured
-    if not getattr(settings, 'EMAIL_HOST_USER', None):
+    email_host_user = getattr(settings, 'EMAIL_HOST_USER', None)
+    print(f"EMAIL_HOST_USER from settings: {email_host_user}")
+    
+    if not email_host_user:
         logger.warning("Email not configured. Skipping email send.")
+        print("❌ EMAIL_HOST_USER is not configured!")
+        print("="*60 + "\n")
         return False
+    
+    print(f"✓ EMAIL_HOST_USER is configured: {email_host_user}")
     
     subject = "CIT-U CampusPass | Visit Confirmation"
     message = (
@@ -48,19 +62,30 @@ def send_confirmation_email(user_email, first_name, visit_details, code):
         f"Thank you for using CIT-U CampusPass!"
     )
     
+    print(f"Subject: {subject}")
+    print(f"From: {settings.DEFAULT_FROM_EMAIL}")
+    print(f"To: {user_email}")
+    print("Attempting to send email...")
+    
     try:
-        send_mail(
+        result = send_mail(
             subject,
             message,
             settings.DEFAULT_FROM_EMAIL,
             [user_email],
             fail_silently=False,
-            timeout=10  # 10 second timeout to prevent hanging
         )
+        print(f"✅ send_mail() returned: {result}")
+        print(f"✅ Email sent successfully!")
         logger.info(f"Confirmation email sent to {user_email}")
+        print("="*60 + "\n")
         return True
     except Exception as e:
+        print(f"❌ EXCEPTION OCCURRED: {type(e).__name__}")
+        print(f"❌ Error message: {str(e)}")
         logger.error(f"Failed to send email to {user_email}: {str(e)}")
+        logger.exception("Full exception traceback:")
+        print("="*60 + "\n")
         return False
 
 def book_visit_view(request):

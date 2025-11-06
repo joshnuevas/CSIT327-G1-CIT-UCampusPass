@@ -12,6 +12,131 @@ body {
     overflow: hidden;
 }
 
+/* ===== MESSAGES/ALERTS STYLES ===== */
+
+.messages-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 450px;
+    width: 90%;
+}
+
+.alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    animation: slideInRight 0.4s ease forwards;
+    border-left: 5px solid;
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.alert-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.alert-text {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.alert-close:hover {
+    opacity: 1;
+}
+
+/* Success Alert */
+.alert-success {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    color: #155724;
+    border-left-color: #28a745;
+}
+
+/* Error/Danger Alert */
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    color: #721c24;
+    border-left-color: #dc3545;
+}
+
+/* Warning Alert */
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+    border-left-color: #ffc107;
+}
+
+/* Info Alert */
+.alert-info {
+    background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+    color: #0c5460;
+    border-left-color: #17a2b8;
+}
+
+/* Slide in animation */
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Auto-hide after 5 seconds */
+.alert {
+    animation: slideInRight 0.4s ease forwards, fadeOut 0.5s ease 4.5s forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(400px);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .messages-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+
 .sidebar {
     width: 260px;
     background: linear-gradient(270deg, #8B1538, #6B0F2A, #5c0a0a, #8B1538);
