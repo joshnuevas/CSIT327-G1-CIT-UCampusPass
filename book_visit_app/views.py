@@ -9,6 +9,7 @@ from django.core.mail import send_mail
 from datetime import datetime, time
 from django.conf import settings
 import logging
+import threading
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -65,28 +66,35 @@ def send_confirmation_email(user_email, first_name, visit_details, code):
     print(f"Subject: {subject}")
     print(f"From: {settings.DEFAULT_FROM_EMAIL}")
     print(f"To: {user_email}")
-    print("Attempting to send email...")
+    print("Attempting to send email in background thread...")
     
-    try:
-        result = send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [user_email],
-            fail_silently=False,
-        )
-        print(f"✅ send_mail() returned: {result}")
-        print(f"✅ Email sent successfully!")
-        logger.info(f"Confirmation email sent to {user_email}")
-        print("="*60 + "\n")
-        return True
-    except Exception as e:
-        print(f"❌ EXCEPTION OCCURRED: {type(e).__name__}")
-        print(f"❌ Error message: {str(e)}")
-        logger.error(f"Failed to send email to {user_email}: {str(e)}")
-        logger.exception("Full exception traceback:")
-        print("="*60 + "\n")
-        return False
+    def send_email_thread():
+        try:
+            result = send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [user_email],
+                fail_silently=False,
+            )
+            print(f"✅ send_mail() returned: {result}")
+            print(f"✅ Email sent successfully!")
+            logger.info(f"Confirmation email sent to {user_email}")
+            print("="*60 + "\n")
+        except Exception as e:
+            print(f"❌ EXCEPTION OCCURRED: {type(e).__name__}")
+            print(f"❌ Error message: {str(e)}")
+            logger.error(f"Failed to send email to {user_email}: {str(e)}")
+            logger.exception("Full exception traceback:")
+            print("="*60 + "\n")
+    
+    # Send email in background thread
+    email_thread = threading.Thread(target=send_email_thread)
+    email_thread.daemon = True
+    email_thread.start()
+    
+    # Return True immediately (don't wait for email to finish)
+    return True
 
 def book_visit_view(request):
     # Redirect if not logged in
