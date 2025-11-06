@@ -5,9 +5,7 @@ from dotenv import load_dotenv
 from django.contrib import messages
 import random
 import string
-from django.core.mail import send_mail
 from datetime import datetime, time
-from django.conf import settings
 import logging
 
 # Setup logging
@@ -24,69 +22,6 @@ def generate_visit_code(purpose):
     random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
     purpose_prefix = purpose[:3].upper() if purpose else "VIS"
     return f"CIT-{purpose_prefix}-{random_str}"
-
-def send_confirmation_email(user_email, first_name, visit_details, code):
-    """
-    Send confirmation email with proper error handling.
-    Returns True if sent successfully, False otherwise.
-    """
-    print("\n" + "="*60)
-    print("ATTEMPTING TO SEND EMAIL")
-    print("="*60)
-    print(f"To: {user_email}")
-    print(f"First Name: {first_name}")
-    print(f"Visit Code: {code}")
-    
-    # Skip email if not configured
-    email_host_user = getattr(settings, 'EMAIL_HOST_USER', None)
-    print(f"EMAIL_HOST_USER from settings: {email_host_user}")
-    
-    if not email_host_user:
-        logger.warning("Email not configured. Skipping email send.")
-        print("❌ EMAIL_HOST_USER is not configured!")
-        print("="*60 + "\n")
-        return False
-    
-    print(f"✓ EMAIL_HOST_USER is configured: {email_host_user}")
-    
-    subject = "CIT-U CampusPass | Visit Confirmation"
-    message = (
-        f"Hi {first_name},\n\n"
-        f"Your visit has been successfully booked!\n\n"
-        f"📅 Date: {visit_details['date']}\n"
-        f"🕒 Time: {visit_details['start_time']} - {visit_details['end_time']}\n"
-        f"🏢 Department: {visit_details['department']}\n"
-        f"🎯 Purpose: {visit_details['purpose']}\n"
-        f"🔑 Visit Code: {code}\n\n"
-        f"Please present this visit code upon arrival.\n"
-        f"Thank you for using CIT-U CampusPass!"
-    )
-    
-    print(f"Subject: {subject}")
-    print(f"From: {settings.DEFAULT_FROM_EMAIL}")
-    print(f"To: {user_email}")
-    print("Sending email synchronously...")
-    
-    try:
-        result = send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [user_email],
-            fail_silently=False,
-        )
-        print(f"✅ send_mail() returned: {result}")
-        print(f"✅ Email sent successfully!")
-        logger.info(f"Confirmation email sent to {user_email}")
-        print("="*60 + "\n")
-        return True
-    except Exception as e:
-        print(f"❌ EXCEPTION OCCURRED: {type(e).__name__}")
-        print(f"❌ Error message: {str(e)}")
-        logger.error(f"Failed to send email to {user_email}: {str(e)}")
-        logger.exception("Full exception traceback:")
-        print("="*60 + "\n")
-        return False
 
 def book_visit_view(request):
     # Redirect if not logged in
@@ -175,24 +110,9 @@ def book_visit_view(request):
                 messages.error(request, "Failed to book visit. Please try again later.")
                 return redirect('book_visit_app:book_visit')
 
-            # Prepare visit details for email
-            visit_details = {
-                'date': visit_date_str,
-                'start_time': start_time,
-                'end_time': end_time,
-                'department': department,
-                'purpose': purpose
-            }
-
-            # Try to send confirmation email (SYNCHRONOUSLY - waits for completion)
-            email_sent = send_confirmation_email(user_email, first_name, visit_details, code)
-
-            # Show appropriate success message
-            if email_sent:
-                messages.success(request, f"Visit booked successfully! A confirmation email has been sent to {user_email}.")
-            else:
-                messages.success(request, f"Visit booked successfully! Your visit code is: {code}")
-                messages.info(request, "Note: Confirmation email could not be sent, but your visit is confirmed.")
+            # Show success message with visit code
+            messages.success(request, f"Visit booked successfully! Your visit code is: {code}")
+            messages.info(request, "Please save your visit code for check-in.")
 
             return redirect('dashboard_app:dashboard')
 
