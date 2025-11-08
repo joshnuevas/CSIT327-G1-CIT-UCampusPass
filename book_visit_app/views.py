@@ -7,6 +7,7 @@ import random
 import string
 from datetime import datetime, time
 import logging
+from manage_reports_logs_app import services as logs_services
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -104,6 +105,19 @@ def book_visit_view(request):
                     "end_time": end_time,
                     "status": "Upcoming"
                 }).execute()
+                # Log the visit booking
+                actor = f"{first_name} ({user_email})"
+                description = f"Booked a visit for {visit_date_str} from {start_time} to {end_time} in {department} for purpose '{purpose}'."
+                try:
+                    logs_services.create_log(
+                        actor=actor,
+                        action_type="Visit Booking",
+                        description=description,
+                        actor_role="Visitor"
+                    )
+                except Exception as log_error:
+                    logger.error(f"Failed to log visit booking: {str(log_error)}")
+
                 logger.info(f"Visit booked successfully for user {user_email} with code {code}")
             except Exception as e:
                 logger.error(f"Database error while booking visit: {str(e)}")

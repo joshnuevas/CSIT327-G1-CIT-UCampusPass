@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 import re
 from django.contrib.auth.hashers import check_password, make_password
+from manage_reports_logs_app import services as logs_services
 
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -112,22 +113,63 @@ def admin_profile_view(request):
 
     if request.method == "POST":
         action = request.POST.get("action")
+
+        # ----- Update Personal Info -----
         if action == "update_info":
             first_name = request.POST["first_name"]
             last_name = request.POST["last_name"]
             email = request.POST["email"]
+
+            # Capture old values for logging
+            old_first = admin_data.get("first_name", "")
+            old_last = admin_data.get("last_name", "")
+            old_email = admin_data.get("email", "")
+
+            # Update Supabase
             supabase.table("administrator").update({
                 "first_name": first_name,
                 "last_name": last_name,
                 "email": email
             }).eq("username", username).execute()
 
-            request.session["admin_first_name"] = first_name  # update header initials
+            # Update session for header initials
+            request.session["admin_first_name"] = first_name
+
+            # Log profile update
+            actor = f"{request.session.get('admin_first_name', 'Unknown')} ({username})"
+            description = (
+                f"Updated profile: first_name '{old_first}' → '{first_name}', "
+                f"last_name '{old_last}' → '{last_name}', "
+                f"email '{old_email}' → '{email}'"
+            )
+            logs_services.create_log(actor, "Account", description, actor_role="Admin")
+
+            messages.success(request, "Profile updated successfully!")
             return redirect("profile_app:admin_profile")
 
+        # ----- Change Password -----
         elif action == "change_password":
-            # Handle password change logic if needed
-            pass
+            current_password = request.POST.get("current_password")
+            new_password = request.POST.get("new_password")
+            confirm_password = request.POST.get("confirm_password")
+
+            if not check_password(current_password, admin_data.get('password', '')):
+                messages.error(request, "Current password is incorrect.")
+                return redirect("profile_app:admin_profile")
+
+            if new_password != confirm_password:
+                messages.error(request, "New passwords do not match.")
+                return redirect("profile_app:admin_profile")
+
+            hashed_password = make_password(new_password)
+            supabase.table("administrator").update({"password": hashed_password}).eq("username", username).execute()
+
+            # Log password change
+            actor = f"{request.session.get('admin_first_name', 'Unknown')} ({username})"
+            logs_services.create_log(actor, "Security", "Changed password", actor_role="Admin")
+
+            messages.success(request, "Password changed successfully!")
+            return redirect("profile_app:admin_profile")
 
     context = {"admin": admin_data}
     return render(request, "profile_app/admin_profile.html", context)
