@@ -240,7 +240,7 @@ input[type="password"] {
 
 select {
     width: 100%;
-    padding: 14px 16px;
+    padding: 14px 45px 14px 18px;
     border: 2px solid #8B1538;
     border-radius: 10px;
     font-size: 15px;
@@ -249,12 +249,23 @@ select {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
     cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%238B1538" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 12,15 18,9"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
 }
 
 select:focus {
     outline: none;
     border-color: #d4af37;
     box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,15 12,9 18,15"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
 }
 
 input[type="text"]:focus,
