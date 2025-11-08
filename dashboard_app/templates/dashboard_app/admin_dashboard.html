@@ -4,7 +4,8 @@
 
 {% block content %}
 <div class="welcome-section">
-    <h1>System Admin</h1>
+    <h1>Welcome, Admin!</h1>
+    <p>Here's your system overview</p>
 </div>
 
 <div class="stats-grid">
@@ -12,11 +13,11 @@
         <div class="stat-value">{{ total_admins }}</div>
         <div class="stat-label">Total Admins</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card active-pass-stat">
         <div class="stat-value">{{ total_staff }}</div>
         <div class="stat-label">Front Desk Staff</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card total-visits-stat">
         <div class="stat-value">{{ total_visitors }}</div>
         <div class="stat-label">Registered Visitors</div>
     </div>
@@ -30,11 +31,15 @@
         </div>
 
         {% if recent_activities %}
-            <ul>
-                {% for activity in recent_activities %}
-                    <li>{{ activity }}</li>
-                {% endfor %}
-            </ul>
+            {% for activity in recent_activities %}
+                <div class="pass-code-item">
+                    <div class="pass-code-info">
+                        <h4>Activity Log</h4>
+                        <p>{{ activity }}</p>
+                    </div>
+                    <span class="pass-status status-active">New</span>
+                </div>
+            {% endfor %}
         {% else %}
             <p class="empty-placeholder">No recent activities available.</p>
         {% endif %}
@@ -49,7 +54,9 @@
             {% for notif in notifications %}
                 <div class="notification-item">
                     <div class="notification-icon-small">
-                        <i class="fas fa-bell"></i>
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
                     </div>
                     <div class="notification-content">
                         <h4>{{ notif.title }}</h4>
