@@ -1,0 +1,55 @@
+{% extends "dashboard_app/admin_dashboard_base.html" %}
+{% load static %}
+{% block logs_active %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'manage_reports_logs_app/css/logs.css' %}?v={{ now|date:'U' }}">
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <h1>System Logs</h1>
+  <div class="filter-bar">
+    <div class="filter-dropdown">
+      <label for="actorRoleFilter">Actor Role:</label>
+      <select id="actorRoleFilter">
+        <option value="All">All</option>
+        <option value="Admin">Admin</option>
+        <option value="Staff">Staff</option>
+        <option value="Visitor">Visitor</option>
+      </select>
+    </div>
+
+    <div class="filter-date">
+      <label for="createdDateFilter">Created Date:</label>
+      <input type="date" id="createdDateFilter" />
+    </div>
+
+    <button id="exportCSV" class="export-btn">Export CSV</button>
+  </div>
+</div>
+
+<div class="table-container">
+  <table id="logsTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Actor</th>
+        <th>Action Type</th>
+        <th>Description</th>
+        <th>Actor Role</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody id="logsTbody"></tbody>
+  </table>
+</div>
+
+<div id="pagination" class="pagination"></div>
+
+<script id="logs-data" type="application/json">{% autoescape off %}{{ logs_json }}{% endautoescape %}</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'manage_reports_logs_app/js/logs.js' %}?v={{ now|date:'U' }}"></script>
+{% endblock %}

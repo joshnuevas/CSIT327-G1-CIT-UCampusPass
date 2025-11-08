@@ -28,7 +28,7 @@
         <th>Email</th>
         <th>Phone</th>
         <th>Visitor Type</th>
-        <th>Register Date</th> <!-- ✅ Renamed -->
+        <th>Register Date</th>
         <th style="text-align:center;">Actions</th>
       </tr>
     </thead>
@@ -47,11 +47,12 @@
                 N/A
             {% endif %}
         </td>
-
-
         <td style="text-align:center;">
           <a href="{% url 'manage_visitor_app:visitor_deactivate' v.user_id %}" 
-             class="action-item open-modal" data-action="delete" data-username="{{ v.first_name }} {{ v.last_name }}">
+             class="action-item open-modal" 
+             data-action="delete" 
+             data-username="{{ v.first_name }} {{ v.last_name }}"
+             data-email="{{ v.email }}">
             <i class="fas fa-trash-alt"></i> Remove
           </a>
         </td>
@@ -64,4 +65,59 @@
     </tbody>
   </table>
 </div>
+
+<!-- Remove Visitor Confirmation Modal -->
+<div id="removeVisitorModal" class="modal">
+    <div class="modal-content">
+        <h2 id="removeVisitorText">Are you sure you want to remove this visitor?</h2>
+        <div class="modal-buttons">
+            <button id="confirmRemoveVisitor" class="btn-primary">Remove</button>
+            <button id="cancelRemoveVisitor" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const removeModal = document.getElementById("removeVisitorModal");
+    const removeText = document.getElementById("removeVisitorText");
+    const confirmRemoveBtn = document.getElementById("confirmRemoveVisitor");
+    const cancelRemoveBtn = document.getElementById("cancelRemoveVisitor");
+
+    let removeUrl = "";
+
+    // Open modal on click
+    document.querySelectorAll(".open-modal[data-action='delete']").forEach(btn => {
+        btn.addEventListener("click", function(e) {
+            e.preventDefault();
+            const username = this.dataset.username;
+            const email = this.dataset.email;
+            removeUrl = this.href;
+
+            removeText.textContent = `Are you sure you want to remove ${username} (${email})?`;
+            removeModal.style.display = "block";
+        });
+    });
+
+    // Confirm removal
+    confirmRemoveBtn.addEventListener("click", function() {
+        if (removeUrl) {
+            window.location.href = removeUrl;
+        }
+    });
+
+    // Cancel removal
+    cancelRemoveBtn.addEventListener("click", function() {
+        removeModal.style.display = "none";
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener("click", function(e) {
+        if (e.target === removeModal) {
+            removeModal.style.display = "none";
+        }
+    });
+});
+</script>
+
 {% endblock %}

@@ -30,5 +30,5 @@ urlpatterns = [
     path("manage-visitors/", include("manage_visitor_app.urls", namespace="manage_visitor_app")),
     path("manage-admins/", include("manage_admin_app.urls", namespace="manage_admin_app")),
     path('visit-records/', include('manage_visit_records_app.urls', namespace="visit_records_app")),
-
+    path('reports-logs/', include('manage_reports_logs_app.urls', namespace="manage_reports_logs_app")),
 ]

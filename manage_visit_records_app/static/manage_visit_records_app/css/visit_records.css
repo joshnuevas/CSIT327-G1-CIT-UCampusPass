@@ -9,7 +9,6 @@
 
 .content-header h1 {
   color: #8b1538;
-  font-size: 24px;
   font-weight: 700;
   margin-bottom: 10px;
 }
@@ -49,7 +48,6 @@
 #statusFilter:focus {
   border-color: #8b1538;
   outline: none;
-  color: #8b1538;
 }
 
 /* Dropdown arrow */
@@ -61,7 +59,6 @@
   right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #8b1538;
   pointer-events: none;
   font-size: 12px;
 }

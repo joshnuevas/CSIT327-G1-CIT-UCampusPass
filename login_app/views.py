@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.messages import get_messages
+from manage_reports_logs_app import services as logs_services
 
 
 load_dotenv()
