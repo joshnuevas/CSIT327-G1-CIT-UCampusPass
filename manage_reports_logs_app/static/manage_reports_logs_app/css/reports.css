@@ -1,0 +1,290 @@
+/* ===== PAGE HEADER ===== */
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.content-header h1 {
+  color: #8b1538;
+  font-weight: 700;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+/* ===== FILTER BAR ===== */
+.filter-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+
+.filter-group,
+.filter-date {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.filter-date {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label,
+.filter-date label {
+  font-weight: 500;
+  color: #333;
+}
+
+#statusFilter,
+#startDate,
+#endDate {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 1.8px solid #ccc;
+  border-radius: 12px;
+  padding: 8px 15px 8px 12px;
+  background-color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border 0.25s ease;
+}
+
+#statusFilter {
+  width: 160px;
+  background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%238b1538' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+}
+
+#statusFilter:hover,
+#statusFilter:focus,
+#startDate:hover,
+#startDate:focus,
+#endDate:hover,
+#endDate:focus {
+  border-color: #8b1538;
+  outline: none;
+}
+
+/* ===== EXPORT DROPDOWN ===== */
+.export-dropdown {
+  position: relative;
+  display: inline-block;
+  margin-left: auto;
+}
+
+.export-btn {
+  background: #8b1538;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-btn:hover {
+  background: #6b0f2a;
+  transform: translateY(-1px);
+}
+
+/* Dropdown Menu */
+.export-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 10;
+  min-width: 140px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+.export-menu.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.export-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.export-menu button:hover {
+  background: #f5f5f5;
+  color: #8b1538;
+}
+
+/* ===== SUMMARY CARDS ===== */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summary-cards .card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  padding: 1.2rem;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-cards .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.summary-cards .card h3 {
+  font-size: 1rem;
+  color: #8b1538;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.summary-cards .card p {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+/* ===== CHART SECTION ===== */
+.chart-section {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.chart-section h2 {
+  font-size: 1.2rem;
+  color: #8b1538;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.chart-section canvas {
+  width: 100% !important;
+  max-width: 900px;
+  height: auto !important;
+  margin: 0 auto;
+  display: block;
+}
+
+
+/* ===== CHART RESPONSIVENESS ===== */
+@media (max-width: 1200px) {
+  .chart-section canvas {
+    max-width: 750px;
+  }
+}
+
+@media (max-width: 992px) {
+  .chart-section canvas {
+    max-width: 650px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-section canvas {
+    max-width: 100%;
+  }
+}
+
+/* ===== FILTER RESPONSIVENESS ===== */
+@media (max-width: 992px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .filter-date {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #statusFilter,
+  #startDate,
+  #endDate,
+  .export-dropdown {
+    width: 100%;
+  }
+
+  .export-btn {
+    width: 100%;
+    text-align: center;
+    margin-left: 0;
+  }
+
+  .export-menu {
+    left: 0;
+    right: 0;
+  }
+
+  .export-menu button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-bar {
+    gap: 10px;
+  }
+
+  #statusFilter,
+  #startDate,
+  #endDate,
+  .export-btn {
+    font-size: 13px;
+    padding: 9px 14px;
+  }
+
+  .export-menu button {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+
+  .content-header h1 {
+    font-size: 1.5rem;
+  }
+}

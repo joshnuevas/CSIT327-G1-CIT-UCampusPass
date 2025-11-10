@@ -110,7 +110,7 @@ WSGI_APPLICATION = 'citu_campuspass.wsgi.application'
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL", default_sqlite),
-        conn_max_age=600,     # persistent connections (good for poolers)
+        conn_max_age=60,     # persistent connections (good for poolers)
         ssl_require=True      # enforce SSL (Supabase requires)
     )
 }
