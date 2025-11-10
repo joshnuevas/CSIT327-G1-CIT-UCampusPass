@@ -1,0 +1,98 @@
+{% extends "dashboard_app/admin_dashboard_base.html" %}
+{% load static %}
+
+{% block reports_active %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'manage_reports_logs_app/css/reports.css' %}?v={{ now|date:'U' }}">
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+  <h1>Reports Overview</h1>
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="statusFilter">Status:</label>
+      <select id="statusFilter">
+        <option value="All">All</option>
+        <option value="Upcoming">Upcoming</option>
+        <option value="Ongoing">Ongoing</option>
+        <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <div class="filter-date">
+      <label for="startDate">From:</label>
+      <input type="date" id="startDate" />
+      <label for="endDate">To:</label>
+      <input type="date" id="endDate" />
+    </div>
+
+    <div class="export-dropdown">
+      <button class="export-btn" aria-haspopup="true" aria-expanded="false">
+        Export ⏷
+      </button>
+      <ul class="export-menu">
+        <li><button id="exportCSV">CSV</button></li>
+        <li><button id="exportPDF">PDF</button></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="summary-cards">
+  <div class="card" id="totalVisitorsCard">
+    <h3>Total Visitors</h3>
+    <p id="totalVisitors">0</p>
+  </div>
+  <div class="card" id="totalVisitsCard">
+    <h3>Total Visits</h3>
+    <p id="totalVisits">0</p>
+  </div>
+  <div class="card" id="upcomingVisitsCard">
+    <h3>Upcoming Visits</h3>
+    <p id="upcomingVisits">0</p>
+  </div>
+  <div class="card" id="ongoingVisitsCard">
+    <h3>Ongoing Visits</h3>
+    <p id="ongoingVisits">0</p>
+  </div>
+  <div class="card" id="completedVisitsCard">
+    <h3>Completed Visits</h3>
+    <p id="completedVisits">0</p>
+  </div>
+</div>
+
+<div class="chart-section">
+  <h2>Visit Trends</h2>
+  <canvas id="visitTrendsChart"></canvas>
+</div>
+
+<div class="chart-section">
+  <h2>Visits by Purpose</h2>
+  <canvas id="purposeChart"></canvas>
+</div>
+
+<div class="chart-section">
+  <h2>Staff Performance</h2>
+  <canvas id="staffChart"></canvas>
+</div>
+
+<script id="visits-data" type="application/json">
+  {{ visits_json|safe }}
+</script>
+<script id="users-data" type="application/json">
+  {{ users_json|safe }}
+</script>
+<script id="staff-data" type="application/json">
+  {{ staff_json|safe }}
+</script>
+{% endblock %} 
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script src="{% static 'manage_reports_logs_app/js/reports.js' %}?v={{ now|date:'U' }}"></script>
+{% endblock %}
