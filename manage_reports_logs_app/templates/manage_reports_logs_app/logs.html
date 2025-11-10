@@ -25,12 +25,18 @@
       <input type="date" id="createdDateFilter" />
     </div>
 
-    <button id="exportCSV" class="export-btn">Export CSV</button>
+    <div class="export-dropdown">
+      <button class="export-btn" aria-haspopup="true" aria-expanded="false">Export ⏷</button>
+      <ul class="export-menu">
+        <li><button id="exportCSV">CSV</button></li>
+        <li><button id="exportPDF">PDF</button></li>
+      </ul>
+    </div>
   </div>
 </div>
 
 <div class="table-container">
-  <table id="logsTable">
+  <table>
     <thead>
       <tr>
         <th>ID</th>
@@ -48,8 +54,11 @@
 <div id="pagination" class="pagination"></div>
 
 <script id="logs-data" type="application/json">{% autoescape off %}{{ logs_json }}{% endautoescape %}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'manage_reports_logs_app/js/logs.js' %}?v={{ now|date:'U' }}"></script>
+
 {% endblock %}

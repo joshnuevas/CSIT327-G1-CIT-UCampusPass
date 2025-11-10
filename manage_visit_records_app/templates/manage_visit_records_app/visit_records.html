@@ -12,6 +12,7 @@
 
   <div class="filter-bar">
     <div class="status-dropdown">
+      <label for="statusFilter">Status:</label>
       <select id="statusFilter">
         <option value="All">All</option>
         <option value="Upcoming">Upcoming</option>
@@ -20,7 +21,19 @@
         <option value="Cancelled">Cancelled</option>
       </select>
     </div>
-    <button id="exportCSV" class="export-btn">Export CSV</button>
+
+    <div class="filter-date">
+      <label for="registerDateFilter">Register Date:</label>
+      <input type="date" id="registerDateFilter" />
+    </div>
+
+    <div class="export-dropdown">
+      <button class="export-btn" aria-haspopup="true" aria-expanded="false">Export ⏷</button>
+      <ul class="export-menu">
+        <li><button id="exportCSV">CSV</button></li>
+        <li><button id="exportPDF">PDF</button></li>
+      </ul>
+    </div>
   </div>
 </div>
 
@@ -58,5 +71,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <script src="{% static 'manage_visit_records_app/js/visit_records.js' %}?v={{ now|date:'U' }}"></script>
 {% endblock %}
