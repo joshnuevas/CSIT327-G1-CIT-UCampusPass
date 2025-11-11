@@ -327,10 +327,23 @@ tr:hover {
       e.stopPropagation();
       closeAll();
       dropdown.classList.add('active');
+      
       const rect = btn.getBoundingClientRect();
-      dropdown.style.top = `${rect.bottom + 6 + window.scrollY}px`;
-      dropdown.style.left = `${rect.right - dropdown.offsetWidth + window.scrollX}px`;
+      const dropdownHeight = dropdown.offsetHeight;
+      const dropdownWidth = dropdown.offsetWidth;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      // Position above if not enough space below
+      if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+        dropdown.style.top = `${rect.top - dropdownHeight - 6 + window.scrollY}px`;
+      } else {
+        dropdown.style.top = `${rect.bottom + 6 + window.scrollY}px`;
+      }
+
+      dropdown.style.left = `${rect.right - dropdownWidth + window.scrollX}px`;
     });
+
   });
   document.addEventListener('click', closeAll);
 

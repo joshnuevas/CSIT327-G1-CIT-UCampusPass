@@ -1,8 +1,82 @@
 {% extends "dashboard_app/admin_dashboard_base.html" %}
+{% load static %}
 {% block title %}Admin Dashboard - CIT-U Campus Pass{% endblock %}
 {% block dashboard_active %}active{% endblock %}
 
 {% block content %}
+<style>
+/* ===== Notification Card Styling ===== */
+.notification-item {
+    position: relative;
+    background-color: #f9f9f9;
+    border-left: 4px solid #8b1538;
+    padding: 15px 20px 15px 15px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+    background-color: #FFF8E1;
+}
+
+.notification-item h4 {
+    margin: 0 0 5px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4a4a4a;
+}
+
+.notification-item p {
+    margin: 0 0 6px 0;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.notification-item small {
+    display: block;
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.notification-item .btn-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: #8b1538;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    display: none;
+}
+
+.notification-item:hover .btn-delete {
+    display: inline-block;
+}
+
+.small-clear-btn {
+    float: right;
+    font-size: 0.85rem;
+    color: #8b1538;
+    text-decoration: none;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.small-clear-btn:hover {
+    color: #D4AF37;
+    text-decoration: underline;
+}
+
+</style>
+
 <div class="welcome-section">
     <h1>Welcome, Admin!</h1>
     <p>Here's your system overview</p>
@@ -24,20 +98,22 @@
 </div>
 
 <div class="dashboard-grid">
+    <!-- ===== Recent Activities ===== -->
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Recent Activities</h3>
-            <a href="#" class="view-all">View Logs →</a>
+            <a href="{% url 'manage_reports_logs_app:logs_view' %}" class="view-all">View Logs →</a>
         </div>
 
         {% if recent_activities %}
             {% for activity in recent_activities %}
                 <div class="pass-code-item">
                     <div class="pass-code-info">
-                        <h4>Activity Log</h4>
-                        <p>{{ activity }}</p>
+                        <h4>{{ activity.action_type }}</h4>
+                        <p>{{ activity.description }}</p>
+                        <small>By: {{ activity.actor }} ({{ activity.actor_role }})</small><br>
+                        <small>{{ activity.display_time }}</small>
                     </div>
-                    <span class="pass-status status-active">New</span>
                 </div>
             {% endfor %}
         {% else %}
@@ -45,29 +121,32 @@
         {% endif %}
     </div>
 
+    <!-- ===== System Notifications ===== -->
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">System Notifications</h3>
+            <a href="#" id="clearAllBtn" class="view-all small-clear-btn">Clear All</a>
         </div>
 
-        {% if notifications %}
-            {% for notif in notifications %}
-                <div class="notification-item">
-                    <div class="notification-icon-small">
-                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                    <div class="notification-content">
-                        <h4>{{ notif.title }}</h4>
-                        <p>{{ notif.message }}</p>
-                        <div class="notification-time">{{ notif.time }}</div>
-                    </div>
+        <div id="notificationsContainer">
+            {% if notifications %}
+                {% for notif in notifications %}
+                <div class="notification-item" data-id="{{ notif.id }}">
+                    <h4>{{ notif.title }}</h4>
+                    <p>{{ notif.message }}</p>
+                    <small>{{ notif.time }}</small>
+                    <button class="btn-delete" data-id="{{ notif.id }}">✕</button>
                 </div>
-            {% endfor %}
-        {% else %}
-            <p class="empty-placeholder">No new notifications.</p>
-        {% endif %}
+                {% endfor %}
+            {% else %}
+                <p class="empty-placeholder">No new notifications.</p>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'dashboard_app/js/admin_dashboard.js' %}"></script>
 {% endblock %}
