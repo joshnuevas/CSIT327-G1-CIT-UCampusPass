@@ -5,7 +5,6 @@
   const notifBtn = document.getElementById("notifBtn");
   const csrftoken = document.querySelector('meta[name="csrf-token"]').content;
 
-  let previousNotifCount = 0;
   let pollInterval = null;
   const POLL_DELAY = 30000; // 30 seconds
 
@@ -34,12 +33,9 @@
       const notifications = data.notifications || [];
 
       // === Badge logic ===
-      if (notifications.length > previousNotifCount && notifBadge) {
-        notifBadge.style.display = "inline-block";
-      } else if (notifications.length === 0 && notifBadge) {
-        notifBadge.style.display = "none";
+      if (notifBadge) {
+        notifBadge.style.display = notifications.length > 0 ? "inline-block" : "none";
       }
-      previousNotifCount = notifications.length;
 
       // === Populate dropdown ===
       if (notifDropdown) {
@@ -67,10 +63,7 @@
         } else {
           notifications.forEach((notif, index) => {
             const item = document.createElement("div");
-            item.classList.add("dropdown-item");
-            if (index === 0 && notifBadge && notifBadge.style.display !== "none") {
-              item.classList.add("new-notification");
-            }
+            item.classList.add("dropdown-item", "new-notification");
 
             item.innerHTML = `
               <div style="width:100%; position:relative;">
@@ -144,7 +137,6 @@
       const data = await res.json();
       if (data.success && element) {
         element.remove();
-        previousNotifCount = Math.max(0, previousNotifCount - 1);
       }
     } catch (err) {
       console.error(err);
@@ -176,7 +168,6 @@
         }
         if (dashboardContainer) dashboardContainer.innerHTML = "";
         if (notifBadge) notifBadge.style.display = "none";
-        previousNotifCount = 0;
       }
     } catch (err) {
       console.error(err);
@@ -203,13 +194,6 @@
       startPolling();
     }
   });
-
-  // Hide badge when dropdown opens
-  if (notifBtn && notifDropdown) {
-    notifBtn.addEventListener("click", () => {
-      if (notifBadge) notifBadge.style.display = "none";
-    });
-  }
 
   // Clear all button on dashboard
   const clearDashboardBtn = document.getElementById("clearAllBtn");
