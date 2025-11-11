@@ -157,8 +157,27 @@
           display: flex;
           align-items: center;
           gap: 10px;
-          transition: background 0.25s ease;
           text-decoration: none;
+          position: relative;
+          padding-right: 25px; 
+          transition: background 0.2s ease;
+        }
+
+        .dropdown-item .btn-delete {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: transparent;
+          border: none;
+          color: #8b1538;
+          font-weight: bold;
+          cursor: pointer;
+          font-size: 14px;
+          display: none;
+        }
+        
+        .dropdown-item:hover .btn-delete {
+          display: inline-block;
         }
 
         .dropdown-item:hover {
@@ -177,6 +196,12 @@
           font-size: 14px;
         }
 
+        /* Highlight new notifications */
+        .dropdown-item.new-notification h4,
+        .dropdown-item.new-notification p {
+          font-weight: 600;
+        }
+
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -190,17 +215,24 @@
 
         #notifDropdown {
           right: 80px;
+          max-height: 380px;
+          overflow-y: auto;   
+          width: 320px;
+          scrollbar-width: thin;
+          scrollbar-color: #8B1538 #f5f5f5;
         }
 
+        /* Badge adjustments */
         .notification-badge {
           display: none; /* hidden by default */
           position: absolute;
           top: 0;
           right: 0;
-          width: 10px;
-          height: 10px;
-          background-color: yellow;
+          width: 12px;
+          height: 12px;
+          background-color: #D4AF37;
           border-radius: 50%;
+          z-index: 1500;
         }
 
         #profileDropdown {
@@ -324,6 +356,8 @@
             transform: translateY(0); 
           }
         }
+
+        
       </style>
 
       {% block extra_css %}{% endblock %}
@@ -580,6 +614,7 @@
           if(cancelLogout) cancelLogout.addEventListener("click", ()=>closeModal('logoutModal'));
       </script>
 
+      <script src="{% static 'dashboard_app/js/admin_dashboard.js' %}"></script>
       {% block extra_js %}{% endblock %}
   </body>
   </html>
