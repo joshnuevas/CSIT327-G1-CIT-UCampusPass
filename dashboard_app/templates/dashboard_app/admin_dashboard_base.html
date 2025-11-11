@@ -78,13 +78,13 @@
           display: flex;
           justify-content: space-between;
           align-items: center;
-          position: sticky;
+          position: relative;
           top: 0;
           z-index: 110;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
         }
 
-        .search-bar {
+        /* .search-bar {
           flex: 1;
           min-width: 220px;
           max-width: 500px;
@@ -104,13 +104,13 @@
           border-color: #8b1538;
           box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
           outline: none;
-        }
+        } */
 
         @media (max-width: 768px) {
-          .search-bar {
+          /* .search-bar {
             max-width: 300px;
             margin-top: 8px;
-          }
+          } */
         }
 
         /* ===== ICON AREA ===== */
@@ -118,7 +118,8 @@
           position: relative;
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
+          margin-left: auto;
         }
 
         /* ===== DROPDOWNS ===== */
@@ -224,7 +225,7 @@
 
         /* Badge adjustments */
         .notification-badge {
-          display: none; /* hidden by default */
+          display: none; 
           position: absolute;
           top: 0;
           right: 0;
@@ -465,9 +466,9 @@
                   <i class="fas fa-bars"></i>
               </button>
 
-              <div class="search-bar">
+              <!-- <div class="search-bar">
                   <input type="text" placeholder="Search admin data, staff, visitors..." />
-              </div>
+              </div> -->
 
               <div class="user-info">
                   <div class="notification-icon" id="notifBtn">
