@@ -247,7 +247,7 @@
 
         logoutBtn.onclick = function(e) {
             e.preventDefault();
-            logoutModal.style.display = 'block';
+            logoutModal.style.display = 'flex';
         }
 
         confirmLogout.onclick = function() {
@@ -271,7 +271,7 @@
                 const visitCode = this.getAttribute('data-visit-code');
                 console.log('Cancel button clicked. Visit ID:', currentVisitId, 'Visit Code:', visitCode);
                 document.getElementById('cancelVisitCode').textContent = visitCode;
-                cancelVisitModal.style.display = 'block';
+                cancelVisitModal.style.display = 'flex';
             });
         });
 
