@@ -414,6 +414,42 @@ body {
     color: #333333;
 }
 
+/* ===== Card Actions (Cancel Button) ===== */
+.card-actions {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 2px solid #F5F5F5;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.cancel-visit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #FFFFFF;
+    color: #DC3545;
+    border: 2px solid #DC3545;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cancel-visit-btn:hover {
+    background: #DC3545;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.cancel-visit-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
 /* ===== Empty State ===== */
 .empty-state {
     text-align: center;
@@ -465,7 +501,7 @@ body {
     background: linear-gradient(135deg, #6B0F2A, #8B1538);
 }
 
-/* ===== LOGOUT MODAL STYLES ===== */
+/* ===== MODAL STYLES ===== */
 
 .modal {
     display: none;
@@ -501,10 +537,34 @@ body {
     letter-spacing: 0.5px;
 }
 
+.modal-description {
+    color: #666666;
+    font-size: 15px;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.modal-description strong {
+    color: #8B1538;
+    font-weight: 700;
+}
+
+.modal-icon-warning {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.modal-icon-warning svg {
+    color: #FFA500;
+    filter: drop-shadow(0 4px 8px rgba(255, 165, 0, 0.3));
+}
+
 .modal-buttons {
     display: flex;
     gap: 12px;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .btn-primary {
@@ -528,6 +588,29 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4);
     background: linear-gradient(135deg, #6B0F2A, #8B1538);
+}
+
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #DC3545, #C82333);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.btn-danger:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(220, 53, 69, 0.4);
+    background: linear-gradient(135deg, #C82333, #DC3545);
 }
 
 .btn-secondary {
@@ -568,16 +651,6 @@ body {
     }
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 /* ===== Responsive Design ===== */
 @media (max-width: 1024px) {
     .visit-list {
@@ -615,5 +688,18 @@ body {
     .filter-btn {
         padding: 10px 18px;
         font-size: 13px;
+    }
+
+    .modal-content {
+        margin: 30% auto;
+        padding: 25px 20px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+
+    .btn-primary, .btn-danger, .btn-secondary {
+        width: 100%;
     }
 }
