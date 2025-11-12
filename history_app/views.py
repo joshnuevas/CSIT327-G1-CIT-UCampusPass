@@ -57,7 +57,7 @@ def cancel_visit(request):
     
     try:
         # Verify the visit belongs to the current user before deleting
-        visit_check = supabase.table("visits").select("user_email").eq("visit_id", visit_id).execute()
+        visit_check = supabase.table("visits").select("*").eq("visit_id", visit_id).execute()
         print(f"Visit check result: {visit_check.data}")
         
         if not visit_check.data:
@@ -65,14 +65,40 @@ def cancel_visit(request):
             messages.error(request, 'Visit not found.')
             return redirect('history_app:visit_history')
         
-        if visit_check.data[0]['user_email'] != user_email:
+        visit_data = visit_check.data[0]
+        
+        if visit_data['user_email'] != user_email:
             print("User does not own this visit")
             messages.error(request, 'You do not have permission to cancel this visit.')
             return redirect('history_app:visit_history')
         
+        # Store visit details for logging before deletion
+        visit_code = visit_data.get('code', 'N/A')
+        visit_date = visit_data.get('visit_date', 'N/A')
+        department = visit_data.get('department', 'N/A')
+        
         # Delete the visit from the database
         delete_result = supabase.table("visits").delete().eq("visit_id", visit_id).execute()
         print(f"Delete result: {delete_result}")
+        
+        # Create log entry for the cancellation
+        from datetime import datetime
+        import pytz
+        
+        # Use Philippines timezone
+        philippines_tz = pytz.timezone('Asia/Manila')
+        current_time = datetime.now(philippines_tz)
+        
+        log_entry = {
+            "actor": user_email,
+            "action_type": "Visit Cancelled",
+            "description": f"User cancelled visit {visit_code} scheduled for {visit_date} at {department}",
+            "actor_role": "Visitor",
+            "created_at": current_time.isoformat()
+        }
+        supabase.table("system_logs").insert(log_entry).execute()
+        print(f"Log entry created for cancelled visit: {visit_code}")
+        
         messages.success(request, 'Visit cancelled successfully.')
         print("Visit deleted successfully")
         
