@@ -1,10 +1,132 @@
 {% extends "dashboard_app/staff_dashboard_base.html" %}
 {% load static %}
+
 {% block title %}Staff Dashboard - CIT-U Campus Pass{% endblock %}
+
 {% block dashboard_active %}active{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <style>
+/* ===== Welcome Section ===== */
+.welcome-section {
+    margin-bottom: 30px;
+}
+
+.welcome-section h1 {
+    color: #8B1538;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.welcome-section p {
+    color: #666;
+    font-size: 16px;
+}
+
+/* ===== Stats Grid ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(139, 21, 56, 0.15);
+}
+
+.stat-card .stat-value {
+    font-size: 48px;
+    font-weight: 700;
+    color: #8B1538;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+
+.stat-card .stat-label {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.stat-card.active-pass-stat .stat-value {
+    color: #4CAF50;
+}
+
+.stat-card.total-visits-stat .stat-value {
+    color: #D4AF37;
+}
+
+/* ===== Dashboard Grid ===== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Card Base Styling ===== */
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #8B1538;
+}
+
+.card-title {
+    color: #8B1538;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.view-all {
+    color: #8B1538;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.view-all:hover {
+    color: #D4AF37;
+}
+
+.empty-placeholder {
+    text-align: center;
+    color: #999;
+    padding: 40px 20px;
+    font-size: 15px;
+}
+
 /* ===== Quick Code Checker Styling ===== */
 .code-checker-card {
     background: linear-gradient(135deg, #8B1538, #6B0F2A);
@@ -12,11 +134,13 @@
     padding: 30px;
     color: white;
     box-shadow: 0 8px 24px rgba(139, 21, 56, 0.25);
+    border: none;
 }
 
 .code-checker-card h3 {
     margin-bottom: 20px;
     font-size: 1.5rem;
+    color: white;
 }
 
 .code-input-group {
@@ -69,7 +193,7 @@
     margin-top: 20px;
     padding: 18px;
     border-radius: 12px;
-    display: none;
+    display: block;
 }
 
 .code-result.success {
@@ -85,11 +209,13 @@
 .code-result h4 {
     margin-bottom: 10px;
     font-size: 1.2rem;
+    color: white;
 }
 
 .code-result p {
     margin: 5px 0;
     font-size: 0.95rem;
+    color: white;
 }
 
 .visit-detail-row {
@@ -190,6 +316,39 @@
     color: #999;
 }
 
+/* ===== Recent Check-ins ===== */
+.pass-code-item {
+    padding: 16px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-left: 4px solid #4CAF50;
+    transition: all 0.3s ease;
+}
+
+.pass-code-item:hover {
+    background: #E8F5E9;
+    transform: translateX(4px);
+}
+
+.pass-code-info h4 {
+    color: #8b1538;
+    font-size: 1rem;
+    margin-bottom: 6px;
+}
+
+.pass-code-info p {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 4px 0;
+}
+
+.pass-code-info small {
+    color: #999;
+    font-size: 0.85rem;
+}
+
+/* ===== Responsive Design ===== */
 @media (max-width: 768px) {
     .code-input-group {
         flex-direction: column;
@@ -198,9 +357,19 @@
     .check-in-actions {
         flex-direction: column;
     }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-section h1 {
+        font-size: 24px;
+    }
 }
 </style>
+{% endblock %}
 
+{% block content %}
 <div class="welcome-section">
     <h1>Welcome, {{ staff_first_name }}!</h1>
     <p>Today's Overview - {{ today_date }}</p>
@@ -242,10 +411,6 @@
                 </button>
             </div>
         </form>
-
-        <div class="code-result" id="codeResult">
-            <!-- Result will be displayed here via JavaScript or page reload -->
-        </div>
 
         {% if code_check_result %}
         <div class="code-result {{ code_check_result.status }}">
@@ -355,7 +520,6 @@
         <p class="empty-placeholder">No recent check-ins today.</p>
     {% endif %}
 </div>
-
 {% endblock %}
 
 {% block extra_js %}

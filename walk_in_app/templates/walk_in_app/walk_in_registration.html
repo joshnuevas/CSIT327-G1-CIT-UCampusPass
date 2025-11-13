@@ -356,7 +356,7 @@
         </div>
 
         <div class="success-actions">
-            <a href="{% url 'dashboard_app:walk_in_registration' %}" class="btn-submit">
+            <a href="{% url 'walk_in_app:registration' %}" class="btn-submit">
                 <i class="fas fa-plus-circle"></i> Register Another
             </a>
             <a href="{% url 'dashboard_app:staff_dashboard' %}" class="btn-cancel">
@@ -375,7 +375,7 @@
             <p>Register visitors who arrive without pre-booking</p>
         </div>
 
-        <form method="POST" action="{% url 'dashboard_app:walk_in_registration' %}">
+        <form method="POST" action="{% url 'walk_in_app:registration' %}">
             {% csrf_token %}
 
             <div class="form-grid">
@@ -475,13 +475,6 @@
                         <label for="duration240">4 hours</label>
                     </div>
                 </div>
-            </div>
-
-            <!-- Notes -->
-            <div class="form-group">
-                <label class="form-label">Additional Notes (Optional)</label>
-                <textarea name="notes" class="form-textarea" 
-                          placeholder="Any special instructions or notes...">{{ form_data.notes }}</textarea>
             </div>
 
             <!-- Actions -->

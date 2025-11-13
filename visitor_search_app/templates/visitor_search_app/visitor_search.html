@@ -377,7 +377,7 @@
             <p style="color: #666;">Search by name, email, phone, or visit code</p>
         </div>
 
-        <form method="GET" action="{% url 'dashboard_app:visitor_search' %}">
+        <form method="GET" action="{% url 'visitor_search_app:search' %}">
             <div class="search-box">
                 <input 
                     type="text" 
@@ -486,7 +486,7 @@
                         </button>
                     </form>
                     {% endif %}
-                    <a href="{% url 'dashboard_app:visitor_detail' %}?email={{ result.user_email }}" 
+                    <a href="{% url 'visitor_search_app:detail' %}?email={{ result.user_email }}" 
                        class="action-btn btn-view">
                         <i class="fas fa-eye"></i> View Details
                     </a>

@@ -15,8 +15,5 @@ urlpatterns = [
     path('staff/check-code/', views.check_code, name='check_code'),
     path('staff/check-in/', views.check_in_visitor, name='check_in_visitor'),
     path('staff/check-out/', views.check_out_visitor, name='check_out_visitor'),
-    path('staff/walk-in/', views.walk_in_registration, name='walk_in_registration'),
-    path('staff/search/', views.visitor_search, name='visitor_search'),
-    path('staff/visitor/detail/', views.visitor_detail, name='visitor_detail'),
 ]
 
