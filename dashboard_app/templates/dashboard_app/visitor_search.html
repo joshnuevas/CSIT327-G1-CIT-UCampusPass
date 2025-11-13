@@ -1,0 +1,570 @@
+{% extends "dashboard_app/staff_dashboard_base.html" %}
+{% load static %}
+{% block title %}Visitor Search - CIT-U Campus Pass{% endblock %}
+{% block search_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+.search-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.search-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.search-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.search-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+}
+
+.search-header h1 {
+    color: #8B1538;
+    margin-bottom: 8px;
+    font-size: 1.8rem;
+}
+
+.search-box {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto 24px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 18px 60px 18px 24px;
+    border: 3px solid #E0E0E0;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #8B1538;
+    box-shadow: 0 0 0 4px rgba(139, 21, 56, 0.1);
+}
+
+.search-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-button:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+.search-filters {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: 2px solid #E0E0E0;
+    background: white;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: white;
+    border-color: #8B1538;
+}
+
+.filter-btn:hover {
+    border-color: #8B1538;
+    transform: translateY(-2px);
+}
+
+.results-section {
+    margin-top: 32px;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.results-count {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.results-count strong {
+    color: #8B1538;
+    font-size: 1.3rem;
+}
+
+.visitor-card {
+    background: white;
+    border: 2px solid #F5F5F5;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.visitor-card:hover {
+    border-color: #8B1538;
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px rgba(139, 21, 56, 0.1);
+}
+
+.visitor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 16px;
+}
+
+.visitor-info {
+    flex: 1;
+}
+
+.visitor-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.visitor-email {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.visitor-status {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.status-active {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.status-completed {
+    background: #F5F5F5;
+    color: #666;
+}
+
+.status-upcoming {
+    background: #FFF8E1;
+    color: #F57F17;
+}
+
+.visitor-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+    padding: 16px;
+    background: #FAFAFA;
+    border-radius: 12px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.visitor-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px solid #F5F5F5;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-checkin {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-checkin:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+.btn-checkout {
+    background: #FF9800;
+    color: white;
+}
+
+.btn-checkout:hover {
+    background: #FB8C00;
+    transform: translateY(-2px);
+}
+
+.btn-view {
+    background: #2196F3;
+    color: white;
+}
+
+.btn-view:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+}
+
+.btn-history {
+    background: #F5F5F5;
+    color: #666;
+}
+
+.btn-history:hover {
+    background: #E0E0E0;
+    transform: translateY(-2px);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    color: #DDD;
+}
+
+.empty-text {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.visit-history {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px solid #F5F5F5;
+}
+
+.history-title {
+    font-weight: 700;
+    color: #8B1538;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.history-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-item {
+    padding: 12px;
+    background: white;
+    border-left: 3px solid #E0E0E0;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
+
+.history-date {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.history-details {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 4px;
+}
+
+.total-visits-badge {
+    display: inline-block;
+    background: #8B1538;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .search-card {
+        padding: 24px;
+    }
+    
+    .visitor-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .visitor-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="search-card">
+        <div class="search-header">
+            <div class="search-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h1>Visitor Search</h1>
+            <p style="color: #666;">Search by name, email, phone, or visit code</p>
+        </div>
+
+        <form method="GET" action="{% url 'dashboard_app:visitor_search' %}">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    name="query" 
+                    class="search-input" 
+                    placeholder="Enter name, email, phone, or visit code..."
+                    value="{{ query }}"
+                    autofocus
+                >
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <div class="search-filters">
+                <button type="button" onclick="filterSearch('all')" 
+                        class="filter-btn {% if not filter or filter == 'all' %}active{% endif %}">
+                    All Visitors
+                </button>
+                <button type="button" onclick="filterSearch('active')" 
+                        class="filter-btn {% if filter == 'active' %}active{% endif %}">
+                    <i class="fas fa-circle" style="color: #4CAF50;"></i> Active Now
+                </button>
+                <button type="button" onclick="filterSearch('today')" 
+                        class="filter-btn {% if filter == 'today' %}active{% endif %}">
+                    <i class="fas fa-calendar-day"></i> Today
+                </button>
+                <button type="button" onclick="filterSearch('week')" 
+                        class="filter-btn {% if filter == 'week' %}active{% endif %}">
+                    <i class="fas fa-calendar-week"></i> This Week
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if query %}
+    <div class="results-section">
+        <div class="results-header">
+            <div class="results-count">
+                Found <strong>{{ results|length }}</strong> result{{ results|length|pluralize }}
+            </div>
+        </div>
+
+        {% if results %}
+            {% for result in results %}
+            <div class="visitor-card">
+                <div class="visitor-header">
+                    <div class="visitor-info">
+                        <div class="visitor-name">
+                            {{ result.visitor_name }}
+                        </div>
+                        <div class="visitor-email">
+                            <i class="fas fa-envelope"></i> {{ result.user_email }}
+                        </div>
+                    </div>
+                    <span class="visitor-status status-{{ result.current_status|lower }}">
+                        {% if result.current_status == 'Active' %}
+                            <i class="fas fa-circle"></i> Active Now
+                        {% elif result.current_status == 'Upcoming' %}
+                            <i class="fas fa-clock"></i> Upcoming
+                        {% else %}
+                            <i class="fas fa-check"></i> {{ result.current_status }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                {% if result.current_visit %}
+                <div class="visitor-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Visit Code</span>
+                        <span class="detail-value">{{ result.current_visit.code }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Purpose</span>
+                        <span class="detail-value">{{ result.current_visit.purpose }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Department</span>
+                        <span class="detail-value">{{ result.current_visit.department }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Visit Date</span>
+                        <span class="detail-value">{{ result.current_visit.visit_date }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Time</span>
+                        <span class="detail-value">{{ result.current_visit.start_time }} - {{ result.current_visit.end_time }}</span>
+                    </div>
+                </div>
+
+                <div class="visitor-actions">
+                    {% if result.current_status == 'Upcoming' %}
+                    <form method="POST" action="{% url 'dashboard_app:check_in_visitor' %}" style="flex: 1;">
+                        {% csrf_token %}
+                        <input type="hidden" name="visit_code" value="{{ result.current_visit.code }}">
+                        <button type="submit" class="action-btn btn-checkin">
+                            <i class="fas fa-sign-in-alt"></i> Check In
+                        </button>
+                    </form>
+                    {% elif result.current_status == 'Active' %}
+                    <form method="POST" action="{% url 'dashboard_app:check_out_visitor' %}" style="flex: 1;">
+                        {% csrf_token %}
+                        <input type="hidden" name="visit_code" value="{{ result.current_visit.code }}">
+                        <button type="submit" class="action-btn btn-checkout">
+                            <i class="fas fa-sign-out-alt"></i> Check Out
+                        </button>
+                    </form>
+                    {% endif %}
+                    <a href="{% url 'dashboard_app:visitor_detail' %}?email={{ result.user_email }}" 
+                       class="action-btn btn-view">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if result.visit_history %}
+                <div class="visit-history">
+                    <div class="history-title">
+                        <i class="fas fa-history"></i> 
+                        Visit History
+                        <span class="total-visits-badge">{{ result.total_visits }} visit{{ result.total_visits|pluralize }}</span>
+                    </div>
+                    <div class="history-list">
+                        {% for visit in result.visit_history|slice:":5" %}
+                        <div class="history-item">
+                            <div class="history-date">
+                                <i class="fas fa-calendar"></i> {{ visit.visit_date }}
+                            </div>
+                            <div class="history-details">
+                                {{ visit.purpose }} at {{ visit.department }} - {{ visit.status }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="empty-text">No visitors found</div>
+                <p style="color: #999;">Try searching with a different term</p>
+            </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="empty-text">Start searching for visitors</div>
+        <p style="color: #999;">Enter a name, email, phone number, or visit code above</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filter search function
+function filterSearch(filterType) {
+    const form = document.querySelector('form');
+    const queryInput = document.querySelector('input[name="query"]');
+    
+    // Create hidden input for filter if it doesn't exist
+    let filterInput = document.querySelector('input[name="filter"]');
+    if (!filterInput) {
+        filterInput = document.createElement('input');
+        filterInput.type = 'hidden';
+        filterInput.name = 'filter';
+        form.appendChild(filterInput);
+    }
+    
+    // Set filter value and submit
+    filterInput.value = filterType;
+    form.submit();
+}
+
+// Allow Enter key to search
+document.querySelector('.search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.querySelector('form').submit();
+    }
+});
+</script>
+{% endblock %}

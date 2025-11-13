@@ -10,5 +10,13 @@ urlpatterns = [
     path('api/admin-notifications/', views.admin_notifications_api, name='admin_notifications_api'),
     path('api/admin-notifications/delete/', views.delete_notification_api, name='delete_notification_api'),
     path('api/admin-notifications/clear/', views.clear_notifications_api, name='clear_notifications_api'),
+    path('staff/', views.staff_dashboard_view, name='staff_dashboard'),
+    path('staff/checker/', views.code_checker, name='code_checker'),
+    path('staff/check-code/', views.check_code, name='check_code'),
+    path('staff/check-in/', views.check_in_visitor, name='check_in_visitor'),
+    path('staff/check-out/', views.check_out_visitor, name='check_out_visitor'),
+    path('staff/walk-in/', views.walk_in_registration, name='walk_in_registration'),
+    path('staff/search/', views.visitor_search, name='visitor_search'),
+    path('staff/visitor/detail/', views.visitor_detail, name='visitor_detail'),
 ]
 

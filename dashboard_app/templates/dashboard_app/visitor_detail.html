@@ -1,0 +1,403 @@
+{% extends "dashboard_app/staff_dashboard_base.html" %}
+{% load static %}
+{% block title %}Visitor Details - CIT-U Campus Pass{% endblock %}
+
+{% block extra_css %}
+<style>
+.detail-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #8B1538;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    transform: translateX(-4px);
+}
+
+.visitor-profile-card {
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    border-radius: 20px;
+    padding: 40px;
+    color: white;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(139, 21, 56, 0.25);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.profile-info h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.profile-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    opacity: 0.9;
+}
+
+.profile-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.info-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #8B1538;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #F5F5F5;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #666;
+    font-weight: 600;
+}
+
+.info-value {
+    color: #333;
+    font-weight: 600;
+    text-align: right;
+}
+
+.history-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.history-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.filter-chip {
+    padding: 8px 16px;
+    border: 2px solid #E0E0E0;
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.filter-chip.active {
+    background: #8B1538;
+    color: white;
+    border-color: #8B1538;
+}
+
+.visit-timeline {
+    position: relative;
+    padding-left: 40px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 32px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    background: #E0E0E0;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px #E0E0E0;
+}
+
+.timeline-item.status-completed::before {
+    background: #4CAF50;
+    box-shadow: 0 0 0 2px #4CAF50;
+}
+
+.timeline-item.status-active::before {
+    background: #2196F3;
+    box-shadow: 0 0 0 2px #2196F3;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    left: -23px;
+    top: 20px;
+    width: 2px;
+    height: calc(100% - 12px);
+    background: #E0E0E0;
+}
+
+.timeline-item:last-child::after {
+    display: none;
+}
+
+.timeline-content {
+    background: #FAFAFA;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 3px solid #E0E0E0;
+}
+
+.timeline-content.status-completed {
+    border-left-color: #4CAF50;
+}
+
+.timeline-content.status-active {
+    border-left-color: #2196F3;
+    background: #E3F2FD;
+}
+
+.timeline-date {
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.timeline-details {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.timeline-code {
+    display: inline-block;
+    background: white;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: #8B1538;
+    margin-top: 8px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.status-completed {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.status-active {
+    background: #E3F2FD;
+    color: #1976D2;
+}
+
+.status-upcoming {
+    background: #FFF8E1;
+    color: #F57F17;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .info-cards {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <a href="{% url 'dashboard_app:visitor_search' %}?query={{ visitor_email }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Search
+    </a>
+
+    <!-- Visitor Profile Card -->
+    <div class="visitor-profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ visitor_name|slice:":2"|upper }}
+            </div>
+            <div class="profile-info">
+                <h1>{{ visitor_name }}</h1>
+                <div style="opacity: 0.9;">
+                    <i class="fas fa-envelope"></i> {{ visitor_email }}
+                </div>
+            </div>
+        </div>
+        <div class="profile-meta">
+            <div class="profile-stat">
+                <div class="stat-value">{{ total_visits }}</div>
+                <div class="stat-label">Total Visits</div>
+            </div>
+            <div class="profile-stat">
+                <div class="stat-value">{{ completed_visits }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            {% if last_visit_date %}
+            <div class="profile-stat">
+                <div class="stat-value" style="font-size: 1.2rem;">{{ last_visit_date }}</div>
+                <div class="stat-label">Last Visit</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Current Visit Info (if active) -->
+    {% if current_visit %}
+    <div class="info-cards">
+        <div class="info-card">
+            <div class="info-card-title">
+                <i class="fas fa-clock"></i> Current Visit
+            </div>
+            <div class="info-row">
+                <span class="info-label">Visit Code</span>
+                <span class="info-value">{{ current_visit.code }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Purpose</span>
+                <span class="info-value">{{ current_visit.purpose }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Department</span>
+                <span class="info-value">{{ current_visit.department }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value">
+                    <span class="status-badge status-{{ current_visit.status|lower }}">
+                        {{ current_visit.status }}
+                    </span>
+                </span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Visit History -->
+    <div class="history-card">
+        <div class="info-card-title" style="margin-bottom: 24px;">
+            <i class="fas fa-history"></i> Visit History
+        </div>
+
+        {% if visit_history %}
+        <div class="visit-timeline">
+            {% for visit in visit_history %}
+            <div class="timeline-item status-{{ visit.status|lower }}">
+                <div class="timeline-content status-{{ visit.status|lower }}">
+                    <div class="timeline-date">
+                        <i class="fas fa-calendar"></i> {{ visit.visit_date }}
+                    </div>
+                    <div class="timeline-details">
+                        <strong>{{ visit.purpose }}</strong> at {{ visit.department }}<br>
+                        Time: {{ visit.start_time }} - {{ visit.end_time }}
+                    </div>
+                    <div class="timeline-code">{{ visit.code }}</div>
+                    <span class="status-badge status-{{ visit.status|lower }}">
+                        {{ visit.status }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-history">
+            <i class="fas fa-inbox" style="font-size: 48px; color: #DDD; margin-bottom: 16px;"></i>
+            <div>No visit history found</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,438 @@
+{% extends "dashboard_app/staff_dashboard_base.html" %}
+{% load static %}
+{% block title %}Code Checker - CIT-U Campus Pass{% endblock %}
+{% block checker_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+.checker-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.checker-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.checker-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 30px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 48px;
+}
+
+.checker-card h1 {
+    color: #8B1538;
+    margin-bottom: 12px;
+    font-size: 2rem;
+}
+
+.checker-card p {
+    color: #666;
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+}
+
+.code-input-form {
+    max-width: 500px;
+    margin: 0 auto 30px;
+}
+
+.code-input-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.code-input-wrapper input {
+    width: 100%;
+    padding: 20px 24px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: center;
+    border: 3px solid #E0E0E0;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+}
+
+.code-input-wrapper input:focus {
+    outline: none;
+    border-color: #8B1538;
+    box-shadow: 0 0 0 4px rgba(139, 21, 56, 0.1);
+}
+
+.code-input-wrapper input::placeholder {
+    color: #bbb;
+    font-weight: 400;
+    letter-spacing: 1px;
+}
+
+.check-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 24px rgba(139, 21, 56, 0.3);
+}
+
+.check-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 32px rgba(139, 21, 56, 0.4);
+}
+
+.check-btn:active {
+    transform: translateY(-1px);
+}
+
+/* ===== Result Display ===== */
+.result-card {
+    margin-top: 40px;
+    padding: 30px;
+    border-radius: 20px;
+    animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-card.success {
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    border: 3px solid #4CAF50;
+}
+
+.result-card.error {
+    background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+    border: 3px solid #F44336;
+}
+
+.result-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.result-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+}
+
+.result-card.success .result-icon {
+    background: #4CAF50;
+    color: white;
+}
+
+.result-card.error .result-icon {
+    background: #F44336;
+    color: white;
+}
+
+.result-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+
+.result-card.success .result-header h2 {
+    color: #2E7D32;
+}
+
+.result-card.error .result-header h2 {
+    color: #C62828;
+}
+
+.result-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.visit-details {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.detail-item {
+    padding: 16px;
+    background: #F5F5F5;
+    border-radius: 12px;
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.detail-value {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.status-badge.upcoming {
+    background: #FFF8E1;
+    color: #F57F17;
+}
+
+.status-badge.active {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.status-badge.expired {
+    background: #F5F5F5;
+    color: #999;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.action-buttons button,
+.action-buttons a {
+    flex: 1;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-check-in {
+    background: #4CAF50;
+    color: white;
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+}
+
+.btn-check-in:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.btn-check-out {
+    background: #FF9800;
+    color: white;
+    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
+}
+
+.btn-check-out:hover {
+    background: #FB8C00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+}
+
+.btn-new-check {
+    background: #2196F3;
+    color: white;
+    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+}
+
+.btn-new-check:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+}
+
+@media (max-width: 768px) {
+    .checker-card {
+        padding: 24px;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checker-container">
+    <div class="checker-card">
+        <div class="checker-icon">
+            <i class="fas fa-qrcode"></i>
+        </div>
+
+        <h1>Visit Code Checker</h1>
+        <p>Enter a visit code to verify and manage visitor check-in/check-out</p>
+
+        <form method="POST" action="{% url 'dashboard_app:check_code' %}" class="code-input-form">
+            {% csrf_token %}
+            <div class="code-input-wrapper">
+                <input 
+                    type="text" 
+                    name="visit_code" 
+                    id="visitCodeInput" 
+                    placeholder="CIT-XXX-XXXXX" 
+                    required
+                    pattern="[A-Z0-9-]+"
+                    autofocus
+                >
+            </div>
+            <button type="submit" class="check-btn">
+                <i class="fas fa-search"></i> Check Code
+            </button>
+        </form>
+
+        {% if code_check_result %}
+        <div class="result-card {{ code_check_result.status }}">
+            <div class="result-header">
+                <div class="result-icon">
+                    {% if code_check_result.status == 'success' %}
+                        <i class="fas fa-check-circle"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle"></i>
+                    {% endif %}
+                </div>
+                <h2>
+                    {% if code_check_result.status == 'success' %}
+                        Valid Visit Code
+                    {% else %}
+                        Invalid Visit Code
+                    {% endif %}
+                </h2>
+                <p>{{ code_check_result.message }}</p>
+            </div>
+
+            {% if code_check_result.status == 'success' %}
+            <div class="visit-details">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Visit Code</div>
+                        <div class="detail-value">{{ code_check_result.visit.code }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Visitor Email</div>
+                        <div class="detail-value">{{ code_check_result.visit.user_email }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Purpose</div>
+                        <div class="detail-value">{{ code_check_result.visit.purpose }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Department</div>
+                        <div class="detail-value">{{ code_check_result.visit.department }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Visit Date</div>
+                        <div class="detail-value">{{ code_check_result.visit.visit_date }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Time Slot</div>
+                        <div class="detail-value">{{ code_check_result.visit.start_time }} - {{ code_check_result.visit.end_time }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            <span class="status-badge {{ code_check_result.visit.status|lower }}">
+                                {{ code_check_result.visit.status }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                {% if code_check_result.visit.status == 'Upcoming' %}
+                <form method="POST" action="{% url 'dashboard_app:check_in_visitor' %}" style="flex: 1;">
+                    {% csrf_token %}
+                    <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
+                    <button type="submit" class="btn-check-in">
+                        <i class="fas fa-sign-in-alt"></i> Check In Visitor
+                    </button>
+                </form>
+                {% elif code_check_result.visit.status == 'Active' %}
+                <form method="POST" action="{% url 'dashboard_app:check_out_visitor' %}" style="flex: 1;">
+                    {% csrf_token %}
+                    <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
+                    <button type="submit" class="btn-check-out">
+                        <i class="fas fa-sign-out-alt"></i> Check Out Visitor
+                    </button>
+                </form>
+                {% endif %}
+                
+                <a href="{% url 'dashboard_app:code_checker' %}" class="btn-new-check">
+                    <i class="fas fa-plus-circle"></i> Check Another Code
+                </a>
+            </div>
+            {% else %}
+            <div class="action-buttons">
+                <a href="{% url 'dashboard_app:code_checker' %}" class="btn-new-check">
+                    <i class="fas fa-redo"></i> Try Again
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-uppercase visit code input
+    document.getElementById('visitCodeInput').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+</script>
+{% endblock %}

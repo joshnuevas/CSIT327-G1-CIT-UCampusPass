@@ -1,0 +1,525 @@
+{% extends "dashboard_app/staff_dashboard_base.html" %}
+{% load static %}
+{% block title %}Walk-In Registration - CIT-U Campus Pass{% endblock %}
+{% block walkin_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+.registration-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.registration-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.registration-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.registration-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 36px;
+}
+
+.registration-header h1 {
+    color: #8B1538;
+    margin-bottom: 8px;
+    font-size: 1.8rem;
+}
+
+.registration-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.form-label.required::after {
+    content: " *";
+    color: #8B1538;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #8B1538;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-hint {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 6px;
+}
+
+.duration-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.duration-option {
+    position: relative;
+}
+
+.duration-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.duration-option label {
+    display: block;
+    padding: 12px;
+    text-align: center;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.duration-option input[type="radio"]:checked + label {
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: white;
+    border-color: #8B1538;
+}
+
+.duration-option label:hover {
+    border-color: #8B1538;
+    transform: translateY(-2px);
+}
+
+.form-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid #F5F5F5;
+}
+
+.btn-submit {
+    flex: 1;
+    padding: 16px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(139, 21, 56, 0.3);
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 21, 56, 0.4);
+}
+
+.btn-cancel {
+    padding: 16px 32px;
+    background: white;
+    color: #666;
+    border: 2px solid #E0E0E0;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-cancel:hover {
+    border-color: #8B1538;
+    color: #8B1538;
+    transform: translateY(-2px);
+}
+
+.success-card {
+    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    border: 3px solid #4CAF50;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    animation: slideIn 0.4s ease;
+}
+
+.success-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 24px;
+    background: #4CAF50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 48px;
+}
+
+.success-card h2 {
+    color: #2E7D32;
+    margin-bottom: 16px;
+    font-size: 2rem;
+}
+
+.visit-code-display {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    margin: 24px 0;
+}
+
+.visit-code-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.visit-code-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #8B1538;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+}
+
+.visitor-details {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    margin: 24px 0;
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #F5F5F5;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: #666;
+    font-weight: 600;
+}
+
+.detail-value {
+    color: #333;
+    font-weight: 600;
+}
+
+.success-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .duration-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .registration-card {
+        padding: 24px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registration-container">
+    {% if success %}
+    <!-- Success State -->
+    <div class="success-card">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>Walk-In Visitor Registered!</h2>
+        <p style="color: #2E7D32; font-size: 1.1rem; margin-bottom: 24px;">
+            Visitor has been successfully registered and checked in
+        </p>
+
+        <div class="visit-code-display">
+            <div class="visit-code-label">Visit Code</div>
+            <div class="visit-code-value">{{ visit_code }}</div>
+        </div>
+
+        <div class="visitor-details">
+            <div class="detail-row">
+                <span class="detail-label">Visitor Name</span>
+                <span class="detail-value">{{ visitor_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ visitor_email }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Phone</span>
+                <span class="detail-value">{{ visitor_phone }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Purpose</span>
+                <span class="detail-value">{{ purpose }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Department</span>
+                <span class="detail-value">{{ department }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Duration</span>
+                <span class="detail-value">{{ duration }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Valid Until</span>
+                <span class="detail-value">{{ valid_until }}</span>
+            </div>
+        </div>
+
+        <div class="success-actions">
+            <a href="{% url 'dashboard_app:walk_in_registration' %}" class="btn-submit">
+                <i class="fas fa-plus-circle"></i> Register Another
+            </a>
+            <a href="{% url 'dashboard_app:staff_dashboard' %}" class="btn-cancel">
+                <i class="fas fa-home"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <!-- Registration Form -->
+    <div class="registration-card">
+        <div class="registration-header">
+            <div class="registration-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h1>Walk-In Visitor Registration</h1>
+            <p>Register visitors who arrive without pre-booking</p>
+        </div>
+
+        <form method="POST" action="{% url 'dashboard_app:walk_in_registration' %}">
+            {% csrf_token %}
+
+            <div class="form-grid">
+                <!-- First Name -->
+                <div class="form-group">
+                    <label class="form-label required">First Name</label>
+                    <input type="text" name="first_name" class="form-input" required 
+                           placeholder="John" value="{{ form_data.first_name }}">
+                </div>
+
+                <!-- Last Name -->
+                <div class="form-group">
+                    <label class="form-label required">Last Name</label>
+                    <input type="text" name="last_name" class="form-input" required 
+                           placeholder="Doe" value="{{ form_data.last_name }}">
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label required">Email Address</label>
+                    <input type="email" name="email" class="form-input" required 
+                           placeholder="visitor@example.com" value="{{ form_data.email }}">
+                    <span class="form-hint">Used for notifications</span>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label class="form-label required">Phone Number</label>
+                    <input type="tel" name="phone" class="form-input" required 
+                           placeholder="09XX XXX XXXX" value="{{ form_data.phone }}">
+                </div>
+
+                <!-- Purpose -->
+                <div class="form-group">
+                    <label class="form-label required">Purpose of Visit</label>
+                    <select name="purpose" class="form-select" required id="purposeSelect">
+                        <option value="">Select purpose...</option>
+                        <option value="Tuition Inquiry" {% if form_data.purpose == 'Tuition Inquiry' %}selected{% endif %}>Tuition Inquiry</option>
+                        <option value="Meeting" {% if form_data.purpose == 'Meeting' %}selected{% endif %}>Meeting</option>
+                        <option value="Document Request" {% if form_data.purpose == 'Document Request' %}selected{% endif %}>Document Request</option>
+                        <option value="Enrollment" {% if form_data.purpose == 'Enrollment' %}selected{% endif %}>Enrollment</option>
+                        <option value="Library" {% if form_data.purpose == 'Library' %}selected{% endif %}>Library</option>
+                        <option value="Research" {% if form_data.purpose == 'Research' %}selected{% endif %}>Research</option>
+                        <option value="Other" {% if form_data.purpose == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <!-- Department -->
+                <div class="form-group">
+                    <label class="form-label required">Department</label>
+                    <select name="department" class="form-select" required id="departmentSelect">
+                        <option value="">Select department...</option>
+                        <option value="Finance Office" {% if form_data.department == 'Finance Office' %}selected{% endif %}>Finance Office</option>
+                        <option value="Registrar" {% if form_data.department == 'Registrar' %}selected{% endif %}>Registrar</option>
+                        <option value="Admissions" {% if form_data.department == 'Admissions' %}selected{% endif %}>Admissions</option>
+                        <option value="Library" {% if form_data.department == 'Library' %}selected{% endif %}>Library</option>
+                        <option value="IT Department" {% if form_data.department == 'IT Department' %}selected{% endif %}>IT Department</option>
+                        <option value="HR Department" {% if form_data.department == 'HR Department' %}selected{% endif %}>HR Department</option>
+                        <option value="Student Affairs" {% if form_data.department == 'Student Affairs' %}selected{% endif %}>Student Affairs</option>
+                        <option value="Other" {% if form_data.department == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <!-- Purpose Other (shown if Other is selected) -->
+                <div class="form-group full-width" id="purposeOtherGroup" style="display: none;">
+                    <label class="form-label">Specify Purpose</label>
+                    <input type="text" name="purpose_other" class="form-input" 
+                           placeholder="Please specify..." value="{{ form_data.purpose_other }}">
+                </div>
+
+                <!-- Department Other (shown if Other is selected) -->
+                <div class="form-group full-width" id="departmentOtherGroup" style="display: none;">
+                    <label class="form-label">Specify Department</label>
+                    <input type="text" name="department_other" class="form-input" 
+                           placeholder="Please specify..." value="{{ form_data.department_other }}">
+                </div>
+            </div>
+
+            <!-- Expected Duration -->
+            <div class="form-group">
+                <label class="form-label required">Expected Duration</label>
+                <div class="duration-options">
+                    <div class="duration-option">
+                        <input type="radio" name="duration" value="30" id="duration30" {% if form_data.duration == '30' %}checked{% endif %}>
+                        <label for="duration30">30 min</label>
+                    </div>
+                    <div class="duration-option">
+                        <input type="radio" name="duration" value="60" id="duration60" checked>
+                        <label for="duration60">1 hour</label>
+                    </div>
+                    <div class="duration-option">
+                        <input type="radio" name="duration" value="120" id="duration120" {% if form_data.duration == '120' %}checked{% endif %}>
+                        <label for="duration120">2 hours</label>
+                    </div>
+                    <div class="duration-option">
+                        <input type="radio" name="duration" value="240" id="duration240" {% if form_data.duration == '240' %}checked{% endif %}>
+                        <label for="duration240">4 hours</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group">
+                <label class="form-label">Additional Notes (Optional)</label>
+                <textarea name="notes" class="form-textarea" 
+                          placeholder="Any special instructions or notes...">{{ form_data.notes }}</textarea>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-check-circle"></i> Register & Check In
+                </button>
+                <a href="{% url 'dashboard_app:staff_dashboard' %}" class="btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Show/hide "Other" input fields
+document.getElementById('purposeSelect').addEventListener('change', function() {
+    const otherGroup = document.getElementById('purposeOtherGroup');
+    otherGroup.style.display = this.value === 'Other' ? 'block' : 'none';
+});
+
+document.getElementById('departmentSelect').addEventListener('change', function() {
+    const otherGroup = document.getElementById('departmentOtherGroup');
+    otherGroup.style.display = this.value === 'Other' ? 'block' : 'none';
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('purposeSelect').value === 'Other') {
+        document.getElementById('purposeOtherGroup').style.display = 'block';
+    }
+    if (document.getElementById('departmentSelect').value === 'Other') {
+        document.getElementById('departmentOtherGroup').style.display = 'block';
+    }
+});
+</script>
+{% endblock %}
