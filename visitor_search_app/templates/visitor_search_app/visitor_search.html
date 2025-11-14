@@ -45,7 +45,7 @@
 .search-box {
     position: relative;
     max-width: 600px;
-    margin: 0 auto 24px;
+    margin: 0 auto;
 }
 
 .search-input {
@@ -81,34 +81,6 @@
 
 .search-button:hover {
     transform: translateY(-50%) scale(1.1);
-}
-
-.search-filters {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.filter-btn {
-    padding: 10px 20px;
-    border: 2px solid #E0E0E0;
-    background: white;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-}
-
-.filter-btn.active {
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    color: white;
-    border-color: #8B1538;
-}
-
-.filter-btn:hover {
-    border-color: #8B1538;
-    transform: translateY(-2px);
 }
 
 .results-section {
@@ -391,25 +363,6 @@
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-
-            <div class="search-filters">
-                <button type="button" onclick="filterSearch('all')" 
-                        class="filter-btn {% if not filter or filter == 'all' %}active{% endif %}">
-                    All Visitors
-                </button>
-                <button type="button" onclick="filterSearch('active')" 
-                        class="filter-btn {% if filter == 'active' %}active{% endif %}">
-                    <i class="fas fa-circle" style="color: #4CAF50;"></i> Active Now
-                </button>
-                <button type="button" onclick="filterSearch('today')" 
-                        class="filter-btn {% if filter == 'today' %}active{% endif %}">
-                    <i class="fas fa-calendar-day"></i> Today
-                </button>
-                <button type="button" onclick="filterSearch('week')" 
-                        class="filter-btn {% if filter == 'week' %}active{% endif %}">
-                    <i class="fas fa-calendar-week"></i> This Week
-                </button>
-            </div>
         </form>
     </div>
 
@@ -464,7 +417,7 @@
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Time</span>
-                        <span class="detail-value">{{ result.current_visit.start_time }} - {{ result.current_visit.end_time }}</span>
+                        <span class="detail-value">{{ result.current_visit.start_time|slice:":5" }} - {{ result.current_visit.end_time|slice:":5" }}</span>
                     </div>
                 </div>
 
@@ -540,25 +493,6 @@
 
 {% block extra_js %}
 <script>
-// Filter search function
-function filterSearch(filterType) {
-    const form = document.querySelector('form');
-    const queryInput = document.querySelector('input[name="query"]');
-    
-    // Create hidden input for filter if it doesn't exist
-    let filterInput = document.querySelector('input[name="filter"]');
-    if (!filterInput) {
-        filterInput = document.createElement('input');
-        filterInput.type = 'hidden';
-        filterInput.name = 'filter';
-        form.appendChild(filterInput);
-    }
-    
-    // Set filter value and submit
-    filterInput.value = filterType;
-    form.submit();
-}
-
 // Allow Enter key to search
 document.querySelector('.search-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {

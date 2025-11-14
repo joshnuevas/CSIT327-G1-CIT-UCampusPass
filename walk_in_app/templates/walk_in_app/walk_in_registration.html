@@ -84,6 +84,16 @@
     font-size: 1rem;
     transition: all 0.3s ease;
     font-family: inherit;
+    background-color: white;
+}
+
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
 }
 
 .form-input:focus,
@@ -153,16 +163,20 @@
 
 .btn-submit {
     flex: 1;
-    padding: 16px;
+    padding: 14px 24px;
     background: linear-gradient(135deg, #8B1538, #6B0F2A);
     color: white;
     border: none;
-    border-radius: 16px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 16px rgba(139, 21, 56, 0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .btn-submit:hover {
@@ -171,17 +185,20 @@
 }
 
 .btn-cancel {
-    padding: 16px 32px;
+    padding: 14px 28px;
     background: white;
     color: #666;
     border: 2px solid #E0E0E0;
-    border-radius: 16px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .btn-cancel:hover {
@@ -383,21 +400,21 @@
                 <div class="form-group">
                     <label class="form-label required">First Name</label>
                     <input type="text" name="first_name" class="form-input" required 
-                           placeholder="John" value="{{ form_data.first_name }}">
+                           placeholder="Enter first name" value="{{ form_data.first_name }}">
                 </div>
 
                 <!-- Last Name -->
                 <div class="form-group">
                     <label class="form-label required">Last Name</label>
                     <input type="text" name="last_name" class="form-input" required 
-                           placeholder="Doe" value="{{ form_data.last_name }}">
+                           placeholder="Enter last name" value="{{ form_data.last_name }}">
                 </div>
 
                 <!-- Email -->
                 <div class="form-group">
                     <label class="form-label required">Email Address</label>
                     <input type="email" name="email" class="form-input" required 
-                           placeholder="visitor@example.com" value="{{ form_data.email }}">
+                           placeholder="Enter your email" value="{{ form_data.email }}">
                     <span class="form-hint">Used for notifications</span>
                 </div>
 
@@ -405,14 +422,14 @@
                 <div class="form-group">
                     <label class="form-label required">Phone Number</label>
                     <input type="tel" name="phone" class="form-input" required 
-                           placeholder="09XX XXX XXXX" value="{{ form_data.phone }}">
+                           placeholder="Enter your phone number" value="{{ form_data.phone }}">
                 </div>
 
                 <!-- Purpose -->
                 <div class="form-group">
                     <label class="form-label required">Purpose of Visit</label>
                     <select name="purpose" class="form-select" required id="purposeSelect">
-                        <option value="">Select purpose...</option>
+                        <option value="">Select Purpose</option>
                         <option value="Tuition Inquiry" {% if form_data.purpose == 'Tuition Inquiry' %}selected{% endif %}>Tuition Inquiry</option>
                         <option value="Meeting" {% if form_data.purpose == 'Meeting' %}selected{% endif %}>Meeting</option>
                         <option value="Document Request" {% if form_data.purpose == 'Document Request' %}selected{% endif %}>Document Request</option>
@@ -427,7 +444,7 @@
                 <div class="form-group">
                     <label class="form-label required">Department</label>
                     <select name="department" class="form-select" required id="departmentSelect">
-                        <option value="">Select department...</option>
+                        <option value="">Select Department</option>
                         <option value="Finance Office" {% if form_data.department == 'Finance Office' %}selected{% endif %}>Finance Office</option>
                         <option value="Registrar" {% if form_data.department == 'Registrar' %}selected{% endif %}>Registrar</option>
                         <option value="Admissions" {% if form_data.department == 'Admissions' %}selected{% endif %}>Admissions</option>

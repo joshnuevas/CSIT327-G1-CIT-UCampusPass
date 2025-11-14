@@ -43,40 +43,63 @@
 .profile-avatar {
     width: 100px;
     height: 100px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 40px;
     font-weight: 700;
+    color: #ffffff !important;
+    border: 4px solid rgba(255, 255, 255, 0.4);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .profile-info h1 {
     font-size: 2rem;
     margin-bottom: 8px;
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.profile-info div {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .profile-meta {
     display: flex;
-    gap: 24px;
+    gap: 40px;
     flex-wrap: wrap;
-    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 24px 32px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    align-items: center;
 }
 
 .profile-stat {
     display: flex;
     flex-direction: column;
+    min-width: 120px;
+    align-items: flex-start;
+    justify-content: center;
 }
 
 .stat-value {
-    font-size: 2rem;
+    font-size: 3rem;
     font-weight: 700;
+    color: #FFD700 !important;
+    line-height: 1;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .stat-label {
-    font-size: 0.9rem;
-    opacity: 0.8;
+    font-size: 1rem;
+    color: #ffffff !important;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .info-cards {
@@ -194,6 +217,11 @@
     animation: pulse 2s infinite;
 }
 
+.timeline-item.status-upcoming::before {
+    background: #FF9800;
+    box-shadow: 0 0 0 2px #FF9800;
+}
+
 @keyframes pulse {
     0%, 100% {
         transform: scale(1);
@@ -222,6 +250,12 @@
     padding: 16px;
     border-radius: 12px;
     border-left: 3px solid #E0E0E0;
+    transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+    background: #F5F5F5;
+    transform: translateX(4px);
 }
 
 .timeline-content.status-completed {
@@ -233,15 +267,30 @@
     background: #E3F2FD;
 }
 
+.timeline-content.status-active:hover {
+    background: #BBDEFB;
+}
+
+.timeline-content.status-upcoming {
+    border-left-color: #FF9800;
+    background: #FFF8E1;
+}
+
+.timeline-content.status-upcoming:hover {
+    background: #FFECB3;
+}
+
 .timeline-date {
     font-weight: 700;
     color: #333;
     margin-bottom: 8px;
+    font-size: 1rem;
 }
 
 .timeline-details {
     color: #666;
     font-size: 0.95rem;
+    line-height: 1.6;
 }
 
 .timeline-code {
@@ -253,6 +302,7 @@
     font-weight: 700;
     color: #8B1538;
     margin-top: 8px;
+    font-size: 0.9rem;
 }
 
 .status-badge {
@@ -262,6 +312,7 @@
     font-size: 0.85rem;
     font-weight: 600;
     margin-top: 8px;
+    margin-left: 8px;
 }
 
 .status-completed {
@@ -294,6 +345,11 @@
     .info-cards {
         grid-template-columns: 1fr;
     }
+    
+    .profile-meta {
+        gap: 20px;
+        justify-content: center;
+    }
 }
 </style>
 {% endblock %}
@@ -308,30 +364,24 @@
     <div class="visitor-profile-card">
         <div class="profile-header">
             <div class="profile-avatar">
-                {{ visitor_name|slice:":2"|upper }}
+                {% if first_name and last_name %}
+                    {{ first_name|slice:":1"|upper }}{{ last_name|slice:":1"|upper }}
+                {% else %}
+                    {{ visitor_name|slice:":2"|upper }}
+                {% endif %}
             </div>
             <div class="profile-info">
-                <h1>{{ visitor_name }}</h1>
-                <div style="opacity: 0.9;">
+                <h1>
+                    {% if first_name and last_name %}
+                        {{ first_name }} {{ last_name }}
+                    {% else %}
+                        {{ visitor_name }}
+                    {% endif %}
+                </h1>
+                <div>
                     <i class="fas fa-envelope"></i> {{ visitor_email }}
                 </div>
             </div>
-        </div>
-        <div class="profile-meta">
-            <div class="profile-stat">
-                <div class="stat-value">{{ total_visits }}</div>
-                <div class="stat-label">Total Visits</div>
-            </div>
-            <div class="profile-stat">
-                <div class="stat-value">{{ completed_visits }}</div>
-                <div class="stat-label">Completed</div>
-            </div>
-            {% if last_visit_date %}
-            <div class="profile-stat">
-                <div class="stat-value" style="font-size: 1.2rem;">{{ last_visit_date }}</div>
-                <div class="stat-label">Last Visit</div>
-            </div>
-            {% endif %}
         </div>
     </div>
 
@@ -382,7 +432,7 @@
                     </div>
                     <div class="timeline-details">
                         <strong>{{ visit.purpose }}</strong> at {{ visit.department }}<br>
-                        Time: {{ visit.start_time }} - {{ visit.end_time }}
+                        Time: {{ visit.start_time|slice:":5" }} - {{ visit.end_time|slice:":5" }}
                     </div>
                     <div class="timeline-code">{{ visit.code }}</div>
                     <span class="status-badge status-{{ visit.status|lower }}">

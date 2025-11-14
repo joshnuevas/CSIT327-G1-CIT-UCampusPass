@@ -81,16 +81,20 @@
 
 .check-btn {
     width: 100%;
-    padding: 18px;
+    padding: 16px;
     background: linear-gradient(135deg, #8B1538, #6B0F2A);
     color: white;
     border: none;
-    border-radius: 16px;
-    font-size: 1.2rem;
-    font-weight: 700;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 6px 24px rgba(139, 21, 56, 0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .check-btn:hover {
@@ -240,18 +244,18 @@
 .action-buttons button,
 .action-buttons a {
     flex: 1;
-    padding: 16px;
+    padding: 14px 20px;
     border: none;
-    border-radius: 16px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .btn-check-in {
@@ -379,7 +383,7 @@
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Time Slot</div>
-                        <div class="detail-value">{{ code_check_result.visit.start_time }} - {{ code_check_result.visit.end_time }}</div>
+                        <div class="detail-value">{{ code_check_result.visit.start_time|slice:":5" }} - {{ code_check_result.visit.end_time|slice:":5" }}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Status</div>
