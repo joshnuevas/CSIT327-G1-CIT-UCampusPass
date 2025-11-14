@@ -25,8 +25,15 @@ def history_view(request):
     for visit in visits:
         visit_date_obj = datetime.strptime(visit['visit_date'], "%Y-%m-%d").date()
         visit['display_date'] = f"Today, {visit_date_obj.strftime('%b %d')}" if visit_date_obj == today else visit_date_obj.strftime("%b %d, %Y")
+        
+        # Format start time
         visit['formatted_start_time'] = datetime.strptime(visit['start_time'], "%H:%M:%S").strftime("%I:%M %p")
-        visit['formatted_end_time'] = datetime.strptime(visit['end_time'], "%H:%M:%S").strftime("%I:%M %p")
+        
+        # Format end time ONLY if it exists (not None)
+        if visit['end_time']:
+            visit['formatted_end_time'] = datetime.strptime(visit['end_time'], "%H:%M:%S").strftime("%I:%M %p")
+        else:
+            visit['formatted_end_time'] = "Pending"
 
     context = {
         "user_email": user_email,

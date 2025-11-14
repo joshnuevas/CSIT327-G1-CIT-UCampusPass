@@ -157,15 +157,11 @@
                         <p class="helper-text">Please select your preferred visit date</p>
                     </div>
 
-                    <!-- Time Fields -->
+                    <!-- Time -->
                     <div class="form-group">
-                        <label for="start_time" class="required">Start Time</label>
+                        <label for="start_time" class="required">Arrival Time</label>
                         <input type="time" name="start_time" id="start_time" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="end_time" class="required">End Time</label>
-                        <input type="time" name="end_time" id="end_time" required>
+                        <p class="helper-text">What time will you arrive? (7:30 AM - 9:00 PM)</p>
                     </div>
 
                     <button type="submit" id="submitBtn">Book Visit</button>
@@ -254,41 +250,17 @@
 
         // ===== TIME VALIDATION =====
         const startTime = document.getElementById('start_time');
-        const endTime = document.getElementById('end_time');
 
         startTime.setAttribute('min', '07:30');
         startTime.setAttribute('max', '21:00');
-        endTime.setAttribute('min', '07:30');
-        endTime.setAttribute('max', '21:00');
 
         startTime.addEventListener('change', function() {
             if (this.value < '07:30' || this.value > '21:00') {
                 showWarning(
                     '🕐 Invalid Time',
-                    'Start time must be between 7:30 AM and 9:00 PM.'
+                    'Arrival time must be between 7:30 AM and 9:00 PM.'
                 );
                 this.value = '';
-            }
-        });
-
-        endTime.addEventListener('change', function() {
-            if (this.value < '07:30' || this.value > '21:00') {
-                showWarning(
-                    '🕐 Invalid Time',
-                    'End time must be between 7:30 AM and 9:00 PM.'
-                );
-                this.value = '';
-                return;
-            }
-            
-            if (startTime.value && endTime.value) {
-                if (endTime.value <= startTime.value) {
-                    showWarning(
-                        '⏰ Time Conflict',
-                        'End time must be after start time. Please adjust your schedule.'
-                    );
-                    endTime.value = '';
-                }
             }
         });
 
@@ -323,25 +295,7 @@
                 e.preventDefault();
                 showWarning(
                     '🕐 Invalid Time',
-                    'Start time must be between 7:30 AM and 9:00 PM.'
-                );
-                return false;
-            }
-            
-            if (endTime.value < '07:30' || endTime.value > '21:00') {
-                e.preventDefault();
-                showWarning(
-                    '🕐 Invalid Time',
-                    'End time must be between 7:30 AM and 9:00 PM.'
-                );
-                return false;
-            }
-            
-            if (endTime.value <= startTime.value) {
-                e.preventDefault();
-                showWarning(
-                    '⏰ Time Conflict',
-                    'End time must be after start time.'
+                    'Arrival time must be between 7:30 AM and 9:00 PM.'
                 );
                 return false;
             }

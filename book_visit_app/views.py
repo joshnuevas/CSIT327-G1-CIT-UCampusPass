@@ -57,10 +57,9 @@ def book_visit_view(request):
             department = request.POST.get('department_other') or request.POST.get('department')
             visit_date_str = request.POST.get('visit_date')
             start_time = request.POST.get('start_time')
-            end_time = request.POST.get('end_time')
 
             # Validate required fields
-            if not all([purpose, department, visit_date_str, start_time, end_time]):
+            if not all([purpose, department, visit_date_str, start_time]):
                 messages.error(request, "Please fill in all required fields.")
                 return redirect('book_visit_app:book_visit')
 
@@ -73,18 +72,14 @@ def book_visit_view(request):
             # Validate visit time is within allowed hours (7:30 AM - 9:00 PM)
             try:
                 visit_start = datetime.strptime(start_time, "%H:%M").time()
-                visit_end = datetime.strptime(end_time, "%H:%M").time()
                 
                 start_allowed = time(7, 30)
                 end_allowed = time(21, 0)
                 
-                if not (start_allowed <= visit_start and visit_end <= end_allowed):
-                    messages.error(request, "Visits must be scheduled between 7:30 AM and 9:00 PM.")
+                if not (start_allowed <= visit_start <= end_allowed):
+                    messages.error(request, "Arrival time must be between 7:30 AM and 9:00 PM.")
                     return redirect('book_visit_app:book_visit')
-                
-                if visit_start >= visit_end:
-                    messages.error(request, "End time must be after start time.")
-                    return redirect('book_visit_app:book_visit')
+                    
             except ValueError:
                 messages.error(request, "Invalid time format. Please try again.")
                 return redirect('book_visit_app:book_visit')
@@ -92,7 +87,7 @@ def book_visit_view(request):
             # Generate visit code
             code = generate_visit_code(purpose)
 
-            # Insert visit record into database
+            # Insert visit record into database (end_time will be set when staff checks out)
             try:
                 supabase.table("visits").insert({
                     "user_id": user_id,
@@ -102,12 +97,13 @@ def book_visit_view(request):
                     "department": department,
                     "visit_date": visit_date_str,
                     "start_time": start_time,
-                    "end_time": end_time,
+                    "end_time": None,  # Will be set when staff checks out
                     "status": "Upcoming"
                 }).execute()
+                
                 # Log the visit booking
                 actor = f"{first_name} ({user_email})"
-                description = f"Booked a visit for {visit_date_str} from {start_time} to {end_time} in {department} for purpose '{purpose}'."
+                description = f"Booked a visit for {visit_date_str} at {start_time} in {department} for purpose '{purpose}'."
                 try:
                     logs_services.create_log(
                         actor=actor,
@@ -126,7 +122,7 @@ def book_visit_view(request):
 
             # Show success message with visit code
             messages.success(request, f"Visit booked successfully! Your visit code is: {code}")
-            messages.info(request, "Please save your visit code for check-in.")
+            messages.info(request, "Please save your visit code for check-in. The check-out time will be recorded by staff when you leave.")
 
             return redirect('dashboard_app:dashboard')
 

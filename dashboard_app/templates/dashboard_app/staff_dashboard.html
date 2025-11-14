@@ -69,25 +69,48 @@
     color: #D4AF37;
 }
 
-/* ===== Dashboard Grid ===== */
+/* ===== Dashboard Grid - EQUAL HEIGHT LAYOUT ===== */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 25px;
-    margin-bottom: 30px;
     align-items: start;
 }
 
+/* Left column - stacked cards */
 .left-column {
     display: flex;
     flex-direction: column;
     gap: 25px;
-    height: 100%;
+}
+
+/* Code Checker - auto height */
+.code-checker-card {
+    height: fit-content;
+}
+
+/* Recent Check-Ins - fixed height, scrollable */
+.left-column .scrollable-card {
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+}
+
+/* Right column - Today's Visits matches Recent Check-Ins height */
+.right-column-card {
+    display: flex;
+    flex-direction: column;
+    height: 725px;
 }
 
 @media (max-width: 1024px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .left-column .scrollable-card,
+    .right-column-card {
+        height: 450px;
     }
 }
 
@@ -100,10 +123,6 @@
     border: 1px solid #e0e0e0;
     display: flex;
     flex-direction: column;
-}
-
-.dashboard-grid > .card {
-    min-height: 0;
 }
 
 .card-header {
@@ -152,7 +171,6 @@
     border: none;
     display: flex;
     flex-direction: column;
-    height: fit-content;
 }
 
 .code-checker-card h3 {
@@ -305,7 +323,43 @@
     transform: translateY(-2px);
 }
 
-/* ===== Today's Visits Styling ===== */
+/* ===== Scrollable Content ===== */
+.scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    margin-right: -8px;
+}
+
+/* Custom Scrollbar */
+.scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+    margin: 5px 0;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #8B1538, #6B0F2A);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #6B0F2A, #4A0A1C);
+}
+
+/* Firefox Scrollbar */
+.scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: #8B1538 #f1f1f1;
+}
+
+/* ===== Visit Item Styling ===== */
 .visit-item {
     padding: 16px;
     background: #f9f9f9;
@@ -318,12 +372,14 @@
 .visit-item:hover {
     background: #FFF8E1;
     transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(139, 21, 56, 0.1);
 }
 
 .visit-item h4 {
     color: #8b1538;
     margin-bottom: 8px;
     font-size: 1.1rem;
+    font-weight: 600;
 }
 
 .visit-item p {
@@ -344,81 +400,23 @@
 .visit-status.upcoming {
     background: #FFF8E1;
     color: #D4AF37;
+    border: 1px solid #D4AF37;
 }
 
 .visit-status.active {
     background: #E8F5E9;
     color: #4CAF50;
+    border: 1px solid #4CAF50;
 }
 
 .visit-status.completed {
     background: #F5F5F5;
     color: #999;
+    border: 1px solid #ccc;
 }
 
-/* ===== Recent Check-ins ===== */
-.recent-checkins-card {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-}
-
-.recent-checkins-card .card-header {
-    flex-shrink: 0;
-}
-
-.checkins-scroll-container {
-    flex: 1;
-    overflow-y: auto;
-    max-height: 650px;
-    padding-right: 5px;
-}
-
-.checkins-scroll-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.checkins-scroll-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.checkins-scroll-container::-webkit-scrollbar-thumb {
-    background: #8B1538;
-    border-radius: 10px;
-}
-
-.checkins-scroll-container::-webkit-scrollbar-thumb:hover {
-    background: #6B0F2A;
-}
-
-.visits-scroll-container {
-    flex: 1;
-    overflow-y: auto;
-    max-height: 700px;
-    padding-right: 5px;
-}
-
-.visits-scroll-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.visits-scroll-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.visits-scroll-container::-webkit-scrollbar-thumb {
-    background: #8B1538;
-    border-radius: 10px;
-}
-
-.visits-scroll-container::-webkit-scrollbar-thumb:hover {
-    background: #6B0F2A;
-}
-
-.pass-code-item {
+/* ===== Check-in Item Styling ===== */
+.checkin-item {
     padding: 16px;
     background: #f9f9f9;
     border-radius: 8px;
@@ -427,26 +425,31 @@
     transition: all 0.3s ease;
 }
 
-.pass-code-item:hover {
+.checkin-item:hover {
     background: #E8F5E9;
     transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
 }
 
-.pass-code-info h4 {
+.checkin-item h4 {
     color: #8b1538;
     font-size: 1rem;
     margin-bottom: 6px;
+    font-weight: 600;
 }
 
-.pass-code-info p {
+.checkin-item p {
     color: #666;
     font-size: 0.9rem;
     margin: 4px 0;
+    line-height: 1.4;
 }
 
-.pass-code-info small {
+.checkin-item small {
     color: #999;
     font-size: 0.85rem;
+    display: block;
+    margin-top: 8px;
 }
 
 /* ===== Responsive Design ===== */
@@ -465,6 +468,14 @@
 
     .welcome-section h1 {
         font-size: 24px;
+    }
+    
+    .left-column .scrollable-card {
+        min-height: 300px;
+    }
+    
+    .right-column-card {
+        min-height: 400px;
     }
 }
 </style>
@@ -551,7 +562,11 @@
                     </div>
                     <div class="visit-detail-row">
                         <strong>Time:</strong>
-                        <span>{{ code_check_result.visit.start_time|slice:":5" }} - {{ code_check_result.visit.end_time|slice:":5" }}</span>
+                        {% if code_check_result.visit.end_time %}
+                            <span>{{ code_check_result.visit.start_time|slice:":5" }} - {{ code_check_result.visit.end_time|slice:":5" }}</span>
+                        {% else %}
+                            <span style="color: #FF9800; font-weight: 600;">Arrival: {{ code_check_result.visit.start_time|slice:":5" }}</span>
+                        {% endif %}
                     </div>
                     <div class="visit-detail-row">
                         <strong>Status:</strong>
@@ -586,21 +601,19 @@
             {% endif %}
         </div>
 
-        <!-- Recent Check-Ins -->
-        <div class="card recent-checkins-card">
+        <!-- Recent Check-Ins - Fills remaining space -->
+        <div class="card scrollable-card">
             <div class="card-header">
                 <h3 class="card-title">Recent Check-Ins</h3>
             </div>
 
-            <div class="checkins-scroll-container">
+            <div class="scroll-container">
                 {% if recent_checkins %}
                     {% for checkin in recent_checkins %}
-                        <div class="pass-code-item">
-                            <div class="pass-code-info">
-                                <h4>{{ checkin.action_type }}</h4>
-                                <p>{{ checkin.description }}</p>
-                                <small>{{ checkin.display_time }}</small>
-                            </div>
+                        <div class="checkin-item">
+                            <h4>{{ checkin.action_type }}</h4>
+                            <p>{{ checkin.description }}</p>
+                            <small>{{ checkin.display_time }}</small>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -610,14 +623,13 @@
         </div>
     </div>
 
-    <!-- ===== Right Column - Today's Visits ===== -->
-    <div class="card">
+    <!-- ===== Right Column - Today's Visits (FULL HEIGHT) ===== -->
+    <div class="card right-column-card">
         <div class="card-header">
             <h3 class="card-title">Today's Scheduled Visits</h3>
-            <!-- <a href="{% url 'visit_records_app:visit_records' %}" class="view-all">View All →</a> -->
         </div>
 
-        <div class="visits-scroll-container">
+        <div class="scroll-container">
             {% if today_visits %}
                 {% for visit in today_visits %}
                     <div class="visit-item">
@@ -625,7 +637,14 @@
                         <p><strong>Visitor:</strong> {{ visit.user_email }}</p>
                         <p><strong>Purpose:</strong> {{ visit.purpose }}</p>
                         <p><strong>Department:</strong> {{ visit.department }}</p>
-                        <p><strong>Time:</strong> {{ visit.start_time|slice:":5" }} - {{ visit.end_time|slice:":5" }}</p>
+                        <p>
+                            <strong>Time:</strong> 
+                            {% if visit.end_time %}
+                                {{ visit.start_time|slice:":5" }} - {{ visit.end_time|slice:":5" }}
+                            {% else %}
+                                <span style="color: #FF9800; font-weight: 600;">Arrival: {{ visit.start_time|slice:":5" }}</span>
+                            {% endif %}
+                        </p>
                         <span class="visit-status {{ visit.status|lower }}">{{ visit.status }}</span>
                     </div>
                 {% endfor %}

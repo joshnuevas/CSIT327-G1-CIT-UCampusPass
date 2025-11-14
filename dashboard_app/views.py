@@ -62,14 +62,31 @@ def dashboard_view(request):
         else:
             visit['display_date'] = visit_date_obj.strftime("%b %d, %Y")
 
+        # Format start time
         visit['formatted_start_time'] = datetime.strptime(visit['start_time'], "%H:%M:%S").strftime("%I:%M %p")
-        visit['formatted_end_time'] = datetime.strptime(visit['end_time'], "%H:%M:%S").strftime("%I:%M %p")
+        
+        # Format end time ONLY if it exists (not None)
+        if visit['end_time']:
+            visit['formatted_end_time'] = datetime.strptime(visit['end_time'], "%H:%M:%S").strftime("%I:%M %p")
+        else:
+            visit['formatted_end_time'] = "Pending"
 
         visit_start = datetime.strptime(f"{visit['visit_date']} {visit['start_time']}", "%Y-%m-%d %H:%M:%S")
-        visit_end = datetime.strptime(f"{visit['visit_date']} {visit['end_time']}", "%Y-%m-%d %H:%M:%S")
+        
+        # Handle None end_time for status checking
+        if visit['end_time']:
+            visit_end = datetime.strptime(f"{visit['visit_date']} {visit['end_time']}", "%Y-%m-%d %H:%M:%S")
+        else:
+            # If no end time, use end of day for status check purposes
+            visit_end = datetime.strptime(f"{visit['visit_date']} 23:59:59", "%Y-%m-%d %H:%M:%S")
+        
         visit['visit_start_datetime'] = visit_start
 
-        if visit_start <= now <= visit_end:
+        # Status logic - preserve Active status for checked-in visits without end_time
+        if visit['end_time'] is None and visit['status'] == 'Active':
+            # Keep as Active (visitor is currently on-site)
+            new_status = 'Active'
+        elif visit_start <= now <= visit_end:
             new_status = 'Active'
         elif now > visit_end:
             new_status = 'Expired'
@@ -512,7 +529,7 @@ def check_in_visitor(request):
 @staff_required
 @require_POST
 def check_out_visitor(request):
-    """Check out a visitor"""
+    """Check out a visitor and record the actual check-out time"""
     visit_code = request.POST.get('visit_code', '').strip().upper()
     staff_username = request.session['staff_username']
     staff_first_name = request.session.get('staff_first_name', 'Staff')
@@ -539,25 +556,29 @@ def check_out_visitor(request):
             messages.warning(request, f'Visit is {visit["status"]}. Cannot check out.')
             return redirect('dashboard_app:code_checker')
         
-        # Update visit status to Completed
+        # Get current time in Philippines timezone
+        current_time = datetime.now(PHILIPPINES_TZ)
+        checkout_time = current_time.strftime('%H:%M:%S')
+        
+        # Update visit status to Completed and set end_time
         supabase.table("visits").update({
-            "status": "Completed"
+            "status": "Completed",
+            "end_time": checkout_time  # Record actual checkout time
         }).eq("visit_id", visit['visit_id']).execute()
         
         # Create log entry
-        current_time = datetime.now(PHILIPPINES_TZ)
         log_entry = {
             "actor": f"{staff_first_name} ({staff_username})",
             "action_type": "Visitor Check-Out",
-            "description": f"Checked out visitor with code {visit_code} from {visit['department']}",
+            "description": f"Checked out visitor with code {visit_code} from {visit['department']} at {checkout_time}",
             "actor_role": "Staff",
             "created_at": current_time.isoformat()
         }
         supabase.table("system_logs").insert(log_entry).execute()
         
         from django.contrib import messages
-        messages.success(request, f'✅ Visitor checked out successfully! Code: {visit_code}')
-        logger.info(f"Visitor checked out by {staff_username}: {visit_code}")
+        messages.success(request, f'✅ Visitor checked out successfully at {current_time.strftime("%I:%M %p")}! Code: {visit_code}')
+        logger.info(f"Visitor checked out by {staff_username}: {visit_code} at {checkout_time}")
         
     except Exception as e:
         logger.error(f"Error checking out visitor: {str(e)}")
