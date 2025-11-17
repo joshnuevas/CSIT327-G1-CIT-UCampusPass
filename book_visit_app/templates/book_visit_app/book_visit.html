@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CIT-U Campus Pass - Book a Visit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="{% static 'book_visit_app/css/book_visit.css' %}?v={{ now|date:'U' }}">
 </head>
 <body>
@@ -39,13 +40,6 @@
             </a>
 
             <div class="nav-divider"></div>
-
-            <a href="#" class="nav-item">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
-                </svg>
-                Notifications
-            </a>
 
             <a href="{% url 'help_app:help_support' %}" class="nav-item">
                 <svg fill="currentColor" viewBox="0 0 20 20">
@@ -105,13 +99,7 @@
                 <p>Schedule your campus visit</p>
             </div>
             <div class="user-info">
-                <div class="notification-icon">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
-                    </svg>
-                    <span class="notification-badge">3</span>
-                </div>
-                <div class="user-avatar">{{ user_first_name|default:"JD"|slice:":2"|upper }}</div>
+                <div class="user-avatar" id="profileBtn">{{ user_first_name|default:"JD"|slice:":2"|upper }}</div>
             </div>
         </div>
 
@@ -151,12 +139,23 @@
                     <div class="form-group">
                         <label for="visit_date" class="required">Visit Date</label>
                         <input type="date" name="visit_date" id="visit_date" required>
-                        <p class="helper-text">Please select your preferred visit date (Monday-Saturday, today or future dates only)</p>
+                        <p class="helper-text">Please select your preferred visit date (Monday-Saturday)</p>
                     </div>
 
                     <button type="submit" id="submitBtn">Book Visit</button>
                 </form>
             </div>
+        </div>
+    </div>
+
+    <!-- ===== PROFILE DROPDOWN ===== -->
+    <div class="dropdown" id="profileDropdown">
+        <div class="dropdown-header">Visitor</div>
+        <a href="{% url 'profile_app:profile' %}" class="dropdown-item">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <div class="dropdown-item" id="dropdownLogoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Logout
         </div>
     </div>
 
@@ -429,22 +428,41 @@
             submitBtn.disabled = true;
         });
 
+        // ===== DROPDOWNS =====
+        const profileBtn = document.getElementById("profileBtn");
+        const profileDropdown = document.getElementById("profileDropdown");
+
+        if (profileBtn) {
+            profileBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle("active");
+            });
+        }
+
+        document.addEventListener("click", (e) => {
+            if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
+                profileDropdown.classList.remove("active");
+        });
+
         // ===== LOGOUT MODAL =====
         const logoutBtn = document.getElementById('logoutBtn');
+        const dropdownLogoutBtn = document.getElementById('dropdownLogoutBtn');
         const logoutModal = document.getElementById('logoutModal');
         const confirmLogout = document.getElementById('confirmLogout');
         const cancelLogout = document.getElementById('cancelLogout');
 
-        logoutBtn.onclick = function(e) {
+        if(logoutBtn) logoutBtn.onclick = function(e) {
             e.preventDefault();
             logoutModal.style.display = 'block';
         }
 
-        confirmLogout.onclick = function() {
+        if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); logoutModal.style.display = 'block'; });
+
+        if(confirmLogout) confirmLogout.onclick = function() {
             window.location.href = "{% url 'login_app:logout' %}";
         }
 
-        cancelLogout.onclick = function() {
+        if(cancelLogout) cancelLogout.onclick = function() {
             logoutModal.style.display = 'none';
         }
 
