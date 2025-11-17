@@ -62,36 +62,44 @@ def dashboard_view(request):
         else:
             visit['display_date'] = visit_date_obj.strftime("%b %d, %Y")
 
-        # Format start time
-        visit['formatted_start_time'] = datetime.strptime(visit['start_time'], "%H:%M:%S").strftime("%I:%M %p")
-        
+        # Format start time - handle null start_time for unchecked-in visits
+        if visit['start_time']:
+            visit['formatted_start_time'] = datetime.strptime(visit['start_time'], "%H:%M:%S").strftime("%I:%M %p")
+        else:
+            visit['formatted_start_time'] = "Not checked in"
+
         # Format end time ONLY if it exists (not None)
         if visit['end_time']:
             visit['formatted_end_time'] = datetime.strptime(visit['end_time'], "%H:%M:%S").strftime("%I:%M %p")
         else:
             visit['formatted_end_time'] = "Pending"
 
-        visit_start = datetime.strptime(f"{visit['visit_date']} {visit['start_time']}", "%Y-%m-%d %H:%M:%S")
-        
-        # Handle None end_time for status checking
-        if visit['end_time']:
-            visit_end = datetime.strptime(f"{visit['visit_date']} {visit['end_time']}", "%Y-%m-%d %H:%M:%S")
-        else:
-            # If no end time, use end of day for status check purposes
-            visit_end = datetime.strptime(f"{visit['visit_date']} 23:59:59", "%Y-%m-%d %H:%M:%S")
-        
-        visit['visit_start_datetime'] = visit_start
+        # Handle start_time parsing - for booked visits not yet checked in, start_time is None
+        if visit['start_time']:
+            visit_start = datetime.strptime(f"{visit['visit_date']} {visit['start_time']}", "%Y-%m-%d %H:%M:%S")
+            visit['visit_start_datetime'] = visit_start
 
-        # Status logic - preserve Active status for checked-in visits without end_time
-        if visit['end_time'] is None and visit['status'] == 'Active':
-            # Keep as Active (visitor is currently on-site)
-            new_status = 'Active'
-        elif visit_start <= now <= visit_end:
-            new_status = 'Active'
-        elif now > visit_end:
-            new_status = 'Expired'
+            # Handle None end_time for status checking
+            if visit['end_time']:
+                visit_end = datetime.strptime(f"{visit['visit_date']} {visit['end_time']}", "%Y-%m-%d %H:%M:%S")
+            else:
+                # If no end time, use end of day for status check purposes
+                visit_end = datetime.strptime(f"{visit['visit_date']} 23:59:59", "%Y-%m-%d %H:%M:%S")
+
+            # Status logic - preserve Active status for checked-in visits without end_time
+            if visit['end_time'] is None and visit['status'] == 'Active':
+                # Keep as Active (visitor is currently on-site)
+                new_status = 'Active'
+            elif visit_start <= now <= visit_end:
+                new_status = 'Active'
+            elif now > visit_end:
+                new_status = 'Expired'
+            else:
+                new_status = 'Upcoming'
         else:
-            new_status = 'Upcoming'
+            # For visits not yet checked in, set a placeholder datetime and keep as Upcoming
+            visit['visit_start_datetime'] = datetime.strptime(f"{visit['visit_date']} 00:00:00", "%Y-%m-%d %H:%M:%S")
+            new_status = 'Upcoming'  # Keep as Upcoming until checked in
 
         if visit['status'] != new_status:
             visit['status'] = new_status
@@ -349,8 +357,34 @@ def staff_dashboard_view(request):
     try:
         # Get today's visits
         today_visits_resp = supabase.table("visits").select("*").eq("visit_date", today_str).execute()
-        today_visits = today_visits_resp.data
-        
+        today_visits = today_visits_resp.data or []
+
+        # Update status for today's visits if needed
+        now = datetime.now()
+        for visit in today_visits:
+            # Handle start_time parsing for status updates
+            if visit['start_time']:
+                visit_start = datetime.strptime(f"{visit['visit_date']} {visit['start_time']}", "%Y-%m-%d %H:%M:%S")
+                visit_end = datetime.strptime(f"{visit['visit_date']} 23:59:59", "%Y-%m-%d %H:%M:%S") if not visit['end_time'] else datetime.strptime(f"{visit['visit_date']} {visit['end_time']}", "%Y-%m-%d %H:%M:%S")
+
+                # Status logic
+                if visit['end_time'] is None and visit['status'] == 'Active':
+                    new_status = 'Active'
+                elif visit_start <= now <= visit_end:
+                    new_status = 'Active'
+                elif now > visit_end:
+                    new_status = 'Expired'
+                else:
+                    new_status = 'Upcoming'
+            else:
+                # For visits not yet checked in, keep as Upcoming
+                new_status = 'Upcoming'
+
+            # Update status if changed
+            if visit['status'] != new_status:
+                visit['status'] = new_status
+                supabase.table("visits").update({"status": new_status}).eq("code", visit['code']).execute()
+
         # Count stats
         today_visits_count = len(today_visits)
         active_visits_count = len([v for v in today_visits if v.get('status') == 'Active'])
@@ -498,9 +532,14 @@ def check_in_visitor(request):
             messages.warning(request, f'Visit is already {visit["status"]}. Cannot check in.')
             return redirect('dashboard_app:code_checker')
         
-        # Update visit status to Active
+        # Get current time in Philippines timezone
+        current_time = datetime.now(PHILIPPINES_TZ)
+        checkin_time = current_time.strftime('%H:%M:%S')
+
+        # Update visit status to Active and set start_time
         supabase.table("visits").update({
-            "status": "Active"
+            "status": "Active",
+            "start_time": checkin_time  # Record actual check-in time
         }).eq("visit_id", visit['visit_id']).execute()
         
         # Create log entry

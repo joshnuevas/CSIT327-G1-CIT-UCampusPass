@@ -120,48 +120,38 @@
                 <form method="POST" action="{% url 'book_visit_app:book_visit' %}">
                     {% csrf_token %}
 
+                    <!-- Department -->
+                    <div class="form-group">
+                        <label for="department" class="required">Department</label>
+                        <select name="department" id="department" onchange="updatePurposeOptions(); toggleOther('department')" required>
+                            <option value="" selected disabled>Select Department</option>
+                            <option value="Office of Admissions and Scholarships (OAS)">Office of Admissions and Scholarships (OAS)</option>
+                            <option value="Finance and Accounting Office (FAO)">Finance and Accounting Office (FAO)</option>
+                            <option value="University Registrar's Office (URO)">University Registrar's Office (URO)</option>
+                            <option value="Learning Resource and Activity Center (LRAC)">Learning Resource and Activity Center (LRAC)</option>
+                            <option value="Student Success Office (SSO)">Student Success Office (SSO)</option>
+                            <option value="Alumni Affairs Office (AAO)">Alumni Affairs Office (AAO)</option>
+                            <option value="Networking, Linkages & Relations (NLR)">Networking, Linkages & Relations (NLR)</option>
+                            <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <input type="text" name="department_other" id="department_other" placeholder="Please specify department" style="display:none;">
+                    </div>
+
                     <!-- Purpose -->
                     <div class="form-group">
                         <label for="purpose" class="required">Purpose</label>
                         <select name="purpose" id="purpose" onchange="toggleOther('purpose')" required>
-                            <option value="" selected disabled>Select Purpose</option>
-                            <option value="Meeting">Meeting</option>
-                            <option value="Tuition Payment">Tuition Payment</option>
-                            <option value="Delivery">Delivery</option>
-                            <option value="Consultation">Consultation</option>
-                            <option value="Other">Other</option>
+                            <option value="" selected disabled>Select Department First</option>
                         </select>
                         <input type="text" name="purpose_other" id="purpose_other" placeholder="Please specify your purpose" style="display:none;">
-                    </div>
-
-                    <!-- Department -->
-                    <div class="form-group">
-                        <label for="department" class="required">Department</label>
-                        <select name="department" id="department" onchange="toggleOther('department')" required>
-                            <option value="" selected disabled>Select Department</option>
-                            <option value="Admissions">Admissions</option>
-                            <option value="Finance">Finance/Cashier</option>
-                            <option value="Registrar">Registrar</option>
-                            <option value="Library">Library</option>
-                            <option value="Student Affairs">Student Affairs</option>
-                            <option value="IT Services">IT Services</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <input type="text" name="department_other" id="department_other" placeholder="Please specify department" style="display:none;">
                     </div>
 
                     <!-- Date -->
                     <div class="form-group">
                         <label for="visit_date" class="required">Visit Date</label>
                         <input type="date" name="visit_date" id="visit_date" required>
-                        <p class="helper-text">Please select your preferred visit date</p>
-                    </div>
-
-                    <!-- Time -->
-                    <div class="form-group">
-                        <label for="start_time" class="required">Arrival Time</label>
-                        <input type="time" name="start_time" id="start_time" required>
-                        <p class="helper-text">What time will you arrive? (7:30 AM - 9:00 PM)</p>
+                        <p class="helper-text">Please select your preferred visit date (Monday-Saturday, today or future dates only)</p>
                     </div>
 
                     <button type="submit" id="submitBtn">Book Visit</button>
@@ -198,10 +188,148 @@
     </div>
 
     <script>
+        // Purpose options for each department
+        const purposeOptions = {
+            "Office of Admissions and Scholarships (OAS)": [
+                "Admission Inquiry",
+                "Submission of Admission Requirements",
+                "Enrollment Processing",
+                "Scholarship Application",
+                "Scholarship Inquiry",
+                "Claiming Scholarship Results",
+                "Document Verification (Admission-related)",
+                "Other"
+            ],
+            "Finance and Accounting Office (FAO)": [
+                "Tuition Payment",
+                "Financial Clearance",
+                "Assessment of Fees",
+                "Refund Processing",
+                "Scholarship / Discount Posting Inquiry",
+                "Statement of Account Request",
+                "Official Receipt Concerns",
+                "Payment Discrepancy Inquiry",
+                "Other"
+            ],
+            "University Registrar's Office (URO)": [
+                "Request for Transcript of Records",
+                "Request for Certificate (Enrollment, Grades, Good Moral, etc.)",
+                "Document Pickup (TOR, Certificates, etc.)",
+                "Correction of Student Records",
+                "Verification of Academic Credentials",
+                "Diploma Request / Release",
+                "Enrollment / Registration Concerns",
+                "Graduation Evaluation",
+                "Other"
+            ],
+            "Learning Resource and Activity Center (LRAC)": [
+                "Library Access",
+                "Book Borrowing / Returning",
+                "Research Assistance",
+                "Use of Study Rooms / Facilities",
+                "Access to Archives / Special Collections",
+                "Orientation or Library Tour",
+                "Resource Reservation (AV Equipment, Materials)",
+                "Other"
+            ],
+            "Student Success Office (SSO)": [
+                "Counseling Appointment",
+                "Career Guidance / Job Placement",
+                "Student Affairs Consultation",
+                "Disciplinary Meeting",
+                "Mental Health Support Session",
+                "Student Organization Concerns",
+                "Academic Support / Advising",
+                "Other"
+            ],
+            "Alumni Affairs Office (AAO)": [
+                "Alumni Verification",
+                "Alumni ID Application / Claiming",
+                "Alumni Records Request",
+                "Reunion / Event Coordination",
+                "Campus Access for Alumni",
+                "Donations or Partnerships",
+                "Alumni Networking Inquiries",
+                "Other"
+            ],
+            "Networking, Linkages & Relations (NLR)": [
+                "Partnership / MOA Meeting",
+                "Internship / OJT Coordination",
+                "Industry Relations Inquiry",
+                "Sponsorship Meeting",
+                "External Collaboration",
+                "Campus Promotional Activities Coordination",
+                "Other"
+            ],
+            "Human Resource Department (HRD)": [
+                "Job Application",
+                "Job Interview",
+                "Employment Verification",
+                "Employee Records Request",
+                "Contract Signing",
+                "HR Consultation / Meeting",
+                "Onboarding / Orientation",
+                "Clearance Processing",
+                "Other"
+            ]
+        };
+
+        function updatePurposeOptions() {
+            const departmentSelect = document.getElementById('department');
+            const purposeSelect = document.getElementById('purpose');
+            const selectedDepartment = departmentSelect.value;
+
+            // Clear current options
+            purposeSelect.innerHTML = '';
+
+            if (selectedDepartment === 'Other') {
+                // Hide purpose select and show input
+                purposeSelect.style.display = 'none';
+                document.getElementById('purpose_other').style.display = 'block';
+                document.getElementById('purpose_other').required = true;
+                return;
+            } else if (selectedDepartment && purposeOptions[selectedDepartment]) {
+                // Show purpose select and populate options
+                purposeSelect.style.display = 'block';
+                document.getElementById('purpose_other').style.display = 'none';
+                document.getElementById('purpose_other').required = false;
+                document.getElementById('purpose_other').value = '';
+
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select Purpose';
+                defaultOption.selected = true;
+                defaultOption.disabled = true;
+                purposeSelect.appendChild(defaultOption);
+
+                // Add purpose options
+                purposeOptions[selectedDepartment].forEach(purpose => {
+                    const option = document.createElement('option');
+                    option.value = purpose;
+                    option.textContent = purpose;
+                    purposeSelect.appendChild(option);
+                });
+            } else {
+                // No department selected
+                purposeSelect.style.display = 'block';
+                document.getElementById('purpose_other').style.display = 'none';
+                document.getElementById('purpose_other').required = false;
+                document.getElementById('purpose_other').value = '';
+
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select Department First';
+                defaultOption.selected = true;
+                defaultOption.disabled = true;
+                purposeSelect.appendChild(defaultOption);
+            }
+        }
+
         function toggleOther(field) {
             const select = document.getElementById(field);
             const otherInput = document.getElementById(field + '_other');
-            
+
             if (select.value === 'Other') {
                 otherInput.style.display = 'block';
                 otherInput.required = true;
@@ -232,33 +360,28 @@
         const today = new Date().toISOString().split('T')[0];
         dateInput.setAttribute('min', today);
 
-        // ===== DATE VALIDATION - Monday-Friday Only =====
+        // ===== DATE VALIDATION - No Past Dates, No Sundays =====
         const visitDateInput = document.getElementById('visit_date');
 
         visitDateInput.addEventListener('input', function() {
             const selectedDate = new Date(this.value + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to start of day
             const day = selectedDate.getDay();
-            
-            if (day === 0 || day === 6) {
+
+            if (selectedDate < today) {
                 showWarning(
-                    '📅 Weekend Not Available',
-                    'Visits cannot be scheduled on Saturdays or Sundays. Please select a weekday (Monday-Friday).'
+                    '📅 Invalid Date',
+                    'You cannot select a date that has already passed. Please select today or a future date.'
                 );
                 this.value = '';
+                return;
             }
-        });
 
-        // ===== TIME VALIDATION =====
-        const startTime = document.getElementById('start_time');
-
-        startTime.setAttribute('min', '07:30');
-        startTime.setAttribute('max', '21:00');
-
-        startTime.addEventListener('change', function() {
-            if (this.value < '07:30' || this.value > '21:00') {
+            if (day === 0) {
                 showWarning(
-                    '🕐 Invalid Time',
-                    'Arrival time must be between 7:30 AM and 9:00 PM.'
+                    '📅 Sunday Not Available',
+                    'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
                 );
                 this.value = '';
             }
@@ -276,30 +399,31 @@
         // ===== FORM SUBMISSION VALIDATION =====
         document.querySelector('form').addEventListener('submit', function(e) {
             const submitBtn = document.getElementById('submitBtn');
-            
-            // Validate date is weekday
+
+            // Validate date is not past and not Sunday
             const selectedDate = new Date(visitDateInput.value + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
             const dayOfWeek = selectedDate.getDay();
-            
-            if (dayOfWeek === 0 || dayOfWeek === 6) {
+
+            if (selectedDate < today) {
                 e.preventDefault();
                 showWarning(
-                    '📅 Weekend Not Available',
-                    'Visits cannot be scheduled on Saturdays or Sundays. Please select a weekday.'
+                    '📅 Invalid Date',
+                    'You cannot select a date that has already passed. Please select today or a future date.'
                 );
                 return false;
             }
-            
-            // Validate time range
-            if (startTime.value < '07:30' || startTime.value > '21:00') {
+
+            if (dayOfWeek === 0) {
                 e.preventDefault();
                 showWarning(
-                    '🕐 Invalid Time',
-                    'Arrival time must be between 7:30 AM and 9:00 PM.'
+                    '📅 Sunday Not Available',
+                    'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
                 );
                 return false;
             }
-            
+
             // If all validations pass, show loading state
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;

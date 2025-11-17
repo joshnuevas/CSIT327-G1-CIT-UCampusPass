@@ -56,38 +56,28 @@ def book_visit_view(request):
             purpose = request.POST.get('purpose_other') or request.POST.get('purpose')
             department = request.POST.get('department_other') or request.POST.get('department')
             visit_date_str = request.POST.get('visit_date')
-            start_time = request.POST.get('start_time')
 
             # Validate required fields
-            if not all([purpose, department, visit_date_str, start_time]):
+            if not all([purpose, department, visit_date_str]):
                 messages.error(request, "Please fill in all required fields.")
                 return redirect('book_visit_app:book_visit')
 
-            # Validate visit date is a weekday
+            # Validate visit date is not past and not Sunday
             visit_date = datetime.strptime(visit_date_str, "%Y-%m-%d").date()
-            if visit_date.weekday() >= 5:  # Saturday=5, Sunday=6
-                messages.error(request, "Visits cannot be scheduled on weekends. Please select a weekday.")
+            today = datetime.now().date()
+
+            if visit_date < today:
+                messages.error(request, "You cannot select a date that has already passed. Please select today or a future date.")
                 return redirect('book_visit_app:book_visit')
 
-            # Validate visit time is within allowed hours (7:30 AM - 9:00 PM)
-            try:
-                visit_start = datetime.strptime(start_time, "%H:%M").time()
-                
-                start_allowed = time(7, 30)
-                end_allowed = time(21, 0)
-                
-                if not (start_allowed <= visit_start <= end_allowed):
-                    messages.error(request, "Arrival time must be between 7:30 AM and 9:00 PM.")
-                    return redirect('book_visit_app:book_visit')
-                    
-            except ValueError:
-                messages.error(request, "Invalid time format. Please try again.")
+            if visit_date.weekday() == 6:  # Sunday=6
+                messages.error(request, "Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).")
                 return redirect('book_visit_app:book_visit')
 
             # Generate visit code
             code = generate_visit_code(purpose)
 
-            # Insert visit record into database (end_time will be set when staff checks out)
+            # Insert visit record into database (start_time and end_time will be set when staff checks in/out)
             try:
                 supabase.table("visits").insert({
                     "user_id": user_id,
@@ -96,14 +86,14 @@ def book_visit_view(request):
                     "purpose": purpose,
                     "department": department,
                     "visit_date": visit_date_str,
-                    "start_time": start_time,
+                    "start_time": None,  # Will be set when staff checks in
                     "end_time": None,  # Will be set when staff checks out
                     "status": "Upcoming"
                 }).execute()
-                
+
                 # Log the visit booking
                 actor = f"{first_name} ({user_email})"
-                description = f"Booked a visit for {visit_date_str} at {start_time} in {department} for purpose '{purpose}'."
+                description = f"Booked a visit for {visit_date_str} in {department} for purpose '{purpose}'."
                 try:
                     logs_services.create_log(
                         actor=actor,
@@ -122,7 +112,7 @@ def book_visit_view(request):
 
             # Show success message with visit code
             messages.success(request, f"Visit booked successfully! Your visit code is: {code}")
-            messages.info(request, "Please save your visit code for check-in. The check-out time will be recorded by staff when you leave.")
+            messages.info(request, "Please save your visit code for check-in. The check-in and check-out times will be recorded by staff.")
 
             return redirect('dashboard_app:dashboard')
 

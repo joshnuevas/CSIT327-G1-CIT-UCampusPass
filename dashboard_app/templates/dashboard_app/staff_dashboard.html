@@ -564,8 +564,10 @@
                         <strong>Time:</strong>
                         {% if code_check_result.visit.end_time %}
                             <span>{{ code_check_result.visit.start_time|slice:":5" }} - {{ code_check_result.visit.end_time|slice:":5" }}</span>
-                        {% else %}
+                        {% elif code_check_result.visit.start_time %}
                             <span style="color: #FF9800; font-weight: 600;">Arrival: {{ code_check_result.visit.start_time|slice:":5" }}</span>
+                        {% else %}
+                            <span style="color: #666; font-style: italic;">Not checked in yet</span>
                         {% endif %}
                     </div>
                     <div class="visit-detail-row">
@@ -638,11 +640,13 @@
                         <p><strong>Purpose:</strong> {{ visit.purpose }}</p>
                         <p><strong>Department:</strong> {{ visit.department }}</p>
                         <p>
-                            <strong>Time:</strong> 
+                            <strong>Time:</strong>
                             {% if visit.end_time %}
                                 {{ visit.start_time|slice:":5" }} - {{ visit.end_time|slice:":5" }}
-                            {% else %}
+                            {% elif visit.start_time %}
                                 <span style="color: #FF9800; font-weight: 600;">Arrival: {{ visit.start_time|slice:":5" }}</span>
+                            {% else %}
+                                <span style="color: #666; font-style: italic;">Not checked in yet</span>
                             {% endif %}
                         </p>
                         <span class="visit-status {{ visit.status|lower }}">{{ visit.status }}</span>
