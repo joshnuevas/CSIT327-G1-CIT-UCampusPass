@@ -107,21 +107,11 @@
 
         <form method="POST" action="{% url 'login_app:login' %}">
             {% csrf_token %}
-            
-            <!-- Role Selection -->
-            <div class="form-group">
-                <label for="role">Role</label>
-                <select name="role" id="role" required>
-                    <option value="visitor">Visitor</option>
-                    <option value="staff">Staff</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
 
             <!-- Dynamic Field: Email or Username -->
             <div class="form-group">
-                <label for="identifier" id="identifierLabel">Email</label>
-                <input type="email" id="identifier" name="identifier" placeholder="Enter your email" required>
+                <label for="identifier">Username/Email</label>
+                <input type="text" id="identifier" name="identifier" placeholder="Enter your username or email" required>
             </div>
 
             <!-- Password Field -->
@@ -144,8 +134,8 @@
             <button type="submit" class="login-btn">Login</button>
         </form>
 
-    <!-- 👇 Register Link (only for visitors) -->
-    <div class="register-link" id="registerLink">
+    <!-- 👇 Register Link -->
+    <div class="register-link">
         Don’t have an account? <a href="{% url 'register_app:register' %}">Register</a>
     </div>
 
@@ -160,9 +150,6 @@
                 <div id="successModal" class="modal">
                     <div class="modal-content">
                         <h2>{{ message }}</h2>
-                        {% if request.POST.role == 'staff' or request.POST.role == 'admin' %}
-                            <p>The {{ request.POST.role }} dashboard is under development. Please check back soon.</p>
-                        {% endif %}
                         <button id="continueBtn">Continue</button>
                     </div>
                 </div>
@@ -189,29 +176,6 @@
                 });
             });
 
-            // ===== Role-based Field and Register Link Toggle =====
-            const roleSelect = document.getElementById('role');
-            const identifierLabel = document.getElementById('identifierLabel');
-            const identifierInput = document.getElementById('identifier');
-            const registerLink = document.getElementById('registerLink');
-
-            function updateFields() {
-                if (roleSelect.value === 'visitor') {
-                    identifierLabel.textContent = 'Email';
-                    identifierInput.type = 'email';
-                    identifierInput.placeholder = 'Enter your email';
-                    registerLink.style.display = 'block';
-                } else {
-                    identifierLabel.textContent = 'Username';
-                    identifierInput.type = 'text';
-                    identifierInput.placeholder = 'Enter your username';
-                    registerLink.style.display = 'none';
-                }
-            }
-
-            // Initialize + Listen for changes
-            updateFields();
-            roleSelect.addEventListener('change', updateFields);
         });
     </script>
 

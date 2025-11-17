@@ -13,33 +13,37 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def login_view(request):
     if request.method == 'POST':
-        role = request.POST.get('role')
         identifier = request.POST.get('identifier', '').strip().lower()
         password = request.POST.get('password', '')
         valid = False
 
-        # Set Supabase table, session keys, and redirect per role
-        if role == 'visitor':
+        # Auto-detect role based on identifier
+        if '@' in identifier:
+            # Assume visitor (email)
+            role = 'visitor'
             user_resp = supabase.table("users").select("*").eq("email", identifier).execute()
             session_key = 'user_email'
             session_name = 'user_first_name'
             redirect_url = 'dashboard_app:dashboard'
-
-        elif role == 'admin':
-            user_resp = supabase.table("administrator").select("*").eq("username", identifier).execute()
-            session_key = 'admin_username'
-            session_name = 'admin_first_name'
-            redirect_url = 'dashboard_app:admin_dashboard'
-
-        elif role == 'staff':
-            user_resp = supabase.table("front_desk_staff").select("*").eq("username", identifier).execute()
-            session_key = 'staff_username'
-            session_name = 'staff_first_name'
-            redirect_url = 'dashboard_app:staff_dashboard'
-
         else:
-            messages.error(request, "Invalid role selected.")
-            return redirect('login_app:login')
+            # Assume username, try admin first
+            user_resp = supabase.table("administrator").select("*").eq("username", identifier).execute()
+            if user_resp.data and len(user_resp.data) > 0:
+                role = 'admin'
+                session_key = 'admin_username'
+                session_name = 'admin_first_name'
+                redirect_url = 'dashboard_app:admin_dashboard'
+            else:
+                # Try staff
+                user_resp = supabase.table("front_desk_staff").select("*").eq("username", identifier).execute()
+                if user_resp.data and len(user_resp.data) > 0:
+                    role = 'staff'
+                    session_key = 'staff_username'
+                    session_name = 'staff_first_name'
+                    redirect_url = 'dashboard_app:staff_dashboard'
+                else:
+                    messages.error(request, "Invalid credentials.")
+                    return redirect('login_app:login')
 
         # Check if user exists
         if user_resp.data and len(user_resp.data) > 0:
