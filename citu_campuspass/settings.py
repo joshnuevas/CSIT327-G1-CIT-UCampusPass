@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'manage_reports_logs_app',
     'walk_in_app',
     'visitor_search_app',
+    'staff_visit_records_app',
 ]
 
 MIDDLEWARE = [
@@ -112,8 +113,8 @@ WSGI_APPLICATION = 'citu_campuspass.wsgi.application'
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL", default_sqlite),
-        conn_max_age=60,     # persistent connections (good for poolers)
-        ssl_require=True      # enforce SSL (Supabase requires)
+        conn_max_age=0,      # disable persistent connections for Supabase poolers
+        ssl_require=True     # enforce SSL (Supabase requires)
     )
 }
 
