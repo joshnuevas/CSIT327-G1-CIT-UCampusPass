@@ -1,489 +1,357 @@
+{% extends "dashboard_app/visitor_dashboard_base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Help & Support - CIT-U Campus Pass</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="{% static 'help_app/css/help_support.css' %}?v={{ now|date:'U' }}">
-</head>
-<body>
+{% block title %}Help & Support - CIT-U Campus Pass{% endblock %}
 
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-        <div class="school-logo"></div>
-        <div class="sidebar-header">
-            <h2>CIT-U Campus Pass</h2>
-            <p>Visitor Management</p>
-        </div>
-        <nav class="nav-menu">
-            <a href="{% url 'dashboard_app:dashboard' %}" class="nav-item">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                </svg>
-                Dashboard
-            </a>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'help_app/css/help_support.css' %}?v={{ now|date:'U' }}">
+{% endblock %}
 
-            <a href="{% url 'book_visit_app:book_visit' %}" class="nav-item">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                </svg>
-                Book a Visit
-            </a>
+{% block help_active %}active{% endblock %}
 
-            <a href="{% url 'history_app:visit_history' %}" class="nav-item">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                </svg>
-                My History
-            </a>
+{% block content %}
+<div class="welcome-section">
+    <h1>Help & Support</h1>
+    <p>Find answers to common questions or get in touch with us</p>
+</div>
 
-            <div class="nav-divider"></div>
+<!-- Messages -->
+{% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 
-            <a href="{% url 'help_app:help_support' %}" class="nav-item active">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                </svg>
-                Help & Support
-            </a>
+<!-- Quick Navigation -->
+<div class="quick-nav-grid">
+    <a href="#faqs" class="quick-nav-card">
+        <div class="nav-card-icon">❓</div>
+        <h3>FAQs</h3>
+        <p>Common questions answered</p>
+    </a>
+    <a href="#contact" class="quick-nav-card">
+        <div class="nav-card-icon">📧</div>
+        <h3>Contact Us</h3>
+        <p>Send us a message</p>
+    </a>
+    <a href="#troubleshooting" class="quick-nav-card">
+        <div class="nav-card-icon">🔧</div>
+        <h3>Troubleshooting</h3>
+        <p>Fix common issues</p>
+    </a>
+    <a href="#feedback" class="quick-nav-card">
+        <div class="nav-card-icon">💡</div>
+        <h3>Feedback</h3>
+        <p>Share your suggestions</p>
+    </a>
+</div>
 
-            <a href="{% url 'profile_app:profile' %}" class="nav-item">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-                </svg>
-                Profile Settings
-            </a>
-
-            <a href="#" class="nav-item logout-item" id="logoutBtn">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
-                </svg>
-                Logout
-            </a>
-        </nav>
+<!-- FAQs Section -->
+<div id="faqs" class="card">
+    <div class="card-header">
+        <h3 class="card-title">Frequently Asked Questions</h3>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="user-info">
-                <div class="user-avatar" id="profileBtn">{{ user_first_name|default:"JD"|slice:":2"|upper }}</div>
+    <div class="accordion">
+        <!-- FAQ 1 -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>How do I book a visit?</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p>Booking a visit is simple:</p>
+                <ol>
+                    <li>Go to the <strong>Book Visit</strong> page from the sidebar</li>
+                    <li>Select your <strong>purpose</strong> (or enter a custom purpose)</li>
+                    <li>Choose the <strong>department</strong> you wish to visit</li>
+                    <li>Pick your preferred <strong>date</strong> (weekdays only)</li>
+                    <li>Select <strong>start and end times</strong> between 7:30 AM - 9:00 PM</li>
+                    <li>Click <strong>Submit</strong> to receive your unique visit code</li>
+                </ol>
+                <p>You'll receive a confirmation with your visit code.</p>
             </div>
         </div>
 
-        <!-- Content Area -->
-        <div class="content-area">
-            <!-- Page Header -->
-            <div class="welcome-section">
-                <h1>Help & Support</h1>
-                <p>Find answers to common questions or get in touch with us</p>
+        <!-- FAQ 2 -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>How do I cancel or reschedule a visit?</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p>To cancel or reschedule your visit:</p>
+                <ol>
+                    <li>Go to your <strong>Dashboard</strong> or <strong>My History</strong> page</li>
+                    <li>Find the visit you want to modify</li>
+                    <li>Click the <strong>Cancel</strong> button for upcoming visits</li>
+                    <li>To reschedule, cancel the existing visit and book a new one</li>
+                </ol>
+                <p><strong>Note:</strong> Cancellations should be made at least 24 hours before your scheduled visit.</p>
             </div>
+        </div>
 
-            <!-- Messages -->
-            {% if messages %}
-                <div class="messages-container">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <!-- Quick Navigation -->
-            <div class="quick-nav-grid">
-                <a href="#faqs" class="quick-nav-card">
-                    <div class="nav-card-icon">❓</div>
-                    <h3>FAQs</h3>
-                    <p>Common questions answered</p>
-                </a>
-                <a href="#contact" class="quick-nav-card">
-                    <div class="nav-card-icon">📧</div>
-                    <h3>Contact Us</h3>
-                    <p>Send us a message</p>
-                </a>
-                <a href="#troubleshooting" class="quick-nav-card">
-                    <div class="nav-card-icon">🔧</div>
-                    <h3>Troubleshooting</h3>
-                    <p>Fix common issues</p>
-                </a>
-                <a href="#feedback" class="quick-nav-card">
-                    <div class="nav-card-icon">💡</div>
-                    <h3>Feedback</h3>
-                    <p>Share your suggestions</p>
-                </a>
+        <!-- FAQ 3 -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>Why can't I see my visit on the dashboard?</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p>If your visit isn't showing up, try these steps:</p>
+                <ul>
+                    <li><strong>Refresh the page</strong> - Press F5 or click refresh</li>
+                    <li><strong>Check My History</strong> - Past visits appear there</li>
+                    <li><strong>Verify booking</strong> - Make sure you got a success message</li>
+                    <li><strong>Clear cache</strong> - Sometimes cached data needs clearing</li>
+                    <li><strong>Log out and back in</strong> - This refreshes your session</li>
+                </ul>
+                <p>If the problem persists, please <a href="#contact">contact support</a>.</p>
             </div>
+        </div>
 
-            <!-- FAQs Section -->
-            <div id="faqs" class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Frequently Asked Questions</h3>
-                </div>
-                
-                <div class="accordion">
-                    <!-- FAQ 1 -->
-                    <div class="accordion-item">
-                        <button class="accordion-header">
-                            <span>How do I book a visit?</span>
-                            <span class="accordion-icon">+</span>
-                        </button>
-                        <div class="accordion-content">
-                            <p>Booking a visit is simple:</p>
-                            <ol>
-                                <li>Go to the <strong>Book Visit</strong> page from the sidebar</li>
-                                <li>Select your <strong>purpose</strong> (or enter a custom purpose)</li>
-                                <li>Choose the <strong>department</strong> you wish to visit</li>
-                                <li>Pick your preferred <strong>date</strong> (weekdays only)</li>
-                                <li>Select <strong>start and end times</strong> between 7:30 AM - 9:00 PM</li>
-                                <li>Click <strong>Submit</strong> to receive your unique visit code</li>
-                            </ol>
-                            <p>You'll receive a confirmation with your visit code.</p>
-                        </div>
-                    </div>
-
-                    <!-- FAQ 2 -->
-                    <div class="accordion-item">
-                        <button class="accordion-header">
-                            <span>How do I cancel or reschedule a visit?</span>
-                            <span class="accordion-icon">+</span>
-                        </button>
-                        <div class="accordion-content">
-                            <p>To cancel or reschedule your visit:</p>
-                            <ol>
-                                <li>Go to your <strong>Dashboard</strong> or <strong>My History</strong> page</li>
-                                <li>Find the visit you want to modify</li>
-                                <li>Click the <strong>Cancel</strong> button for upcoming visits</li>
-                                <li>To reschedule, cancel the existing visit and book a new one</li>
-                            </ol>
-                            <p><strong>Note:</strong> Cancellations should be made at least 24 hours before your scheduled visit.</p>
-                        </div>
-                    </div>
-
-                    <!-- FAQ 3 -->
-                    <div class="accordion-item">
-                        <button class="accordion-header">
-                            <span>Why can't I see my visit on the dashboard?</span>
-                            <span class="accordion-icon">+</span>
-                        </button>
-                        <div class="accordion-content">
-                            <p>If your visit isn't showing up, try these steps:</p>
-                            <ul>
-                                <li><strong>Refresh the page</strong> - Press F5 or click refresh</li>
-                                <li><strong>Check My History</strong> - Past visits appear there</li>
-                                <li><strong>Verify booking</strong> - Make sure you got a success message</li>
-                                <li><strong>Clear cache</strong> - Sometimes cached data needs clearing</li>
-                                <li><strong>Log out and back in</strong> - This refreshes your session</li>
-                            </ul>
-                            <p>If the problem persists, please <a href="#contact">contact support</a>.</p>
-                        </div>
-                    </div>
-
-                    <!-- FAQ 4 -->
-                    <div class="accordion-item">
-                        <button class="accordion-header">
-                            <span>How can I reset my password?</span>
-                            <span class="accordion-icon">+</span>
-                        </button>
-                        <div class="accordion-content">
-                            <p>To reset your password:</p>
-                            <ol>
-                                <li>Go to the <strong>Login</strong> page</li>
-                                <li>Click on <strong>"Forgot Password?"</strong></li>
-                                <li>Enter your registered email address</li>
-                                <li>Check your email for a password reset link</li>
-                                <li>Follow the instructions to create a new password</li>
-                            </ol>
-                            <p>Check your spam folder if you don't receive the email within 5 minutes.</p>
-                        </div>
-                    </div>
-
-                    <!-- FAQ 5 -->
-                    <div class="accordion-item">
-                        <button class="accordion-header">
-                            <span>What should I do if I didn't receive a confirmation email?</span>
-                            <span class="accordion-icon">+</span>
-                        </button>
-                        <div class="accordion-content">
-                            <p>Don't worry! Your visit is still booked even without the email.</p>
-                            <ul>
-                                <li><strong>Check spam folder</strong> - Emails sometimes land there</li>
-                                <li><strong>View your code</strong> - It's displayed after booking</li>
-                                <li><strong>Check Dashboard</strong> - Your visit details are saved there</li>
-                                <li><strong>Note your code</strong> - You'll need it upon arrival</li>
-                            </ul>
-                            <p>The email is optional - as long as you have your visit code, you're set!</p>
-                        </div>
-                    </div>
-
-                    <!-- FAQ 6 -->
-                    <div class="accordion-item">
-                        <button class="accordion-header">
-                            <span>What are the visiting hours?</span>
-                            <span class="accordion-icon">+</span>
-                        </button>
-                        <div class="accordion-content">
-                            <p>CIT-U CampusPass visiting schedule:</p>
-                            <ul>
-                                <li><strong>Days:</strong> Monday to Friday (Weekdays only)</li>
-                                <li><strong>Times:</strong> 7:30 AM to 9:00 PM</li>
-                                <li><strong>Weekends:</strong> Not available on Saturdays and Sundays</li>
-                            </ul>
-                            <p><strong>Important:</strong> All visit times must fall within this window.</p>
-                        </div>
-                    </div>
-
-                    <!-- FAQ 7 -->
-                    <div class="accordion-item">
-                        <button class="accordion-header">
-                            <span>What should I bring when visiting?</span>
-                            <span class="accordion-icon">+</span>
-                        </button>
-                        <div class="accordion-content">
-                            <p>Please bring:</p>
-                            <ul>
-                                <li><strong>Valid ID</strong> - Government-issued or school ID</li>
-                                <li><strong>Visit Code</strong> - The code from your booking</li>
-                                <li><strong>Purpose Documentation</strong> - If applicable</li>
-                            </ul>
-                            <p>Present your visit code to security at the entrance.</p>
-                        </div>
-                    </div>
-                </div>
+        <!-- FAQ 4 -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>How can I reset my password?</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p>To reset your password:</p>
+                <ol>
+                    <li>Go to the <strong>Login</strong> page</li>
+                    <li>Click on <strong>"Forgot Password?"</strong></li>
+                    <li>Enter your registered email address</li>
+                    <li>Check your email for a password reset link</li>
+                    <li>Follow the instructions to create a new password</li>
+                </ol>
+                <p>Check your spam folder if you don't receive the email within 5 minutes.</p>
             </div>
+        </div>
 
-            <!-- Troubleshooting Section -->
-            <div id="troubleshooting" class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Troubleshooting</h3>
-                </div>
-                <div class="troubleshooting-grid">
-                    <div class="troubleshooting-item">
-                        <div class="trouble-icon">🔄</div>
-                        <h4>Pages not loading?</h4>
-                        <p>Clear your browser cache. Press <kbd>Ctrl+Shift+Delete</kbd> and select cached images and files.</p>
-                    </div>
-                    
-                    <div class="troubleshooting-item">
-                        <div class="trouble-icon">📶</div>
-                        <h4>Connection issues?</h4>
-                        <p>Check your internet connection. Try switching between WiFi and mobile data.</p>
-                    </div>
-                    
-                    <div class="troubleshooting-item">
-                        <div class="trouble-icon">🔐</div>
-                        <h4>Session expired?</h4>
-                        <p>For security, sessions expire after inactivity. Simply log in again.</p>
-                    </div>
-                    
-                    <div class="troubleshooting-item">
-                        <div class="trouble-icon">🖥️</div>
-                        <h4>Display issues?</h4>
-                        <p>Try a different browser or update your current one to the latest version.</p>
-                    </div>
-                </div>
+        <!-- FAQ 5 -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>What should I do if I didn't receive a confirmation email?</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p>Don't worry! Your visit is still booked even without the email.</p>
+                <ul>
+                    <li><strong>Check spam folder</strong> - Emails sometimes land there</li>
+                    <li><strong>View your code</strong> - It's displayed after booking</li>
+                    <li><strong>Check Dashboard</strong> - Your visit details are saved there</li>
+                    <li><strong>Note your code</strong> - You'll need it upon arrival</li>
+                </ul>
+                <p>The email is optional - as long as you have your visit code, you're set!</p>
             </div>
+        </div>
 
-            <!-- Contact & Feedback Grid -->
-            <div class="contact-feedback-grid">
-                <!-- Contact Section -->
-                <div id="contact" class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Contact Support</h3>
-                    </div>
-                    
-                    <div class="contact-info-box">
-                        <div class="contact-method">
-                            <span class="method-icon">📧</span>
-                            <div>
-                                <strong>Email</strong>
-                                <p><a href="mailto:citucampuspass@gmail.com">citucampuspass@gmail.com</a></p>
-                            </div>
-                        </div>
-                        <div class="contact-method">
-                            <span class="method-icon">⏰</span>
-                            <div>
-                                <strong>Response Time</strong>
-                                <p>Within 24-48 hours</p>
-                            </div>
-                        </div>
-                    </div>
+        <!-- FAQ 6 -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>What are the visiting hours?</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p>CIT-U CampusPass visiting schedule:</p>
+                <ul>
+                    <li><strong>Days:</strong> Monday to Friday (Weekdays only)</li>
+                    <li><strong>Times:</strong> 7:30 AM to 9:00 PM</li>
+                    <li><strong>Weekends:</strong> Not available on Saturdays and Sundays</li>
+                </ul>
+                <p><strong>Important:</strong> All visit times must fall within this window.</p>
+            </div>
+        </div>
 
-                    <form method="POST" class="support-form">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_type" value="contact">
-                        
-                        <div class="form-group">
-                            <label>Full Name <span class="required">*</span></label>
-                            <input type="text" name="name" value="{{ user_first_name }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Email <span class="required">*</span></label>
-                            <input type="email" name="email" value="{{ user_email }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Subject <span class="required">*</span></label>
-                            <select name="subject" required>
-                                <option value="">Select a subject</option>
-                                <option value="Booking Issue">Booking Issue</option>
-                                <option value="Cannot Login">Cannot Login</option>
-                                <option value="Technical Problem">Technical Problem</option>
-                                <option value="Visit Code Issue">Visit Code Issue</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Message <span class="required">*</span></label>
-                            <textarea name="message" rows="4" required></textarea>
-                        </div>
-
-                        <button type="submit" class="submit-btn">Send Message</button>
-                    </form>
-                </div>
-
-                <!-- Feedback Section -->
-                <div id="feedback" class="card feedback-card">
-                    <div class="card-header">
-                        <h3 class="card-title">Share Your Feedback</h3>
-                    </div>
-                    
-                    <div class="feedback-intro">
-                        <div class="feedback-icon">💡</div>
-                        <p>Have ideas to improve CampusPass? We'd love to hear from you!</p>
-                    </div>
-
-                    <form method="POST" class="support-form">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_type" value="feedback">
-                        
-                        <div class="form-group">
-                            <label>Name <span class="required">*</span></label>
-                            <input type="text" name="name" value="{{ user_first_name }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Email <span class="required">*</span></label>
-                            <input type="email" name="email" value="{{ user_email }}" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Your Feedback <span class="required">*</span></label>
-                            <textarea name="message" rows="4" placeholder="Share your suggestions..." required></textarea>
-                        </div>
-
-                        <button type="submit" class="submit-btn feedback-btn">Submit Feedback</button>
-                    </form>
-                </div>
+        <!-- FAQ 7 -->
+        <div class="accordion-item">
+            <button class="accordion-header">
+                <span>What should I bring when visiting?</span>
+                <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+                <p>Please bring:</p>
+                <ul>
+                    <li><strong>Valid ID</strong> - Government-issued or school ID</li>
+                    <li><strong>Visit Code</strong> - The code from your booking</li>
+                    <li><strong>Purpose Documentation</strong> - If applicable</li>
+                </ul>
+                <p>Present your visit code to security at the entrance.</p>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- ===== PROFILE DROPDOWN ===== -->
-    <div class="dropdown" id="profileDropdown">
-        <div class="dropdown-header">Visitor</div>
-        <a href="{% url 'profile_app:profile' %}" class="dropdown-item">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <div class="dropdown-item" id="dropdownLogoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Logout
+<!-- Troubleshooting Section -->
+<div id="troubleshooting" class="card">
+    <div class="card-header">
+        <h3 class="card-title">Troubleshooting</h3>
+    </div>
+    <div class="troubleshooting-grid">
+        <div class="troubleshooting-item">
+            <div class="trouble-icon">🔄</div>
+            <h4>Pages not loading?</h4>
+            <p>Clear your browser cache. Press <kbd>Ctrl+Shift+Delete</kbd> and select cached images and files.</p>
+        </div>
+
+        <div class="troubleshooting-item">
+            <div class="trouble-icon">📶</div>
+            <h4>Connection issues?</h4>
+            <p>Check your internet connection. Try switching between WiFi and mobile data.</p>
+        </div>
+
+        <div class="troubleshooting-item">
+            <div class="trouble-icon">🔐</div>
+            <h4>Session expired?</h4>
+            <p>For security, sessions expire after inactivity. Simply log in again.</p>
+        </div>
+
+        <div class="troubleshooting-item">
+            <div class="trouble-icon">🖥️</div>
+            <h4>Display issues?</h4>
+            <p>Try a different browser or update your current one to the latest version.</p>
         </div>
     </div>
+</div>
 
-    <!-- Logout Modal -->
-    <div id="logoutModal" class="modal">
-        <div class="modal-content">
-            <h2>Are you sure you want to logout?</h2>
-            <div class="modal-buttons">
-                <button id="confirmLogout" class="btn-primary">Logout</button>
-                <button id="cancelLogout" class="btn-secondary">Cancel</button>
+<!-- Contact & Feedback Grid -->
+<div class="contact-feedback-grid">
+    <!-- Contact Section -->
+    <div id="contact" class="card">
+        <div class="card-header">
+            <h3 class="card-title">Contact Support</h3>
+        </div>
+
+        <div class="contact-info-box">
+            <div class="contact-method">
+                <span class="method-icon">📧</span>
+                <div>
+                    <strong>Email</strong>
+                    <p><a href="mailto:citucampuspass@gmail.com">citucampuspass@gmail.com</a></p>
+                </div>
+            </div>
+            <div class="contact-method">
+                <span class="method-icon">⏰</span>
+                <div>
+                    <strong>Response Time</strong>
+                    <p>Within 24-48 hours</p>
+                </div>
             </div>
         </div>
+
+        <form method="POST" class="support-form">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="contact">
+
+            <div class="form-group">
+                <label>Full Name <span class="required">*</span></label>
+                <input type="text" name="name" value="{{ user_first_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email <span class="required">*</span></label>
+                <input type="email" name="email" value="{{ user_email }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Subject <span class="required">*</span></label>
+                <select name="subject" required>
+                    <option value="">Select a subject</option>
+                    <option value="Booking Issue">Booking Issue</option>
+                    <option value="Cannot Login">Cannot Login</option>
+                    <option value="Technical Problem">Technical Problem</option>
+                    <option value="Visit Code Issue">Visit Code Issue</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Message <span class="required">*</span></label>
+                <textarea name="message" rows="4" required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Send Message</button>
+        </form>
     </div>
 
-    <script>
-        // ===== DROPDOWNS =====
-        const profileBtn = document.getElementById("profileBtn");
-        const profileDropdown = document.getElementById("profileDropdown");
+    <!-- Feedback Section -->
+    <div id="feedback" class="card feedback-card">
+        <div class="card-header">
+            <h3 class="card-title">Share Your Feedback</h3>
+        </div>
 
-        if (profileBtn) {
-            profileBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                profileDropdown.classList.toggle("active");
-            });
-        }
+        <div class="feedback-intro">
+            <div class="feedback-icon">💡</div>
+            <p>Have ideas to improve CampusPass? We'd love to hear from you!</p>
+        </div>
 
-        document.addEventListener("click", (e) => {
-            if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
-                profileDropdown.classList.remove("active");
+        <form method="POST" class="support-form">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="feedback">
+
+            <div class="form-group">
+                <label>Name <span class="required">*</span></label>
+                <input type="text" name="name" value="{{ user_first_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email <span class="required">*</span></label>
+                <input type="email" name="email" value="{{ user_email }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Your Feedback <span class="required">*</span></label>
+                <textarea name="message" rows="4" placeholder="Share your suggestions..." required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn feedback-btn">Submit Feedback</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Accordion functionality
+document.querySelectorAll('.accordion-header').forEach(button => {
+    button.addEventListener('click', () => {
+        const accordionItem = button.parentElement;
+        const isActive = accordionItem.classList.contains('active');
+
+        document.querySelectorAll('.accordion-item').forEach(item => {
+            item.classList.remove('active');
+            item.querySelector('.accordion-icon').textContent = '+';
         });
 
-        // Accordion functionality
-        document.querySelectorAll('.accordion-header').forEach(button => {
-            button.addEventListener('click', () => {
-                const accordionItem = button.parentElement;
-                const isActive = accordionItem.classList.contains('active');
-                
-                document.querySelectorAll('.accordion-item').forEach(item => {
-                    item.classList.remove('active');
-                    item.querySelector('.accordion-icon').textContent = '+';
-                });
-                
-                if (!isActive) {
-                    accordionItem.classList.add('active');
-                    button.querySelector('.accordion-icon').textContent = '−';
-                }
-            });
-        });
-
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-
-        // Auto-dismiss messages
-        setTimeout(() => {
-            document.querySelectorAll('.alert').forEach(msg => {
-                msg.style.transition = 'opacity 0.5s';
-                msg.style.opacity = '0';
-                setTimeout(() => msg.remove(), 500);
-            });
-        }, 5000);
-
-        // Logout modal
-        const logoutBtn = document.getElementById('logoutBtn');
-        const dropdownLogoutBtn = document.getElementById('dropdownLogoutBtn');
-        const logoutModal = document.getElementById('logoutModal');
-        const confirmLogout = document.getElementById('confirmLogout');
-        const cancelLogout = document.getElementById('cancelLogout');
-
-        if(logoutBtn) logoutBtn.onclick = function(e) {
-            e.preventDefault();
-            logoutModal.style.display = 'block';
+        if (!isActive) {
+            accordionItem.classList.add('active');
+            button.querySelector('.accordion-icon').textContent = '−';
         }
+    });
+});
 
-        if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); logoutModal.style.display = 'block'; });
-
-        if(confirmLogout) confirmLogout.onclick = function() {
-            window.location.href = "{% url 'login_app:logout' %}";
+// Smooth scrolling
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+    });
+});
 
-        if(cancelLogout) cancelLogout.onclick = function() {
-            logoutModal.style.display = 'none';
-        }
-
-        window.onclick = function(e) {
-            if(e.target == logoutModal) logoutModal.style.display = 'none';
-        }
-    </script>
-</body>
-</html>
+// Auto-dismiss messages
+setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(msg => {
+        msg.style.transition = 'opacity 0.5s';
+        msg.style.opacity = '0';
+        setTimeout(() => msg.remove(), 500);
+    });
+}, 5000);
+</script>
+{% endblock %}

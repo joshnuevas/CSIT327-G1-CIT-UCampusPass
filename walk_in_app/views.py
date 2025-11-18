@@ -11,7 +11,7 @@ import os
 import random
 import string
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 import logging
 
@@ -51,28 +51,25 @@ def walk_in_registration(request):
             phone = request.POST.get('phone', '').strip()
             purpose = request.POST.get('purpose_other') or request.POST.get('purpose')
             department = request.POST.get('department_other') or request.POST.get('department')
-            duration = int(request.POST.get('duration', 60))
-            
+
             # Validate required fields
             if not all([first_name, last_name, email, phone, purpose, department]):
                 messages.error(request, "Please fill in all required fields.")
                 return redirect('walk_in_app:registration')
-            
+
             # Generate visit code
             purpose_prefix = purpose[:3].upper() if purpose else "WLK"
             random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
             visit_code = f"CIT-{purpose_prefix}-{random_str}"
-            
-            # Calculate visit times
+
+            # Set visit times - walk-ins are checked in immediately
             now = datetime.now(PHILIPPINES_TZ)
             start_time = now.strftime('%H:%M:%S')
-            end_datetime = now + timedelta(minutes=duration)
-            end_time = end_datetime.strftime('%H:%M:%S')
             visit_date = now.strftime('%Y-%m-%d')
-            
+
             # Create visitor name
             visitor_name = f"{first_name} {last_name}"
-            
+
             # Insert visit record
             visit_data = {
                 "user_email": email,
@@ -81,7 +78,7 @@ def walk_in_registration(request):
                 "department": department,
                 "visit_date": visit_date,
                 "start_time": start_time,
-                "end_time": end_time,
+                "end_time": None,  # Will be set when staff checks out
                 "status": "Active",  # Automatically checked in
                 "created_at": now.isoformat()
             }
@@ -107,8 +104,6 @@ def walk_in_registration(request):
                 'visitor_phone': phone,
                 'purpose': purpose,
                 'department': department,
-                'duration': f"{duration} minutes",
-                'valid_until': end_datetime.strftime('%I:%M %p'),
             }
             
             logger.info(f"Walk-in visitor registered by {staff_username}: {visit_code}")

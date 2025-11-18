@@ -1,495 +1,378 @@
+{% extends "dashboard_app/visitor_dashboard_base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CIT-U Campus Pass - Book a Visit</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="{% static 'book_visit_app/css/book_visit.css' %}?v={{ now|date:'U' }}">
-</head>
-<body>
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-        <div class="school-logo"></div>
-        <div class="sidebar-header">
-            <h2>CIT-U Campus Pass</h2>
-            <p>Visitor Management</p>
+{% block title %}CIT-U Campus Pass - Book a Visit{% endblock %}
+
+{% block book_visit_active %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'book_visit_app/css/book_visit.css' %}?v={{ now|date:'U' }}">
+<style>
+.check-in-btn, .check-out-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
+}
+
+.check-in-btn:hover, .check-out-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4);
+    background: linear-gradient(135deg, #6B0F2A, #8B1538);
+}
+
+.check-in-btn.checked {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.check-in-btn.checked:hover {
+    background: linear-gradient(135deg, #20c997, #28a745);
+    box-shadow: 0 6px 25px rgba(40, 167, 69, 0.4);
+}
+
+.check-in-btn svg, .check-out-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.visit-date {
+    display: block;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 4px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+        <div class="welcome-section">
+            <h1>Book a Visit</h1>
+            <p>Schedule your campus visit</p>
         </div>
 
-        <nav class="nav-menu">
-            <a href="{% url 'dashboard_app:dashboard' %}" class="nav-item">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                </svg>
-                Dashboard
-            </a>
-
-            <a href="{% url 'book_visit_app:book_visit' %}" class="nav-item active">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                </svg>
-                Book a Visit
-            </a>
-
-            <a href="{% url 'history_app:visit_history' %}" class="nav-item">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                </svg>
-                My History
-            </a>
-
-            <div class="nav-divider"></div>
-
-            <a href="{% url 'help_app:help_support' %}" class="nav-item">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                </svg>
-                Help & Support
-            </a>
-
-            <a href="{% url 'profile_app:profile' %}" class="nav-item">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-                </svg>
-                Profile Settings
-            </a>
-
-            <a href="#" class="nav-item logout-item" id="logoutBtn">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
-                </svg>
-                Logout
-            </a>
-        </nav>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        
-        <!-- Messages Display Section -->
-        {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
-                <div class="alert-content">
-                    <span class="alert-icon">
-                        {% if message.tags == 'success' %}
-                            ✅
-                        {% elif message.tags == 'error' or message.tags == 'danger' %}
-                            ❌
-                        {% elif message.tags == 'warning' %}
-                            ⚠️
-                        {% else %}
-                            ℹ️
-                        {% endif %}
-                    </span>
-                    <span class="alert-text">{{ message }}</span>
-                    <button class="alert-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        <!-- Booking Form -->
+        <div class="form-container">
+            <form method="POST" action="{% url 'book_visit_app:book_visit' %}">
+                {% csrf_token %}
+                <!-- Department -->
+                <div class="form-group">
+                    <label for="department" class="required">Department</label>
+                    <select name="department" id="department" onchange="updatePurposeOptions(); toggleOther('department')" required>
+                        <option value="" selected disabled>Select Department</option>
+                        <option value="Office of Admissions and Scholarships (OAS)">Office of Admissions and Scholarships (OAS)</option>
+                        <option value="Finance and Accounting Office (FAO)">Finance and Accounting Office (FAO)</option>
+                        <option value="University Registrar's Office (URO)">University Registrar's Office (URO)</option>
+                        <option value="Learning Resource and Activity Center (LRAC)">Learning Resource and Activity Center (LRAC)</option>
+                        <option value="Student Success Office (SSO)">Student Success Office (SSO)</option>
+                        <option value="Alumni Affairs Office (AAO)">Alumni Affairs Office (AAO)</option>
+                        <option value="Networking, Linkages & Relations (NLR)">Networking, Linkages & Relations (NLR)</option>
+                        <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" name="department_other" id="department_other" placeholder="Please specify department" style="display:none;">
                 </div>
-            </div>
-            {% endfor %}
+
+                <!-- Purpose -->
+                <div class="form-group">
+                    <label for="purpose" class="required">Purpose</label>
+                    <select name="purpose" id="purpose" onchange="toggleOther('purpose')" required>
+                        <option value="" selected disabled>Select Department First</option>
+                    </select>
+                    <input type="text" name="purpose_other" id="purpose_other" placeholder="Please specify your purpose" style="display:none;">
+                </div>
+
+                <!-- Date -->
+                <div class="form-group">
+                    <label for="visit_date" class="required">Visit Date</label>
+                    <input type="date" name="visit_date" id="visit_date" required>
+                    <p class="helper-text">Please select your preferred visit date (Monday-Saturday)</p>
+                </div>
+
+                <button type="submit" id="submitBtn">Book Visit</button>
+            </form>
         </div>
-        {% endif %}
-        <!-- End Messages Display -->
 
-        <div class="top-bar">
-            <div class="page-title">
-                <h1>Book a Visit</h1>
-                <p>Schedule your campus visit</p>
-            </div>
-            <div class="user-info">
-                <div class="user-avatar" id="profileBtn">{{ user_first_name|default:"JD"|slice:":2"|upper }}</div>
-            </div>
+<!-- Warning Modal for Invalid Selections -->
+<div id="warningModal" class="modal warning-modal">
+    <div class="modal-content warning-content">
+        <div class="warning-icon">
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
         </div>
-
-        <div class="content-area">
-            <div class="form-container">
-                <form method="POST" action="{% url 'book_visit_app:book_visit' %}">
-                    {% csrf_token %}
-
-                    <!-- Department -->
-                    <div class="form-group">
-                        <label for="department" class="required">Department</label>
-                        <select name="department" id="department" onchange="updatePurposeOptions(); toggleOther('department')" required>
-                            <option value="" selected disabled>Select Department</option>
-                            <option value="Office of Admissions and Scholarships (OAS)">Office of Admissions and Scholarships (OAS)</option>
-                            <option value="Finance and Accounting Office (FAO)">Finance and Accounting Office (FAO)</option>
-                            <option value="University Registrar's Office (URO)">University Registrar's Office (URO)</option>
-                            <option value="Learning Resource and Activity Center (LRAC)">Learning Resource and Activity Center (LRAC)</option>
-                            <option value="Student Success Office (SSO)">Student Success Office (SSO)</option>
-                            <option value="Alumni Affairs Office (AAO)">Alumni Affairs Office (AAO)</option>
-                            <option value="Networking, Linkages & Relations (NLR)">Networking, Linkages & Relations (NLR)</option>
-                            <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
-                            <option value="Other">Other</option>
-                        </select>
-                        <input type="text" name="department_other" id="department_other" placeholder="Please specify department" style="display:none;">
-                    </div>
-
-                    <!-- Purpose -->
-                    <div class="form-group">
-                        <label for="purpose" class="required">Purpose</label>
-                        <select name="purpose" id="purpose" onchange="toggleOther('purpose')" required>
-                            <option value="" selected disabled>Select Department First</option>
-                        </select>
-                        <input type="text" name="purpose_other" id="purpose_other" placeholder="Please specify your purpose" style="display:none;">
-                    </div>
-
-                    <!-- Date -->
-                    <div class="form-group">
-                        <label for="visit_date" class="required">Visit Date</label>
-                        <input type="date" name="visit_date" id="visit_date" required>
-                        <p class="helper-text">Please select your preferred visit date (Monday-Saturday)</p>
-                    </div>
-
-                    <button type="submit" id="submitBtn">Book Visit</button>
-                </form>
-            </div>
-        </div>
+        <h2 id="warningTitle">Oops!</h2>
+        <p id="warningMessage">Something went wrong.</p>
+        <button id="warningOkBtn" class="btn-warning">Got it!</button>
     </div>
+</div>
+{% endblock %}
 
-    <!-- ===== PROFILE DROPDOWN ===== -->
-    <div class="dropdown" id="profileDropdown">
-        <div class="dropdown-header">Visitor</div>
-        <a href="{% url 'profile_app:profile' %}" class="dropdown-item">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <div class="dropdown-item" id="dropdownLogoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </div>
-    </div>
+{% block extra_js %}
+<script>
+// Purpose options for each department
+const purposeOptions = {
+    "Office of Admissions and Scholarships (OAS)": [
+        "Admission Inquiry",
+        "Submission of Admission Requirements",
+        "Enrollment Processing",
+        "Scholarship Application",
+        "Scholarship Inquiry",
+        "Claiming Scholarship Results",
+        "Document Verification (Admission-related)",
+        "Other"
+    ],
+    "Finance and Accounting Office (FAO)": [
+        "Tuition Payment",
+        "Financial Clearance",
+        "Assessment of Fees",
+        "Refund Processing",
+        "Scholarship / Discount Posting Inquiry",
+        "Statement of Account Request",
+        "Official Receipt Concerns",
+        "Payment Discrepancy Inquiry",
+        "Other"
+    ],
+    "University Registrar's Office (URO)": [
+        "Request for Transcript of Records",
+        "Request for Certificate (Enrollment, Grades, Good Moral, etc.)",
+        "Document Pickup (TOR, Certificates, etc.)",
+        "Correction of Student Records",
+        "Verification of Academic Credentials",
+        "Diploma Request / Release",
+        "Enrollment / Registration Concerns",
+        "Graduation Evaluation",
+        "Other"
+    ],
+    "Learning Resource and Activity Center (LRAC)": [
+        "Library Access",
+        "Book Borrowing / Returning",
+        "Research Assistance",
+        "Use of Study Rooms / Facilities",
+        "Access to Archives / Special Collections",
+        "Orientation or Library Tour",
+        "Resource Reservation (AV Equipment, Materials)",
+        "Other"
+    ],
+    "Student Success Office (SSO)": [
+        "Counseling Appointment",
+        "Career Guidance / Job Placement",
+        "Student Affairs Consultation",
+        "Disciplinary Meeting",
+        "Mental Health Support Session",
+        "Student Organization Concerns",
+        "Academic Support / Advising",
+        "Other"
+    ],
+    "Alumni Affairs Office (AAO)": [
+        "Alumni Verification",
+        "Alumni ID Application / Claiming",
+        "Alumni Records Request",
+        "Reunion / Event Coordination",
+        "Campus Access for Alumni",
+        "Donations or Partnerships",
+        "Alumni Networking Inquiries",
+        "Other"
+    ],
+    "Networking, Linkages & Relations (NLR)": [
+        "Partnership / MOA Meeting",
+        "Internship / OJT Coordination",
+        "Industry Relations Inquiry",
+        "Sponsorship Meeting",
+        "External Collaboration",
+        "Campus Promotional Activities Coordination",
+        "Other"
+    ],
+    "Human Resource Department (HRD)": [
+        "Job Application",
+        "Job Interview",
+        "Employment Verification",
+        "Employee Records Request",
+        "Contract Signing",
+        "HR Consultation / Meeting",
+        "Onboarding / Orientation",
+        "Clearance Processing",
+        "Other"
+    ]
+};
 
-    <!-- Logout Confirmation Modal -->
-    <div id="logoutModal" class="modal">
-        <div class="modal-content">
-            <h2>Are you sure you want to logout?</h2>
-            <div class="modal-buttons">
-                <button id="confirmLogout" class="btn-primary">Logout</button>
-                <button id="cancelLogout" class="btn-secondary">Cancel</button>
-            </div>
-        </div>
-    </div>
+function updatePurposeOptions() {
+    const departmentSelect = document.getElementById('department');
+    const purposeSelect = document.getElementById('purpose');
+    const selectedDepartment = departmentSelect.value;
 
-    <!-- Warning Modal for Invalid Selections -->
-    <div id="warningModal" class="modal warning-modal">
-        <div class="modal-content warning-content">
-            <div class="warning-icon">
-                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-            </div>
-            <h2 id="warningTitle">Oops!</h2>
-            <p id="warningMessage">Something went wrong.</p>
-            <button id="warningOkBtn" class="btn-warning">Got it!</button>
-        </div>
-    </div>
+    // Clear current options
+    purposeSelect.innerHTML = '';
 
-    <script>
-        // Purpose options for each department
-        const purposeOptions = {
-            "Office of Admissions and Scholarships (OAS)": [
-                "Admission Inquiry",
-                "Submission of Admission Requirements",
-                "Enrollment Processing",
-                "Scholarship Application",
-                "Scholarship Inquiry",
-                "Claiming Scholarship Results",
-                "Document Verification (Admission-related)",
-                "Other"
-            ],
-            "Finance and Accounting Office (FAO)": [
-                "Tuition Payment",
-                "Financial Clearance",
-                "Assessment of Fees",
-                "Refund Processing",
-                "Scholarship / Discount Posting Inquiry",
-                "Statement of Account Request",
-                "Official Receipt Concerns",
-                "Payment Discrepancy Inquiry",
-                "Other"
-            ],
-            "University Registrar's Office (URO)": [
-                "Request for Transcript of Records",
-                "Request for Certificate (Enrollment, Grades, Good Moral, etc.)",
-                "Document Pickup (TOR, Certificates, etc.)",
-                "Correction of Student Records",
-                "Verification of Academic Credentials",
-                "Diploma Request / Release",
-                "Enrollment / Registration Concerns",
-                "Graduation Evaluation",
-                "Other"
-            ],
-            "Learning Resource and Activity Center (LRAC)": [
-                "Library Access",
-                "Book Borrowing / Returning",
-                "Research Assistance",
-                "Use of Study Rooms / Facilities",
-                "Access to Archives / Special Collections",
-                "Orientation or Library Tour",
-                "Resource Reservation (AV Equipment, Materials)",
-                "Other"
-            ],
-            "Student Success Office (SSO)": [
-                "Counseling Appointment",
-                "Career Guidance / Job Placement",
-                "Student Affairs Consultation",
-                "Disciplinary Meeting",
-                "Mental Health Support Session",
-                "Student Organization Concerns",
-                "Academic Support / Advising",
-                "Other"
-            ],
-            "Alumni Affairs Office (AAO)": [
-                "Alumni Verification",
-                "Alumni ID Application / Claiming",
-                "Alumni Records Request",
-                "Reunion / Event Coordination",
-                "Campus Access for Alumni",
-                "Donations or Partnerships",
-                "Alumni Networking Inquiries",
-                "Other"
-            ],
-            "Networking, Linkages & Relations (NLR)": [
-                "Partnership / MOA Meeting",
-                "Internship / OJT Coordination",
-                "Industry Relations Inquiry",
-                "Sponsorship Meeting",
-                "External Collaboration",
-                "Campus Promotional Activities Coordination",
-                "Other"
-            ],
-            "Human Resource Department (HRD)": [
-                "Job Application",
-                "Job Interview",
-                "Employment Verification",
-                "Employee Records Request",
-                "Contract Signing",
-                "HR Consultation / Meeting",
-                "Onboarding / Orientation",
-                "Clearance Processing",
-                "Other"
-            ]
-        };
+    if (selectedDepartment === 'Other') {
+        // Hide purpose select and show input
+        purposeSelect.style.display = 'none';
+        document.getElementById('purpose_other').style.display = 'block';
+        document.getElementById('purpose_other').required = true;
+        return;
+    } else if (selectedDepartment && purposeOptions[selectedDepartment]) {
+        // Show purpose select and populate options
+        purposeSelect.style.display = 'block';
+        document.getElementById('purpose_other').style.display = 'none';
+        document.getElementById('purpose_other').required = false;
+        document.getElementById('purpose_other').value = '';
 
-        function updatePurposeOptions() {
-            const departmentSelect = document.getElementById('department');
-            const purposeSelect = document.getElementById('purpose');
-            const selectedDepartment = departmentSelect.value;
+        // Add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Select Purpose';
+        defaultOption.selected = true;
+        defaultOption.disabled = true;
+        purposeSelect.appendChild(defaultOption);
 
-            // Clear current options
-            purposeSelect.innerHTML = '';
-
-            if (selectedDepartment === 'Other') {
-                // Hide purpose select and show input
-                purposeSelect.style.display = 'none';
-                document.getElementById('purpose_other').style.display = 'block';
-                document.getElementById('purpose_other').required = true;
-                return;
-            } else if (selectedDepartment && purposeOptions[selectedDepartment]) {
-                // Show purpose select and populate options
-                purposeSelect.style.display = 'block';
-                document.getElementById('purpose_other').style.display = 'none';
-                document.getElementById('purpose_other').required = false;
-                document.getElementById('purpose_other').value = '';
-
-                // Add default option
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Select Purpose';
-                defaultOption.selected = true;
-                defaultOption.disabled = true;
-                purposeSelect.appendChild(defaultOption);
-
-                // Add purpose options
-                purposeOptions[selectedDepartment].forEach(purpose => {
-                    const option = document.createElement('option');
-                    option.value = purpose;
-                    option.textContent = purpose;
-                    purposeSelect.appendChild(option);
-                });
-            } else {
-                // No department selected
-                purposeSelect.style.display = 'block';
-                document.getElementById('purpose_other').style.display = 'none';
-                document.getElementById('purpose_other').required = false;
-                document.getElementById('purpose_other').value = '';
-
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Select Department First';
-                defaultOption.selected = true;
-                defaultOption.disabled = true;
-                purposeSelect.appendChild(defaultOption);
-            }
-        }
-
-        function toggleOther(field) {
-            const select = document.getElementById(field);
-            const otherInput = document.getElementById(field + '_other');
-
-            if (select.value === 'Other') {
-                otherInput.style.display = 'block';
-                otherInput.required = true;
-            } else {
-                otherInput.style.display = 'none';
-                otherInput.required = false;
-                otherInput.value = '';
-            }
-        }
-
-        // ===== WARNING MODAL FUNCTIONALITY =====
-        function showWarning(title, message) {
-            const warningModal = document.getElementById('warningModal');
-            const warningTitle = document.getElementById('warningTitle');
-            const warningMessage = document.getElementById('warningMessage');
-            
-            warningTitle.textContent = title;
-            warningMessage.textContent = message;
-            warningModal.style.display = 'block';
-        }
-
-        document.getElementById('warningOkBtn').onclick = function() {
-            document.getElementById('warningModal').style.display = 'none';
-        }
-
-        // Set minimum date to today
-        const dateInput = document.getElementById('visit_date');
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.setAttribute('min', today);
-
-        // ===== DATE VALIDATION - No Past Dates, No Sundays =====
-        const visitDateInput = document.getElementById('visit_date');
-
-        visitDateInput.addEventListener('input', function() {
-            const selectedDate = new Date(this.value + 'T00:00:00');
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Reset time to start of day
-            const day = selectedDate.getDay();
-
-            if (selectedDate < today) {
-                showWarning(
-                    '📅 Invalid Date',
-                    'You cannot select a date that has already passed. Please select today or a future date.'
-                );
-                this.value = '';
-                return;
-            }
-
-            if (day === 0) {
-                showWarning(
-                    '📅 Sunday Not Available',
-                    'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
-                );
-                this.value = '';
-            }
+        // Add purpose options
+        purposeOptions[selectedDepartment].forEach(purpose => {
+            const option = document.createElement('option');
+            option.value = purpose;
+            option.textContent = purpose;
+            purposeSelect.appendChild(option);
         });
+    } else {
+        // No department selected
+        purposeSelect.style.display = 'block';
+        document.getElementById('purpose_other').style.display = 'none';
+        document.getElementById('purpose_other').required = false;
+        document.getElementById('purpose_other').value = '';
 
-        // Unfocus select elements after selection
-        document.getElementById('purpose').addEventListener('change', function() {
-            this.blur();
-        });
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Select Department First';
+        defaultOption.selected = true;
+        defaultOption.disabled = true;
+        purposeSelect.appendChild(defaultOption);
+    }
+}
 
-        document.getElementById('department').addEventListener('change', function() {
-            this.blur();
-        });
+function toggleOther(field) {
+    const select = document.getElementById(field);
+    const otherInput = document.getElementById(field + '_other');
 
-        // ===== FORM SUBMISSION VALIDATION =====
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const submitBtn = document.getElementById('submitBtn');
+    if (select.value === 'Other') {
+        otherInput.style.display = 'block';
+        otherInput.required = true;
+    } else {
+        otherInput.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+    }
+}
 
-            // Validate date is not past and not Sunday
-            const selectedDate = new Date(visitDateInput.value + 'T00:00:00');
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const dayOfWeek = selectedDate.getDay();
+// ===== WARNING MODAL FUNCTIONALITY =====
+function showWarning(title, message) {
+    const warningModal = document.getElementById('warningModal');
+    const warningTitle = document.getElementById('warningTitle');
+    const warningMessage = document.getElementById('warningMessage');
 
-            if (selectedDate < today) {
-                e.preventDefault();
-                showWarning(
-                    '📅 Invalid Date',
-                    'You cannot select a date that has already passed. Please select today or a future date.'
-                );
-                return false;
-            }
+    warningTitle.textContent = title;
+    warningMessage.textContent = message;
+    warningModal.style.display = 'block';
+}
 
-            if (dayOfWeek === 0) {
-                e.preventDefault();
-                showWarning(
-                    '📅 Sunday Not Available',
-                    'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
-                );
-                return false;
-            }
+document.getElementById('warningOkBtn').onclick = function() {
+    document.getElementById('warningModal').style.display = 'none';
+}
 
-            // If all validations pass, show loading state
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
-        });
+// Set minimum date to today
+const dateInput = document.getElementById('visit_date');
+const today = new Date().toISOString().split('T')[0];
+dateInput.setAttribute('min', today);
 
-        // ===== DROPDOWNS =====
-        const profileBtn = document.getElementById("profileBtn");
-        const profileDropdown = document.getElementById("profileDropdown");
+// ===== DATE VALIDATION - No Past Dates, No Sundays =====
+const visitDateInput = document.getElementById('visit_date');
 
-        if (profileBtn) {
-            profileBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                profileDropdown.classList.toggle("active");
-            });
-        }
+visitDateInput.addEventListener('input', function() {
+    const selectedDate = new Date(this.value + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+    const day = selectedDate.getDay();
 
-        document.addEventListener("click", (e) => {
-            if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
-                profileDropdown.classList.remove("active");
-        });
+    if (selectedDate < today) {
+        showWarning(
+            '📅 Invalid Date',
+            'You cannot select a date that has already passed. Please select today or a future date.'
+        );
+        this.value = '';
+        return;
+    }
 
-        // ===== LOGOUT MODAL =====
-        const logoutBtn = document.getElementById('logoutBtn');
-        const dropdownLogoutBtn = document.getElementById('dropdownLogoutBtn');
-        const logoutModal = document.getElementById('logoutModal');
-        const confirmLogout = document.getElementById('confirmLogout');
-        const cancelLogout = document.getElementById('cancelLogout');
+    if (day === 0) {
+        showWarning(
+            '📅 Sunday Not Available',
+            'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
+        );
+        this.value = '';
+    }
+});
 
-        if(logoutBtn) logoutBtn.onclick = function(e) {
-            e.preventDefault();
-            logoutModal.style.display = 'block';
-        }
+// Unfocus select elements after selection
+document.getElementById('purpose').addEventListener('change', function() {
+    this.blur();
+});
 
-        if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); logoutModal.style.display = 'block'; });
+document.getElementById('department').addEventListener('change', function() {
+    this.blur();
+});
 
-        if(confirmLogout) confirmLogout.onclick = function() {
-            window.location.href = "{% url 'login_app:logout' %}";
-        }
+// ===== FORM SUBMISSION VALIDATION =====
+document.querySelector('form').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
 
-        if(cancelLogout) cancelLogout.onclick = function() {
-            logoutModal.style.display = 'none';
-        }
+    // Validate date is not past and not Sunday
+    const selectedDate = new Date(visitDateInput.value + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dayOfWeek = selectedDate.getDay();
 
-        // ===== CLOSE MODALS - Click outside to close (BOTH modals) =====
-        window.onclick = function(e) {
-            const warningModal = document.getElementById('warningModal');
-            if(e.target == logoutModal) {
-                logoutModal.style.display = 'none';
-            }
-            if(e.target == warningModal) {
-                warningModal.style.display = 'none';
-            }
-        }
+    if (selectedDate < today) {
+        e.preventDefault();
+        showWarning(
+            '📅 Invalid Date',
+            'You cannot select a date that has already passed. Please select today or a future date.'
+        );
+        return false;
+    }
 
-        // ===== AUTO-DISMISS MESSAGES AFTER 5 SECONDS =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                setTimeout(function() {
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'translateX(400px)';
-                    setTimeout(function() {
-                        alert.remove();
-                    }, 500);
-                }, 5000); // 5 seconds
-            });
-        });
-    </script>
-</body>
-</html>
+    if (dayOfWeek === 0) {
+        e.preventDefault();
+        showWarning(
+            '📅 Sunday Not Available',
+            'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
+        );
+        return false;
+    }
+
+    // If all validations pass, show loading state
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+});
+
+// ===== AUTO-DISMISS MESSAGES AFTER 5 SECONDS =====
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateX(400px)';
+            setTimeout(function() {
+                alert.remove();
+            }, 500);
+        }, 5000); // 5 seconds
+    });
+});
+</script>
+{% endblock %}

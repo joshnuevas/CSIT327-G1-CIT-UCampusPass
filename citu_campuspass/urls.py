@@ -31,6 +31,7 @@ urlpatterns = [
     path("manage-admins/", include("manage_admin_app.urls", namespace="manage_admin_app")),
     path('visit-records/', include('manage_visit_records_app.urls', namespace="visit_records_app")),
     path('reports-logs/', include('manage_reports_logs_app.urls', namespace="manage_reports_logs_app")),
+    path('staff-visit-records/', include('staff_visit_records_app.urls', namespace="staff_visit_records_app")),
     path('walk-in/', include('walk_in_app.urls')),
     path('visitor/', include('visitor_search_app.urls')),
 ]

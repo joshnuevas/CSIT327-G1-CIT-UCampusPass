@@ -116,6 +116,36 @@
     margin-top: 6px;
 }
 
+/* Style for other input fields when visible */
+input[id$="_other"],
+#purposeOtherContainer input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    background-color: white;
+    margin-top: 12px;
+}
+
+input[id$="_other"]:focus,
+#purposeOtherContainer input:focus {
+    outline: none;
+    border-color: #8B1538;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+}
+
+#purposeLabel {
+    min-height: 20px;  
+    display: block;
+}
+
+#department_other {
+    margin-top: 8px; 
+}
+
 .duration-options {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -362,14 +392,6 @@
                 <span class="detail-label">Department</span>
                 <span class="detail-value">{{ department }}</span>
             </div>
-            <div class="detail-row">
-                <span class="detail-label">Duration</span>
-                <span class="detail-value">{{ duration }}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Valid Until</span>
-                <span class="detail-value">{{ valid_until }}</span>
-            </div>
         </div>
 
         <div class="success-actions">
@@ -425,73 +447,47 @@
                            placeholder="Enter your phone number" value="{{ form_data.phone }}">
                 </div>
 
-                <!-- Purpose -->
-                <div class="form-group">
-                    <label class="form-label required">Purpose of Visit</label>
-                    <select name="purpose" class="form-select" required id="purposeSelect">
-                        <option value="">Select Purpose</option>
-                        <option value="Tuition Inquiry" {% if form_data.purpose == 'Tuition Inquiry' %}selected{% endif %}>Tuition Inquiry</option>
-                        <option value="Meeting" {% if form_data.purpose == 'Meeting' %}selected{% endif %}>Meeting</option>
-                        <option value="Document Request" {% if form_data.purpose == 'Document Request' %}selected{% endif %}>Document Request</option>
-                        <option value="Enrollment" {% if form_data.purpose == 'Enrollment' %}selected{% endif %}>Enrollment</option>
-                        <option value="Library" {% if form_data.purpose == 'Library' %}selected{% endif %}>Library</option>
-                        <option value="Research" {% if form_data.purpose == 'Research' %}selected{% endif %}>Research</option>
-                        <option value="Other" {% if form_data.purpose == 'Other' %}selected{% endif %}>Other</option>
-                    </select>
-                </div>
-
                 <!-- Department -->
                 <div class="form-group">
                     <label class="form-label required">Department</label>
                     <select name="department" class="form-select" required id="departmentSelect">
-                        <option value="">Select Department</option>
-                        <option value="Finance Office" {% if form_data.department == 'Finance Office' %}selected{% endif %}>Finance Office</option>
-                        <option value="Registrar" {% if form_data.department == 'Registrar' %}selected{% endif %}>Registrar</option>
-                        <option value="Admissions" {% if form_data.department == 'Admissions' %}selected{% endif %}>Admissions</option>
-                        <option value="Library" {% if form_data.department == 'Library' %}selected{% endif %}>Library</option>
-                        <option value="IT Department" {% if form_data.department == 'IT Department' %}selected{% endif %}>IT Department</option>
-                        <option value="HR Department" {% if form_data.department == 'HR Department' %}selected{% endif %}>HR Department</option>
-                        <option value="Student Affairs" {% if form_data.department == 'Student Affairs' %}selected{% endif %}>Student Affairs</option>
-                        <option value="Other" {% if form_data.department == 'Other' %}selected{% endif %}>Other</option>
+                        <option value="" selected disabled>Select Department</option>
+                        <option value="Office of Admissions and Scholarships (OAS)">Office of Admissions and Scholarships (OAS)</option>
+                        <option value="Finance and Accounting Office (FAO)">Finance and Accounting Office (FAO)</option>
+                        <option value="University Registrar's Office (URO)">University Registrar's Office (URO)</option>
+                        <option value="Learning Resource and Activity Center (LRAC)">Learning Resource and Activity Center (LRAC)</option>
+                        <option value="Student Success Office (SSO)">Student Success Office (SSO)</option>
+                        <option value="Alumni Affairs Office (AAO)">Alumni Affairs Office (AAO)</option>
+                        <option value="Networking, Linkages & Relations (NLR)">Networking, Linkages & Relations (NLR)</option>
+                        <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
+                        <option value="Other">Other</option>
                     </select>
+
                 </div>
 
-                <!-- Purpose Other (shown if Other is selected) -->
-                <div class="form-group full-width" id="purposeOtherGroup" style="display: none;">
-                    <label class="form-label">Specify Purpose</label>
-                    <input type="text" name="purpose_other" class="form-input" 
-                           placeholder="Please specify..." value="{{ form_data.purpose_other }}">
+                <!-- Purpose -->
+                <div class="form-group" id="purposeGroup">
+                    <label class="form-label required" id="purposeLabel">Purpose of Visit</label>
+
+                    <!-- Purpose dropdown -->
+                    <select name="purpose" class="form-select" required id="purposeSelect">
+                        <option value="" selected disabled>Select Department First</option>
+                    </select>
+
+                    <!-- This will appear IN PLACE of the purpose dropdown when department = Other -->
+                    <input type="text" 
+                        name="department_other" 
+                        id="department_other" 
+                        placeholder="Please specify department" 
+                        style="display:none;">
                 </div>
 
-                <!-- Department Other (shown if Other is selected) -->
-                <div class="form-group full-width" id="departmentOtherGroup" style="display: none;">
-                    <label class="form-label">Specify Department</label>
-                    <input type="text" name="department_other" class="form-input" 
-                           placeholder="Please specify..." value="{{ form_data.department_other }}">
-                </div>
             </div>
 
-            <!-- Expected Duration -->
-            <div class="form-group">
-                <label class="form-label required">Expected Duration</label>
-                <div class="duration-options">
-                    <div class="duration-option">
-                        <input type="radio" name="duration" value="30" id="duration30" {% if form_data.duration == '30' %}checked{% endif %}>
-                        <label for="duration30">30 min</label>
-                    </div>
-                    <div class="duration-option">
-                        <input type="radio" name="duration" value="60" id="duration60" checked>
-                        <label for="duration60">1 hour</label>
-                    </div>
-                    <div class="duration-option">
-                        <input type="radio" name="duration" value="120" id="duration120" {% if form_data.duration == '120' %}checked{% endif %}>
-                        <label for="duration120">2 hours</label>
-                    </div>
-                    <div class="duration-option">
-                        <input type="radio" name="duration" value="240" id="duration240" {% if form_data.duration == '240' %}checked{% endif %}>
-                        <label for="duration240">4 hours</label>
-                    </div>
-                </div>
+            <!-- Purpose Other Input (shown below both fields when Other is selected in purpose) -->
+            <div class="form-group full-width" id="purposeOtherContainer" style="display: none;">
+                <label class="form-label required">Specify Purpose</label>
+                <input type="text" name="purpose_other" id="purpose_other" placeholder="Please specify your purpose">
             </div>
 
             <!-- Actions -->
@@ -511,25 +507,173 @@
 
 {% block extra_js %}
 <script>
-// Show/hide "Other" input fields
-document.getElementById('purposeSelect').addEventListener('change', function() {
-    const otherGroup = document.getElementById('purposeOtherGroup');
-    otherGroup.style.display = this.value === 'Other' ? 'block' : 'none';
-});
+// Purpose options for each department
+const purposeOptions = {
+    "Office of Admissions and Scholarships (OAS)": [
+        "Admission Inquiry",
+        "Submission of Admission Requirements",
+        "Enrollment Processing",
+        "Scholarship Application",
+        "Scholarship Inquiry",
+        "Claiming Scholarship Results",
+        "Document Verification (Admission-related)",
+        "Other"
+    ],
+    "Finance and Accounting Office (FAO)": [
+        "Tuition Payment",
+        "Financial Clearance",
+        "Assessment of Fees",
+        "Refund Processing",
+        "Scholarship / Discount Posting Inquiry",
+        "Statement of Account Request",
+        "Official Receipt Concerns",
+        "Payment Discrepancy Inquiry",
+        "Other"
+    ],
+    "University Registrar's Office (URO)": [
+        "Request for Transcript of Records",
+        "Request for Certificate (Enrollment, Grades, Good Moral, etc.)",
+        "Document Pickup (TOR, Certificates, etc.)",
+        "Correction of Student Records",
+        "Verification of Academic Credentials",
+        "Diploma Request / Release",
+        "Enrollment / Registration Concerns",
+        "Graduation Evaluation",
+        "Other"
+    ],
+    "Learning Resource and Activity Center (LRAC)": [
+        "Library Access",
+        "Book Borrowing / Returning",
+        "Research Assistance",
+        "Use of Study Rooms / Facilities",
+        "Access to Archives / Special Collections",
+        "Orientation or Library Tour",
+        "Resource Reservation (AV Equipment, Materials)",
+        "Other"
+    ],
+    "Student Success Office (SSO)": [
+        "Counseling Appointment",
+        "Career Guidance / Job Placement",
+        "Student Affairs Consultation",
+        "Disciplinary Meeting",
+        "Mental Health Support Session",
+        "Student Organization Concerns",
+        "Academic Support / Advising",
+        "Other"
+    ],
+    "Alumni Affairs Office (AAO)": [
+        "Alumni Verification",
+        "Alumni ID Application / Claiming",
+        "Alumni Records Request",
+        "Reunion / Event Coordination",
+        "Campus Access for Alumni",
+        "Donations or Partnerships",
+        "Alumni Networking Inquiries",
+        "Other"
+    ],
+    "Networking, Linkages & Relations (NLR)": [
+        "Partnership / MOA Meeting",
+        "Internship / OJT Coordination",
+        "Industry Relations Inquiry",
+        "Sponsorship Meeting",
+        "External Collaboration",
+        "Campus Promotional Activities Coordination",
+        "Other"
+    ],
+    "Human Resource Department (HRD)": [
+        "Job Application",
+        "Job Interview",
+        "Employment Verification",
+        "Employee Records Request",
+        "Contract Signing",
+        "HR Consultation / Meeting",
+        "Onboarding / Orientation",
+        "Clearance Processing",
+        "Other"
+    ]
+};
 
-document.getElementById('departmentSelect').addEventListener('change', function() {
-    const otherGroup = document.getElementById('departmentOtherGroup');
-    otherGroup.style.display = this.value === 'Other' ? 'block' : 'none';
-});
+function updatePurposeOptions() {
+    const departmentSelect = document.getElementById('departmentSelect');
+    const purposeSelect = document.getElementById('purposeSelect');
+    const purposeLabel = document.getElementById('purposeLabel');
+    const departmentOtherInput = document.getElementById('department_other');
+    const purposeOtherContainer = document.getElementById('purposeOtherContainer');
+    const purposeOtherInput = document.getElementById('purpose_other');
 
-// Initialize on page load
+    const selectedDepartment = departmentSelect.value;
+
+    // Clear current purpose options
+    purposeSelect.innerHTML = '';
+
+    if (selectedDepartment === "Other") {
+        // Hide purpose label + dropdown
+        purposeLabel.style.visibility = "hidden";
+        purposeSelect.style.display = "none";
+
+        // Show the department-other input in its place
+        departmentOtherInput.style.display = "block";
+        departmentOtherInput.required = true;
+
+        // Show specify-purpose input below
+        purposeOtherContainer.style.display = "block";
+        purposeOtherInput.required = true;
+
+        return;
+    }
+
+    // NORMAL DEPARTMENTS...
+    purposeLabel.style.visibility = "visible";
+    purposeSelect.style.display = "block";
+
+    departmentOtherInput.style.display = "none";
+    departmentOtherInput.required = false;
+    departmentOtherInput.value = "";
+
+    purposeOtherContainer.style.display = "none";
+    purposeOtherInput.required = false;
+    purposeOtherInput.value = "";
+
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'Select Purpose';
+    defaultOption.selected = true;
+    defaultOption.disabled = true;
+    purposeSelect.appendChild(defaultOption);
+
+    purposeOptions[selectedDepartment].forEach(purpose => {
+        const option = document.createElement('option');
+        option.value = purpose;
+        option.textContent = purpose;
+        purposeSelect.appendChild(option);
+    });
+}
+
+function toggleOther() {
+    const departmentSelect = document.getElementById('departmentSelect');
+    const purposeSelect = document.getElementById('purposeSelect');
+    const purposeOtherContainer = document.getElementById('purposeOtherContainer');
+    const purposeOtherInput = document.getElementById('purpose_other');
+
+    if (departmentSelect.value === "Other") {
+        return; // Already handled above
+    }
+
+    if (purposeSelect.value === 'Other') {
+        purposeOtherContainer.style.display = 'block';
+        purposeOtherInput.required = true;
+    } else {
+        purposeOtherContainer.style.display = 'none';
+        purposeOtherInput.required = false;
+        purposeOtherInput.value = '';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('purposeSelect').value === 'Other') {
-        document.getElementById('purposeOtherGroup').style.display = 'block';
-    }
-    if (document.getElementById('departmentSelect').value === 'Other') {
-        document.getElementById('departmentOtherGroup').style.display = 'block';
-    }
+    document.getElementById('departmentSelect').addEventListener('change', updatePurposeOptions);
+    document.getElementById('purposeSelect').addEventListener('change', toggleOther);
 });
+
+
 </script>
 {% endblock %}
