@@ -236,6 +236,9 @@ input[type="password"] {
     background: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
+    -webkit-appearance: none; /* Chrome/Safari */
+    -moz-appearance: none;    /* Firefox */
+    appearance: none;
 }
 
 select {
@@ -268,10 +271,12 @@ select:focus {
     background-size: 16px;
 }
 
-input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
-select:focus {
+input[type="text"]:focus {
+    outline: none;
+    border-color: #d4af37; /* gold border */
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
 }
 
 input[type="email"]:focus,
@@ -279,6 +284,7 @@ input[type="password"]:focus {
     outline: none;
     border-color: #d4af37;
     box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
+    background: white;
 }
 
 .password-toggle {
