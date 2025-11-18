@@ -1,26 +1,10 @@
 from django.shortcuts import render, redirect
-from supabase import create_client
-import os
-from dotenv import load_dotenv
 from django.contrib import messages
 import re
-from django.contrib.auth.hashers import make_password
+from django.db import IntegrityError
 from manage_reports_logs_app import services as logs_services
 
-# Load environment variables
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-# Password strength checker
-def is_strong_password(password):
-    if len(password) < 8: return False
-    if not re.search(r"[A-Z]", password): return False
-    if not re.search(r"[a-z]", password): return False
-    if not re.search(r"[0-9]", password): return False
-    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password): return False
-    return True
+from .models import User
 
 def register_view(request):
     if request.method == 'POST':
@@ -61,35 +45,33 @@ def register_view(request):
             data["phone"] = ''
             return render(request, 'register_app/register.html', data)
 
-        # Check for duplicate email
-        existing_email = supabase.table("users").select("*").ilike("email", email).execute()
-        if existing_email.data:
-            data["error"] = "Email already registered."
-            data["email"] = ''
-            return render(request, 'register_app/register.html', data)
+        # ===== Create user with Django ORM =====
+        try:
+            # Check for existing email using Django ORM
+            if User.objects.filter(email=email).exists():
+                data["error"] = "Email already registered."
+                data["email"] = ''
+                return render(request, 'register_app/register.html', data)
 
-        # Check for duplicate phone
-        existing_phone = supabase.table("users").select("*").eq("phone", phone).execute()
-        if existing_phone.data:
-            data["error"] = "Phone number already registered."
-            data["phone"] = ''
-            return render(request, 'register_app/register.html', data)
+            # Check for existing phone using Django ORM
+            if User.objects.filter(phone=phone).exists():
+                data["error"] = "Phone number already registered."
+                data["phone"] = ''
+                return render(request, 'register_app/register.html', data)
 
-        # ===== Insert new visitor =====
-        insert_data = {
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email,
-            "phone": phone,
-            "visitor_type": visitor_type,
-            "password": make_password(password)
-        }
+            # Create new user
+            user = User(
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                phone=phone,
+                visitor_type=visitor_type
+            )
+            user.set_password(password)
+            user.save()
 
-        resp = supabase.table("users").insert(insert_data).execute()
-
-        # Check insert success using resp.data
-        if not resp.data:  # insert failed if data is empty or None
-            data["error"] = "Registration failed. Please try again."
+        except Exception as e:
+            data["error"] = f"Registration failed. Please try again. Error: {str(e)}"
             return render(request, 'register_app/register.html', data)
 
         # ===== Log the registration =====
@@ -106,3 +88,12 @@ def register_view(request):
 
     # GET request
     return render(request, 'register_app/register.html')
+
+# Password strength checker (keep as is)
+def is_strong_password(password):
+    if len(password) < 8: return False
+    if not re.search(r"[A-Z]", password): return False
+    if not re.search(r"[a-z]", password): return False
+    if not re.search(r"[0-9]", password): return False
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password): return False
+    return True

@@ -1,19 +1,26 @@
 # manage_visit_records_app/services.py
-from supabase import create_client
-from django.conf import settings
-
-# Initialize Supabase
-supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+from dashboard_app.models import Visit
 
 def list_visits(limit=1000):
     """
-    Fetch all visit records from Supabase.
+    Fetch all visit records using Django ORM.
     """
-    visits_resp = (
-        supabase.table("visits")
-        .select("*")
-        .order("visit_id")  # ascending by default
-        .limit(limit)
-        .execute()
-    )
-    return visits_resp.data  # ✅ Return only the data list
+    try:
+        visits = Visit.objects.all().order_by('visit_id')[:limit]
+        # Convert to list of dictionaries for JSON serialization
+        return [{
+            'visit_id': visit.visit_id,
+            'user_email': visit.user_email,
+            'code': visit.code,
+            'purpose': visit.purpose,
+            'department': visit.department,
+            'visit_date': visit.visit_date,
+            'start_time': visit.start_time,
+            'end_time': visit.end_time,
+            'status': visit.status,
+            'created_at': visit.created_at,
+            'user_id': visit.user_id
+        } for visit in visits]
+    except Exception as e:
+        print(f"Error fetching visits: {e}")
+        return []

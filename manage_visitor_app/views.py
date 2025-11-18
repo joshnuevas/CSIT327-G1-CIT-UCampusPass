@@ -1,3 +1,4 @@
+# manage_visitor_app/views.py
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from . import services
@@ -12,7 +13,6 @@ def admin_required(view_func):
         return redirect("login_app:login")
     return wrapper
 
-
 @admin_required
 def visitor_list_view(request):
     """Display all registered visitors from the users table."""
@@ -20,13 +20,12 @@ def visitor_list_view(request):
     visitors = getattr(resp, "data", []) or []
     return render(request, "manage_visitor_app/visitor_list.html", {"visitors": visitors})
 
-
 @admin_required
 def visitor_deactivate_view(request, user_id):
     """Deactivate or remove a visitor account and log the action."""
     resp = services.deactivate_visitor(user_id)
 
-    # ===== Determine success based on Supabase v2 APIResponse =====
+    # ===== Determine success based on response =====
     success = bool(getattr(resp, "data", []))  # True if row was deleted, False otherwise
 
     # ===== Log the attempt (always create log) =====

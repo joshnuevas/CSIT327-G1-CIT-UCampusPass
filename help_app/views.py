@@ -1,19 +1,17 @@
+# help_app/views.py
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
-from supabase import create_client
 import os
 from dotenv import load_dotenv
 import logging
 
-logger = logging.getLogger(__name__)
+# Import Django models
+from .models import HelpMessage
+from register_app.models import User
 
-# Load environment variables and create Supabase client
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+logger = logging.getLogger(__name__)
 
 def help_support_view(request):
     """Display help and support page with FAQs and contact form."""
@@ -26,9 +24,10 @@ def help_support_view(request):
     user_id = None
     if user_email:
         try:
-            user_resp = supabase.table("users").select("user_id").eq("email", user_email).execute()
-            if user_resp.data:
-                user_id = user_resp.data[0]['user_id']  # This is already a bigint
+            user = User.objects.get(email=user_email)
+            user_id = user.user_id  # This is already a bigint
+        except User.DoesNotExist:
+            logger.error(f"User not found with email: {user_email}")
         except Exception as e:
             logger.error(f"Error fetching user_id: {str(e)}")
     
@@ -74,25 +73,26 @@ def help_support_view(request):
             )
             success_msg = "Your message has been sent! We'll get back to you soon."
         
-        # Save to Supabase help_messages table
+        # Save to help_messages table using Django ORM
         saved_to_db = False
         try:
-            data_to_insert = {
-                'name': name,
-                'email': email,
-                'message': message,
-                'form_type': form_type
-            }
+            # Create HelpMessage instance
+            help_message = HelpMessage(
+                name=name,
+                email=email,
+                message=message,
+                form_type=form_type
+            )
             
             # Add user_id if logged in
             if user_id:
-                data_to_insert['user_id'] = user_id
+                help_message.user_id = user_id
             
             # Add subject for support requests (can be null for feedback)
             if form_type == 'support' and subject:
-                data_to_insert['subject'] = subject
+                help_message.subject = subject
             
-            supabase.table('help_messages').insert(data_to_insert).execute()
+            help_message.save()
             saved_to_db = True
             logger.info(f"{form_type} message saved to database from {name} ({email})")
         except Exception as e:

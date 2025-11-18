@@ -1,25 +1,31 @@
 # staff_visit_records_app/services.py
-from supabase import create_client
-from django.conf import settings
+from dashboard_app.models import Visit
 from datetime import datetime, date, timedelta
 import pytz
 
-# Initialize Supabase
-supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
-
 def get_all_visits(limit=2000):
     """
-    Fetch all visit records from Supabase, ordered from latest to oldest.
+    Fetch all visit records using Django ORM, ordered from latest to oldest.
     """
-    visits_resp = (
-        supabase.table("visits")
-        .select("*")
-        .order("visit_date", desc=True)
-        .order("start_time", desc=True)
-        .limit(limit)
-        .execute()
-    )
-    return visits_resp.data
+    try:
+        visits = Visit.objects.all().order_by('-visit_date', '-start_time')[:limit]
+        # Convert to list of dictionaries for compatibility
+        return [{
+            'visit_id': visit.visit_id,
+            'user_email': visit.user_email,
+            'code': visit.code,
+            'purpose': visit.purpose,
+            'department': visit.department,
+            'visit_date': visit.visit_date,
+            'start_time': visit.start_time,
+            'end_time': visit.end_time,
+            'status': visit.status,
+            'created_at': visit.created_at,
+            'user_id': visit.user_id
+        } for visit in visits]
+    except Exception as e:
+        print(f"Error fetching visits: {e}")
+        return []
 
 def categorize_visits(visits):
     """
@@ -37,37 +43,9 @@ def categorize_visits(visits):
 
     for visit in visits:
         status = visit.get('status', '').lower()
-        visit_date_str = visit.get('visit_date')
-        start_time_str = visit.get('start_time')
-        end_time_str = visit.get('end_time')
-
-        # Parse visit date
-        visit_date = None
-        if visit_date_str:
-            try:
-                visit_date = datetime.strptime(visit_date_str[:10], '%Y-%m-%d').date()
-            except:
-                visit_date = None
-
-
-        # Parse times if available
-        start_time = None
-        end_time = None
-        if start_time_str and visit_date:
-            try:
-                # Combine date and time
-                start_datetime_str = f"{visit_date_str} {start_time_str}"
-                start_time = datetime.strptime(start_datetime_str, '%Y-%m-%d %H:%M:%S')
-                start_time = pytz.UTC.localize(start_time)
-            except:
-                start_time = None
-        if end_time_str and visit_date:
-            try:
-                end_datetime_str = f"{visit_date_str} {end_time_str}"
-                end_time = datetime.strptime(end_datetime_str, '%Y-%m-%d %H:%M:%S')
-                end_time = pytz.UTC.localize(end_time)
-            except:
-                end_time = None
+        visit_date = visit.get('visit_date')
+        start_time = visit.get('start_time')
+        end_time = visit.get('end_time')
 
         # Categorize based on status and timing
         if status == 'upcoming':

@@ -1,5 +1,5 @@
+# book_visit_app/views.py
 from django.shortcuts import render, redirect
-from supabase import create_client
 import os
 from dotenv import load_dotenv
 from django.contrib import messages
@@ -9,14 +9,12 @@ from datetime import datetime, time
 import logging
 from manage_reports_logs_app import services as logs_services
 
+# Import Django models
+from dashboard_app.models import Visit
+from register_app.models import User
+
 # Setup logging
 logger = logging.getLogger(__name__)
-
-# Load environment variables
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def generate_visit_code(purpose):
     """Generate a unique visit code based on purpose."""
@@ -32,19 +30,19 @@ def book_visit_view(request):
 
     user_email = request.session['user_email']
 
-    # Fetch user info from Supabase
+    # Fetch user info using Django ORM
     try:
-        user_resp = supabase.table("users").select("user_id", "first_name").eq("email", user_email).execute()
-        if not user_resp.data:
+        try:
+            user = User.objects.get(email=user_email)
+            user_id = user.user_id
+            first_name = user.first_name
+            
+            # Save first name in session for template use
+            request.session['user_first_name'] = first_name
+        except User.DoesNotExist:
             messages.error(request, "User not found. Please log in again.")
             return redirect('login_app:login')
         
-        user = user_resp.data[0]
-        user_id = user['user_id']
-        first_name = user['first_name']
-        
-        # Save first name in session for template use
-        request.session['user_first_name'] = first_name
     except Exception as e:
         logger.error(f"Error fetching user data: {str(e)}")
         messages.error(request, "An error occurred. Please try again.")
@@ -74,22 +72,27 @@ def book_visit_view(request):
                 messages.error(request, "Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).")
                 return redirect('book_visit_app:book_visit')
 
-            # Generate visit code
+            # Generate unique visit code
             code = generate_visit_code(purpose)
+            
+            # Ensure code is unique
+            while Visit.objects.filter(code=code).exists():
+                code = generate_visit_code(purpose)
 
-            # Insert visit record into database (start_time and end_time will be set when staff checks in/out)
+            # Create visit record using Django ORM
             try:
-                supabase.table("visits").insert({
-                    "user_id": user_id,
-                    "user_email": user_email,
-                    "code": code,
-                    "purpose": purpose,
-                    "department": department,
-                    "visit_date": visit_date_str,
-                    "start_time": None,  # Will be set when staff checks in
-                    "end_time": None,  # Will be set when staff checks out
-                    "status": "Upcoming"
-                }).execute()
+                visit = Visit(
+                    user_id=user_id,
+                    user_email=user_email,
+                    code=code,
+                    purpose=purpose,
+                    department=department,
+                    visit_date=visit_date,
+                    start_time=None,  # Will be set when staff checks in
+                    end_time=None,   # Will be set when staff checks out
+                    status="Upcoming"
+                )
+                visit.save()
 
                 # Log the visit booking
                 actor = f"{first_name} ({user_email})"

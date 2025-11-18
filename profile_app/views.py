@@ -1,16 +1,14 @@
+# profile_app/views.py
 from django.shortcuts import render, redirect
-from supabase import create_client
 from django.contrib import messages
-from dotenv import load_dotenv
-import os
 import re
 from django.contrib.auth.hashers import check_password, make_password
+from django.db import IntegrityError
 from manage_reports_logs_app import services as logs_services
 
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Import Django models
+from register_app.models import User
+from login_app.models import Administrator
 
 # ---------------- Profile View ----------------
 def profile_view(request):
@@ -18,8 +16,13 @@ def profile_view(request):
         return redirect('login_app:login')
     
     user_email = request.session['user_email']
-    user_resp = supabase.table("users").select("*").eq("email", user_email).execute()
-    user = user_resp.data[0] if user_resp.data else {}
+    
+    # Use Django ORM instead of Supabase
+    try:
+        user = User.objects.get(email=user_email)
+    except User.DoesNotExist:
+        messages.error(request, "User not found. Please log in again.")
+        return redirect('login_app:login')
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -47,22 +50,20 @@ def profile_view(request):
                 return redirect('profile_app:profile')
 
             # Check if email or phone exists (other than current user)
-            email_exist = supabase.table("users").select("*").ilike("email", email).neq("email", user_email).execute()
-            phone_exist = supabase.table("users").select("*").eq("phone", phone).neq("email", user_email).execute()
-            if email_exist.data:
+            if User.objects.filter(email=email).exclude(email=user_email).exists():
                 messages.error(request, "Email already registered.")
                 return redirect('profile_app:profile')
-            if phone_exist.data:
+            if User.objects.filter(phone=phone).exclude(email=user_email).exists():
                 messages.error(request, "Phone already registered.")
                 return redirect('profile_app:profile')
 
-            supabase.table("users").update({
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": email,
-                "phone": phone,
-                "visitor_type": visitor_type
-            }).eq("email", user_email).execute()
+            # Update user using Django ORM
+            user.first_name = first_name
+            user.last_name = last_name
+            user.email = email
+            user.phone = phone
+            user.visitor_type = visitor_type
+            user.save()
 
             # Update session email if changed
             request.session['user_email'] = email
@@ -76,7 +77,7 @@ def profile_view(request):
             new_password = request.POST.get('new_password')
             confirm_password = request.POST.get('confirm_password')
 
-            if not check_password(current_password, user['password']):
+            if not user.check_password(current_password):
                 messages.error(request, "Current password is incorrect.")
                 return redirect('profile_app:profile')
 
@@ -84,19 +85,22 @@ def profile_view(request):
                 messages.error(request, "New passwords do not match.")
                 return redirect('profile_app:profile')
 
-            hashed_password = make_password(new_password)
-            supabase.table("users").update({"password": hashed_password}).eq("email", user_email).execute()
+            # Update password using model method
+            user.set_password(new_password)
+            user.save()
+            
             messages.success(request, "Password changed successfully!")
             return redirect('profile_app:profile')
 
         # --------------- Delete Account ---------------
         elif action == 'delete_account':
             password = request.POST.get('delete_password')
-            if not check_password(password, user['password']):
+            if not user.check_password(password):
                 messages.error(request, "Password incorrect. Cannot delete account.")
                 return redirect('profile_app:profile')
             
-            supabase.table("users").delete().eq("email", user_email).execute()
+            # Delete user using Django ORM
+            user.delete()
             request.session.flush()
             messages.success(request, "Account deleted permanently.")
             return redirect('login_app:login')
@@ -108,8 +112,13 @@ def admin_profile_view(request):
         return redirect('login_app:login')
 
     username = request.session['admin_username']
-    response = supabase.table("administrator").select("*").eq("username", username).execute()
-    admin_data = response.data[0] if response.data else {}
+    
+    # Use Django ORM instead of Supabase
+    try:
+        admin = Administrator.objects.get(username=username)
+    except Administrator.DoesNotExist:
+        messages.error(request, "Admin not found. Please log in again.")
+        return redirect('login_app:login')
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -121,16 +130,15 @@ def admin_profile_view(request):
             email = request.POST["email"]
 
             # Capture old values for logging
-            old_first = admin_data.get("first_name", "")
-            old_last = admin_data.get("last_name", "")
-            old_email = admin_data.get("email", "")
+            old_first = admin.first_name
+            old_last = admin.last_name
+            old_email = getattr(admin, 'email', '')
 
-            # Update Supabase
-            supabase.table("administrator").update({
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": email
-            }).eq("username", username).execute()
+            # Update using Django ORM
+            admin.first_name = first_name
+            admin.last_name = last_name
+            admin.email = email
+            admin.save()
 
             # Update session for header initials
             request.session["admin_first_name"] = first_name
@@ -153,7 +161,7 @@ def admin_profile_view(request):
             new_password = request.POST.get("new_password")
             confirm_password = request.POST.get("confirm_password")
 
-            if not check_password(current_password, admin_data.get('password', '')):
+            if not admin.check_password(current_password):
                 messages.error(request, "Current password is incorrect.")
                 return redirect("profile_app:admin_profile")
 
@@ -161,8 +169,9 @@ def admin_profile_view(request):
                 messages.error(request, "New passwords do not match.")
                 return redirect("profile_app:admin_profile")
 
-            hashed_password = make_password(new_password)
-            supabase.table("administrator").update({"password": hashed_password}).eq("username", username).execute()
+            # Update password using model method
+            admin.set_password(new_password)
+            admin.save()
 
             # Log password change
             actor = f"{request.session.get('admin_first_name', 'Unknown')} ({username})"
@@ -171,5 +180,5 @@ def admin_profile_view(request):
             messages.success(request, "Password changed successfully!")
             return redirect("profile_app:admin_profile")
 
-    context = {"admin": admin_data}
+    context = {"admin": admin}
     return render(request, "profile_app/admin_profile.html", context)

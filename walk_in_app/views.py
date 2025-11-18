@@ -6,7 +6,6 @@ Handles registration of visitors who arrive without pre-booking
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from supabase import create_client
 import os
 import random
 import string
@@ -15,13 +14,12 @@ from datetime import datetime
 import pytz
 import logging
 
+# Import Django models
+from dashboard_app.models import Visit, SystemLog
+from register_app.models import User
+
 # Setup
 logger = logging.getLogger(__name__)
-load_dotenv()
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 PHILIPPINES_TZ = pytz.timezone('Asia/Manila')
 
@@ -64,36 +62,35 @@ def walk_in_registration(request):
 
             # Set visit times - walk-ins are checked in immediately
             now = datetime.now(PHILIPPINES_TZ)
-            start_time = now.strftime('%H:%M:%S')
-            visit_date = now.strftime('%Y-%m-%d')
+            start_time = now.time()
+            visit_date = now.date()
 
             # Create visitor name
             visitor_name = f"{first_name} {last_name}"
 
-            # Insert visit record
-            visit_data = {
-                "user_email": email,
-                "code": visit_code,
-                "purpose": purpose,
-                "department": department,
-                "visit_date": visit_date,
-                "start_time": start_time,
-                "end_time": None,  # Will be set when staff checks out
-                "status": "Active",  # Automatically checked in
-                "created_at": now.isoformat()
-            }
+            # Insert visit record using Django ORM
+            visit = Visit(
+                user_email=email,
+                code=visit_code,
+                purpose=purpose,
+                department=department,
+                visit_date=visit_date,
+                start_time=start_time,
+                end_time=None,  # Will be set when staff checks out
+                status="Active",  # Automatically checked in
+                user_id=None  # Walk-in visitors may not have user account
+            )
+            visit.save()
             
-            supabase.table("visits").insert(visit_data).execute()
-            
-            # Create log entry
-            log_entry = {
-                "actor": f"{staff_first_name} ({staff_username})",
-                "action_type": "Walk-In Registration",
-                "description": f"Registered walk-in visitor {visitor_name} ({email}) for {purpose} at {department}. Visit code: {visit_code}",
-                "actor_role": "Staff",
-                "created_at": now.isoformat()
-            }
-            supabase.table("system_logs").insert(log_entry).execute()
+            # Create log entry using Django ORM
+            log_entry = SystemLog(
+                actor=f"{staff_first_name} ({staff_username})",
+                action_type="Walk-In Registration",
+                description=f"Registered walk-in visitor {visitor_name} ({email}) for {purpose} at {department}. Visit code: {visit_code}",
+                actor_role="Staff",
+                created_at=now
+            )
+            log_entry.save()
             
             # Success - show confirmation
             context = {

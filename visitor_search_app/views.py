@@ -5,20 +5,18 @@ Handles visitor search and detailed visitor information
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from supabase import create_client
+from django.db.models import Q
 import os
 from dotenv import load_dotenv
 from datetime import date, timedelta
 import logging
 
+# Import Django models
+from dashboard_app.models import Visit
+from register_app.models import User
+
 # Setup
 logger = logging.getLogger(__name__)
-load_dotenv()
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
 
 def staff_required(view_func):
     """Decorator to ensure only staff can access"""
@@ -41,31 +39,27 @@ def visitor_search(request):
     
     if query:
         try:
-            # Search in visits table
-            visits_resp = supabase.table("visits").select("*").execute()
-            all_visits = visits_resp.data
-            
-            # Get all users for name lookup
-            users_resp = supabase.table("users").select("*").execute()
-            all_users = users_resp.data
+            # Get all visits and users using Django ORM
+            all_visits = Visit.objects.all()
+            all_users = User.objects.all()
             
             # Create a mapping of email to user info
             users_dict = {}
             for user in all_users:
-                email = user.get('email', '').lower()
+                email = user.email.lower()
                 users_dict[email] = {
-                    'first_name': user.get('first_name', ''),
-                    'last_name': user.get('last_name', ''),
-                    'full_name': f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'full_name': f"{user.first_name} {user.last_name}".strip()
                 }
             
-            # Filter visits based on query
+            # Filter visits based on query using Django ORM
             matching_visits = []
             for visit in all_visits:
-                email = visit.get('user_email', '').lower()
-                code = visit.get('code', '').lower()
-                purpose = visit.get('purpose', '').lower()
-                department = visit.get('department', '').lower()
+                email = visit.user_email.lower() if visit.user_email else ''
+                code = visit.code.lower() if visit.code else ''
+                purpose = visit.purpose.lower() if visit.purpose else ''
+                department = visit.department.lower() if visit.department else ''
                 
                 # Also search by visitor name
                 visitor_name = users_dict.get(email, {}).get('full_name', '').lower()
@@ -75,7 +69,18 @@ def visitor_search(request):
                     query.lower() in purpose or
                     query.lower() in department or
                     query.lower() in visitor_name):
-                    matching_visits.append(visit)
+                    matching_visits.append({
+                        'visit_id': visit.visit_id,
+                        'user_email': visit.user_email,
+                        'code': visit.code,
+                        'purpose': visit.purpose,
+                        'department': visit.department,
+                        'visit_date': visit.visit_date,
+                        'start_time': visit.start_time,
+                        'end_time': visit.end_time,
+                        'status': visit.status,
+                        'created_at': visit.created_at
+                    })
             
             # Apply filters
             today = date.today()
@@ -155,33 +160,46 @@ def visitor_detail(request):
         return redirect('visitor_search_app:search')
     
     try:
-        # Get user information from users table
-        user_resp = supabase.table("users").select("*").eq("email", visitor_email).execute()
-        
-        if not user_resp.data:
+        # Get user information using Django ORM
+        try:
+            user = User.objects.get(email=visitor_email)
+            first_name = user.first_name
+            last_name = user.last_name
+        except User.DoesNotExist:
             messages.error(request, "Visitor not found in system.")
             return redirect('visitor_search_app:search')
         
-        user = user_resp.data[0]
-        first_name = user.get('first_name', '')
-        last_name = user.get('last_name', '')
-        
-        # Get all visits for this visitor
-        visits_resp = supabase.table("visits").select("*").eq("user_email", visitor_email).execute()
-        visits = visits_resp.data
+        # Get all visits for this visitor using Django ORM
+        visits = Visit.objects.filter(user_email=visitor_email)
         
         if not visits:
             messages.warning(request, "No visits found for this visitor.")
             # Still show the visitor profile even if no visits
         
+        # Convert visits to list of dictionaries for template
+        visits_list = []
+        for visit in visits:
+            visits_list.append({
+                'visit_id': visit.visit_id,
+                'user_email': visit.user_email,
+                'code': visit.code,
+                'purpose': visit.purpose,
+                'department': visit.department,
+                'visit_date': visit.visit_date,
+                'start_time': visit.start_time,
+                'end_time': visit.end_time,
+                'status': visit.status,
+                'created_at': visit.created_at
+            })
+        
         # Sort visits by date descending
-        visits.sort(key=lambda x: x.get('visit_date', ''), reverse=True)
+        visits_list.sort(key=lambda x: x.get('visit_date', ''), reverse=True)
         
         # Calculate statistics
-        total_visits = len(visits)
-        completed_visits = len([v for v in visits if v.get('status') == 'Completed'])
-        current_visit = next((v for v in visits if v.get('status') in ['Active', 'Upcoming']), None)
-        last_visit_date = visits[0].get('visit_date') if visits else None
+        total_visits = len(visits_list)
+        completed_visits = len([v for v in visits_list if v.get('status') == 'Completed'])
+        current_visit = next((v for v in visits_list if v.get('status') in ['Active', 'Upcoming']), None)
+        last_visit_date = visits_list[0].get('visit_date') if visits_list else None
         
         context = {
             'staff_first_name': staff_first_name,
@@ -193,7 +211,7 @@ def visitor_detail(request):
             'completed_visits': completed_visits,
             'current_visit': current_visit,
             'last_visit_date': last_visit_date,
-            'visit_history': visits,
+            'visit_history': visits_list,
         }
         
         return render(request, 'visitor_search_app/visitor_detail.html', context)

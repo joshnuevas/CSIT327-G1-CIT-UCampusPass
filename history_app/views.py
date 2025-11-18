@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from supabase import create_client
-import os
-from dotenv import load_dotenv
+from datetime import datetime, date
+import pytz
 
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Import Django models
+from dashboard_app.models import Visit, SystemLog
+from register_app.models import User
 
 def history_view(request):
     # Redirect if not logged in
@@ -16,27 +14,27 @@ def history_view(request):
         return redirect('login_app:login')
 
     user_email = request.session['user_email']
-    visits_resp = supabase.table("visits").select("*").eq("user_email", user_email).execute()
-    visits = visits_resp.data
+    
+    # Use Django ORM instead of Supabase
+    visits = Visit.objects.filter(user_email=user_email)
 
     # Format visit dates and times like in dashboard
-    from datetime import datetime, date
     today = date.today()
     for visit in visits:
-        visit_date_obj = datetime.strptime(visit['visit_date'], "%Y-%m-%d").date()
-        visit['display_date'] = f"Today, {visit_date_obj.strftime('%b %d')}" if visit_date_obj == today else visit_date_obj.strftime("%b %d, %Y")
+        visit_date_obj = visit.visit_date
+        visit.display_date = f"Today, {visit_date_obj.strftime('%b %d')}" if visit_date_obj == today else visit_date_obj.strftime("%b %d, %Y")
         
         # Format start time - handle null start_time
-        if visit['start_time']:
-            visit['formatted_start_time'] = datetime.strptime(visit['start_time'], "%H:%M:%S").strftime("%I:%M %p")
+        if visit.start_time:
+            visit.formatted_start_time = visit.start_time.strftime("%I:%M %p")
         else:
-            visit['formatted_start_time'] = "Not checked in"
+            visit.formatted_start_time = "Not checked in"
         
         # Format end time ONLY if it exists (not None)
-        if visit['end_time']:
-            visit['formatted_end_time'] = datetime.strptime(visit['end_time'], "%H:%M:%S").strftime("%I:%M %p")
+        if visit.end_time:
+            visit.formatted_end_time = visit.end_time.strftime("%I:%M %p")
         else:
-            visit['formatted_end_time'] = "Pending"
+            visit.formatted_end_time = "Pending"
 
     context = {
         "user_email": user_email,
@@ -67,46 +65,41 @@ def cancel_visit(request):
     
     try:
         # Verify the visit belongs to the current user before deleting
-        visit_check = supabase.table("visits").select("*").eq("visit_id", visit_id).execute()
-        print(f"Visit check result: {visit_check.data}")
-        
-        if not visit_check.data:
+        try:
+            visit = Visit.objects.get(visit_id=visit_id)
+            print(f"Visit found: {visit.code}")
+        except Visit.DoesNotExist:
             print("Visit not found in database")
             messages.error(request, 'Visit not found.')
             return redirect('history_app:visit_history')
         
-        visit_data = visit_check.data[0]
-        
-        if visit_data['user_email'] != user_email:
+        if visit.user_email != user_email:
             print("User does not own this visit")
             messages.error(request, 'You do not have permission to cancel this visit.')
             return redirect('history_app:visit_history')
         
         # Store visit details for logging before deletion
-        visit_code = visit_data.get('code', 'N/A')
-        visit_date = visit_data.get('visit_date', 'N/A')
-        department = visit_data.get('department', 'N/A')
+        visit_code = visit.code or 'N/A'
+        visit_date = visit.visit_date or 'N/A'
+        department = visit.department or 'N/A'
         
-        # Delete the visit from the database
-        delete_result = supabase.table("visits").delete().eq("visit_id", visit_id).execute()
-        print(f"Delete result: {delete_result}")
+        # Delete the visit from the database using Django ORM
+        visit.delete()
+        print(f"Visit deleted: {visit_code}")
         
         # Create log entry for the cancellation
-        from datetime import datetime
-        import pytz
-        
         # Use Philippines timezone
         philippines_tz = pytz.timezone('Asia/Manila')
         current_time = datetime.now(philippines_tz)
         
-        log_entry = {
-            "actor": user_email,
-            "action_type": "Visit Cancelled",
-            "description": f"User cancelled visit {visit_code} scheduled for {visit_date} at {department}",
-            "actor_role": "Visitor",
-            "created_at": current_time.isoformat()
-        }
-        supabase.table("system_logs").insert(log_entry).execute()
+        log_entry = SystemLog(
+            actor=user_email,
+            action_type="Visit Cancelled",
+            description=f"User cancelled visit {visit_code} scheduled for {visit_date} at {department}",
+            actor_role="Visitor",
+            created_at=current_time
+        )
+        log_entry.save()
         print(f"Log entry created for cancelled visit: {visit_code}")
         
         messages.success(request, 'Visit cancelled successfully.')
