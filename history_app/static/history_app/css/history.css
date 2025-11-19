@@ -270,6 +270,16 @@ body {
     border-left-color: #999999;
 }
 
+.visit-card.status-completed {
+    border-left-color: #3F51B5;
+}
+
+.status-badge.status-completed {
+    background: #E8EAF6;
+    color: #3F51B5;
+    border: 2px solid #3F51B5;
+}
+
 .visit-header {
     margin-bottom: 18px;
     padding-bottom: 16px;

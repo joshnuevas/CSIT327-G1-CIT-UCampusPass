@@ -491,9 +491,9 @@ body {
 }
 
 .total-visits-stat:hover {
-    transform: translateY(-8px); 
-    box-shadow: 0 8px 30px rgba(7, 7, 7, 0.377); 
-    border-color: #181818; 
+    transform: translateY(-8px);
+    box-shadow: 0 8px 30px rgba(63, 81, 181, 0.25); /* softer blue glow */
+    border-color: #3F51B5;
 }
 
 .stat-value {
@@ -514,7 +514,7 @@ body {
 }
 
 .total-visits-stat .stat-value {
-    background: linear-gradient(135deg, #0c0c0c, #535353); 
+    background: linear-gradient(135deg, #3F51B5, #5C6BC0); /* blue gradient */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
