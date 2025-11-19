@@ -31,7 +31,6 @@ def categorize_visits(visits):
     """
     Categorize visits into the five groups.
     """
-    now = datetime.now(pytz.UTC)
     manila_tz = pytz.timezone('Asia/Manila')
     today = datetime.now(manila_tz).date()
 
@@ -52,11 +51,13 @@ def categorize_visits(visits):
             upcoming_visits.append(visit)
             if visit_date == today:
                 today_upcoming_visits.append(visit)
+
         elif status == 'active' or status == 'ongoing':
             active_visits.append(visit)
+
         elif status == 'completed' or status == 'expired':
-            # Include completed visits from today or recent (last 7 days)
-            if end_time and (end_time.date() == today or end_time > now - timedelta(days=7)):
+            # ✅ Use visit_date instead of end_time.date()
+            if visit_date and (visit_date == today or visit_date >= today - timedelta(days=7)):
                 checked_out_visits.append(visit)
 
     return {
