@@ -150,6 +150,33 @@
                     }
                 });
             });
+
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+
+            if (passwordInput) {
+                ['copy', 'cut'].forEach(evt => {
+                    passwordInput.addEventListener(evt, function (e) {
+                        e.preventDefault();
+                    });
+                });
+            }
+
+            if (confirmPasswordInput) {
+                // Block mouse/keyboard paste & drop
+                ['paste', 'drop'].forEach(evt => {
+                    confirmPasswordInput.addEventListener(evt, function (e) {
+                        e.preventDefault();
+                    });
+                });
+
+                // Block Ctrl+V / Cmd+V
+                confirmPasswordInput.addEventListener('keydown', function (e) {
+                    if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V')) {
+                        e.preventDefault();
+                    }
+                });
+            }
         });
     </script>
 </body>

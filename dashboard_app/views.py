@@ -48,7 +48,9 @@ def dashboard_view(request):
     all_visits = Visit.objects.filter(user_email=user_email)
     now = datetime.now()    
     today = date.today()
-    total_visits_count = 0
+    
+    # COUNT COMPLETED VISITS instead of expired ones
+    completed_visits_count = all_visits.filter(status='Completed').count()
 
     for visit in all_visits:
         visit_date_obj = visit.visit_date
@@ -83,8 +85,11 @@ def dashboard_view(request):
                 # If no end time, use end of day for status check purposes
                 visit_end = datetime.combine(visit.visit_date, datetime.max.time())
 
-            # Status logic - preserve Active status for checked-in visits without end_time
-            if visit.end_time is None and visit.status == 'Active':
+            # FIXED STATUS LOGIC: Preserve Completed status
+            if visit.status == 'Completed':
+                # If already completed, keep it as completed - DON'T change to Expired!
+                new_status = 'Completed'
+            elif visit.end_time is None and visit.status == 'Active':
                 # Keep as Active (visitor is currently on-site)
                 new_status = 'Active'
             elif visit_start <= now <= visit_end:
@@ -98,13 +103,11 @@ def dashboard_view(request):
             visit.visit_start_datetime = datetime.combine(visit.visit_date, datetime.min.time())
             new_status = 'Upcoming'
 
-        if visit.status != new_status:
+        # Only update status if it actually changed AND it's not already Completed
+        if visit.status != new_status and visit.status != 'Completed':
             visit.status = new_status
             # Update using Django ORM
             Visit.objects.filter(code=visit.code).update(status=new_status)
-
-        if new_status == 'Expired':
-            total_visits_count += 1
 
     active_upcoming = [v for v in all_visits if v.status in ['Active', 'Upcoming']]
     active_upcoming.sort(key=lambda x: x.visit_start_datetime)
@@ -116,7 +119,7 @@ def dashboard_view(request):
         "visits": display_visits,
         "active_visits": [v for v in all_visits if v.status == 'Active'],
         "upcoming_visits": [v for v in all_visits if v.status == 'Upcoming'],
-        "total_visits": total_visits_count,
+        "completed_visits_count": completed_visits_count,
         "notifications": [],
         "today": today,
     }
@@ -326,12 +329,16 @@ def staff_dashboard_view(request):
         # Update status for today's visits if needed
         now = datetime.now()
         for visit in today_visits:
-            # Handle start_time parsing for status updates
+            # ✅ Do not touch completed visits
+            if visit.status == 'Completed':
+                continue
+
             if visit.start_time:
                 visit_start = datetime.combine(visit.visit_date, visit.start_time)
-                visit_end = datetime.combine(visit.visit_date, datetime.max.time()) if not visit.end_time else datetime.combine(visit.visit_date, visit.end_time)
+                visit_end = datetime.combine(
+                    visit.visit_date, datetime.max.time()
+                ) if not visit.end_time else datetime.combine(visit.visit_date, visit.end_time)
 
-                # Status logic
                 if visit.end_time is None and visit.status == 'Active':
                     new_status = 'Active'
                 elif visit_start <= now <= visit_end:
@@ -341,10 +348,8 @@ def staff_dashboard_view(request):
                 else:
                     new_status = 'Upcoming'
             else:
-                # For visits not yet checked in, keep as Upcoming
                 new_status = 'Upcoming'
 
-            # Update status if changed
             if visit.status != new_status:
                 visit.status = new_status
                 visit.save()
@@ -430,7 +435,7 @@ def check_code(request):
         # Query the visits table using Django ORM
         try:
             visit = Visit.objects.get(code=visit_code)
-            # Code found
+            # Code found - Convert date objects to strings for session storage
             request.session['code_check_result'] = {
                 'status': 'success',
                 'message': 'Visit code found and verified!',
@@ -438,10 +443,10 @@ def check_code(request):
                     'code': visit.code,
                     'purpose': visit.purpose,
                     'department': visit.department,
-                    'visit_date': visit.visit_date,
+                    'visit_date': visit.visit_date.isoformat() if visit.visit_date else None,  # Convert to string
                     'status': visit.status,
-                    'start_time': visit.start_time,
-                    'end_time': visit.end_time,
+                    'start_time': visit.start_time.isoformat() if visit.start_time else None,  # Convert to string
+                    'end_time': visit.end_time.isoformat() if visit.end_time else None,  # Convert to string
                 }
             }
         except Visit.DoesNotExist:

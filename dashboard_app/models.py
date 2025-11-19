@@ -37,6 +37,5 @@ class AdminDismissedNotification(models.Model):
         db_table = 'admin_dismissed_notifications'
         managed = False
 
-# Import other models
 from login_app.models import Administrator, FrontDeskStaff
 from register_app.models import User
