@@ -227,7 +227,7 @@ def admin_notifications_api(request):
                     "id": log_id,
                     "title": "Staff Update",
                     "message": f"{actor} {log.description}",
-                    "time": log.created_at.isoformat(),
+                    "time": format_ph_time(log.created_at),
                 })
             elif (
                 action_type in ["Account", "Visitor Management"]
@@ -237,7 +237,7 @@ def admin_notifications_api(request):
                     "id": log_id,
                     "title": "Visitor Update",
                     "message": f"{actor} {log.description}",
-                    "time": log.created_at.isoformat(),
+                    "time": format_ph_time(log.created_at),
                 })
 
     return JsonResponse({"notifications": notifications[:10]})
