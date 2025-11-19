@@ -4,124 +4,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CIT-U Campus Pass - Register</title>
+    <title>Campus Pass - Register</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'register_app/css/register.css' %}?v={{ now|date:'U' }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png">
-    <link rel="shortcut icon" href="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png">
 </head>
 <body>
-    <div class="register-container">
-        <div class="logo-section">
-            <div class="logo-circle"></div>
-            <h1>CAMPUS PASS</h1>
-            <p class="subtitle">Cebu Institute of Technology - University</p>
-            <p class="welcome-text">Create your visitor account</p>
+    <div class="register-wrapper">
+        <!-- Left Panel: Branding & Features -->
+        <div class="left-panel">
+            <div class="brand-section">
+                <div class="brand-logo">
+                    <div class="logo-icon">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png" alt="CIT-U Logo">
+                    </div>
+                    <span class="brand-name">CAMPUS<span class="highlight">PASS</span></span>
+                </div>
+                <h2 class="brand-tagline">Join Our Campus Community</h2>
+                <p class="brand-description">
+                    Create your visitor account to access our secure campus management system 
+                    with real-time tracking and automated notifications.
+                </p>
+            </div>
+
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Secure Access</h3>
+                        <p>Your personal information is protected with enterprise-grade security</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Quick Check-In</h3>
+                        <p>Generate and use codes for fast campus entry verification</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Visit History</h3>
+                        <p>Track your campus visits and access comprehensive visit records</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-
-        {% if error %}
-            <ul class="messages">
-                <li class="error">⚠️ {{ error }}</li>
-            </ul>
-        {% endif %}
-
-        <form method="POST" action="{% url 'register_app:register' %}">
-            {% csrf_token %}
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="firstName">First Name</label>
-                    <input type="text" id="firstName" name="firstName"
-                           placeholder="Enter first name"
-                           value="{{ first_name|default:'' }}" required>
+        <!-- Right Panel: Registration Form -->
+        <div class="right-panel">
+            <div class="register-container">
+                <div class="register-header">
+                    <h1>Create Account</h1>
+                    <p>Fill in your details to get started</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="lastName">Last Name</label>
-                    <input type="text" id="lastName" name="lastName"
-                           placeholder="Enter last name"
-                           value="{{ last_name|default:'' }}" required>
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li class="{{ message.tags }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if error %}
+                    <ul class="messages">
+                        <li class="error">{{ error }}</li>
+                    </ul>
+                {% endif %}
+
+                <form method="POST" action="{% url 'register_app:register' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" 
+                                   id="firstName" 
+                                   name="firstName"
+                                   placeholder="Enter first name"
+                                   value="{{ first_name|default:'' }}" 
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" 
+                                   id="lastName" 
+                                   name="lastName"
+                                   placeholder="Enter last name"
+                                   value="{{ last_name|default:'' }}" 
+                                   required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" 
+                               id="email" 
+                               name="email"
+                               placeholder="your@email.com"
+                               value="{{ email|default:'' }}" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" 
+                               id="phone" 
+                               name="phone"
+                               placeholder="09XX XXX XXXX"
+                               maxlength="11"
+                               value="{{ phone|default:'' }}" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="visitorType">Visitor Type</label>
+                        <select id="visitorType" name="visitorType" required onchange="toggleOtherInput()">
+                            <option value="" disabled {% if not visitor_type %}selected{% endif %}>Select visitor type</option>
+                            <option value="Student" {% if visitor_type == 'Student' %}selected{% endif %}>Student</option>
+                            <option value="Parent" {% if visitor_type == 'Parent' %}selected{% endif %}>Parent</option>
+                            <option value="Staff" {% if visitor_type == 'Staff' %}selected{% endif %}>Staff</option>
+                            <option value="Alumni" {% if visitor_type == 'Alumni' %}selected{% endif %}>Alumni</option>
+                            <option value="Guest" {% if visitor_type == 'Guest' %}selected{% endif %}>Guest</option>
+                            <option value="Other" {% if visitor_type == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="otherTypeGroup" style="display: {% if visitor_type_select == 'Other' %}block{% else %}none{% endif %};">
+                        <label for="otherType">Please specify</label>
+                        <input type="text" 
+                               id="otherType" 
+                               name="visitor_type_other"
+                               placeholder="Enter other visitor type"
+                               value="{{ visitor_type_other|default:'' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-container">
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   placeholder="Create a password" 
+                                   required>
+                            <i class="fas fa-eye toggle-password" data-target="password"></i>
+                        </div>
+                        
+                        <!-- Password Requirements -->
+                        <div class="password-requirements" id="passwordRequirements">
+                            <div class="requirements-title">
+                                <i class="fas fa-shield-alt"></i>
+                                Password Requirements
+                            </div>
+                            <div class="requirements-list">
+                                <div class="requirement-item not-met" id="req-length">
+                                    <div class="requirement-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>At least 8 characters</span>
+                                </div>
+                                <div class="requirement-item not-met" id="req-uppercase">
+                                    <div class="requirement-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>One uppercase letter (A-Z)</span>
+                                </div>
+                                <div class="requirement-item not-met" id="req-lowercase">
+                                    <div class="requirement-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>One lowercase letter (a-z)</span>
+                                </div>
+                                <div class="requirement-item not-met" id="req-number">
+                                    <div class="requirement-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>One number (0-9)</span>
+                                </div>
+                                <div class="requirement-item not-met" id="req-special">
+                                    <div class="requirement-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>One special character (!@#$%^&*...)</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Strength Bar -->
+                            <div class="password-strength">
+                                <div class="strength-bar" id="strengthBar"></div>
+                            </div>
+                            <div class="strength-text" id="strengthText"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="password-container">
+                            <input type="password" 
+                                   id="confirmPassword" 
+                                   name="confirmPassword" 
+                                   placeholder="Confirm your password" 
+                                   required>
+                            <i class="fas fa-eye toggle-password" data-target="confirmPassword"></i>
+                        </div>
+                    </div>
+
+                    <div class="terms-agreement">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <span>I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a></span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="register-btn">Create Account</button>
+                </form>
+
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+
+                <div class="login-link">
+                    Already have an account? <a href="{% url 'login_app:login' %}">Sign in</a>
+                </div>
+
+                <div class="footer-text">
+                    © 2025 Campus Pass. All rights reserved.
                 </div>
             </div>
-
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email"
-                       placeholder="Enter your email"
-                       value="{{ email|default:'' }}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone"
-                       placeholder="Enter your phone number"
-                       maxlength="11"
-                       value="{{ phone|default:'' }}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="visitorType">Visitor Type</label>
-                <select id="visitorType" name="visitorType" required onchange="toggleOtherInput()">
-                    <option value="" disabled {% if not visitor_type %}selected{% endif %}>Select visitor type</option>
-                    <option value="Student" {% if visitor_type == 'Student' %}selected{% endif %}>Student</option>
-                    <option value="Parent" {% if visitor_type == 'Parent' %}selected{% endif %}>Parent</option>
-                    <option value="Staff" {% if visitor_type == 'Staff' %}selected{% endif %}>Staff</option>
-                    <option value="Alumni" {% if visitor_type == 'Alumni' %}selected{% endif %}>Alumni</option>
-                    <option value="Guest" {% if visitor_type == 'Guest' %}selected{% endif %}>Guest</option>
-                    <option value="Other" {% if visitor_type == 'Other' %}selected{% endif %}>Other</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="otherTypeGroup" style="display: {% if visitor_type_select == 'Other' %}block{% else %}none{% endif %};">
-                <label for="otherType">Please specify</label>
-                <input type="text" id="otherType" name="visitor_type_other"
-                       placeholder="Enter other visitor type"
-                       value="{{ visitor_type_other|default:'' }}">
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="password-container">
-                    <input type="password" id="password" name="password" placeholder="Create a password" required>
-                    <i class="fas fa-eye toggle-password" data-target="password"></i>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <div class="password-container">
-                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
-                    <i class="fas fa-eye toggle-password" data-target="confirmPassword"></i>
-                </div>
-            </div>
-
-            <div class="terms-agreement">
-                <label class="checkbox-label">
-                    <input type="checkbox" id="terms" name="terms" required>
-                    <span>I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a></span>
-                </label>
-            </div>
-
-            <button type="submit" class="register-btn">Create Account</button>
-        </form>
-
-        <div class="divider">
-            <span>OR</span>
-        </div>
-
-        <div class="login-link">
-            Already have an account? <a href="{% url 'login_app:login' %}">Login here</a>
-        </div>
-
-        <div class="footer-text">
-            © 2025 CIT-U Campus Pass. All rights reserved.
         </div>
     </div>
 
@@ -129,16 +252,19 @@
         function toggleOtherInput() {
             const visitorType = document.getElementById("visitorType").value;
             const otherGroup = document.getElementById("otherTypeGroup");
+            const otherInput = document.getElementById("otherType");
+            
             if (visitorType === "Other") {
                 otherGroup.style.display = "block";
-                document.getElementById("otherType").required = true;
+                otherInput.required = true;
             } else {
                 otherGroup.style.display = "none";
-                document.getElementById("otherType").required = false;
+                otherInput.required = false;
             }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Password toggle functionality
             const toggleButtons = document.querySelectorAll('.toggle-password');
             toggleButtons.forEach(button => {
                 button.addEventListener('click', function() {
@@ -153,10 +279,104 @@
                 });
             });
 
+            // Live Password Validation
             const passwordInput = document.getElementById('password');
-            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const passwordRequirements = document.getElementById('passwordRequirements');
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
 
             if (passwordInput) {
+                // Show requirements on focus
+                passwordInput.addEventListener('focus', function() {
+                    passwordRequirements.classList.add('active');
+                });
+
+                // Live validation on input
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    let metCount = 0;
+
+                    // Check length (at least 8 characters)
+                    const lengthReq = document.getElementById('req-length');
+                    if (password.length >= 8) {
+                        lengthReq.classList.remove('not-met');
+                        lengthReq.classList.add('met');
+                        metCount++;
+                    } else {
+                        lengthReq.classList.remove('met');
+                        lengthReq.classList.add('not-met');
+                    }
+
+                    // Check uppercase
+                    const uppercaseReq = document.getElementById('req-uppercase');
+                    if (/[A-Z]/.test(password)) {
+                        uppercaseReq.classList.remove('not-met');
+                        uppercaseReq.classList.add('met');
+                        metCount++;
+                    } else {
+                        uppercaseReq.classList.remove('met');
+                        uppercaseReq.classList.add('not-met');
+                    }
+
+                    // Check lowercase
+                    const lowercaseReq = document.getElementById('req-lowercase');
+                    if (/[a-z]/.test(password)) {
+                        lowercaseReq.classList.remove('not-met');
+                        lowercaseReq.classList.add('met');
+                        metCount++;
+                    } else {
+                        lowercaseReq.classList.remove('met');
+                        lowercaseReq.classList.add('not-met');
+                    }
+
+                    // Check number
+                    const numberReq = document.getElementById('req-number');
+                    if (/[0-9]/.test(password)) {
+                        numberReq.classList.remove('not-met');
+                        numberReq.classList.add('met');
+                        metCount++;
+                    } else {
+                        numberReq.classList.remove('met');
+                        numberReq.classList.add('not-met');
+                    }
+
+                    // Check special character
+                    const specialReq = document.getElementById('req-special');
+                    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                        specialReq.classList.remove('not-met');
+                        specialReq.classList.add('met');
+                        metCount++;
+                    } else {
+                        specialReq.classList.remove('met');
+                        specialReq.classList.add('not-met');
+                    }
+
+                    // Update strength bar
+                    strengthBar.className = 'strength-bar';
+                    strengthText.className = 'strength-text';
+
+                    if (metCount <= 2) {
+                        strengthBar.classList.add('weak');
+                        strengthText.classList.add('weak');
+                        strengthText.textContent = 'Weak Password';
+                    } else if (metCount <= 4) {
+                        strengthBar.classList.add('medium');
+                        strengthText.classList.add('medium');
+                        strengthText.textContent = 'Medium Password';
+                    } else if (metCount === 5) {
+                        strengthBar.classList.add('strong');
+                        strengthText.classList.add('strong');
+                        strengthText.textContent = 'Strong Password';
+                    }
+
+                    // Hide strength indicator if empty
+                    if (password.length === 0) {
+                        strengthBar.className = 'strength-bar';
+                        strengthText.textContent = '';
+                    }
+                });
+
+                // Prevent copying password
                 ['copy', 'cut'].forEach(evt => {
                     passwordInput.addEventListener(evt, function (e) {
                         e.preventDefault();
@@ -164,15 +384,15 @@
                 });
             }
 
+            // Prevent pasting in confirm password
+            const confirmPasswordInput = document.getElementById('confirmPassword');
             if (confirmPasswordInput) {
-                // Block mouse/keyboard paste & drop
                 ['paste', 'drop'].forEach(evt => {
                     confirmPasswordInput.addEventListener(evt, function (e) {
                         e.preventDefault();
                     });
                 });
 
-                // Block Ctrl+V / Cmd+V
                 confirmPasswordInput.addEventListener('keydown', function (e) {
                     if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V')) {
                         e.preventDefault();

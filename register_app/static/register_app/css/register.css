@@ -5,138 +5,216 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
     display: flex;
+    background: #F5F5F5;
+    overflow: hidden;
+}
+
+/* Split Screen Container */
+.register-wrapper {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+/* Left Panel - Branding & Features */
+.left-panel {
+    flex: 1;
+    background: linear-gradient(270deg, #8B1538, #6B0F2A, #5c0a0a, #8B1538);
+    background-size: 600% 600%;
+    animation: gradientPaint 18s ease infinite;
+    padding: 60px 80px;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    align-items: flex-start;   /* ⬅️ don't vertically center, let it start at top */
-    padding: 40px 20px;
-    background: radial-gradient(circle at 0% 0%, #8B1538 0%, #6B0F2A 35%, #2b0613 70%, #16020a 100%);
-    background-size: 250% 250%;
-    animation: animatedGradient 18s ease infinite;
+    color: white;
     position: relative;
-    overflow-y: auto;          /* ⬅️ allow vertical scrolling */
+    overflow: hidden;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Soft glowing blobs in the background */
-body::before,
-body::after {
-    content: '';
-    position: fixed;
-    width: 520px;
-    height: 520px;
+@keyframes gradientPaint {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.brand-section {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 60px;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.logo-icon {
+    width: 70px;
+    height: 70px;
+    background: #FFFFFF;
     border-radius: 50%;
-    opacity: 0.65;
-    pointer-events: none;
-    filter: blur(0);
-    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+    border: 3px solid #D4AF37;
+    transition: all 0.3s ease;
 }
 
-/* Gold-ish glow top-right */
-body::before {
-    top: -180px;
-    right: -140px;
-    background: radial-gradient(circle, rgba(212, 175, 55, 0.45), transparent 60%);
-    animation: floatBlob1 16s ease-in-out infinite;
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
-/* Dark maroon glow bottom-left */
-body::after {
-    bottom: -220px;
-    left: -160px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 60%);
-    animation: floatBlob2 20s ease-in-out infinite;
+.logo-icon:hover {
+    transform: rotate(360deg) scale(1.05);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.6);
 }
 
-/* Reuse your gradient animation for background */
-@keyframes animatedGradient {
-    0%   { background-position: 0% 50%;   }
-    25%  { background-position: 50% 50%;  }
-    50%  { background-position: 100% 50%; }
-    75%  { background-position: 50% 50%;  }
-    100% { background-position: 0% 50%;   }
+.brand-name {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
-/* Floating blob animations */
-@keyframes floatBlob1 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50%      { transform: translate(-20px, 25px) scale(1.05); }
+.brand-name .highlight {
+    color: #d4af37;
 }
 
-@keyframes floatBlob2 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50%      { transform: translate(30px, -20px) scale(1.08); }
+.brand-tagline {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 25px;
+    background: linear-gradient(135deg, #ffffff 0%, #b8b8b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* You can keep all your existing styles below this line */
-@keyframes subtleGlow {
-    0% { filter: brightness(1); transform: scale(1); }
-    50% { filter: brightness(1.05); transform: scale(1.01); }
-    100% { filter: brightness(1); transform: scale(1); }
+.brand-description {
+    font-size: 16px;
+    color: #a0a0a0;
+    line-height: 1.6;
+    margin-bottom: 50px;
+}
+
+/* Features List */
+.features-list {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(212, 175, 55, 0.3);
+    transform: translateX(10px);
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(139, 21, 56, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #d4af37;
+    flex-shrink: 0;
+}
+
+.feature-content h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.feature-content p {
+    font-size: 14px;
+    color: #a0a0a0;
+    line-height: 1.5;
+}
+
+/* Right Panel - Register Form */
+.right-panel {
+    flex: 0 0 550px;
+    background: #FFFFFF;
+    padding: 40px 50px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 0 20px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+.right-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.right-panel::-webkit-scrollbar-track {
+    background: #F5F5F5;
+}
+
+.right-panel::-webkit-scrollbar-thumb {
+    background: #8B1538;
+    border-radius: 4px;
 }
 
 .register-container {
-    background: rgba(255, 255, 255, 0.95); /* slightly transparent */
-    position: relative; /* make container above background blobs */
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     width: 100%;
-    max-width: 500px;
-    padding: 40px;
-    backdrop-filter: blur(10px);
-    margin: 20px 0;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 450px;
+    margin: 0 auto;
 }
 
-
-.register-container:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 25px 70px rgba(139, 21, 56, 0.35);
+.register-header {
+    margin-bottom: 35px;
 }
 
-.logo-section {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.logo-circle {
-    width: 80px;
-    height: 80px;
-    background: url("https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png") no-repeat center;
-    background-size: contain;
-    border-radius: 50%;
-    margin: 0 auto 15px;
-}
-
-h1 {
-    color: #8B1538;
-    font-size: 28px;
-    margin-bottom: 8px;
+.register-header h1 {
+    font-size: 32px;
     font-weight: 700;
+    color: #8B1538;
+    margin-bottom: 12px;
 }
 
-.subtitle {
-    color: #444;
-    font-size: 14px;
-    margin-bottom: 10px;
-    font-weight: 500;
+.register-header p {
+    font-size: 15px;
+    color: #555555;
 }
 
-.welcome-text {
-    color: #555;
-    font-size: 13px;
-}
-
-/* Messages */
+/* Message Styles */
 .messages {
     list-style: none;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     padding: 0;
 }
 
 .messages li {
     padding: 14px 18px;
-    border-radius: 12px;
+    border-radius: 10px;
     font-size: 14px;
     font-weight: 500;
     margin-bottom: 12px;
@@ -144,7 +222,6 @@ h1 {
     display: flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes slideIn {
@@ -158,33 +235,32 @@ h1 {
     }
 }
 
-/* Message types */
 .messages li.success,
 .messages li[class*="success"] {
-    background: linear-gradient(135deg, #D4F4DD, #A8E6CF);
-    color: #155724;
-    border-left: 4px solid #28a745;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border-left: 3px solid #10b981;
 }
 
 .messages li.error,
 .messages li[class*="error"] {
-    background: linear-gradient(135deg, #FFE5E5, #FFD6D6);
-    color: #721c24;
-    border-left: 4px solid #dc3545;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-left: 3px solid #ef4444;
 }
 
 .messages li.warning,
 .messages li[class*="warning"] {
-    background: linear-gradient(135deg, #FFF4E5, #FFE8CC);
-    color: #856404;
-    border-left: 4px solid #ffc107;
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border-left: 3px solid #f59e0b;
 }
 
 .messages li.info,
 .messages li[class*="info"] {
-    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-    color: #004085;
-    border-left: 4px solid #0dcaf0;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-left: 3px solid #3b82f6;
 }
 
 /* Form Layout */
@@ -201,86 +277,45 @@ h1 {
 
 label {
     display: block;
-    color: #333;
+    color: #333333;
     font-weight: 500;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-size: 14px;
 }
 
-/* Password container */
-.password-container {
-   position: relative;
-    display: flex;
-    align-items: center; /* keeps icon vertically centered */
-}
-
-.password-container input[type="password"] {
-    width: 100%;
-    height: 47px;
-    padding: 14px 45px 14px 16px;
-    border: 2px solid #8B1538;
-    border-radius: 10px;
-    font-size: 15px;
-    background: white;
-    color: #333;
-    box-sizing: border-box;
-}
-
-/* Inputs and selects */
+/* Input Styles */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
+input[type="password"],
 select {
     width: 100%;
-    padding: 14px 16px;
-    border: 2px solid #8B1538;
+    padding: 15px 20px;
+    background: #FAFAFA;
+    border: 2px solid #E0E0E0;
     border-radius: 10px;
     font-size: 15px;
-    transition: all 0.3s ease;
-    background: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
+    transition: all 0.3s ease;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="password"]:focus,
+select:focus {
+    outline: none;
+    background: #FFFFFF;
+    border-color: #8B1538;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
 }
 
 input::placeholder {
-    color: #6c757d; 
-    opacity: 1; 
+    color: #999999;
 }
 
-#visitorType:required:invalid {
-    color: #6c757d;
-}
-
-#visitorType:required:valid {
-    color: #333; 
-}
-
-input:focus,
-select:focus,
-.password-container input:focus {
-    outline: none;
-    border-color: #d4af37;
-    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.2);
-}
-
-/* Toggle password icon */
-.toggle-password {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #8B1538;
-    font-size: 18px;
-    line-height: 1;
-    z-index: 2;
-}
-
-
-.toggle-password:hover {
-    color: #d4af37;
-}
-
+/* Select Dropdown */
 select {
     cursor: pointer;
     appearance: none;
@@ -290,13 +325,184 @@ select {
     padding-right: 40px;
 }
 
-/* Smooth transition for the "Other" input */
-#otherTypeGroup {
+#visitorType:required:invalid {
+    color: #999999;
+}
+
+#visitorType:required:valid {
+    color: #333;
+}
+
+/* Password Container */
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input[type="password"] {
+    width: 100%;
+    padding-right: 45px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666666;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+    color: #8B1538;
+}
+
+/* Password Requirements */
+.password-requirements {
+    margin-top: 12px;
+    padding: 16px;
+    background: #FAFAFA;
+    border-radius: 10px;
+    border: 2px solid #E0E0E0;
     transition: all 0.3s ease;
 }
 
-#otherTypeGroup input {
-    margin-top: 5px;
+.password-requirements.active {
+    border-color: #8B1538;
+    background: #FFF8F5;
+}
+
+.requirements-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8B1538;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.requirements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.requirement-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #666666;
+    transition: all 0.3s ease;
+}
+
+.requirement-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    border: 2px solid #E0E0E0;
+    background: #FFFFFF;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.requirement-item.met {
+    color: #10b981;
+    font-weight: 500;
+}
+
+.requirement-item.met .requirement-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-color: #10b981;
+    color: #FFFFFF;
+    animation: checkPop 0.3s ease;
+}
+
+.requirement-item.not-met {
+    color: #999999;
+}
+
+.requirement-item.not-met .requirement-icon {
+    border-color: #E0E0E0;
+    background: #FFFFFF;
+}
+
+@keyframes checkPop {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Password Strength Bar */
+.password-strength {
+    margin-top: 10px;
+    height: 4px;
+    background: #E0E0E0;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: all 0.4s ease;
+    border-radius: 2px;
+}
+
+.strength-bar.weak {
+    width: 33%;
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.strength-bar.medium {
+    width: 66%;
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.strength-bar.strong {
+    width: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.strength-text {
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.strength-text.weak {
+    color: #ef4444;
+}
+
+.strength-text.medium {
+    color: #f59e0b;
+}
+
+.strength-text.strong {
+    color: #10b981;
+}
+
+/* Other Type Input */
+#otherTypeGroup {
+    transition: all 0.3s ease;
 }
 
 /* Checkbox & Terms */
@@ -308,7 +514,7 @@ select {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    color: #555;
+    color: #555555;
     font-size: 14px;
     cursor: pointer;
 }
@@ -333,45 +539,36 @@ select {
     text-decoration: underline;
 }
 
-/* Button */
+/* Register Button */
 .register-btn {
     width: 100%;
-    padding: 15px;
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    color: #FFFFFF;
+    padding: 16px;
+    background: linear-gradient(135deg, #8B1538 0%, #d4af37 100%);
+    color: #ffffff;
     border: none;
     border-radius: 10px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
+    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.4);
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
-    background-size: 300% 300%;
-    animation: buttonGradient 6s ease infinite;
-}
-
-@keyframes buttonGradient {
-    0% { background-position: 0% 50%; }
-    25% { background-position: 50% 50%; }
-    50% { background-position: 100% 50%; }
-    75% { background-position: 50% 50%; }
-    100% { background-position: 0% 50%; }
+    letter-spacing: 0.5px;
 }
 
 .register-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 21, 56, 0.4);
-    background: linear-gradient(135deg, #7e1333, #4d0b1e);
+    box-shadow: 0 6px 25px rgba(139, 21, 56, 0.5);
+    background: linear-gradient(135deg, #a01843 0%, #e8c766 100%);
 }
 
 .register-btn:active {
     transform: translateY(0);
 }
 
-/* Divider and Links */
+/* Divider */
 .divider {
     text-align: center;
-    margin: 25px 0;
+    margin: 30px 0;
     position: relative;
 }
 
@@ -382,56 +579,116 @@ select {
     top: 50%;
     width: 100%;
     height: 1px;
-    background: #D4AF37;
+    background: #E0E0E0;
 }
 
 .divider span {
-    background: white;
+    background: #FFFFFF;
     padding: 0 15px;
-    color: #666;
+    color: #666666;
     font-size: 14px;
     position: relative;
     z-index: 1;
 }
 
+/* Login Link */
 .login-link {
     text-align: center;
-    color: #444;
+    color: #555555;
     font-size: 14px;
+    margin-top: 25px;
 }
 
 .login-link a {
-    color: #8B1538;
+    color: #d4af37;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
 }
 
 .login-link a:hover {
-    color: #D4AF37;
+    color: #e8c766;
     text-decoration: underline;
 }
 
 /* Footer */
 .footer-text {
     text-align: center;
-    margin-top: 25px;
-    color: #777;
+    margin-top: 30px;
+    color: #999999;
     font-size: 12px;
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-    .register-container {
-        padding: 30px 25px;
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .register-wrapper {
+        flex-direction: column;
     }
 
-    h1 {
-        font-size: 24px;
+    .left-panel {
+        flex: none;
+        min-height: 40vh;
+        padding: 40px 30px;
+    }
+
+    .right-panel {
+        flex: 1;
+        padding: 40px 30px;
+    }
+
+    .brand-tagline {
+        font-size: 32px;
+    }
+
+    .features-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .feature-item {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-panel {
+        padding: 30px 20px;
+    }
+
+    .right-panel {
+        padding: 30px 20px;
+    }
+
+    .brand-tagline {
+        font-size: 28px;
+    }
+
+    .features-list {
+        flex-direction: column;
+    }
+
+    .feature-item {
+        flex: none;
+    }
+
+    .register-container {
+        max-width: 100%;
     }
 
     .form-row {
         grid-template-columns: 1fr;
-        gap: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-logo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .register-header h1 {
+        font-size: 26px;
     }
 }
