@@ -1,7 +1,6 @@
 (() => {
   let visits = JSON.parse(document.getElementById("visits-data").textContent || "[]");
   let users = JSON.parse(document.getElementById("users-data").textContent || "[]");
-  let staff = JSON.parse(document.getElementById("staff-data").textContent || "[]");
 
   const state = { status: "All", startDate: null, endDate: null };
 
@@ -32,18 +31,11 @@
   }
 
   // ===== CHARTS =====
-  let visitTrendsChart, purposeChart, staffChart;
+  let visitTrendsChart, purposeChart;
 
   function renderCharts() {
     const filtered = filterVisits(visits);
     updateSummary();
-
-    if (!filtered.length) {
-      document.getElementById("visitTrendsChart").style.display = "none";
-      document.getElementById("purposeChart").style.display = "none";
-      document.getElementById("staffChart").style.display = "none";
-      return;
-    }
 
     // --- Visit Trends Chart (with Cancelled & Expired) ---
     const statuses = ["Upcoming", "Ongoing", "Completed", "Cancelled", "Expired"];
@@ -94,32 +86,6 @@
       }
     });
 
-    // --- Staff Performance ---
-    const staffCounts = {};
-    filtered.forEach(v => {
-      const assigned = v.assigned_staff || "Unassigned";
-      staffCounts[assigned] = (staffCounts[assigned] || 0) + 1;
-    });
-
-    const staffLabels = staff.map(s => `${s.first_name} ${s.last_name}`);
-    const staffData = staffLabels.map(name => staffCounts[name] || 0);
-    const staffColors = staffLabels.map((_, idx) => purposeColors[idx % purposeColors.length]);
-
-    if (staffChart) staffChart.destroy();
-    staffChart = new Chart(document.getElementById("staffChart"), {
-      type: "bar",
-      data: { labels: staffLabels, datasets: [{ label: "Visits Handled", data: staffData, backgroundColor: staffColors }] },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,   
-        aspectRatio: 2,
-        plugins: { legend: { display: true, position: "bottom" } },
-        scales: {
-          x: { title: { display: true, text: "Staff", color: "#333" } },
-          y: { title: { display: true, text: "Visits", color: "#333" }, beginAtZero: true }
-        }
-      }
-    });
   }
 
   // ===== FILTERS =====
@@ -260,7 +226,6 @@
 
     await addChartToPDF(visitTrendsChart, "Visit Trends");
     await addChartToPDF(purposeChart, "Visits by Purpose");
-    await addChartToPDF(staffChart, "Staff Performance");
 
     // ===== Add Visit Records Table =====
     const rows = filtered.map(v => [

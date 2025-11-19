@@ -7,17 +7,6 @@ from .helpers import hash_password, generate_admin_username, generate_temp_passw
 from manage_staff_app.views import admin_required
 from manage_reports_logs_app import services as logs_services
 
-# ===== Helper decorators =====
-def superadmin_required(view_func):
-    """Only allow superadmins to access certain views."""
-    def wrapper(request, *args, **kwargs):
-        if not request.session.get("user_is_superadmin"):
-            messages.error(request, "Access denied: Super admin privileges required.")
-            return redirect("dashboard_app:admin_dashboard")
-        return view_func(request, *args, **kwargs)
-    return wrapper
-
-
 # ===== Helper for Supabase v2 response check =====
 def is_success(resp):
     """Return True if Supabase APIResponse contains data."""
@@ -26,7 +15,6 @@ def is_success(resp):
 
 # ===== VIEWS =====
 @admin_required
-@superadmin_required
 def admin_list_view(request):
     """Display the list of administrators."""
     resp = services.list_admins(limit=500)
@@ -35,7 +23,6 @@ def admin_list_view(request):
 
 
 @admin_required
-@superadmin_required
 def admin_create_view(request):
     """Create a new administrator with auto-generated username and temporary password."""
     if request.method == "POST":
@@ -90,7 +77,6 @@ def admin_create_view(request):
 
 
 @admin_required
-@superadmin_required
 def admin_edit_view(request, username):
     """Edit an existing administrator."""
     get_resp = services.get_admin_by_username(username)
@@ -134,7 +120,6 @@ def admin_edit_view(request, username):
         "username": username
     })
 @admin_required
-@superadmin_required
 def admin_toggle_active_view(request, username):
     get_resp = services.get_admin_by_username(username)
     admin_data = getattr(get_resp, "data", [])
@@ -166,7 +151,6 @@ def admin_toggle_active_view(request, username):
 
 
 @admin_required
-@superadmin_required
 def admin_reset_password_view(request, username):
     temp_pw = generate_temp_password()
     hashed_pw = hash_password(temp_pw)

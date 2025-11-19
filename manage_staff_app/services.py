@@ -3,8 +3,7 @@ from login_app.models import FrontDeskStaff
 
 def list_staff(limit=100, offset=0):
     try:
-        # Remove the order_by since created_at doesn't exist in model
-        staff = FrontDeskStaff.objects.all()[offset:offset+limit]
+        staff = FrontDeskStaff.objects.all().order_by('username')[offset:offset+limit]
         # Convert to list of dictionaries for compatibility
         return type('obj', (object,), {
             'data': [{
