@@ -138,12 +138,12 @@ input[id$="_other"]:focus,
 }
 
 #purposeLabel {
-    min-height: 20px;  
+    min-height: 20px;
     display: block;
 }
 
 #department_other {
-    margin-top: 8px; 
+    margin-top: 8px;
 }
 
 .duration-options {
@@ -337,15 +337,15 @@ input[id$="_other"]:focus,
     .form-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .duration-options {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .registration-card {
         padding: 24px;
     }
-    
+
     .form-actions {
         flex-direction: column;
     }
@@ -421,30 +421,44 @@ input[id$="_other"]:focus,
                 <!-- First Name -->
                 <div class="form-group">
                     <label class="form-label required">First Name</label>
-                    <input type="text" name="first_name" class="form-input" required 
+                    <input type="text" name="first_name" class="form-input" required
                            placeholder="Enter first name" value="{{ form_data.first_name }}">
                 </div>
 
                 <!-- Last Name -->
                 <div class="form-group">
                     <label class="form-label required">Last Name</label>
-                    <input type="text" name="last_name" class="form-input" required 
+                    <input type="text" name="last_name" class="form-input" required
                            placeholder="Enter last name" value="{{ form_data.last_name }}">
                 </div>
 
                 <!-- Email -->
                 <div class="form-group">
                     <label class="form-label required">Email Address</label>
-                    <input type="email" name="email" class="form-input" required 
-                           placeholder="Enter your email" value="{{ form_data.email }}">
+                    <input type="email" name="email" class="form-input" required
+                           placeholder="Enter email address" value="{{ form_data.email }}">
                     <span class="form-hint">Used for notifications</span>
                 </div>
 
                 <!-- Phone -->
                 <div class="form-group">
                     <label class="form-label required">Phone Number</label>
-                    <input type="tel" name="phone" class="form-input" required 
-                           placeholder="Enter your phone number" value="{{ form_data.phone }}">
+                    <input
+                        type="tel"
+                        name="phone"
+                        id="phoneInput"
+                        class="form-input"
+                        required
+                        placeholder="09171234567"
+                        value="{{ form_data.phone }}"
+                        minlength="11"
+                        maxlength="11"
+                        pattern="^09\\d{9}$"
+                        inputmode="numeric"
+                    >
+                    <span class="form-hint">
+                        Enter an 11-digit mobile number starting with 09 (e.g., 09171234567)
+                    </span>
                 </div>
 
                 <!-- Department -->
@@ -462,7 +476,6 @@ input[id$="_other"]:focus,
                         <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
                         <option value="Other">Other</option>
                     </select>
-
                 </div>
 
                 <!-- Purpose -->
@@ -474,17 +487,16 @@ input[id$="_other"]:focus,
                         <option value="" selected disabled>Select Department First</option>
                     </select>
 
-                    <!-- This will appear IN PLACE of the purpose dropdown when department = Other -->
-                    <input type="text" 
-                        name="department_other" 
-                        id="department_other" 
-                        placeholder="Please specify department" 
-                        style="display:none;">
+                    <!-- Department other (when department = Other) -->
+                    <input type="text"
+                           name="department_other"
+                           id="department_other"
+                           placeholder="Please specify department"
+                           style="display:none;">
                 </div>
-
             </div>
 
-            <!-- Purpose Other Input (shown below both fields when Other is selected in purpose) -->
+            <!-- Purpose Other Input -->
             <div class="form-group full-width" id="purposeOtherContainer" style="display: none;">
                 <label class="form-label required">Specify Purpose</label>
                 <input type="text" name="purpose_other" id="purpose_other" placeholder="Please specify your purpose">
@@ -610,6 +622,7 @@ function updatePurposeOptions() {
         // Hide purpose label + dropdown
         purposeLabel.style.visibility = "hidden";
         purposeSelect.style.display = "none";
+        purposeSelect.required = false;
 
         // Show the department-other input in its place
         departmentOtherInput.style.display = "block";
@@ -625,6 +638,7 @@ function updatePurposeOptions() {
     // NORMAL DEPARTMENTS...
     purposeLabel.style.visibility = "visible";
     purposeSelect.style.display = "block";
+    purposeSelect.required = true;
 
     departmentOtherInput.style.display = "none";
     departmentOtherInput.required = false;
@@ -641,7 +655,8 @@ function updatePurposeOptions() {
     defaultOption.disabled = true;
     purposeSelect.appendChild(defaultOption);
 
-    purposeOptions[selectedDepartment].forEach(purpose => {
+    const purposes = purposeOptions[selectedDepartment] || [];
+    purposes.forEach(purpose => {
         const option = document.createElement('option');
         option.value = purpose;
         option.textContent = purpose;
@@ -649,14 +664,15 @@ function updatePurposeOptions() {
     });
 }
 
-function toggleOther() {
+function toggleOtherPurpose() {
     const departmentSelect = document.getElementById('departmentSelect');
     const purposeSelect = document.getElementById('purposeSelect');
     const purposeOtherContainer = document.getElementById('purposeOtherContainer');
     const purposeOtherInput = document.getElementById('purpose_other');
 
+    // If department is "Other", already handled above
     if (departmentSelect.value === "Other") {
-        return; // Already handled above
+        return;
     }
 
     if (purposeSelect.value === 'Other') {
@@ -670,10 +686,45 @@ function toggleOther() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('departmentSelect').addEventListener('change', updatePurposeOptions);
-    document.getElementById('purposeSelect').addEventListener('change', toggleOther);
+    const departmentSelect = document.getElementById('departmentSelect');
+    const purposeSelect = document.getElementById('purposeSelect');
+    const phoneInput = document.getElementById('phoneInput');
+
+    if (departmentSelect) {
+        departmentSelect.addEventListener('change', updatePurposeOptions);
+    }
+
+    if (purposeSelect) {
+        purposeSelect.addEventListener('change', toggleOtherPurpose);
+    }
+
+    // ==== PHONE NUMBER VALIDATION (FRONTEND) ====
+    if (phoneInput) {
+        // Remove any non-digits as the user types and limit to 11 digits
+        phoneInput.addEventListener('input', function () {
+            let digits = this.value.replace(/\D/g, '');
+
+            if (digits.length > 11) {
+                digits = digits.slice(0, 11);
+            }
+
+            this.value = digits;
+        });
+
+        // Block non-digit keypresses (except control keys)
+        phoneInput.addEventListener('keydown', function (e) {
+            const allowedKeys = [
+                'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
+                'Tab', 'Home', 'End'
+            ];
+
+            if (allowedKeys.includes(e.key)) return;
+
+            if (!/^\d$/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+    }
 });
-
-
 </script>
 {% endblock %}

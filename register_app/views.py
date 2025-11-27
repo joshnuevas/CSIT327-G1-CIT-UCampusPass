@@ -6,6 +6,7 @@ from manage_reports_logs_app import services as logs_services
 
 from .models import User
 
+
 def register_view(request):
     if request.method == 'POST':
         # ===== Determine visitor type =====
@@ -29,6 +30,7 @@ def register_view(request):
             "phone": phone,
             "visitor_type_select": visitor_type_select,
             "visitor_type_other": visitor_type_other,
+            "visitor_type": visitor_type,
         }
 
         # ===== Validations =====
@@ -37,23 +39,27 @@ def register_view(request):
             return render(request, 'register_app/register.html', data)
 
         if not is_strong_password(password):
-            data["error"] = "Password too weak. Must contain uppercase, lowercase, number, and special character."
+            data["error"] = (
+                "Password too weak. Must contain uppercase, lowercase, number, "
+                "and special character."
+            )
             return render(request, 'register_app/register.html', data)
 
+        # Phone must be 11 digits, starting with 09
         if not re.fullmatch(r"09\d{9}", phone):
-            data["error"] = "Invalid phone number. Must start with 09 and be 11 digits."
+            data["error"] = "Invalid phone number. Must start with 09 and be exactly 11 digits."
             data["phone"] = ''
             return render(request, 'register_app/register.html', data)
 
         # ===== Create user with Django ORM =====
         try:
-            # Check for existing email using Django ORM
+            # Check for existing email
             if User.objects.filter(email=email).exists():
                 data["error"] = "Email already registered."
                 data["email"] = ''
                 return render(request, 'register_app/register.html', data)
 
-            # Check for existing phone using Django ORM
+            # Check for existing phone
             if User.objects.filter(phone=phone).exists():
                 data["error"] = "Phone number already registered."
                 data["phone"] = ''
@@ -70,6 +76,9 @@ def register_view(request):
             user.set_password(password)
             user.save()
 
+        except IntegrityError as e:
+            data["error"] = "Registration failed due to a database constraint. Please try again."
+            return render(request, 'register_app/register.html', data)
         except Exception as e:
             data["error"] = f"Registration failed. Please try again. Error: {str(e)}"
             return render(request, 'register_app/register.html', data)
@@ -89,11 +98,17 @@ def register_view(request):
     # GET request
     return render(request, 'register_app/register.html')
 
+
 # Password strength checker (keep as is)
 def is_strong_password(password):
-    if len(password) < 8: return False
-    if not re.search(r"[A-Z]", password): return False
-    if not re.search(r"[a-z]", password): return False
-    if not re.search(r"[0-9]", password): return False
-    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password): return False
+    if len(password) < 8:
+        return False
+    if not re.search(r"[A-Z]", password):
+        return False
+    if not re.search(r"[a-z]", password):
+        return False
+    if not re.search(r"[0-9]", password):
+        return False
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        return False
     return True

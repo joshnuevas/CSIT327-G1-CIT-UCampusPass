@@ -125,8 +125,11 @@
                         <input type="tel" 
                                id="phone" 
                                name="phone"
-                               placeholder="09XX XXX XXXX"
+                               placeholder="09171234567"
+                               minlength="11"
                                maxlength="11"
+                               pattern="^09\d{9}$"
+                               inputmode="numeric"
                                value="{{ phone|default:'' }}" 
                                required>
                     </div>
@@ -140,7 +143,7 @@
                             <option value="Staff" {% if visitor_type == 'Staff' %}selected{% endif %}>Staff</option>
                             <option value="Alumni" {% if visitor_type == 'Alumni' %}selected{% endif %}>Alumni</option>
                             <option value="Guest" {% if visitor_type == 'Guest' %}selected{% endif %}>Guest</option>
-                            <option value="Other" {% if visitor_type == 'Other' %}selected{% endif %}>Other</option>
+                            <option value="Other" {% if visitor_type_select == 'Other' %}selected{% endif %}>Other</option>
                         </select>
                     </div>
 
@@ -264,6 +267,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Keep previous state if user selected Other
+            toggleOtherInput();
+
             // Password toggle functionality
             const toggleButtons = document.querySelectorAll('.toggle-password');
             toggleButtons.forEach(button => {
@@ -296,7 +302,7 @@
                     const password = this.value;
                     let metCount = 0;
 
-                    // Check length (at least 8 characters)
+                    // Check length
                     const lengthReq = document.getElementById('req-length');
                     if (password.length >= 8) {
                         lengthReq.classList.remove('not-met');
@@ -395,6 +401,33 @@
 
                 confirmPasswordInput.addEventListener('keydown', function (e) {
                     if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // ==== PHONE NUMBER VALIDATION (FRONTEND) ====
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput) {
+                // Strip non-digits and limit to 11
+                phoneInput.addEventListener('input', function () {
+                    let digits = this.value.replace(/\D/g, '');
+                    if (digits.length > 11) {
+                        digits = digits.slice(0, 11);
+                    }
+                    this.value = digits;
+                });
+
+                // Block non-digit keypresses except control keys
+                phoneInput.addEventListener('keydown', function (e) {
+                    const allowedKeys = [
+                        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
+                        'Tab', 'Home', 'End'
+                    ];
+
+                    if (allowedKeys.includes(e.key)) return;
+
+                    if (!/^\d$/.test(e.key)) {
                         e.preventDefault();
                     }
                 });
