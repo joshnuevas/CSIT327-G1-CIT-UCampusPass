@@ -54,58 +54,82 @@
 {% endblock %}
 
 {% block content %}
-        <div class="welcome-section">
-            <h1>Book a Visit</h1>
-            <p>Schedule your campus visit</p>
+<div class="welcome-section">
+    <h1>Book a Visit</h1>
+    <p>Schedule your campus visit</p>
+</div>
+
+<!-- Booking Form -->
+<div class="form-container">
+    <form method="POST" action="{% url 'book_visit_app:book_visit' %}">
+        {% csrf_token %}
+
+        <!-- Department -->
+        <div class="form-group">
+            <label for="department" class="required">Department</label>
+            <select
+                name="department"
+                id="department"
+                onchange="updatePurposeOptions(); toggleOther('department')"
+                required
+            >
+                <option value="" selected disabled>Select Department</option>
+                <option value="Office of Admissions and Scholarships (OAS)">Office of Admissions and Scholarships (OAS)</option>
+                <option value="Finance and Accounting Office (FAO)">Finance and Accounting Office (FAO)</option>
+                <option value="University Registrar's Office (URO)">University Registrar's Office (URO)</option>
+                <option value="Learning Resource and Activity Center (LRAC)">Learning Resource and Activity Center (LRAC)</option>
+                <option value="Student Success Office (SSO)">Student Success Office (SSO)</option>
+                <option value="Alumni Affairs Office (AAO)">Alumni Affairs Office (AAO)</option>
+                <option value="Networking, Linkages & Relations (NLR)">Networking, Linkages & Relations (NLR)</option>
+                <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
+                <option value="Other">Other</option>
+            </select>
+            <input
+                type="text"
+                name="department_other"
+                id="department_other"
+                placeholder="Please specify department"
+                style="display:none;"
+            >
         </div>
 
-        <!-- Booking Form -->
-        <div class="form-container">
-            <form method="POST" action="{% url 'book_visit_app:book_visit' %}">
-                {% csrf_token %}
-                <!-- Department -->
-                <div class="form-group">
-                    <label for="department" class="required">Department</label>
-                    <select name="department" id="department" onchange="updatePurposeOptions(); toggleOther('department')" required>
-                        <option value="" selected disabled>Select Department</option>
-                        <option value="Office of Admissions and Scholarships (OAS)">Office of Admissions and Scholarships (OAS)</option>
-                        <option value="Finance and Accounting Office (FAO)">Finance and Accounting Office (FAO)</option>
-                        <option value="University Registrar's Office (URO)">University Registrar's Office (URO)</option>
-                        <option value="Learning Resource and Activity Center (LRAC)">Learning Resource and Activity Center (LRAC)</option>
-                        <option value="Student Success Office (SSO)">Student Success Office (SSO)</option>
-                        <option value="Alumni Affairs Office (AAO)">Alumni Affairs Office (AAO)</option>
-                        <option value="Networking, Linkages & Relations (NLR)">Networking, Linkages & Relations (NLR)</option>
-                        <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
-                        <option value="Other">Other</option>
-                    </select>
-                    <input type="text" name="department_other" id="department_other" placeholder="Please specify department" style="display:none;">
-                </div>
-
-                <!-- Purpose -->
-                <div class="form-group">
-                    <label for="purpose" class="required">Purpose</label>
-                    <select name="purpose" id="purpose" onchange="toggleOther('purpose')" required>
-                        <option value="" selected disabled>Select Department First</option>
-                    </select>
-                    <input type="text" name="purpose_other" id="purpose_other" placeholder="Please specify your purpose" style="display:none;">
-                </div>
-
-                <!-- Date -->
-                <div class="form-group">
-                    <label for="visit_date" class="required">Visit Date</label>
-                    <input type="date" name="visit_date" id="visit_date" required>
-                    <p class="helper-text">Please select your preferred visit date (Monday-Saturday)</p>
-                </div>
-
-                <button type="submit" id="submitBtn">Book Visit</button>
-            </form>
+        <!-- Purpose -->
+        <div class="form-group">
+            <label for="purpose" class="required">Purpose</label>
+            <select
+                name="purpose"
+                id="purpose"
+                onchange="toggleOther('purpose')"
+                required
+            >
+                <option value="" selected disabled>Select Department First</option>
+            </select>
+            <input
+                type="text"
+                name="purpose_other"
+                id="purpose_other"
+                placeholder="Please specify your purpose"
+                style="display:none;"
+            >
         </div>
+
+        <!-- Date -->
+        <div class="form-group">
+            <label for="visit_date" class="required">Visit Date</label>
+            <input type="date" name="visit_date" id="visit_date" required>
+            <p class="helper-text">Please select your preferred visit date (Monday-Saturday)</p>
+        </div>
+
+        <button type="submit" id="submitBtn">Book Visit</button>
+    </form>
+</div>
 
 <!-- Warning Modal for Invalid Selections -->
 <div id="warningModal" class="modal warning-modal">
     <div class="modal-content warning-content">
         <div class="warning-icon">
-            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                 <line x1="12" y1="9" x2="12" y2="13"></line>
                 <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -120,7 +144,7 @@
 
 {% block extra_js %}
 <script>
-// Purpose options for each department
+// ===== PURPOSE OPTIONS MAPPING =====
 const purposeOptions = {
     "Office of Admissions and Scholarships (OAS)": [
         "Admission Inquiry",
@@ -209,25 +233,33 @@ const purposeOptions = {
 function updatePurposeOptions() {
     const departmentSelect = document.getElementById('department');
     const purposeSelect = document.getElementById('purpose');
+    const purposeOther = document.getElementById('purpose_other');
     const selectedDepartment = departmentSelect.value;
 
     // Clear current options
     purposeSelect.innerHTML = '';
 
     if (selectedDepartment === 'Other') {
-        // Hide purpose select and show input
+        // Department is "Other" → hide select, use free-text purpose
         purposeSelect.style.display = 'none';
-        document.getElementById('purpose_other').style.display = 'block';
-        document.getElementById('purpose_other').required = true;
-        return;
-    } else if (selectedDepartment && purposeOptions[selectedDepartment]) {
-        // Show purpose select and populate options
-        purposeSelect.style.display = 'block';
-        document.getElementById('purpose_other').style.display = 'none';
-        document.getElementById('purpose_other').required = false;
-        document.getElementById('purpose_other').value = '';
+        purposeSelect.required = false;
+        purposeSelect.value = '';
 
-        // Add default option
+        purposeOther.style.display = 'block';
+        purposeOther.required = true;
+        return;
+    }
+
+    if (selectedDepartment && purposeOptions[selectedDepartment]) {
+        // Normal department selected
+        purposeSelect.style.display = 'block';
+        purposeSelect.required = true;
+
+        purposeOther.style.display = 'none';
+        purposeOther.required = false;
+        purposeOther.value = '';
+
+        // Default option
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = 'Select Purpose';
@@ -235,7 +267,7 @@ function updatePurposeOptions() {
         defaultOption.disabled = true;
         purposeSelect.appendChild(defaultOption);
 
-        // Add purpose options
+        // Add department-based purposes
         purposeOptions[selectedDepartment].forEach(purpose => {
             const option = document.createElement('option');
             option.value = purpose;
@@ -245,9 +277,11 @@ function updatePurposeOptions() {
     } else {
         // No department selected
         purposeSelect.style.display = 'block';
-        document.getElementById('purpose_other').style.display = 'none';
-        document.getElementById('purpose_other').required = false;
-        document.getElementById('purpose_other').value = '';
+        purposeSelect.required = true;
+
+        purposeOther.style.display = 'none';
+        purposeOther.required = false;
+        purposeOther.value = '';
 
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
@@ -259,20 +293,29 @@ function updatePurposeOptions() {
 }
 
 function toggleOther(field) {
-    const select = document.getElementById(field);
+    const selectEl = document.getElementById(field);
     const otherInput = document.getElementById(field + '_other');
 
-    if (select.value === 'Other') {
+    if (selectEl.value === 'Other') {
         otherInput.style.display = 'block';
         otherInput.required = true;
+
+        // For "purpose", when user chooses Other in the dropdown, we don’t want the select to block submission
+        if (field === 'purpose') {
+            selectEl.required = false;
+        }
     } else {
         otherInput.style.display = 'none';
         otherInput.required = false;
         otherInput.value = '';
+
+        if (field === 'purpose') {
+            selectEl.required = true;
+        }
     }
 }
 
-// ===== WARNING MODAL FUNCTIONALITY =====
+// ===== WARNING MODAL =====
 function showWarning(title, message) {
     const warningModal = document.getElementById('warningModal');
     const warningTitle = document.getElementById('warningTitle');
@@ -285,21 +328,20 @@ function showWarning(title, message) {
 
 document.getElementById('warningOkBtn').onclick = function() {
     document.getElementById('warningModal').style.display = 'none';
-}
+};
 
-// Set minimum date to today
+// ===== DATE LIMITS (NO PAST, NO SUNDAY) =====
 const dateInput = document.getElementById('visit_date');
-const today = new Date().toISOString().split('T')[0];
-dateInput.setAttribute('min', today);
+const todayStr = new Date().toISOString().split('T')[0];
+dateInput.setAttribute('min', todayStr);
 
-// ===== DATE VALIDATION - No Past Dates, No Sundays =====
 const visitDateInput = document.getElementById('visit_date');
 
 visitDateInput.addEventListener('input', function() {
     const selectedDate = new Date(this.value + 'T00:00:00');
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time to start of day
-    const day = selectedDate.getDay();
+    today.setHours(0, 0, 0, 0);
+    const day = selectedDate.getDay(); // 0 = Sunday
 
     if (selectedDate < today) {
         showWarning(
@@ -319,7 +361,7 @@ visitDateInput.addEventListener('input', function() {
     }
 });
 
-// Unfocus select elements after selection
+// Unfocus selects (nice UX for mobile)
 document.getElementById('purpose').addEventListener('change', function() {
     this.blur();
 });
@@ -331,12 +373,16 @@ document.getElementById('department').addEventListener('change', function() {
 // ===== FORM SUBMISSION VALIDATION =====
 document.querySelector('form').addEventListener('submit', function(e) {
     const submitBtn = document.getElementById('submitBtn');
-
-    // Validate date is not past and not Sunday
     const selectedDate = new Date(visitDateInput.value + 'T00:00:00');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dayOfWeek = selectedDate.getDay();
+
+    if (!visitDateInput.value) {
+        e.preventDefault();
+        showWarning('📅 Missing Date', 'Please select a visit date.');
+        return false;
+    }
 
     if (selectedDate < today) {
         e.preventDefault();
@@ -356,12 +402,12 @@ document.querySelector('form').addEventListener('submit', function(e) {
         return false;
     }
 
-    // If all validations pass, show loading state
+    // Disable button to prevent double-submission
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
 });
 
-// ===== AUTO-DISMISS MESSAGES AFTER 5 SECONDS =====
+// ===== AUTO-DISMISS DJANGO MESSAGES =====
 document.addEventListener('DOMContentLoaded', function() {
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(function(alert) {
@@ -371,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
                 alert.remove();
             }, 500);
-        }, 5000); // 5 seconds
+        }, 5000);
     });
 });
 </script>

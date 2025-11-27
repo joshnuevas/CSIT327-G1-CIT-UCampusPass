@@ -313,69 +313,81 @@ def staff_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+
 @staff_required
 def staff_dashboard_view(request):
     """Main staff dashboard with stats and quick code checker"""
     staff_username = request.session['staff_username']
     staff_first_name = request.session.get('staff_first_name', 'Staff')
-    
-    today = date.today()
-    today_str = today.strftime('%Y-%m-%d')
-    
+
+    # Use Philippines timezone and get today's date
+    now_ph = django_now().astimezone(PHILIPPINES_TZ)
+    today = now_ph.date()
+
     try:
-        # Get today's visits using Django ORM
-        today_visits = Visit.objects.filter(visit_date=today_str)
-        
-        # Update status for today's visits if needed
-        now = datetime.now()
+        # ✅ IMPORTANT: use the date object directly, not a string
+        today_visits = Visit.objects.filter(visit_date=today)
+
+        # ----- Update status for today's visits -----
         for visit in today_visits:
-            # ✅ Do not touch completed visits
+            # Do not touch completed visits
             if visit.status == 'Completed':
                 continue
 
+            # Build datetime range for the visit
             if visit.start_time:
-                visit_start = datetime.combine(visit.visit_date, visit.start_time)
-                visit_end = datetime.combine(
-                    visit.visit_date, datetime.max.time()
-                ) if not visit.end_time else datetime.combine(visit.visit_date, visit.end_time)
+                visit_start = datetime.combine(visit.visit_date, visit.start_time).replace(
+                    tzinfo=PHILIPPINES_TZ
+                )
+                if visit.end_time:
+                    visit_end = datetime.combine(visit.visit_date, visit.end_time).replace(
+                        tzinfo=PHILIPPINES_TZ
+                    )
+                else:
+                    # No end_time yet → assume end of day for status logic
+                    visit_end = datetime.combine(visit.visit_date, datetime.max.time()).replace(
+                        tzinfo=PHILIPPINES_TZ
+                    )
 
                 if visit.end_time is None and visit.status == 'Active':
                     new_status = 'Active'
-                elif visit_start <= now <= visit_end:
+                elif visit_start <= now_ph <= visit_end:
                     new_status = 'Active'
-                elif now > visit_end:
+                elif now_ph > visit_end:
                     new_status = 'Expired'
                 else:
                     new_status = 'Upcoming'
             else:
+                # No start_time yet → treated as upcoming
                 new_status = 'Upcoming'
 
             if visit.status != new_status:
                 visit.status = new_status
                 visit.save()
 
-        # Count stats
+        # ----- Dashboard stats -----
         today_visits_count = today_visits.count()
         active_visits_count = today_visits.filter(status='Active').count()
         checked_in_count = today_visits.filter(status__in=['Active', 'Completed']).count()
-        
-        # Get recent check-ins from logs
+
+        # ----- Recent check-ins (from logs) -----
         recent_checkins = SystemLog.objects.filter(
             action_type__in=['Visitor Check-In', 'Visitor Check-Out']
         ).order_by('-created_at')[:5]
-        
-        # Format timestamps
+
         for checkin in recent_checkins:
             try:
-                checkin.display_time = checkin.created_at.astimezone(PHILIPPINES_TZ).strftime('%b %d, %Y %I:%M %p')
-            except:
+                checkin.display_time = checkin.created_at.astimezone(
+                    PHILIPPINES_TZ
+                ).strftime('%b %d, %Y %I:%M %p')
+            except Exception:
                 checkin.display_time = str(checkin.created_at)
-        
-        # Handle code check result if present
+
+        # ----- Code checker result (from session, set by check_code) -----
         code_check_result = None
         if 'code_check_result' in request.session:
             code_check_result = request.session.pop('code_check_result')
-        
+
         context = {
             'staff_username': staff_username,
             'staff_first_name': staff_first_name,
@@ -387,9 +399,9 @@ def staff_dashboard_view(request):
             'recent_checkins': recent_checkins,
             'code_check_result': code_check_result,
         }
-        
+
         return render(request, 'dashboard_app/staff_dashboard.html', context)
-        
+
     except Exception as e:
         logger.error(f"Error loading staff dashboard: {str(e)}")
         messages.error(request, "An error occurred while loading the dashboard.")
@@ -404,122 +416,120 @@ def staff_dashboard_view(request):
             'recent_checkins': [],
         })
 
+
 @staff_required
 def code_checker(request):
-    """Dedicated code checker page"""
+    """Dedicated code checker page (if you ever navigate to it directly)"""
     staff_first_name = request.session.get('staff_first_name', 'Staff')
-    
-    # Handle code check result if present
+
     code_check_result = None
     if 'code_check_result' in request.session:
         code_check_result = request.session.pop('code_check_result')
-    
+
     context = {
         'staff_first_name': staff_first_name,
         'code_check_result': code_check_result,
     }
-    
     return render(request, 'dashboard_app/code_checker.html', context)
+
 
 @staff_required
 @require_POST
 def check_code(request):
-    """Check if a visit code is valid"""
+    """Check if a visit code is valid and push result into session"""
     visit_code = request.POST.get('visit_code', '').strip().upper()
-    
+
     if not visit_code:
         messages.error(request, "Please enter a visit code.")
         return redirect('dashboard_app:code_checker')
-    
+
     try:
-        # Query the visits table using Django ORM
         try:
             visit = Visit.objects.get(code=visit_code)
-            # Code found - Convert date objects to strings for session storage
+
+            # ✅ Store everything the template expects, including user_email
             request.session['code_check_result'] = {
                 'status': 'success',
                 'message': 'Visit code found and verified!',
                 'visit': {
                     'code': visit.code,
+                    'user_email': visit.user_email,
                     'purpose': visit.purpose,
                     'department': visit.department,
-                    'visit_date': visit.visit_date.isoformat() if visit.visit_date else None,  # Convert to string
+                    'visit_date': visit.visit_date.isoformat() if visit.visit_date else None,
                     'status': visit.status,
-                    'start_time': visit.start_time.isoformat() if visit.start_time else None,  # Convert to string
-                    'end_time': visit.end_time.isoformat() if visit.end_time else None,  # Convert to string
+                    'start_time': visit.start_time.isoformat() if visit.start_time else None,
+                    'end_time': visit.end_time.isoformat() if visit.end_time else None,
                 }
             }
         except Visit.DoesNotExist:
-            # Code not found
             request.session['code_check_result'] = {
                 'status': 'error',
                 'message': f'Visit code "{visit_code}" not found in the system.'
             }
-        
-        # Redirect to referrer or code checker
+
+        # Redirect back to whichever page initiated the check (dashboard or code checker)
         referer = request.META.get('HTTP_REFERER', '')
         if 'staff_dashboard' in referer or ('staff' in referer and 'dashboard' in referer):
             return redirect('dashboard_app:staff_dashboard')
         else:
             return redirect('dashboard_app:code_checker')
-            
+
     except Exception as e:
         logger.error(f"Error checking code: {str(e)}")
         messages.error(request, "An error occurred while checking the code.")
         return redirect('dashboard_app:code_checker')
 
+
 @staff_required
 @require_POST
 def check_in_visitor(request):
-    """Check in a visitor"""
+    """Check in a visitor (staff side)"""
     visit_code = request.POST.get('visit_code', '').strip().upper()
     staff_username = request.session['staff_username']
     staff_first_name = request.session.get('staff_first_name', 'Staff')
-    
+
     if not visit_code:
         messages.error(request, "Invalid visit code.")
         return redirect('dashboard_app:code_checker')
-    
+
     try:
-        # Get visit details using Django ORM
         try:
             visit = Visit.objects.get(code=visit_code)
         except Visit.DoesNotExist:
             messages.error(request, f'Visit code "{visit_code}" not found.')
             return redirect('dashboard_app:code_checker')
-        
-        # Check if visit can be checked in
+
         if visit.status != 'Upcoming':
             messages.warning(request, f'Visit is already {visit.status}. Cannot check in.')
             return redirect('dashboard_app:code_checker')
-        
-        # Get current time in Philippines timezone
-        current_time = datetime.now(PHILIPPINES_TZ)
+
+        # Use PH time
+        current_time = django_now().astimezone(PHILIPPINES_TZ)
         checkin_time = current_time.time()
 
-        # Update visit status to Active and set start_time
         visit.status = "Active"
         visit.start_time = checkin_time
         visit.save()
-        
-        # Create log entry
-        log_entry = SystemLog(
+
+        # Log entry
+        SystemLog.objects.create(
             actor=f"{staff_first_name} ({staff_username})",
             action_type="Visitor Check-In",
             description=f"Checked in visitor with code {visit_code} for {visit.purpose} at {visit.department}",
             actor_role="Staff",
-            created_at=current_time
+            created_at=current_time,
         )
-        log_entry.save()
-        
+
         messages.success(request, f'✅ Visitor checked in successfully! Code: {visit_code}')
         logger.info(f"Visitor checked in by {staff_username}: {visit_code}")
-        
+
     except Exception as e:
         logger.error(f"Error checking in visitor: {str(e)}")
         messages.error(request, "An error occurred during check-in.")
-    
+
     return redirect('dashboard_app:staff_dashboard')
+
 
 @staff_required
 @require_POST
@@ -528,48 +538,45 @@ def check_out_visitor(request):
     visit_code = request.POST.get('visit_code', '').strip().upper()
     staff_username = request.session['staff_username']
     staff_first_name = request.session.get('staff_first_name', 'Staff')
-    
+
     if not visit_code:
         messages.error(request, "Invalid visit code.")
         return redirect('dashboard_app:code_checker')
-    
+
     try:
-        # Get visit details using Django ORM
         try:
             visit = Visit.objects.get(code=visit_code)
         except Visit.DoesNotExist:
             messages.error(request, f'Visit code "{visit_code}" not found.')
             return redirect('dashboard_app:code_checker')
-        
-        # Check if visit can be checked out
+
         if visit.status != 'Active':
             messages.warning(request, f'Visit is {visit.status}. Cannot check out.')
             return redirect('dashboard_app:code_checker')
-        
-        # Get current time in Philippines timezone
-        current_time = datetime.now(PHILIPPINES_TZ)
+
+        current_time = django_now().astimezone(PHILIPPINES_TZ)
         checkout_time = current_time.time()
-        
-        # Update visit status to Completed and set end_time
+
         visit.status = "Completed"
         visit.end_time = checkout_time
         visit.save()
-        
-        # Create log entry
-        log_entry = SystemLog(
+
+        SystemLog.objects.create(
             actor=f"{staff_first_name} ({staff_username})",
             action_type="Visitor Check-Out",
             description=f"Checked out visitor with code {visit_code} from {visit.department} at {checkout_time}",
             actor_role="Staff",
-            created_at=current_time
+            created_at=current_time,
         )
-        log_entry.save()
-        
-        messages.success(request, f'✅ Visitor checked out successfully at {current_time.strftime("%I:%M %p")}! Code: {visit_code}')
+
+        messages.success(
+            request,
+            f'✅ Visitor checked out successfully at {current_time.strftime("%I:%M %p")}! Code: {visit_code}'
+        )
         logger.info(f"Visitor checked out by {staff_username}: {visit_code} at {checkout_time}")
-        
+
     except Exception as e:
         logger.error(f"Error checking out visitor: {str(e)}")
         messages.error(request, "An error occurred during check-out.")
-    
+
     return redirect('dashboard_app:staff_dashboard')
