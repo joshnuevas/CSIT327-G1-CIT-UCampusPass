@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+
 import random
 import string
-from datetime import datetime, time
+from datetime import datetime
 import logging
 
 from manage_reports_logs_app import services as logs_services
-
-# Import Django models
 from dashboard_app.models import Visit
 from register_app.models import User
 
@@ -16,98 +17,80 @@ logger = logging.getLogger(__name__)
 
 
 def generate_visit_code(purpose: str) -> str:
-    """
-    Generate a unique visit code based on purpose.
-    Example: CIT-ADM-AB12C
-    """
+    """Generate a unique visit code EX: CIT-ADM-A1B2C."""
     random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
-    purpose_prefix = (purpose or "VIS")[:3].upper()
-    return f"CIT-{purpose_prefix}-{random_str}"
+    prefix = (purpose or "VIS")[:3].upper()
+    return f"CIT-{prefix}-{random_str}"
 
 
 def book_visit_view(request):
-    """
-    Visitor: Book a visit.
-    Handles:
-    - Department dropdown + 'Other'
-    - Purpose dropdown + 'Other'
-    - Date validation (no past, no Sundays)
-    - Creates Visit with status='Upcoming'
-    """
+    """Visitor books a campus visit with email confirmation."""
 
-    # Must be logged-in as visitor
-    if 'user_email' not in request.session:
-        messages.warning(request, "Please log in to book a visit.")
-        return redirect('login_app:login')
+    # Must be logged in
+    if "user_email" not in request.session:
+        messages.warning(request, "Please log in first to book a visit.")
+        return redirect("login_app:login")
 
-    user_email = request.session['user_email']
+    # Logged-in user
+    user_email = request.session["user_email"]
 
-    # Fetch user info
     try:
         user = User.objects.get(email=user_email)
         user_id = user.user_id
         first_name = user.first_name
-        request.session['user_first_name'] = first_name
+        request.session["user_first_name"] = first_name
     except User.DoesNotExist:
         messages.error(request, "User not found. Please log in again.")
-        return redirect('login_app:login')
+        return redirect("login_app:login")
     except Exception as e:
-        logger.error(f"Error fetching user data: {str(e)}")
-        messages.error(request, "An error occurred. Please try again.")
-        return redirect('login_app:login')
+        logger.error(f"Error retrieving user: {str(e)}")
+        messages.error(request, "Unexpected error. Please try again.")
+        return redirect("login_app:login")
 
-    if request.method == 'POST':
+    # POST = form submission
+    if request.method == "POST":
         try:
-            # Get form data (prefer *_other if filled)
-            raw_purpose = (request.POST.get('purpose_other') or request.POST.get('purpose') or "").strip()
-            raw_department = (request.POST.get('department_other') or request.POST.get('department') or "").strip()
-            visit_date_str = (request.POST.get('visit_date') or "").strip()
+            # Department and purpose (including 'Other')
+            raw_department = (request.POST.get("department_other") or request.POST.get("department") or "").strip()
+            raw_purpose = (request.POST.get("purpose_other") or request.POST.get("purpose") or "").strip()
+            visit_date_str = (request.POST.get("visit_date") or "").strip()
 
             # Validate fields
-            if not raw_department or not raw_purpose or not visit_date_str:
-                messages.error(request, "Please fill in all required fields.")
-                return redirect('book_visit_app:book_visit')
+            if not raw_purpose or not raw_department or not visit_date_str:
+                messages.error(request, "Please complete all required fields.")
+                return redirect("book_visit_app:book_visit")
 
-            # Parse and validate visit date
+            # Convert date
             try:
                 visit_date = datetime.strptime(visit_date_str, "%Y-%m-%d").date()
             except ValueError:
-                messages.error(request, "Invalid date format. Please select a valid date.")
-                return redirect('book_visit_app:book_visit')
+                messages.error(request, "Invalid date format.")
+                return redirect("book_visit_app:book_visit")
 
+            # Date checks
             today = datetime.now().date()
 
             if visit_date < today:
-                messages.error(
-                    request,
-                    "You cannot select a date that has already passed. Please select today or a future date."
-                )
-                return redirect('book_visit_app:book_visit')
+                messages.error(request, "Past dates are not allowed.")
+                return redirect("book_visit_app:book_visit")
 
-            # weekday(): Monday=0, Sunday=6
+            # Sunday = 6
             if visit_date.weekday() == 6:
-                messages.error(
-                    request,
-                    "Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday)."
-                )
-                return redirect('book_visit_app:book_visit')
+                messages.error(request, "Visits cannot be scheduled on Sundays.")
+                return redirect("book_visit_app:book_visit")
 
-            # Generate a unique visit code
-            purpose_for_code = raw_purpose or "Visit"
-            code = generate_visit_code(purpose_for_code)
-
-            # Ensure uniqueness
+            # Generate unique visit code
+            code = generate_visit_code(raw_purpose)
             attempts = 0
             while Visit.objects.filter(code=code).exists() and attempts < 5:
                 attempts += 1
-                code = generate_visit_code(purpose_for_code)
+                code = generate_visit_code(raw_purpose)
 
             if Visit.objects.filter(code=code).exists():
-                logger.error("Failed to generate unique visit code after multiple attempts.")
-                messages.error(request, "Failed to generate a unique visit code. Please try again.")
-                return redirect('book_visit_app:book_visit')
+                messages.error(request, "Could not generate a unique visit code. Try again.")
+                return redirect("book_visit_app:book_visit")
 
-            # Create Visit row
+            # Create visit record
             try:
                 visit = Visit(
                     user_id=user_id,
@@ -116,44 +99,76 @@ def book_visit_view(request):
                     purpose=raw_purpose,
                     department=raw_department,
                     visit_date=visit_date,
-                    start_time=None,  # To be filled at check-in
-                    end_time=None,    # To be filled at check-out
-                    status="Upcoming"
+                    start_time=None,
+                    end_time=None,
+                    status="Upcoming",
                 )
                 visit.save()
             except Exception as db_error:
-                logger.error(f"Database error while booking visit: {str(db_error)}")
-                messages.error(request, "Failed to book visit. Please try again later.")
-                return redirect('book_visit_app:book_visit')
+                logger.error(f"Database error: {str(db_error)}")
+                messages.error(request, "Failed to save visit. Please try again.")
+                return redirect("book_visit_app:book_visit")
 
-            # Log the booking
-            actor = f"{first_name} ({user_email})"
-            description = f"Booked a visit for {visit_date_str} in {raw_department} for purpose '{raw_purpose}'."
+            # =============================
+            # SEND CONFIRMATION EMAIL (NEW)
+            # =============================
+            try:
+                subject = "CIT-U CampusPass • Visit Booking Confirmation"
+                visit_date_human = visit_date.strftime("%B %d, %Y")
+
+                message = (
+                    f"Hi {first_name},\n\n"
+                    f"Your campus visit has been successfully booked.\n\n"
+                    f"Visit Details:\n"
+                    f"• Visit Code: {code}\n"
+                    f"• Visit Date: {visit_date_human}\n"
+                    f"• Department: {raw_department}\n"
+                    f"• Purpose: {raw_purpose}\n\n"
+                    f"Please save your visit code. You will show this during check-in.\n\n"
+                    f"Thank you,\n"
+                    f"CIT-U CampusPass System"
+                )
+
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,   # From
+                    [user_email],                 # To
+                    fail_silently=False,
+                )
+
+                logger.info(f"Confirmation email sent to {user_email} for visit {code}")
+
+            except Exception as email_error:
+                logger.error(f"Email sending failed: {str(email_error)}")
+                messages.warning(
+                    request,
+                    f"Visit booked but email could not be sent. Your visit code is {code}."
+                )
+
+            # Log user action
             try:
                 logs_services.create_log(
-                    actor=actor,
+                    actor=f"{first_name} ({user_email})",
                     action_type="Visit Booking",
-                    description=description,
-                    actor_role="Visitor"
+                    description=f"Booked visit for {visit_date_str} in {raw_department} for '{raw_purpose}'.",
+                    actor_role="Visitor",
                 )
             except Exception as log_error:
-                logger.error(f"Failed to log visit booking: {str(log_error)}")
+                logger.error(f"Log creation failed: {str(log_error)}")
 
-            logger.info(f"Visit booked successfully for user {user_email} with code {code}")
+            # Success messages
+            messages.success(request, f"Visit booked successfully! Your code is: {code}")
+            messages.info(request, "A confirmation email has been sent to your inbox.")
 
-            messages.success(request, f"Visit booked successfully! Your visit code is: {code}")
-            messages.info(request, "Please save your visit code for check-in. Staff will record your check-in and check-out times.")
-
-            # Redirect to visitor dashboard
-            return redirect('dashboard_app:dashboard')
+            return redirect("dashboard_app:dashboard")
 
         except Exception as e:
             logger.error(f"Unexpected error during booking: {str(e)}")
-            messages.error(request, "An unexpected error occurred. Please try again.")
-            return redirect('book_visit_app:book_visit')
+            messages.error(request, "Unexpected error. Please try again.")
+            return redirect("book_visit_app:book_visit")
 
-    # GET request → render booking form
-    context = {
+    # GET request = show form
+    return render(request, "book_visit_app/book_visit.html", {
         "user_first_name": first_name
-    }
-    return render(request, 'book_visit_app/book_visit.html', context)
+    })
