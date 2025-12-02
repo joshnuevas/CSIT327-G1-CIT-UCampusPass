@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.core.mail import send_mail
 from django.conf import settings
 
 import random
 import string
 from datetime import datetime
 import logging
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 from manage_reports_logs_app import services as logs_services
 from dashboard_app.models import Visit
@@ -110,13 +112,13 @@ def book_visit_view(request):
                 return redirect("book_visit_app:book_visit")
 
             # =============================
-            # SEND CONFIRMATION EMAIL (NEW)
+            # SEND EMAIL USING SENDGRID API
             # =============================
             try:
                 subject = "CIT-U CampusPass • Visit Booking Confirmation"
                 visit_date_human = visit_date.strftime("%B %d, %Y")
 
-                message = (
+                text_body = (
                     f"Hi {first_name},\n\n"
                     f"Your campus visit has been successfully booked.\n\n"
                     f"Visit Details:\n"
@@ -124,23 +126,26 @@ def book_visit_view(request):
                     f"• Visit Date: {visit_date_human}\n"
                     f"• Department: {raw_department}\n"
                     f"• Purpose: {raw_purpose}\n\n"
-                    f"Please save your visit code. You will show this during check-in.\n\n"
+                    f"Please save your visit code.\n"
+                    f"You will present this during check-in.\n\n"
                     f"Thank you,\n"
                     f"CIT-U CampusPass System"
                 )
 
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,   # From
-                    [user_email],                 # To
-                    fail_silently=False,
+                message = Mail(
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to_emails=user_email,
+                    subject=subject,
+                    plain_text_content=text_body
                 )
 
-                logger.info(f"Confirmation email sent to {user_email} for visit {code}")
+                sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+                sg.send(message)
+
+                logger.info(f"SendGrid email sent to {user_email}")
 
             except Exception as email_error:
-                logger.error(f"Email sending failed: {str(email_error)}")
+                logger.error(f"SendGrid email failed: {str(email_error)}")
                 messages.warning(
                     request,
                     f"Visit booked but email could not be sent. Your visit code is {code}."
