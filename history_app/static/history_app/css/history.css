@@ -1,3 +1,6 @@
+/* ============================
+   GLOBAL RESET & BASE
+============================ */
 * {
     margin: 0;
     padding: 0;
@@ -12,7 +15,9 @@ body {
     overflow: hidden;
 }
 
-/* ===== Main Content ===== */
+/* ============================
+   MAIN CONTENT LAYOUT
+============================ */
 .main-content {
     flex: 1;
     margin-left: 260px;
@@ -22,6 +27,7 @@ body {
     overflow: hidden;
 }
 
+/* Top bar (from base layout – kept for consistency) */
 .top-bar {
     background: #FFFFFF;
     padding: 20px 35px;
@@ -33,6 +39,7 @@ body {
     position: relative;
 }
 
+/* Optional generic search bar in top bar (if used in base) */
 .search-bar {
     flex: 1;
     max-width: 550px;
@@ -53,13 +60,14 @@ body {
     outline: none;
     border-color: #8B1538;
     box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
-    background: #fff;
+    background: #FFFFFF;
 }
 
 .search-bar input::placeholder {
-    color: #999;
+    color: #999999;
 }
 
+/* User info in top bar (kept) */
 .user-info {
     display: flex;
     align-items: center;
@@ -108,12 +116,14 @@ body {
     box-shadow: 0 0 20px rgba(139, 21, 56, 0.3);
 }
 
-/* ===== DROPDOWNS ===== */
+/* ============================
+   DROPDOWNS (from base)
+============================ */
 .dropdown {
     position: absolute;
     top: 70px;
     right: 20px;
-    background: #fff;
+    background: #FFFFFF;
     border-radius: 14px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
     display: none;
@@ -131,16 +141,16 @@ body {
     padding: 14px 20px;
     font-weight: 600;
     font-size: 15px;
-    color: #8b1538;
-    border-bottom: 1px solid #eee;
+    color: #8B1538;
+    border-bottom: 1px solid #EEEEEE;
 }
 
 .dropdown-item {
     padding: 14px 22px;
     font-size: 15px;
-    color: #333;
+    color: #333333;
     cursor: pointer;
-    border-bottom: 1px solid #f2f2f2;
+    border-bottom: 1px solid #F2F2F2;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -151,15 +161,17 @@ body {
 }
 
 .dropdown-item:hover {
-    background: #fafafa;
+    background: #FAFAFA;
 }
 
 .dropdown-item i {
-    color: #8b1538;
+    color: #8B1538;
     width: 20px;
 }
 
-/* ===== Content Area ===== */
+/* ============================
+   SCROLLABLE CONTENT AREA
+============================ */
 .content-area {
     flex: 1;
     overflow-y: auto;
@@ -180,6 +192,9 @@ body {
     border-radius: 4px;
 }
 
+/* ============================
+   WELCOME SECTION
+============================ */
 .welcome-section {
     margin-bottom: 30px;
 }
@@ -197,44 +212,153 @@ body {
     font-size: 16px;
 }
 
-/* ===== Filter Section ===== */
+/* ============================
+   FILTER SECTION (FIXED LAYOUT)
+============================ */
+
 .filter-section {
     margin-bottom: 30px;
 }
 
-.filter-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+.filter-form {
+    background: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: none;
 }
 
-.filter-btn {
-    padding: 12px 24px;
-    background: #FFFFFF;
-    border: 2px solid #E0E0E0;
-    border-radius: 50px;
+.filter-row {
+    display: flex;
+    align-items: flex-end; /* Aligns the bottom of inputs and buttons */
+    gap: 15px; /* Spacing between elements */
+    width: 100%;
+}
+
+/* 1. Date Input - Fixed Width (Compact) */
+.filter-group {
+    flex: 0 0 180px; /* Does not grow, fixed width */
+}
+
+/* 2. Search Input - Flexible Width (Expands) */
+.filter-search-group {
+    flex: 1; /* Takes up all remaining space */
+}
+
+.filter-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.filter-group input {
+    width: 100%;
+    height: 44px; /* Fixed height for consistency */
+    padding: 0 15px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.filter-group input:focus {
+    outline: none;
+    border-color: #8B1538;
+}
+
+/* ============================
+   BUTTONS (UPDATED)
+============================ */
+
+/* Container */
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Space between buttons */
+    height: 44px; /* Matches input height */
+    padding-bottom: 0;
+}
+
+/* --- SHARED BUTTON BASE (Shape) --- */
+.btn-pill {
+    height: 100%;
+    padding: 0 28px; /* Width of the button */
+    border-radius: 22px; /* Full rounded pill shape */
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    color: #666666;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
-.filter-btn:hover {
-    border-color: #8B1538;
-    color: #8B1538;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 21, 56, 0.15);
-}
-
-.filter-btn.active {
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+/* --- APPLY BUTTON (Solid Red) --- */
+.btn-primary {
+    background: #8B1538;
     color: #FFFFFF;
-    border-color: #8B1538;
-    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
+    border: 2px solid #8B1538; /* Border matches bg to keep sizing consistent */
 }
 
-/* ===== Visit List ===== */
+.btn-primary:hover {
+    background: #6B0F2A;
+    border-color: #6B0F2A;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(139, 21, 56, 0.2);
+}
+
+/* --- RESET BUTTON (Outline Red) --- */
+.btn-secondary-outline {
+    background: transparent;
+    color: #8B1538;
+    border: 2px solid #8B1538; /* Visible red border */
+}
+
+.btn-secondary-outline:hover {
+    background: #8B1538; /* Fills in on hover */
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(139, 21, 56, 0.2);
+}
+
+/* Helper text below filters */
+.filter-helper-text {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Responsive: Stack on mobile */
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-group, .filter-search-group {
+        width: 100%;
+        flex: none;
+    }
+    
+    /* Make buttons full width on mobile */
+    .filter-actions {
+        flex-direction: column-reverse; /* Reset below Apply */
+        height: auto;
+        gap: 10px;
+    }
+    .btn-pill {
+        width: 100%;
+        height: 44px;
+    }
+}
+
+/* ============================
+   VISIT LIST & CARDS
+============================ */
 .visit-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -258,6 +382,7 @@ body {
     border-left-color: #8B1538;
 }
 
+/* Status-specific borders */
 .visit-card.status-active {
     border-left-color: #4CAF50;
 }
@@ -274,12 +399,7 @@ body {
     border-left-color: #3F51B5;
 }
 
-.status-badge.status-completed {
-    background: #E8EAF6;
-    color: #3F51B5;
-    border: 2px solid #3F51B5;
-}
-
+/* Header */
 .visit-header {
     margin-bottom: 18px;
     padding-bottom: 16px;
@@ -300,6 +420,7 @@ body {
     font-weight: 700;
 }
 
+/* Status badges */
 .status-badge {
     padding: 6px 14px;
     border-radius: 20px;
@@ -326,6 +447,13 @@ body {
     border: 2px solid #E0E0E0;
 }
 
+.status-badge.status-completed {
+    background: #E8EAF6;
+    color: #3F51B5;
+    border: 2px solid #3F51B5;
+}
+
+/* Visit details */
 .visit-details {
     display: flex;
     flex-direction: column;
@@ -352,7 +480,9 @@ body {
     color: #333333;
 }
 
-/* ===== Card Actions (Cancel Button) ===== */
+/* ============================
+   CARD ACTIONS (CANCEL BUTTON)
+============================ */
 .card-actions {
     margin-top: 18px;
     padding-top: 16px;
@@ -388,7 +518,9 @@ body {
     height: 16px;
 }
 
-/* ===== Empty State ===== */
+/* ============================
+   EMPTY STATE
+============================ */
 .empty-state {
     text-align: center;
     padding: 80px 20px;
@@ -439,8 +571,9 @@ body {
     background: linear-gradient(135deg, #6B0F2A, #8B1538);
 }
 
-/* ===== MODAL STYLES ===== */
-
+/* ============================
+   MODAL STYLES
+============================ */
 .modal {
     display: none;
     position: fixed;
@@ -457,7 +590,7 @@ body {
 }
 
 .modal-content {
-    background: linear-gradient(135deg, #fff8f5, #fff1e5);
+    background: linear-gradient(135deg, #FFF8F5, #FFF1E5);
     padding: 35px 30px;
     border-radius: 25px;
     width: 90%;
@@ -507,6 +640,7 @@ body {
     flex-wrap: wrap;
 }
 
+/* Modal buttons */
 .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -575,23 +709,28 @@ body {
     transform: translateY(-2px);
 }
 
+/* ============================
+   ANIMATIONS
+============================ */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
 @keyframes slideDown {
-    from { 
-        opacity: 0; 
-        transform: translateY(-20px); 
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
     }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* ===== Responsive Design ===== */
+/* ============================
+   RESPONSIVE DESIGN
+============================ */
 @media (max-width: 1024px) {
     .visit-list {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -611,13 +750,13 @@ body {
         font-size: 26px;
     }
 
-    .filter-buttons {
-        gap: 8px;
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .filter-btn {
-        padding: 10px 18px;
-        font-size: 13px;
+    .filter-actions {
+        justify-content: flex-start;
     }
 
     .modal-content {
@@ -628,7 +767,9 @@ body {
         flex-direction: column;
     }
 
-    .btn-primary, .btn-danger, .btn-secondary {
+    .btn-primary,
+    .btn-danger,
+    .btn-secondary {
         width: 100%;
     }
 }

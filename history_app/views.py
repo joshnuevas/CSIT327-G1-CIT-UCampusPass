@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+from django.db.models import Q
 import pytz
 
 # Import Django models
 from dashboard_app.models import Visit, SystemLog
 from register_app.models import User
+
 
 def history_view(request):
     # Redirect if not logged in
@@ -14,23 +16,71 @@ def history_view(request):
         return redirect('login_app:login')
 
     user_email = request.session['user_email']
-    
-    # Use Django ORM instead of Supabase
+
+    # ===== DEFAULT 3-WEEK WINDOW (Last Week + This Week + Next Week) =====
+    today = date.today()
+    this_week_start = today - timedelta(days=today.weekday())  # Monday of this week
+    last_week_start = this_week_start - timedelta(days=7)      # Monday of last week
+    next_week_end = this_week_start + timedelta(days=13)       # Sunday of next week
+
+    default_start_date = last_week_start
+    default_end_date = next_week_end
+
+    # ===== READ FILTER PARAMS =====
+    date_str = request.GET.get('date', '').strip()
+    search_query = request.GET.get('q', '').strip()
+
     visits = Visit.objects.filter(user_email=user_email)
 
-    # Format visit dates and times like in dashboard
-    today = date.today()
+    # Date filter logic
+    filter_mode_text = ""
+    filter_date_display = ""
+
+    if date_str:
+        # Specific date selected
+        try:
+            selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            selected_date = today
+
+        visits = visits.filter(visit_date=selected_date)
+        filter_mode_text = "Showing visits for"
+        filter_date_display = selected_date.strftime("%b %d, %Y")
+        filter_date_value = selected_date.isoformat()
+    else:
+        # Default rolling 3-week window
+        visits = visits.filter(
+            visit_date__gte=default_start_date,
+            visit_date__lte=default_end_date
+        )
+        filter_mode_text = "Showing visits from"
+        filter_date_display = f"{default_start_date.strftime('%b %d, %Y')} to {default_end_date.strftime('%b %d, %Y')}"
+        filter_date_value = ""
+
+    # Text search (Pass Code OR Department)
+    if search_query:
+        visits = visits.filter(
+            Q(code__icontains=search_query) |
+            Q(department__icontains=search_query)
+        )
+
+    # Order (most recent first)
+    visits = visits.order_by('-visit_date', '-start_time')
+
+    # ===== FORMAT DISPLAY FIELDS =====
     for visit in visits:
         visit_date_obj = visit.visit_date
-        visit.display_date = f"Today, {visit_date_obj.strftime('%b %d')}" if visit_date_obj == today else visit_date_obj.strftime("%b %d, %Y")
-        
-        # Format start time - handle null start_time
+        visit.display_date = (
+            f"Today, {visit_date_obj.strftime('%b %d')}"
+            if visit_date_obj == today
+            else visit_date_obj.strftime("%b %d, %Y")
+        )
+
         if visit.start_time:
             visit.formatted_start_time = visit.start_time.strftime("%I:%M %p")
         else:
             visit.formatted_start_time = "Not checked in"
-        
-        # Format end time ONLY if it exists (not None)
+
         if visit.end_time:
             visit.formatted_end_time = visit.end_time.strftime("%I:%M %p")
         else:
@@ -40,8 +90,15 @@ def history_view(request):
         "user_email": user_email,
         "user_first_name": request.session.get('user_first_name'),
         "visits": visits,
+
+        # For filters
+        "filter_date": filter_date_value,
+        "filter_query": search_query,
+        "filter_mode_text": filter_mode_text,
+        "filter_date_display": filter_date_display,
     }
     return render(request, 'history_app/history.html', context)
+
 
 @require_POST
 def cancel_visit(request):
@@ -78,17 +135,13 @@ def cancel_visit(request):
             messages.error(request, 'You do not have permission to cancel this visit.')
             return redirect('history_app:visit_history')
         
-        # Store visit details for logging before deletion
         visit_code = visit.code or 'N/A'
         visit_date = visit.visit_date or 'N/A'
         department = visit.department or 'N/A'
         
-        # Delete the visit from the database using Django ORM
         visit.delete()
         print(f"Visit deleted: {visit_code}")
         
-        # Create log entry for the cancellation
-        # Use Philippines timezone
         philippines_tz = pytz.timezone('Asia/Manila')
         current_time = datetime.now(philippines_tz)
         

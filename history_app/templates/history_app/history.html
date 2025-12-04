@@ -15,15 +15,41 @@
 </div>
 
 <div class="filter-section">
-    <div class="filter-buttons">
-        <button class="filter-btn active" data-filter="all">All Visits</button>
-        <button class="filter-btn" data-filter="active">Active</button>
-        <button class="filter-btn" data-filter="upcoming">Upcoming</button>
-        <button class="filter-btn" data-filter="completed">Completed</button>
-        <button class="filter-btn" data-filter="expired">Expired</button>
-    </div>
+    <form method="get" class="filter-form">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label for="filter_date">Visit Date</label>
+                <input
+                    type="date"
+                    id="filter_date"
+                    name="date"
+                    value="{{ filter_date }}"
+                >
+            </div>
+            <div class="filter-group filter-search-group">
+                <label for="search_query">Search</label>
+                <input
+                    type="text"
+                    id="search_query"
+                    name="q"
+                    placeholder="Search by Pass Code or Department"
+                    value="{{ filter_query }}"
+                >
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-pill btn-primary">Apply</button>
+                <a href="{% url 'history_app:visit_history' %}" class="btn-pill btn-secondary-outline">Reset</a>
+            </div>
+        </div>
+        <p class="filter-helper-text">
+            {% if filter_date %}
+                {{ filter_mode_text }} <strong>{{ filter_date_display }}</strong>.
+            {% else %}
+                {{ filter_mode_text }} <strong>{{ filter_date_display }}</strong>.
+            {% endif %}
+        </p>
+    </form>
 </div>
-
 
 {% if visits %}
     <div class="visit-list">
@@ -81,7 +107,7 @@
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
         </svg>
         <h3>No visits found</h3>
-        <p>You haven't made any visits yet.</p>
+        <p>Try changing the date or search term, or book a new visit.</p>
         <a href="{% url 'book_visit_app:book_visit' %}" class="book-visit-btn">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
@@ -93,28 +119,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-// Filter functionality
-const filterButtons = document.querySelectorAll('.filter-btn');
-const visitCards = document.querySelectorAll('.visit-card');
-
-filterButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const filter = btn.getAttribute('data-filter');
-
-        filterButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        visitCards.forEach(card => {
-            if (filter === 'all' || card.getAttribute('data-status') === filter) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-});
-</script>
 
 <!-- Cancel Visit Confirmation Modal -->
 <div id="cancelVisitModal" class="modal">
@@ -133,7 +137,6 @@ filterButtons.forEach(btn => {
     </div>
 </div>
 
-<!-- Hidden form for canceling visits -->
 <form id="cancelVisitForm" method="POST" action="{% url 'history_app:cancel_visit' %}" style="display: none;">
     {% csrf_token %}
     <input type="hidden" name="visit_id" id="cancelVisitIdInput">
@@ -160,7 +163,6 @@ cancelVisitButtons.forEach(btn => {
 confirmCancelVisit.onclick = function() {
     if (currentVisitId) {
         console.log('Confirming cancellation for visit ID:', currentVisitId);
-        // Set the visit ID in the hidden form and submit it
         document.getElementById('cancelVisitIdInput').value = currentVisitId;
         document.getElementById('cancelVisitForm').submit();
     } else {
@@ -173,7 +175,6 @@ cancelCancelVisit.onclick = function() {
     currentVisitId = null;
 }
 
-// Close modals when clicking outside
 window.onclick = function(e) {
     if (e.target == cancelVisitModal) {
         cancelVisitModal.style.display = 'none';

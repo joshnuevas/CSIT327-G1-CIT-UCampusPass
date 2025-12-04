@@ -201,6 +201,8 @@ body {
     flex: 1;
     padding: 25px 0;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .nav-menu::-webkit-scrollbar {
@@ -255,7 +257,7 @@ body {
 }
 
 .logout-item {
-    margin-top: auto;
+    margin-top: auto !important;
     border-top: 1px solid rgba(212, 175, 55, 0.3);
     padding-top: 20px;
     padding-bottom: 20px;
