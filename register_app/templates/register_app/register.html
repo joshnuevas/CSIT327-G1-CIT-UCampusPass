@@ -136,14 +136,15 @@
 
                     <div class="form-group">
                         <label for="visitorType">Visitor Type</label>
-                        <select id="visitorType" name="visitorType" required onchange="toggleOtherInput()">
-                            <option value="" disabled {% if not visitor_type %}selected{% endif %}>Select visitor type</option>
-                            <option value="Student" {% if visitor_type == 'Student' %}selected{% endif %}>Student</option>
-                            <option value="Parent" {% if visitor_type == 'Parent' %}selected{% endif %}>Parent</option>
-                            <option value="Staff" {% if visitor_type == 'Staff' %}selected{% endif %}>Staff</option>
-                            <option value="Alumni" {% if visitor_type == 'Alumni' %}selected{% endif %}>Alumni</option>
-                            <option value="Guest" {% if visitor_type == 'Guest' %}selected{% endif %}>Guest</option>
-                            <option value="Other" {% if visitor_type_select == 'Other' %}selected{% endif %}>Other</option>
+                        <select id="visitorType" name="visitorType" required>
+                            <option value="" disabled selected>Select visitor type</option>
+                            <option value="Student">Student</option>
+                            <option value="Parent">Parent/Guardian</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Alumni">Alumni</option>
+                            <option value="Guest">Guest</option>
+                            <option value="Visitor">Visitor</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
 

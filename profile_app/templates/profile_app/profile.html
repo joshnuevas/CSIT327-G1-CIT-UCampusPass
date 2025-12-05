@@ -131,26 +131,16 @@
                     <div class="select-wrapper">
                         <select name="visitorType"
                                 id="visitorTypeSelect"
-                                required
-                                onchange="toggleOtherVisitorType()">
+                                required>
                             <option value="Student" {% if user.visitor_type == "Student" %}selected{% endif %}>Student</option>
-                            <option value="Faculty" {% if user.visitor_type == "Faculty" %}selected{% endif %}>Faculty</option>
+                            <option value="Parent/Guardian" {% if user.visitor_type == "Parent/Guardian" %}selected{% endif %}>Parent/Guardian</option>
                             <option value="Staff" {% if user.visitor_type == "Staff" %}selected{% endif %}>Staff</option>
+                            <option value="Alumni" {% if user.visitor_type == "Alumni" %}selected{% endif %}>Alumni</option>
                             <option value="Guest" {% if user.visitor_type == "Guest" %}selected{% endif %}>Guest</option>
+                            <option value="Visitor" {% if user.visitor_type == "Visitor" %}selected{% endif %}>Visitor</option>
                             <option value="Other" {% if user.visitor_type == "Other" %}selected{% endif %}>Other</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="form-group full-width"
-                     id="otherVisitorTypeGroup"
-                     style="display: none;">
-                    <label for="otherVisitorTypeInput">Please specify visitor type</label>
-                    {# name matched to what the view expects: visitor_type_other #}
-                    <input type="text"
-                           name="visitor_type_other"
-                           id="otherVisitorTypeInput"
-                           class="input-modern">
                 </div>
             </div>
 
@@ -355,12 +345,5 @@ window.toggleOtherVisitorType = function () {
         otherInput.value = '';
     }
 };
-
-// Run once on load in case "Other" is already selected
-document.addEventListener('DOMContentLoaded', function () {
-    if (typeof window.toggleOtherVisitorType === 'function') {
-        window.toggleOtherVisitorType();
-    }
-});
 </script>
 {% endblock %}
