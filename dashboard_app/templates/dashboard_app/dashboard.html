@@ -77,10 +77,10 @@
                     <div class="ticket-stub">
                         <div class="stub-texture"></div>
                         
-                        <span class="ticket-month">{{ visit.date|date:"M"|upper }}</span>
-                        <span class="ticket-day">{{ visit.date|date:"d" }}</span>
-                        <span class="ticket-year">{{ visit.date|date:"Y" }}</span>
-                        
+                        <span class="ticket-month">{{ visit.visit_date|date:"M"|upper }}</span>
+                        <span class="ticket-day">{{ visit.visit_date|date:"d" }}</span>
+                        <span class="ticket-year">{{ visit.visit_date|date:"Y" }}</span>
+
                         <div class="notch notch-top"></div>
                         <div class="notch notch-bottom"></div>
                     </div>
@@ -91,9 +91,20 @@
                             
                             <div class="ticket-meta-row">
                                 <div class="meta-item">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3M5 11h14M5 19h14a2 2 0 00-2-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+
+                                    {{ visit.visit_date|date:"F j, Y" }}  {# e.g. December 9, 2025 #}
+                                    &nbsp;•&nbsp;
                                     {{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}
+
+                                    {% if visit.checkin_status_text %}
+                                        &nbsp;–&nbsp;{{ visit.checkin_status_text }}
+                                    {% endif %}
                                 </div>
+
                                 <span class="ticket-status-badge status-{{ visit.status|lower }}">
                                     {{ visit.status }}
                                 </span>
