@@ -1,81 +1,109 @@
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.views.decorators.http import require_POST
 from datetime import datetime, date, timedelta
-from django.db.models import Q
-import pytz
 
-# Import Django models
+import pytz
+from django.contrib import messages
+from django.db.models import Q
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
+
 from dashboard_app.models import Visit, SystemLog
 from register_app.models import User
 
 
 def history_view(request):
-    # Redirect if not logged in
-    if 'user_email' not in request.session:
-        return redirect('login_app:login')
+    """
+    Visitor 'My History' page.
 
-    user_email = request.session['user_email']
+    - Redirects if user is not logged in.
+    - Auto-expires visits whose date is already past today (Upcoming/Active -> Expired).
+    - Supports filtering by:
+        * Date (single date)
+        * Search query (code or department)
+    - Default range: last week + this week + next week (3-week rolling window).
+    """
+    # ----- AUTH CHECK -----
+    if "user_email" not in request.session:
+        return redirect("login_app:login")
 
-    # ===== DEFAULT 3-WEEK WINDOW (Last Week + This Week + Next Week) =====
-    today = date.today()
-    this_week_start = today - timedelta(days=today.weekday())  # Monday of this week
-    last_week_start = this_week_start - timedelta(days=7)      # Monday of last week
-    next_week_end = this_week_start + timedelta(days=13)       # Sunday of next week
+    user_email = request.session["user_email"]
+
+    # ----- TIME / DATE CONTEXT (Asia/Manila) -----
+    philippines_tz = pytz.timezone("Asia/Manila")
+    now_ph = datetime.now(philippines_tz)
+    today = now_ph.date()
+
+    # ----- AUTO-EXPIRE OLD VISITS -----
+    # Any visit before today that is still 'Upcoming' or 'Active' becomes 'Expired'
+    Visit.objects.filter(
+        user_email=user_email,
+        visit_date__lt=today,
+        status__in=["Upcoming", "Active"],
+    ).update(status="Expired")
+
+    # ----- DEFAULT 3-WEEK WINDOW (last week + this week + next week) -----
+    this_week_start = today - timedelta(days=today.weekday())  # Monday
+    last_week_start = this_week_start - timedelta(days=7)      # Previous Monday
+    next_week_end = this_week_start + timedelta(days=13)       # Sunday next week
 
     default_start_date = last_week_start
     default_end_date = next_week_end
 
-    # ===== READ FILTER PARAMS =====
-    date_str = request.GET.get('date', '').strip()
-    search_query = request.GET.get('q', '').strip()
+    # ----- READ FILTER PARAMS -----
+    date_str = request.GET.get("date", "").strip()
+    search_query = request.GET.get("q", "").strip()
 
-    visits = Visit.objects.filter(user_email=user_email)
+    visits_qs = Visit.objects.filter(user_email=user_email)
 
-    # Date filter logic
     filter_mode_text = ""
     filter_date_display = ""
+    filter_date_value = ""
 
+    # Date filter
     if date_str:
-        # Specific date selected
+        # User selected a specific date
         try:
             selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
         except ValueError:
             selected_date = today
 
-        visits = visits.filter(visit_date=selected_date)
+        visits_qs = visits_qs.filter(visit_date=selected_date)
         filter_mode_text = "Showing visits for"
         filter_date_display = selected_date.strftime("%b %d, %Y")
         filter_date_value = selected_date.isoformat()
     else:
         # Default rolling 3-week window
-        visits = visits.filter(
+        visits_qs = visits_qs.filter(
             visit_date__gte=default_start_date,
-            visit_date__lte=default_end_date
+            visit_date__lte=default_end_date,
         )
         filter_mode_text = "Showing visits from"
-        filter_date_display = f"{default_start_date.strftime('%b %d, %Y')} to {default_end_date.strftime('%b %d, %Y')}"
-        filter_date_value = ""
+        filter_date_display = (
+            f"{default_start_date.strftime('%b %d, %Y')} "
+            f"to {default_end_date.strftime('%b %d, %Y')}"
+        )
 
     # Text search (Pass Code OR Department)
     if search_query:
-        visits = visits.filter(
+        visits_qs = visits_qs.filter(
             Q(code__icontains=search_query) |
             Q(department__icontains=search_query)
         )
 
-    # Order (most recent first)
-    visits = visits.order_by('-visit_date', '-start_time')
+    # Order: most recent first
+    visits_qs = visits_qs.order_by("-visit_date", "-start_time")
 
-    # ===== FORMAT DISPLAY FIELDS =====
-    for visit in visits:
+    # ----- FORMAT DISPLAY FIELDS -----
+    visits = []
+    for visit in visits_qs:
         visit_date_obj = visit.visit_date
-        visit.display_date = (
-            f"Today, {visit_date_obj.strftime('%b %d')}"
-            if visit_date_obj == today
-            else visit_date_obj.strftime("%b %d, %Y")
-        )
 
+        # Display date: "Today, Dec 05" vs "Dec 04, 2025"
+        if visit_date_obj == today:
+            visit.display_date = f"Today, {visit_date_obj.strftime('%b %d')}"
+        else:
+            visit.display_date = visit_date_obj.strftime("%b %d, %Y")
+
+        # Human-readable time slots
         if visit.start_time:
             visit.formatted_start_time = visit.start_time.strftime("%I:%M %p")
         else:
@@ -86,80 +114,83 @@ def history_view(request):
         else:
             visit.formatted_end_time = "Pending"
 
+        visits.append(visit)
+
     context = {
         "user_email": user_email,
-        "user_first_name": request.session.get('user_first_name'),
+        "user_first_name": request.session.get("user_first_name"),
+
         "visits": visits,
 
-        # For filters
+        # Filters
         "filter_date": filter_date_value,
         "filter_query": search_query,
         "filter_mode_text": filter_mode_text,
         "filter_date_display": filter_date_display,
     }
-    return render(request, 'history_app/history.html', context)
+
+    return render(request, "history_app/history.html", context)
 
 
 @require_POST
 def cancel_visit(request):
-    print("=== Cancel Visit Function Called ===")
-    
-    # Check if user is logged in
-    if 'user_email' not in request.session:
-        print("User not logged in")
-        return redirect('login_app:login')
-    
-    visit_id = request.POST.get('visit_id')
-    user_email = request.session['user_email']
-    
-    print(f"Visit ID: {visit_id}")
-    print(f"User Email: {user_email}")
-    
+    """
+    Cancels a visit for the current user.
+
+    - Verifies the user is logged in.
+    - Ensures the visit belongs to the current user.
+    - Deletes the visit and logs the action in SystemLog.
+    """
+    if "user_email" not in request.session:
+        return redirect("login_app:login")
+
+    visit_id = request.POST.get("visit_id")
+    user_email = request.session["user_email"]
+
     if not visit_id:
-        print("No visit ID provided")
-        messages.error(request, 'Invalid visit ID.')
-        return redirect('history_app:visit_history')
-    
+        messages.error(request, "Invalid visit ID.")
+        return redirect("history_app:visit_history")
+
     try:
-        # Verify the visit belongs to the current user before deleting
+        # Get visit and verify ownership
         try:
             visit = Visit.objects.get(visit_id=visit_id)
-            print(f"Visit found: {visit.code}")
         except Visit.DoesNotExist:
-            print("Visit not found in database")
-            messages.error(request, 'Visit not found.')
-            return redirect('history_app:visit_history')
-        
+            messages.error(request, "Visit not found.")
+            return redirect("history_app:visit_history")
+
         if visit.user_email != user_email:
-            print("User does not own this visit")
-            messages.error(request, 'You do not have permission to cancel this visit.')
-            return redirect('history_app:visit_history')
-        
-        visit_code = visit.code or 'N/A'
-        visit_date = visit.visit_date or 'N/A'
-        department = visit.department or 'N/A'
-        
+            messages.error(request, "You do not have permission to cancel this visit.")
+            return redirect("history_app:visit_history")
+
+        visit_code = visit.code or "N/A"
+        visit_date = visit.visit_date or "N/A"
+        department = visit.department or "N/A"
+
+        # Delete visit
         visit.delete()
-        print(f"Visit deleted: {visit_code}")
-        
-        philippines_tz = pytz.timezone('Asia/Manila')
+
+        # Log the cancellation
+        philippines_tz = pytz.timezone("Asia/Manila")
         current_time = datetime.now(philippines_tz)
-        
-        log_entry = SystemLog(
+
+        SystemLog.objects.create(
             actor=user_email,
             action_type="Visit Cancelled",
-            description=f"User cancelled visit {visit_code} scheduled for {visit_date} at {department}",
+            description=(
+                f"User cancelled visit {visit_code} "
+                f"scheduled for {visit_date} at {department}"
+            ),
             actor_role="Visitor",
-            created_at=current_time
+            created_at=current_time,
         )
-        log_entry.save()
-        print(f"Log entry created for cancelled visit: {visit_code}")
-        
-        messages.success(request, 'Visit cancelled successfully.')
-        print("Visit deleted successfully")
-        
+
+        messages.success(request, "Visit cancelled successfully.")
+
     except Exception as e:
-        print(f"Error occurred: {str(e)}")
-        messages.error(request, f'An error occurred while cancelling the visit: {str(e)}')
-    
-    return redirect('history_app:visit_history')
+        messages.error(
+            request,
+            f"An error occurred while cancelling the visit: {str(e)}",
+        )
+
+    return redirect("history_app:visit_history")

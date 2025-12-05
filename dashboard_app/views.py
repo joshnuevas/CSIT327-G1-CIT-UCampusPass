@@ -43,83 +43,122 @@ def dashboard_view(request):
         return redirect('login_app:login')
 
     user_email = request.session['user_email']
-    
-    # Use Django ORM instead of Supabase
+
+    # Use Philippines time consistently
+    now_ph = django_now().astimezone(PHILIPPINES_TZ)
+    today = now_ph.date()
+
+    # ===== 1) AUTO-EXPIRE PAST VISITS (same idea as history_view) =====
+    Visit.objects.filter(
+        user_email=user_email,
+        visit_date__lt=today,
+        status__in=['Upcoming', 'Active']
+    ).update(status='Expired')
+
+    # Re-fetch visits after the bulk update
     all_visits = Visit.objects.filter(user_email=user_email)
-    now = datetime.now()    
-    today = date.today()
-    
-    # COUNT COMPLETED VISITS instead of expired ones
+
+    # COUNT COMPLETED VISITS
     completed_visits_count = all_visits.filter(status='Completed').count()
 
+    # ===== 2) FORMAT & UPDATE STATUS FOR TODAY/FUTURE ONLY =====
     for visit in all_visits:
         visit_date_obj = visit.visit_date
         visit.visit_date_obj = visit_date_obj
 
+        # ----- Display date -----
         if visit_date_obj == today:
             visit.display_date = f"Today, {visit_date_obj.strftime('%b %d')}"
         else:
             visit.display_date = visit_date_obj.strftime("%b %d, %Y")
 
-        # Format start time - handle null start_time for unchecked-in visits
+        # ----- Display times -----
         if visit.start_time:
             visit.formatted_start_time = visit.start_time.strftime("%I:%M %p")
         else:
             visit.formatted_start_time = "Not checked in"
 
-        # Format end time ONLY if it exists (not None)
         if visit.end_time:
             visit.formatted_end_time = visit.end_time.strftime("%I:%M %p")
         else:
             visit.formatted_end_time = "Pending"
 
-        # Handle start_time parsing - for booked visits not yet checked in, start_time is None
+        # For sorting purposes (even if no start_time)
         if visit.start_time:
-            visit_start = datetime.combine(visit.visit_date, visit.start_time)
-            visit.visit_start_datetime = visit_start
-
-            # Handle None end_time for status checking
-            if visit.end_time:
-                visit_end = datetime.combine(visit.visit_date, visit.end_time)
-            else:
-                # If no end time, use end of day for status check purposes
-                visit_end = datetime.combine(visit.visit_date, datetime.max.time())
-
-            # FIXED STATUS LOGIC: Preserve Completed status
-            if visit.status == 'Completed':
-                # If already completed, keep it as completed - DON'T change to Expired!
-                new_status = 'Completed'
-            elif visit.end_time is None and visit.status == 'Active':
-                # Keep as Active (visitor is currently on-site)
-                new_status = 'Active'
-            elif visit_start <= now <= visit_end:
-                new_status = 'Active'
-            elif now > visit_end:
-                new_status = 'Expired'
-            else:
-                new_status = 'Upcoming'
+            visit.visit_start_datetime = datetime.combine(visit.visit_date, visit.start_time)
         else:
-            # For visits not yet checked in, set a placeholder datetime and keep as Upcoming
             visit.visit_start_datetime = datetime.combine(visit.visit_date, datetime.min.time())
+
+        # ----- STATUS LOGIC -----
+        # Keep completed as-is
+        if visit.status == 'Completed':
+            continue
+
+        # 2.1 Past days (already expired by bulk update above)
+        if visit_date_obj < today:
+            # Just make sure they stay expired
+            if visit.status not in ['Expired', 'Completed']:
+                visit.status = 'Expired'
+                visit.save()
+            continue
+
+        # 2.2 Future days → always Upcoming
+        if visit_date_obj > today:
             new_status = 'Upcoming'
 
-        # Only update status if it actually changed AND it's not already Completed
-        if visit.status != new_status and visit.status != 'Completed':
-            visit.status = new_status
-            # Update using Django ORM
-            Visit.objects.filter(code=visit.code).update(status=new_status)
+        # 2.3 Today → decide Active / Upcoming / Expired based on time
+        else:  # visit_date_obj == today
+            if visit.start_time:
+                visit_start = datetime.combine(visit.visit_date, visit.start_time).replace(
+                    tzinfo=PHILIPPINES_TZ
+                )
+                if visit.end_time:
+                    visit_end = datetime.combine(visit.visit_date, visit.end_time).replace(
+                        tzinfo=PHILIPPINES_TZ
+                    )
+                else:
+                    # If no end_time yet, assume end of day
+                    visit_end = datetime.combine(
+                        visit.visit_date,
+                        datetime.max.time()
+                    ).replace(tzinfo=PHILIPPINES_TZ)
 
-    active_upcoming = [v for v in all_visits if v.status in ['Active', 'Upcoming']]
+                if visit_start <= now_ph <= visit_end:
+                    new_status = 'Active'
+                elif now_ph > visit_end:
+                    new_status = 'Expired'
+                else:
+                    new_status = 'Upcoming'
+            else:
+                # No check-in time yet, but visit is today → Upcoming
+                new_status = 'Upcoming'
+
+        # Apply status change if needed
+        if visit.status != new_status:
+            visit.status = new_status
+            visit.save()
+
+    # ===== 3) PICK ONLY ACTIVE + UPCOMING FOR "MY VISIT CODES" =====
+    active_visits = [v for v in all_visits if v.status == 'Active']
+    upcoming_visits = [v for v in all_visits if v.status == 'Upcoming']
+
+    active_upcoming = active_visits + upcoming_visits
     active_upcoming.sort(key=lambda x: x.visit_start_datetime)
-    display_visits = active_upcoming[:3]
+
+    display_visits = active_upcoming[:3]  # only the next 3 relevant passes
 
     context = {
         "user_email": user_email,
         "user_first_name": request.session.get('user_first_name'),
+
+        # Only ACTIVE + UPCOMING are shown in "My Visit Codes"
         "visits": display_visits,
-        "active_visits": [v for v in all_visits if v.status == 'Active'],
-        "upcoming_visits": [v for v in all_visits if v.status == 'Upcoming'],
+
+        # Stats cards
+        "active_visits": active_visits,
+        "upcoming_visits": upcoming_visits,
         "completed_visits_count": completed_visits_count,
+
         "notifications": [],
         "today": today,
     }

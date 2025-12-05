@@ -100,7 +100,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Phone Number</label>
-                    <input type="text" name="phone" id="phoneInput" value="{{ user.phone }}" required>
+                    <input type="text" name="phone" id="phoneInput" value="{{ user.phone }}" required maxlength="11" inputmode="numeric" pattern="\d{11}" autocomplete="tel" >
                 </div>
                 <div class="form-group">
                     <label>Visitor Type</label>
@@ -213,6 +213,19 @@ const editBtn = document.getElementById('editBtn');
 const cancelBtn = document.getElementById('cancelBtn');
 const viewMode = document.getElementById('viewMode');
 const editMode = document.getElementById('editMode');
+
+const phoneInput = document.getElementById('phoneInput');
+if (phoneInput) {
+    phoneInput.addEventListener('input', function (e) {
+        // Remove all non-digits
+        let cleaned = this.value.replace(/\D/g, '');
+        // Limit to 11 digits
+        if (cleaned.length > 11) {
+            cleaned = cleaned.slice(0, 11);
+        }
+        this.value = cleaned;
+    });
+}
 
 editBtn.onclick = function() {
     viewMode.style.display = 'none';

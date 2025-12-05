@@ -5,7 +5,7 @@
 {% block book_visit_active %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'book_visit_app/css/book_visit.css' %}?v={{ now|date:'U' }}">
+<link rel="stylesheet" href="{% static 'book_visit_app/css/book_visit.css' %}?v={% now 'U' %}">
 <style>
 .check-in-btn, .check-out-btn {
     display: inline-flex;
@@ -153,7 +153,6 @@
 
                 <!-- Other -->
                 <option value="Other">Other</option>
-
             </select>
 
             <input
@@ -603,13 +602,43 @@ const purposeOptions = {
     ]
 };
 
-// ===== TOGGLE "OTHER" INPUTS =====
+// ===== SIMPLE "NONSENSE" DETECTION =====
+const bannedShortValues = ['lol', 'test', 'asdf', 'qwerty', 'hehe', 'huhu'];
+
+function isMostlyNonsense(text) {
+    const value = text.trim().toLowerCase();
+    if (!value) return true;
+    if (bannedShortValues.includes(value)) return true;
+    if (value.length < 3) return true;
+    return false;
+}
+
+function hasMinWords(text, minWords) {
+    return text.trim().split(/\s+/).length >= minWords;
+}
+
+// ===== WARNING MODAL =====
+function showWarning(title, message) {
+    const warningModal = document.getElementById('warningModal');
+    const warningTitle = document.getElementById('warningTitle');
+    const warningMessage = document.getElementById('warningMessage');
+
+    if (!warningModal || !warningTitle || !warningMessage) return;
+
+    warningTitle.textContent = title;
+    warningMessage.textContent = message;
+    warningModal.style.display = 'flex';
+}
+
+// ===== PURPOSE / OTHER HANDLING =====
 function updatePurposeOptions() {
     const departmentSelect = document.getElementById('department');
     const purposeSelect = document.getElementById('purpose');
     const purposeOther = document.getElementById('purpose_other');
-    const selectedDepartment = departmentSelect.value;
 
+    if (!departmentSelect || !purposeSelect || !purposeOther) return;
+
+    const selectedDepartment = departmentSelect.value;
     purposeSelect.innerHTML = '';
 
     if (selectedDepartment === 'Other') {
@@ -664,6 +693,8 @@ function toggleOther(field) {
     const selectEl = document.getElementById(field);
     const otherInput = document.getElementById(field + '_other');
 
+    if (!selectEl || !otherInput) return;
+
     if (selectEl.value === 'Other') {
         otherInput.style.display = 'block';
         otherInput.required = true;
@@ -682,165 +713,185 @@ function toggleOther(field) {
     }
 }
 
-// ===== WARNING MODAL =====
-function showWarning(title, message) {
-    const warningModal = document.getElementById('warningModal');
-    const warningTitle = document.getElementById('warningTitle');
-    const warningMessage = document.getElementById('warningMessage');
-
-    warningTitle.textContent = title;
-    warningMessage.textContent = message;
-    warningModal.style.display = 'flex';
+// ===== DATE FORMAT HELPER =====
+function formatLocalDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 }
 
-document.getElementById('warningOkBtn').onclick = function() {
-    document.getElementById('warningModal').style.display = 'none';
-};
+// ===== MAIN DOM LOGIC =====
+document.addEventListener('DOMContentLoaded', function () {
+    const visitDateInput = document.getElementById('visit_date');
+    const deptSelect = document.getElementById('department');
+    const deptOther = document.getElementById('department_other');
+    const purposeSelect = document.getElementById('purpose');
+    const purposeOther = document.getElementById('purpose_other');
+    const form = document.querySelector('form');
+    const submitBtn = document.getElementById('submitBtn');
 
-// ===== DATE LIMITS (NO PAST, NO SUNDAY) =====
-const visitDateInput = document.getElementById('visit_date');
-const todayStr = new Date().toISOString().split('T')[0];
-visitDateInput.setAttribute('min', todayStr);
-
-visitDateInput.addEventListener('input', function() {
-    const selectedDate = new Date(this.value + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const day = selectedDate.getDay(); // 0 = Sunday
-
-    if (selectedDate < today) {
-        showWarning(
-            '📅 Invalid Date',
-            'You cannot select a date that has already passed. Please select today or a future date.'
-        );
-        this.value = '';
+    if (!visitDateInput || !deptSelect || !purposeSelect || !form) {
         return;
     }
 
-    if (day === 0) {
-        showWarning(
-            '📅 Sunday Not Available',
-            'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
-        );
-        this.value = '';
-    }
-});
-
-// Unfocus selects (nice UX for mobile)
-document.getElementById('purpose').addEventListener('change', function() {
-    this.blur();
-});
-
-document.getElementById('department').addEventListener('change', function() {
-    this.blur();
-});
-
-// ===== SIMPLE "NONSENSE" DETECTION =====
-const bannedShortValues = ['lol', 'test', 'asdf', 'qwerty', 'hehe', 'huhu'];
-
-function isMostlyNonsense(text) {
-    const value = text.trim().toLowerCase();
-    if (!value) return true;
-    if (bannedShortValues.includes(value)) return true;
-    if (value.length < 3) return true;
-    return false;
-}
-
-function hasMinWords(text, minWords) {
-    return text.trim().split(/\s+/).length >= minWords;
-}
-
-// ===== FORM SUBMISSION VALIDATION =====
-document.querySelector('form').addEventListener('submit', function(e) {
-    const submitBtn = document.getElementById('submitBtn');
-
-    const deptSelect    = document.getElementById('department');
-    const deptOther     = document.getElementById('department_other');
-    const purposeSelect = document.getElementById('purpose');
-    const purposeOther  = document.getElementById('purpose_other');
-
-    const deptUsesOther    = deptOther.style.display === 'block';
-    const purposeUsesOther = purposeOther.style.display === 'block';
-
-    const departmentValue = (deptUsesOther ? deptOther.value : deptSelect.value || '').trim();
-    const purposeValue    = (purposeUsesOther ? purposeOther.value : purposeSelect.value || '').trim();
-
-    // Department
-    if (!departmentValue) {
-        e.preventDefault();
-        showWarning('🏢 Department Required', 'Please select or specify a valid department.');
-        return false;
-    }
-    if (deptUsesOther) {
-        if (departmentValue.length < 5 || isMostlyNonsense(departmentValue)) {
-            e.preventDefault();
-            showWarning(
-                '🏢 Department Too Vague',
-                'Please enter a more descriptive department name (e.g., specific office or unit).'
-            );
-            return false;
-        }
-    }
-
-    // Purpose
-    if (!purposeValue) {
-        e.preventDefault();
-        showWarning('❓ Purpose Required', 'Please select or specify your purpose for visiting.');
-        return false;
-    }
-    if (purposeUsesOther) {
-        if (purposeValue.length < 10 || !hasMinWords(purposeValue, 2) || isMostlyNonsense(purposeValue)) {
-            e.preventDefault();
-            showWarning(
-                'Purpose Too Short',
-                'Please provide a short description of your purpose (at least 10 characters and 2 words).'
-            );
-            return false;
-        }
-    }
-
-    // Date
-    if (!visitDateInput.value) {
-        e.preventDefault();
-        showWarning('📅 Missing Date', 'Please select a visit date.');
-        return false;
-    }
-
-    const selectedDate = new Date(visitDateInput.value + 'T00:00:00');
+    // ===== DATE LIMITS (NO PAST, NO SUNDAY, MAX 7 DAYS AHEAD) =====
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dayOfWeek = selectedDate.getDay();
+    const todayStr = formatLocalDate(today);
 
-    if (selectedDate < today) {
-        e.preventDefault();
-        showWarning(
-            '📅 Invalid Date',
-            'You cannot select a date that has already passed. Please select today or a future date.'
-        );
-        return false;
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 7);
+    const maxStr = formatLocalDate(maxDate);
+
+    visitDateInput.setAttribute('min', todayStr);
+    visitDateInput.setAttribute('max', maxStr);
+
+    visitDateInput.addEventListener('input', function () {
+        if (!this.value) return;
+
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        selectedDate.setHours(0, 0, 0, 0);
+        const day = selectedDate.getDay(); // 0 = Sunday
+
+        if (selectedDate < today) {
+            showWarning(
+                '📅 Invalid Date',
+                'You cannot select a date that has already passed. Please select today or a future date.'
+            );
+            this.value = '';
+            return;
+        }
+
+        if (selectedDate > maxDate) {
+            showWarning(
+                '📅 Too Far in the Future',
+                'You can only book a visit up to 7 days from today.'
+            );
+            this.value = '';
+            return;
+        }
+
+        if (day === 0) {
+            showWarning(
+                '📅 Sunday Not Available',
+                'Visits cannot be scheduled on Sundays. Please select a weekday (Monday–Saturday).'
+            );
+            this.value = '';
+        }
+    });
+
+    // ===== HOOK SELECT EVENTS =====
+    deptSelect.addEventListener('change', function () {
+        updatePurposeOptions();
+        toggleOther('department');
+        this.blur();
+    });
+
+    purposeSelect.addEventListener('change', function () {
+        toggleOther('purpose');
+        this.blur();
+    });
+
+    // ===== WARNING MODAL CLOSE =====
+    const warningOkBtn = document.getElementById('warningOkBtn');
+    if (warningOkBtn) {
+        warningOkBtn.onclick = function () {
+            const warningModal = document.getElementById('warningModal');
+            if (warningModal) warningModal.style.display = 'none';
+        };
     }
 
-    if (dayOfWeek === 0) {
-        e.preventDefault();
-        showWarning(
-            '📅 Sunday Not Available',
-            'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
-        );
-        return false;
-    }
+    // ===== FORM SUBMISSION VALIDATION =====
+    form.addEventListener('submit', function (e) {
+        const deptUsesOther = deptOther.style.display === 'block';
+        const purposeUsesOther = purposeOther.style.display === 'block';
 
-    submitBtn.classList.add('loading');
-    submitBtn.disabled = true;
-});
+        const departmentValue = (deptUsesOther ? deptOther.value : deptSelect.value || '').trim();
+        const purposeValue = (purposeUsesOther ? purposeOther.value : purposeSelect.value || '').trim();
 
-// ===== AUTO-DISMISS DJANGO MESSAGES =====
-document.addEventListener('DOMContentLoaded', function() {
+        // Department validation
+        if (!departmentValue) {
+            e.preventDefault();
+            showWarning('🏢 Department Required', 'Please select or specify a valid department.');
+            return false;
+        }
+        if (deptUsesOther) {
+            if (departmentValue.length < 5 || isMostlyNonsense(departmentValue)) {
+                e.preventDefault();
+                showWarning(
+                    '🏢 Department Too Vague',
+                    'Please enter a more descriptive department name (e.g., specific office or unit).'
+                );
+                return false;
+            }
+        }
+
+        // Purpose validation
+        if (!purposeValue) {
+            e.preventDefault();
+            showWarning('❓ Purpose Required', 'Please select or specify your purpose for visiting.');
+            return false;
+        }
+        if (purposeUsesOther) {
+            if (purposeValue.length < 10 || !hasMinWords(purposeValue, 2) || isMostlyNonsense(purposeValue)) {
+                e.preventDefault();
+                showWarning(
+                    'Purpose Too Short',
+                    'Please provide a short description of your purpose (at least 10 characters and 2 words).'
+                );
+                return false;
+            }
+        }
+
+        // Date validation
+        if (!visitDateInput.value) {
+            e.preventDefault();
+            showWarning('📅 Missing Date', 'Please select a visit date.');
+            return false;
+        }
+
+        const selectedDate = new Date(visitDateInput.value + 'T00:00:00');
+        selectedDate.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+            e.preventDefault();
+            showWarning(
+                '📅 Invalid Date',
+                'You cannot select a date that has already passed. Please select today or a future date.'
+            );
+            return false;
+        }
+
+        if (selectedDate > maxDate) {
+            e.preventDefault();
+            showWarning(
+                '📅 Too Far in the Future',
+                'You can only book a visit up to 7 days from today.'
+            );
+            return false;
+        }
+
+        if (selectedDate.getDay() === 0) {
+            e.preventDefault();
+            showWarning(
+                '📅 Sunday Not Available',
+                'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
+            );
+            return false;
+        }
+
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+    });
+
+    // ===== AUTO-DISMISS DJANGO MESSAGES =====
     const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(function(alert) {
-        setTimeout(function() {
+    alerts.forEach(function (alert) {
+        setTimeout(function () {
             alert.style.opacity = '0';
             alert.style.transform = 'translateX(400px)';
-            setTimeout(function() {
+            setTimeout(function () {
                 alert.remove();
             }, 500);
         }, 5000);

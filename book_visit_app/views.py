@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.conf import settings
+from django.utils import timezone
 
 import logging
 import random
 import string
 import re
-from datetime import datetime, date
+from datetime import datetime, timedelta
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -79,20 +80,21 @@ DEPARTMENT_CODE_MAP = {
     "Other": "OTH",
 }
 
+
 def generate_visit_code(department: str) -> str:
     """
     Generate a unique visit code, e.g. CIT-CCS-A1B2C.
 
     The middle part is always exactly 3 characters:
     - Prefer a mapped department code from DEPARTMENT_CODE_MAP
-    - Otherwise derive from the department string
+    - Otherwise derive from the department string.
     """
     random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
 
     dept_raw = (department or "VIS").strip()
-
     code_part = DEPARTMENT_CODE_MAP.get(dept_raw)
 
+    # Case-insensitive match if direct lookup failed
     if not code_part:
         for name, abbr in DEPARTMENT_CODE_MAP.items():
             if dept_raw.lower() == name.lower():
@@ -105,16 +107,15 @@ def generate_visit_code(department: str) -> str:
         cleaned = re.sub(r"[^A-Za-z0-9]", "", str(code_part).upper())
 
     cleaned = cleaned or "VIS"
-    code_part = cleaned[:3]   # 👈 this guarantees 3 letters, e.g. CASH -> CAS, LRAC -> LRA
+    code_part = cleaned[:3]  # ensure exactly 3 chars
 
     return f"CIT-{code_part}-{random_str}"
+
 
 def _looks_like_nonsense(text: str) -> bool:
     """
     Simple heuristic to catch very obvious junk values like 'lol', 'asdf', etc.
-
-    This is not meant to be perfect AI detection, just enough to prevent
-    obviously invalid department / purpose entries.
+    Not perfect, just blocks obvious garbage entries.
     """
     if not text:
         return True
@@ -125,7 +126,6 @@ def _looks_like_nonsense(text: str) -> bool:
     if value in banned:
         return True
 
-    # Very short values are usually not meaningful
     if len(value) < 3:
         return True
 
@@ -139,13 +139,13 @@ def book_visit_view(request):
     Validations:
     - User must be logged in
     - Department and Purpose must be present and not obvious nonsense
-    - Visit date must be today or future, and not Sunday
-    - Only one active booking per user per day (unless cancelled)
+    - Visit date must be today or future, not Sunday, and within 7 days
+    - Only one active booking per user per day (excluding cancelled)
     - Uses SendGrid to send confirmation email
     - Logs action in reports/logs service
     """
 
-    # Must be logged in
+    # User must be logged in
     if "user_email" not in request.session:
         messages.warning(request, "Please log in first to book a visit.")
         return redirect("login_app:login")
@@ -192,7 +192,6 @@ def book_visit_view(request):
             # ===============================
             # VALIDATE DEPARTMENT
             # ===============================
-            # Require something descriptive, not "lol" etc.
             if len(raw_department) < 5 or _looks_like_nonsense(raw_department):
                 messages.error(
                     request,
@@ -230,11 +229,21 @@ def book_visit_view(request):
                 messages.error(request, "Invalid date format.")
                 return redirect("book_visit_app:book_visit")
 
-            today = date.today()
+            # Use Django's local date (respects TIME_ZONE)
+            today = timezone.localdate()
+            max_date = today + timedelta(days=7)
 
             # No past dates
             if visit_date < today:
                 messages.error(request, "Past dates are not allowed.")
+                return redirect("book_visit_app:book_visit")
+
+            # No more than 7 days ahead
+            if visit_date > max_date:
+                messages.error(
+                    request,
+                    "You can only book a visit up to 7 days in advance."
+                )
                 return redirect("book_visit_app:book_visit")
 
             # Sunday = 6 (Monday = 0)
@@ -362,13 +371,6 @@ def book_visit_view(request):
             logger.error(f"Unexpected error during booking: {str(e)}")
             messages.error(request, "Unexpected error. Please try again.")
             return redirect("book_visit_app:book_visit")
-
-    # GET request = show form
-    return render(
-        request,
-        "book_visit_app/book_visit.html",
-        {"user_first_name": first_name},
-    )
 
     # GET request = show form
     return render(
