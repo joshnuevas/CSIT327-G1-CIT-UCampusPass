@@ -1,214 +1,138 @@
 {% extends "dashboard_app/visitor_dashboard_base.html" %}
 {% load static %}
+
 {% block title %}CIT-U Campus Pass - Book a Visit{% endblock %}
 
 {% block book_visit_active %}active{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'book_visit_app/css/book_visit.css' %}?v={% now 'U' %}">
-<style>
-.check-in-btn, .check-out-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    color: #FFFFFF;
-    border: none;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
-}
-
-.check-in-btn:hover, .check-out-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4);
-    background: linear-gradient(135deg, #6B0F2A, #8B1538);
-}
-
-.check-in-btn.checked {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-}
-
-.check-in-btn.checked:hover {
-    background: linear-gradient(135deg, #20c997, #28a745);
-    box-shadow: 0 6px 25px rgba(40, 167, 69, 0.4);
-}
-
-.check-in-btn svg, .check-out-btn svg {
-    width: 16px;
-    height: 16px;
-}
-
-.visit-date {
-    display: block;
-    font-size: 0.9em;
-    color: #666;
-    margin-top: 4px;
-}
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="welcome-section">
-    <h1>Book a Visit</h1>
-    <p>Schedule your campus visit</p>
+<div class="page-hero-bg"></div> 
+
+<div class="content-wrapper">
+    <div class="welcome-section">
+        <div class="welcome-text">
+            <h1>Schedule a Campus Visit</h1>
+            <p>Complete the form below to secure your entry pass.</p>
+        </div>
+    </div>
+
+    <div class="booking-card">
+        <div class="card-header-accent">
+            <div class="header-content">
+                <div class="header-icon-circle">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div class="header-text">
+                    <h2>New Visit Request</h2>
+                    <span>Please ensure all details are accurate</span>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'book_visit_app:book_visit' %}" class="booking-form">
+            {% csrf_token %}
+
+            <div class="form-layout-grid">
+                <div class="form-group">
+                    <label for="department" class="required-label">Target Department / Office</label>
+                    <div class="select-wrapper">
+                        <select name="department" id="department" onchange="updatePurposeOptions(); toggleOther('department')" required>
+                            <option value="" selected disabled>Select Department</option>
+                            <option value="Alumni Affairs Office (AAO)">Alumni Affairs Office (AAO)</option>
+                            <option value="Basic Education Department (BED)">Basic Education Department (BED)</option>
+                            <option value="Cashier's Office">Cashier's Office</option>
+                            <option value="Center for Community Extension (CCE)">Center for Community Extension (CCE)</option>
+                            <option value="Center for Research and Development (CRD)">Center for Research and Development (CRD)</option>
+                            <option value="Center for Teaching and Learning (CTL)">Center for Teaching and Learning (CTL)</option>
+                            <option value="Clinic / Health Services Office">Clinic / Health Services Office</option>
+                            <option value="College of Arts, Sciences and Education (CASE)">College of Arts, Sciences and Education (CASE)</option>
+                            <option value="College of Computer Studies (CCS)">College of Computer Studies (CCS)</option>
+                            <option value="College of Criminal Justice (CCJ)">College of Criminal Justice (CCJ)</option>
+                            <option value="College of Engineering and Architecture (CEA)">College of Engineering and Architecture (CEA)</option>
+                            <option value="College of Management, Business and Accountancy (CMBA)">College of Management, Business and Accountancy (CMBA)</option>
+                            <option value="College of Nursing and Allied Health Sciences (CNAHS)">College of Nursing and Allied Health Sciences (CNAHS)</option>
+                            <option value="Curriculum and Instruction Office (CIO)">Curriculum and Instruction Office (CIO)</option>
+                            <option value="Finance and Accounting Office (FAO)">Finance and Accounting Office (FAO)</option>
+                            <option value="Guidance Services Office (GSO)">Guidance Services Office (GSO)</option>
+                            <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
+                            <option value="ICT / MIS Office">ICT / MIS Office</option>
+                            <option value="Industry-Academe Linkage Office (IALO)">Industry-Academe Linkage Office (IALO)</option>
+                            <option value="Institutional Planning and Development Office (IPDO)">Institutional Planning and Development Office (IPDO)</option>
+                            <option value="Internal Audit Office (IAO)">Internal Audit Office (IAO)</option>
+                            <option value="Janitorial Services Office">Janitorial Services Office</option>
+                            <option value="Learning Resource and Activity Center (LRAC)">Learning Resource and Activity Center (LRAC)</option>
+                            <option value="Maintenance Office">Maintenance Office</option>
+                            <option value="Networking, Linkages & Relations (NLR)">Networking, Linkages & Relations (NLR)</option>
+                            <option value="Office of Admissions and Scholarships (OAS)">Office of Admissions and Scholarships (OAS)</option>
+                            <option value="Office of Student Affairs (OSA)">Office of Student Affairs (OSA)</option>
+                            <option value="Office of Student Discipline (OSD)">Office of Student Discipline (OSD)</option>
+                            <option value="Office of the Executive Vice President">Office of the Executive Vice President</option>
+                            <option value="Office of the University President">Office of the University President</option>
+                            <option value="Office of the VP for Academic Affairs (VPAA)">Office of the VP for Academic Affairs (VPAA)</option>
+                            <option value="Office of the VP for Administration (VPA)">Office of the VP for Administration (VPA)</option>
+                            <option value="Office of the VP for External Affairs (VPEA)">Office of the VP for External Affairs (VPEA)</option>
+                            <option value="Office of the VP for Finance (VPF)">Office of the VP for Finance (VPF)</option>
+                            <option value="Physical Plant Office (PPO)">Physical Plant Office (PPO)</option>
+                            <option value="Property and Supply Office (PSO)">Property and Supply Office (PSO)</option>
+                            <option value="Public Relations and Communications Office (PRCO)">Public Relations and Communications Office (PRCO)</option>
+                            <option value="Purchasing Office">Purchasing Office</option>
+                            <option value="Quality Assurance Office (QAO)">Quality Assurance Office (QAO)</option>
+                            <option value="Security Office">Security Office</option>
+                            <option value="Senior High School Department">Senior High School Department</option>
+                            <option value="Student Success Office (SSO)">Student Success Office (SSO)</option>
+                            <option value="Technology Business Incubation Office (TBI Office)">Technology Business Incubation Office (TBI Office)</option>
+                            <option value="University Registrar's Office (URO)">University Registrar's Office (URO)</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <input type="text" name="department_other" id="department_other" placeholder="Please specify department name" class="input-modern" style="display:none; margin-top: 10px;">
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose" class="required-label">Purpose of Visit</label>
+                    <div class="select-wrapper">
+                        <select name="purpose" id="purpose" onchange="toggleOther('purpose')" required>
+                            <option value="" selected disabled>Select Department First</option>
+                        </select>
+                    </div>
+                    <input type="text" name="purpose_other" id="purpose_other" placeholder="Please specify your purpose" class="input-modern" style="display:none; margin-top: 10px;">
+                </div>
+
+                <div class="form-group">
+                    <label for="visit_date" class="required-label">Date of Visit</label>
+                    <input type="date" name="visit_date" id="visit_date" class="input-modern" required>
+                    <p class="helper-text">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Visits available Monday - Saturday. Max 7 days in advance.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-actions-row">
+                <button type="submit" id="submitBtn" class="btn-submit-booking">
+                    Confirm & Book Visit
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- Booking Form -->
-<div class="form-container">
-    <form method="POST" action="{% url 'book_visit_app:book_visit' %}">
-        {% csrf_token %}
-
-        <!-- Department -->
-        <div class="form-group">
-            <label for="department" class="required">Department</label>
-            <select
-                name="department"
-                id="department"
-                onchange="updatePurposeOptions(); toggleOther('department')"
-                required
-            >
-                <option value="" selected disabled>Select Department</option>
-
-                <!-- A -->
-                <option value="Alumni Affairs Office (AAO)">Alumni Affairs Office (AAO)</option>
-                <option value="Basic Education Department (BED)">Basic Education Department (BED)</option>
-
-                <!-- C -->
-                <option value="Cashier's Office">Cashier's Office</option>
-                <option value="Center for Community Extension (CCE)">Center for Community Extension (CCE)</option>
-                <option value="Center for Research and Development (CRD)">Center for Research and Development (CRD)</option>
-                <option value="Center for Teaching and Learning (CTL)">Center for Teaching and Learning (CTL)</option>
-                <option value="Clinic / Health Services Office">Clinic / Health Services Office</option>
-                <option value="College of Arts, Sciences and Education (CASE)">College of Arts, Sciences and Education (CASE)</option>
-                <option value="College of Computer Studies (CCS)">College of Computer Studies (CCS)</option>
-                <option value="College of Criminal Justice (CCJ)">College of Criminal Justice (CCJ)</option>
-                <option value="College of Engineering and Architecture (CEA)">College of Engineering and Architecture (CEA)</option>
-                <option value="College of Management, Business and Accountancy (CMBA)">College of Management, Business and Accountancy (CMBA)</option>
-                <option value="College of Nursing and Allied Health Sciences (CNAHS)">College of Nursing and Allied Health Sciences (CNAHS)</option>
-                <option value="Curriculum and Instruction Office (CIO)">Curriculum and Instruction Office (CIO)</option>
-
-                <!-- F -->
-                <option value="Finance and Accounting Office (FAO)">Finance and Accounting Office (FAO)</option>
-
-                <!-- G -->
-                <option value="Guidance Services Office (GSO)">Guidance Services Office (GSO)</option>
-
-                <!-- H -->
-                <option value="Human Resource Department (HRD)">Human Resource Department (HRD)</option>
-
-                <!-- I -->
-                <option value="ICT / MIS Office">ICT / MIS Office</option>
-                <option value="Industry-Academe Linkage Office (IALO)">Industry-Academe Linkage Office (IALO)</option>
-                <option value="Institutional Planning and Development Office (IPDO)">Institutional Planning and Development Office (IPDO)</option>
-                <option value="Internal Audit Office (IAO)">Internal Audit Office (IAO)</option>
-
-                <!-- J -->
-                <option value="Janitorial Services Office">Janitorial Services Office</option>
-
-                <!-- L -->
-                <option value="Learning Resource and Activity Center (LRAC)">Learning Resource and Activity Center (LRAC)</option>
-
-                <!-- M -->
-                <option value="Maintenance Office">Maintenance Office</option>
-
-                <!-- N -->
-                <option value="Networking, Linkages & Relations (NLR)">Networking, Linkages & Relations (NLR)</option>
-
-                <!-- O -->
-                <option value="Office of Admissions and Scholarships (OAS)">Office of Admissions and Scholarships (OAS)</option>
-                <option value="Office of Student Affairs (OSA)">Office of Student Affairs (OSA)</option>
-                <option value="Office of Student Discipline (OSD)">Office of Student Discipline (OSD)</option>
-                <option value="Office of the Executive Vice President">Office of the Executive Vice President</option>
-                <option value="Office of the University President">Office of the University President</option>
-                <option value="Office of the VP for Academic Affairs (VPAA)">Office of the VP for Academic Affairs (VPAA)</option>
-                <option value="Office of the VP for Administration (VPA)">Office of the VP for Administration (VPA)</option>
-                <option value="Office of the VP for External Affairs (VPEA)">Office of the VP for External Affairs (VPEA)</option>
-                <option value="Office of the VP for Finance (VPF)">Office of the VP for Finance (VPF)</option>
-
-                <!-- P -->
-                <option value="Physical Plant Office (PPO)">Physical Plant Office (PPO)</option>
-                <option value="Property and Supply Office (PSO)">Property and Supply Office (PSO)</option>
-                <option value="Public Relations and Communications Office (PRCO)">Public Relations and Communications Office (PRCO)</option>
-                <option value="Purchasing Office">Purchasing Office</option>
-
-                <!-- Q -->
-                <option value="Quality Assurance Office (QAO)">Quality Assurance Office (QAO)</option>
-
-                <!-- S -->
-                <option value="Security Office">Security Office</option>
-                <option value="Senior High School Department">Senior High School Department</option>
-                <option value="Student Success Office (SSO)">Student Success Office (SSO)</option>
-
-                <!-- T -->
-                <option value="Technology Business Incubation Office (TBI Office)">Technology Business Incubation Office (TBI Office)</option>
-
-                <!-- U -->
-                <option value="University Registrar's Office (URO)">University Registrar's Office (URO)</option>
-
-                <!-- Other -->
-                <option value="Other">Other</option>
-            </select>
-
-            <input
-                type="text"
-                name="department_other"
-                id="department_other"
-                placeholder="Please specify department"
-                style="display:none;"
-            >
-        </div>
-
-        <!-- Purpose -->
-        <div class="form-group">
-            <label for="purpose" class="required">Purpose</label>
-            <select
-                name="purpose"
-                id="purpose"
-                onchange="toggleOther('purpose')"
-                required
-            >
-                <option value="" selected disabled>Select Department First</option>
-            </select>
-            <input
-                type="text"
-                name="purpose_other"
-                id="purpose_other"
-                placeholder="Please specify your purpose"
-                style="display:none;"
-            >
-        </div>
-
-        <!-- Date -->
-        <div class="form-group">
-            <label for="visit_date" class="required">Visit Date</label>
-            <input type="date" name="visit_date" id="visit_date" required>
-            <p class="helper-text">Please select your preferred visit date (Monday-Saturday)</p>
-        </div>
-
-        <button type="submit" id="submitBtn">Book Visit</button>
-    </form>
-</div>
-
-<!-- Warning Modal for Invalid Selections -->
-<div id="warningModal" class="modal warning-modal">
-    <div class="modal-content warning-content">
-        <div class="warning-icon">
-            <svg width="50" height="50" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                <line x1="12" y1="9" x2="12" y2="13"></line>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+<div id="warningModal" class="modal">
+    <div class="modal-content warning-card">
+        <div class="warning-icon-wrapper">
+            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
             </svg>
         </div>
-        <h2 id="warningTitle">Oops!</h2>
-        <p id="warningMessage">Something went wrong.</p>
-        <button id="warningOkBtn" class="btn-warning">Got it!</button>
+        <h2 id="warningTitle">Attention Needed</h2>
+        <p id="warningMessage">There was an issue with your selection.</p>
+        <button id="warningOkBtn" class="btn-warning-action">Understood</button>
     </div>
 </div>
 {% endblock %}
@@ -218,404 +142,61 @@
 // ===== PURPOSE OPTIONS MAPPING =====
 const purposeOptions = {
     // 🎓 ACADEMIC COLLEGES / DEPARTMENTS
-    "College of Engineering and Architecture (CEA)": [
-        "Consultation with Dean or Program Chair",
-        "Course / Curriculum Advising",
-        "Laboratory / Facilities Visit",
-        "Thesis / Capstone Consultation",
-        "Student Organization Activity",
-        "Industry / Project Coordination Meeting",
-        "Parent / Guardian Conference",
-        "Other"
-    ],
-    "College of Computer Studies (CCS)": [
-        "IT / CS Program Inquiry",
-        "Capstone / Thesis Consultation",
-        "Laboratory / Server Room Appointment",
-        "Internship / OJT Coordination",
-        "Faculty Consultation",
-        "Student Organization / Event Meeting",
-        "Parent / Guardian Conference",
-        "Other"
-    ],
-    "College of Management, Business and Accountancy (CMBA)": [
-        "Business Program Inquiry",
-        "Academic Advising / Retention Consultation",
-        "Thesis / Feasibility Study Consultation",
-        "Internship / Practicum Coordination",
-        "Industry Partner Meeting",
-        "Parent / Guardian Conference",
-        "Other"
-    ],
-    "College of Arts, Sciences and Education (CASE)": [
-        "Program Inquiry (Liberal Arts / Education)",
-        "Practice Teaching / OJT Coordination",
-        "Research / Thesis Consultation",
-        "Licensure Exam Review / Advising",
-        "Faculty or Chairperson Consultation",
-        "Parent / Guardian Conference",
-        "Other"
-    ],
-    "College of Nursing and Allied Health Sciences (CNAHS)": [
-        "Nursing / Allied Health Program Inquiry",
-        "Clinical Duty / Hospital Affiliation Concerns",
-        "Clinical Requirements Submission",
-        "Licensure Exam Preparation Consultation",
-        "Faculty / Dean Consultation",
-        "Parent / Guardian Conference",
-        "Other"
-    ],
-    "College of Criminal Justice (CCJ)": [
-        "Criminology Program Inquiry",
-        "Internship / OJT Coordination",
-        "MOCK Board / Training Concerns",
-        "Research / Thesis Consultation",
-        "Faculty / Dean Consultation",
-        "Parent / Guardian Conference",
-        "Other"
-    ],
-    "Senior High School Department": [
-        "SHS Enrollment or Strand Inquiry",
-        "Parent–Teacher Conference",
-        "Clearance / Requirements Submission",
-        "Guidance or Academic Advising",
-        "Discipline or Behavioral Conference",
-        "SHS Events / Activities Meeting",
-        "Other"
-    ],
-    "Basic Education Department (BED)": [
-        "Grade School / JHS Enrollment Inquiry",
-        "Parent–Teacher Conference",
-        "Student Academic Performance Consultation",
-        "Clearance / Requirements Submission",
-        "Discipline / Behavior Concerns",
-        "BED Events / Activities Meeting",
-        "Other"
-    ],
+    "College of Engineering and Architecture (CEA)": ["Consultation with Dean or Program Chair", "Course / Curriculum Advising", "Laboratory / Facilities Visit", "Thesis / Capstone Consultation", "Student Organization Activity", "Industry / Project Coordination Meeting", "Parent / Guardian Conference", "Other"],
+    "College of Computer Studies (CCS)": ["IT / CS Program Inquiry", "Capstone / Thesis Consultation", "Laboratory / Server Room Appointment", "Internship / OJT Coordination", "Faculty Consultation", "Student Organization / Event Meeting", "Parent / Guardian Conference", "Other"],
+    "College of Management, Business and Accountancy (CMBA)": ["Business Program Inquiry", "Academic Advising / Retention Consultation", "Thesis / Feasibility Study Consultation", "Internship / Practicum Coordination", "Industry Partner Meeting", "Parent / Guardian Conference", "Other"],
+    "College of Arts, Sciences and Education (CASE)": ["Program Inquiry (Liberal Arts / Education)", "Practice Teaching / OJT Coordination", "Research / Thesis Consultation", "Licensure Exam Review / Advising", "Faculty or Chairperson Consultation", "Parent / Guardian Conference", "Other"],
+    "College of Nursing and Allied Health Sciences (CNAHS)": ["Nursing / Allied Health Program Inquiry", "Clinical Duty / Hospital Affiliation Concerns", "Clinical Requirements Submission", "Licensure Exam Preparation Consultation", "Faculty / Dean Consultation", "Parent / Guardian Conference", "Other"],
+    "College of Criminal Justice (CCJ)": ["Criminology Program Inquiry", "Internship / OJT Coordination", "MOCK Board / Training Concerns", "Research / Thesis Consultation", "Faculty / Dean Consultation", "Parent / Guardian Conference", "Other"],
+    "Senior High School Department": ["SHS Enrollment or Strand Inquiry", "Parent–Teacher Conference", "Clearance / Requirements Submission", "Guidance or Academic Advising", "Discipline or Behavioral Conference", "SHS Events / Activities Meeting", "Other"],
+    "Basic Education Department (BED)": ["Grade School / JHS Enrollment Inquiry", "Parent–Teacher Conference", "Student Academic Performance Consultation", "Clearance / Requirements Submission", "Discipline / Behavior Concerns", "BED Events / Activities Meeting", "Other"],
 
     // 🏫 ACADEMIC SUPPORT UNITS
-    "Learning Resource and Activity Center (LRAC)": [
-        "Library Access / Reading",
-        "Book Borrowing / Returning",
-        "Library Clearance / Account Concerns",
-        "Research Assistance / Database Orientation",
-        "Use of Study Rooms / Facilities",
-        "Access to Archives / Special Collections",
-        "Other"
-    ],
-    "Student Success Office (SSO)": [
-        "Counseling Appointment",
-        "Career Guidance / Job Placement",
-        "Academic Advising",
-        "Student Intervention / Retention Meeting",
-        "Student Organization / Leader Consultation",
-        "Mental Health Support Session",
-        "Other"
-    ],
-    "Office of Student Affairs (OSA)": [
-        "Student Organization Accreditation / Concerns",
-        "Campus Activities / Events Approval",
-        "Student Affairs Consultation",
-        "Student Conduct / Behavior Concerns",
-        "Scholarship / Financial Assistance Endorsement",
-        "Other"
-    ],
-    "Office of Student Discipline (OSD)": [
-        "Discipline Conference / Hearing",
-        "Incident / Case Follow-up",
-        "Parent / Guardian Conference",
-        "Submission of Incident-Related Documents",
-        "Policy Clarification or Orientation",
-        "Other"
-    ],
-    "Curriculum and Instruction Office (CIO)": [
-        "Curriculum Consultation / Alignment",
-        "Instructional Materials Submission / Review",
-        "Faculty Teaching Load or Assignment Inquiry",
-        "Program / Course Revision Meeting",
-        "Accreditation / CHED Compliance Coordination",
-        "Other"
-    ],
-    "Center for Teaching and Learning (CTL)": [
-        "Teaching Innovation Consultation",
-        "Faculty Training / Workshop",
-        "Classroom Observation / Feedback Session",
-        "Learning Materials Development Meeting",
-        "Coaching / Mentoring Session",
-        "Other"
-    ],
-    "Center for Research and Development (CRD)": [
-        "Research Proposal Consultation",
-        "Ethics Review Coordination",
-        "Data Gathering / Survey Permission",
-        "Research Funding / Grant Inquiry",
-        "Journal Publication / Conference Inquiry",
-        "Other"
-    ],
-    "Center for Community Extension (CCE)": [
-        "Community Extension Project Meeting",
-        "Partner LGU / NGO Coordination",
-        "Outreach Activity Planning",
-        "Monitoring and Evaluation Visit",
-        "Volunteer / Participation Inquiry",
-        "Other"
-    ],
-    "Guidance Services Office (GSO)": [
-        "Guidance / Counseling Session",
-        "Psychological Testing / Assessment",
-        "Career and Life Planning Consultation",
-        "Parent / Guardian Conference",
-        "Student Follow-up Session",
-        "Other"
-    ],
+    "Learning Resource and Activity Center (LRAC)": ["Library Access / Reading", "Book Borrowing / Returning", "Library Clearance / Account Concerns", "Research Assistance / Database Orientation", "Use of Study Rooms / Facilities", "Access to Archives / Special Collections", "Other"],
+    "Student Success Office (SSO)": ["Counseling Appointment", "Career Guidance / Job Placement", "Academic Advising", "Student Intervention / Retention Meeting", "Student Organization / Leader Consultation", "Mental Health Support Session", "Other"],
+    "Office of Student Affairs (OSA)": ["Student Organization Accreditation / Concerns", "Campus Activities / Events Approval", "Student Affairs Consultation", "Student Conduct / Behavior Concerns", "Scholarship / Financial Assistance Endorsement", "Other"],
+    "Office of Student Discipline (OSD)": ["Discipline Conference / Hearing", "Incident / Case Follow-up", "Parent / Guardian Conference", "Submission of Incident-Related Documents", "Policy Clarification or Orientation", "Other"],
+    "Curriculum and Instruction Office (CIO)": ["Curriculum Consultation / Alignment", "Instructional Materials Submission / Review", "Faculty Teaching Load or Assignment Inquiry", "Program / Course Revision Meeting", "Accreditation / CHED Compliance Coordination", "Other"],
+    "Center for Teaching and Learning (CTL)": ["Teaching Innovation Consultation", "Faculty Training / Workshop", "Classroom Observation / Feedback Session", "Learning Materials Development Meeting", "Coaching / Mentoring Session", "Other"],
+    "Center for Research and Development (CRD)": ["Research Proposal Consultation", "Ethics Review Coordination", "Data Gathering / Survey Permission", "Research Funding / Grant Inquiry", "Journal Publication / Conference Inquiry", "Other"],
+    "Center for Community Extension (CCE)": ["Community Extension Project Meeting", "Partner LGU / NGO Coordination", "Outreach Activity Planning", "Monitoring and Evaluation Visit", "Volunteer / Participation Inquiry", "Other"],
+    "Guidance Services Office (GSO)": ["Guidance / Counseling Session", "Psychological Testing / Assessment", "Career and Life Planning Consultation", "Parent / Guardian Conference", "Student Follow-up Session", "Other"],
 
     // 🧭 ADMINISTRATIVE AND FINANCE OFFICES
-    "Office of Admissions and Scholarships (OAS)": [
-        "Admission Inquiry",
-        "Submission of Admission Requirements",
-        "Enrollment Processing",
-        "Scholarship Application",
-        "Scholarship Inquiry",
-        "Claiming Scholarship Results",
-        "Document Verification (Admission-related)",
-        "Other"
-    ],
-    "University Registrar's Office (URO)": [
-        "Request for Transcript of Records",
-        "Request for Certificate (Enrollment, Grades, Good Moral, etc.)",
-        "Document Pickup (TOR, Certificates, etc.)",
-        "Correction of Student Records",
-        "Verification of Academic Credentials",
-        "Diploma Request / Release",
-        "Enrollment / Registration Concerns",
-        "Graduation Evaluation",
-        "Other"
-    ],
-    "Finance and Accounting Office (FAO)": [
-        "Tuition Payment",
-        "Financial Clearance",
-        "Assessment of Fees",
-        "Refund Processing",
-        "Scholarship / Discount Posting Inquiry",
-        "Statement of Account Request",
-        "Official Receipt Concerns",
-        "Payment Discrepancy Inquiry",
-        "Other"
-    ],
-    "Human Resource Department (HRD)": [
-        "Job Application Submission",
-        "Job Interview",
-        "Employment Verification",
-        "Employee Records Request",
-        "Contract Signing",
-        "HR Consultation / Meeting",
-        "Onboarding / Orientation",
-        "Clearance Processing",
-        "Other"
-    ],
-    "Property and Supply Office (PSO)": [
-        "Equipment / Asset Request",
-        "Property Issuance / Return",
-        "Inventory Verification",
-        "Lost / Damaged Property Reporting",
-        "Supplies Release / Replenishment",
-        "Other"
-    ],
-    "Physical Plant Office (PPO)": [
-        "Facility Maintenance Request",
-        "Venue Inspection / Checking",
-        "Campus Infrastructure Concern",
-        "Renovation / Construction Coordination",
-        "Events Setup Coordination",
-        "Other"
-    ],
-    "ICT / MIS Office": [
-        "Account / System Access Concern",
-        "Network / Internet Issue Reporting",
-        "Laboratory / Equipment Concern",
-        "System Enhancement / Request",
-        "Data / System Support Meeting",
-        "Other"
-    ],
-    "Purchasing Office": [
-        "Purchase Request Follow-up",
-        "Bidding / Quotation Submission",
-        "Supplier Coordination",
-        "Delivery / Receiving Concerns",
-        "Procurement Status Inquiry",
-        "Other"
-    ],
-    "Cashier's Office": [
-        "Payment of Fees",
-        "Official Receipt Reprinting",
-        "Refund Claiming",
-        "Petty Cash / Reimbursement",
-        "Collection / Payment Inquiry",
-        "Other"
-    ],
-    "Internal Audit Office (IAO)": [
-        "Internal Audit Meeting",
-        "Document Submission for Audit",
-        "Compliance / Control Discussion",
-        "Audit Findings Clarification",
-        "Risk Management Consultation",
-        "Other"
-    ],
+    "Office of Admissions and Scholarships (OAS)": ["Admission Inquiry", "Submission of Admission Requirements", "Enrollment Processing", "Scholarship Application", "Scholarship Inquiry", "Claiming Scholarship Results", "Document Verification (Admission-related)", "Other"],
+    "University Registrar's Office (URO)": ["Request for Transcript of Records", "Request for Certificate (Enrollment, Grades, Good Moral, etc.)", "Document Pickup (TOR, Certificates, etc.)", "Correction of Student Records", "Verification of Academic Credentials", "Diploma Request / Release", "Enrollment / Registration Concerns", "Graduation Evaluation", "Other"],
+    "Finance and Accounting Office (FAO)": ["Tuition Payment", "Financial Clearance", "Assessment of Fees", "Refund Processing", "Scholarship / Discount Posting Inquiry", "Statement of Account Request", "Official Receipt Concerns", "Payment Discrepancy Inquiry", "Other"],
+    "Human Resource Department (HRD)": ["Job Application Submission", "Job Interview", "Employment Verification", "Employee Records Request", "Contract Signing", "HR Consultation / Meeting", "Onboarding / Orientation", "Clearance Processing", "Other"],
+    "Property and Supply Office (PSO)": ["Equipment / Asset Request", "Property Issuance / Return", "Inventory Verification", "Lost / Damaged Property Reporting", "Supplies Release / Replenishment", "Other"],
+    "Physical Plant Office (PPO)": ["Facility Maintenance Request", "Venue Inspection / Checking", "Campus Infrastructure Concern", "Renovation / Construction Coordination", "Events Setup Coordination", "Other"],
+    "ICT / MIS Office": ["Account / System Access Concern", "Network / Internet Issue Reporting", "Laboratory / Equipment Concern", "System Enhancement / Request", "Data / System Support Meeting", "Other"],
+    "Purchasing Office": ["Purchase Request Follow-up", "Bidding / Quotation Submission", "Supplier Coordination", "Delivery / Receiving Concerns", "Procurement Status Inquiry", "Other"],
+    "Cashier's Office": ["Payment of Fees", "Official Receipt Reprinting", "Refund Claiming", "Petty Cash / Reimbursement", "Collection / Payment Inquiry", "Other"],
+    "Internal Audit Office (IAO)": ["Internal Audit Meeting", "Document Submission for Audit", "Compliance / Control Discussion", "Audit Findings Clarification", "Risk Management Consultation", "Other"],
 
     // 🌐 EXTERNAL & INSTITUTIONAL OFFICES
-    "Institutional Planning and Development Office (IPDO)": [
-        "Institutional Planning Meeting",
-        "Data / Statistics Request",
-        "Strategic Planning Consultation",
-        "Project Proposal Presentation",
-        "Accreditation / Ranking Coordination",
-        "Other"
-    ],
-    "Networking, Linkages & Relations (NLR)": [
-        "Partnership / MOA Meeting",
-        "Internship / OJT Coordination",
-        "Industry Relations Inquiry",
-        "Sponsorship Meeting",
-        "External Collaboration",
-        "Campus Promotional Activities Coordination",
-        "Other"
-    ],
-    "Public Relations and Communications Office (PRCO)": [
-        "Media / PR Coordination",
-        "Campus Press / Publication Concern",
-        "Marketing / Branding Meeting",
-        "Social Media / Content Coordination",
-        "Event Coverage Request",
-        "Other"
-    ],
-    "Quality Assurance Office (QAO)": [
-        "Accreditation / QA Meeting",
-        "Program Evaluation / Monitoring",
-        "Document Submission for QA",
-        "Quality Audit Preparation",
-        "Policy / Standards Consultation",
-        "Other"
-    ],
-    "Alumni Affairs Office (AAO)": [
-        "Alumni Verification",
-        "Alumni ID Application / Claiming",
-        "Alumni Records Request",
-        "Reunion / Event Coordination",
-        "Campus Access for Alumni",
-        "Donations or Partnerships",
-        "Alumni Networking Inquiries",
-        "Other"
-    ],
-    "Industry-Academe Linkage Office (IALO)": [
-        "Industry Partnership Meeting",
-        "Internship / OJT Placement",
-        "Company Visit Coordination",
-        "Memorandum of Agreement Discussion",
-        "Job Fair / Recruitment Coordination",
-        "Other"
-    ],
-    "Technology Business Incubation Office (TBI Office)": [
-        "Startup / Incubation Inquiry",
-        "Mentoring / Coaching Session",
-        "Pitching / Presentation Meeting",
-        "Space / Facility Use Request",
-        "Innovation / IP Consultation",
-        "Other"
-    ],
+    "Institutional Planning and Development Office (IPDO)": ["Institutional Planning Meeting", "Data / Statistics Request", "Strategic Planning Consultation", "Project Proposal Presentation", "Accreditation / Ranking Coordination", "Other"],
+    "Networking, Linkages & Relations (NLR)": ["Partnership / MOA Meeting", "Internship / OJT Coordination", "Industry Relations Inquiry", "Sponsorship Meeting", "External Collaboration", "Campus Promotional Activities Coordination", "Other"],
+    "Public Relations and Communications Office (PRCO)": ["Media / PR Coordination", "Campus Press / Publication Concern", "Marketing / Branding Meeting", "Social Media / Content Coordination", "Event Coverage Request", "Other"],
+    "Quality Assurance Office (QAO)": ["Accreditation / QA Meeting", "Program Evaluation / Monitoring", "Document Submission for QA", "Quality Audit Preparation", "Policy / Standards Consultation", "Other"],
+    "Alumni Affairs Office (AAO)": ["Alumni Verification", "Alumni ID Application / Claiming", "Alumni Records Request", "Reunion / Event Coordination", "Campus Access for Alumni", "Donations or Partnerships", "Alumni Networking Inquiries", "Other"],
+    "Industry-Academe Linkage Office (IALO)": ["Industry Partnership Meeting", "Internship / OJT Placement", "Company Visit Coordination", "Memorandum of Agreement Discussion", "Job Fair / Recruitment Coordination", "Other"],
+    "Technology Business Incubation Office (TBI Office)": ["Startup / Incubation Inquiry", "Mentoring / Coaching Session", "Pitching / Presentation Meeting", "Space / Facility Use Request", "Innovation / IP Consultation", "Other"],
 
     // 🛡 CAMPUS SERVICES
-    "Security Office": [
-        "Security Incident Reporting",
-        "Gate / ID Access Concern",
-        "Lost and Found Inquiry",
-        "Event Security Coordination",
-        "Parking / Traffic Concern",
-        "Other"
-    ],
-    "Clinic / Health Services Office": [
-        "Medical Consultation",
-        "First Aid / Treatment Follow-up",
-        "Medical Certificate Request",
-        "Health Clearance / Requirement",
-        "Vaccination / Health Campaign Visit",
-        "Other"
-    ],
-    "Maintenance Office": [
-        "Repair / Maintenance Request",
-        "Facility Inspection",
-        "Equipment Servicing",
-        "Cleaning / Sanitation Concern",
-        "Classroom / Office Setup Request",
-        "Other"
-    ],
-    "Janitorial Services Office": [
-        "Cleaning Request",
-        "Sanitation or Disinfection Concern",
-        "Waste Management / Disposal Inquiry",
-        "Event Cleanup Coordination",
-        "Other"
-    ],
+    "Security Office": ["Security Incident Reporting", "Gate / ID Access Concern", "Lost and Found Inquiry", "Event Security Coordination", "Parking / Traffic Concern", "Other"],
+    "Clinic / Health Services Office": ["Medical Consultation", "First Aid / Treatment Follow-up", "Medical Certificate Request", "Health Clearance / Requirement", "Vaccination / Health Campaign Visit", "Other"],
+    "Maintenance Office": ["Repair / Maintenance Request", "Facility Inspection", "Equipment Servicing", "Cleaning / Sanitation Concern", "Classroom / Office Setup Request", "Other"],
+    "Janitorial Services Office": ["Cleaning Request", "Sanitation or Disinfection Concern", "Waste Management / Disposal Inquiry", "Event Cleanup Coordination", "Other"],
 
     // 🏛 EXECUTIVE OFFICES
-    "Office of the University President": [
-        "Courtesy Visit",
-        "Official Meeting / Consultation",
-        "Signing of Documents / MOA",
-        "Institutional / External Partnership Meeting",
-        "Award / Recognition Ceremony",
-        "Other"
-    ],
-    "Office of the Executive Vice President": [
-        "Strategic / Institutional Meeting",
-        "Policy / Implementation Discussion",
-        "Project Monitoring / Evaluation",
-        "Signing of Documents",
-        "Other"
-    ],
-    "Office of the VP for Academic Affairs (VPAA)": [
-        "Academic Policy Consultation",
-        "Program / Curriculum Meeting",
-        "Accreditation / QA Coordination",
-        "Faculty / Academic Concerns",
-        "Other"
-    ],
-    "Office of the VP for Administration (VPA)": [
-        "Administrative Policy Consultation",
-        "Facilities / Services Discussion",
-        "HR / Admin Coordination Meeting",
-        "Project / Infrastructure Concerns",
-        "Other"
-    ],
-    "Office of the VP for Finance (VPF)": [
-        "Budget / Funding Meeting",
-        "Financial Policy Consultation",
-        "Project Costing / Evaluation",
-        "Audit / Compliance Discussion",
-        "Other"
-    ],
-    "Office of the VP for External Affairs (VPEA)": [
-        "External Relations / Partnership Meeting",
-        "Public / Community Engagement",
-        "Alumni / Industry Collaboration",
-        "Internationalization / Exchange Program Meeting",
-        "Other"
-    ]
+    "Office of the University President": ["Courtesy Visit", "Official Meeting / Consultation", "Signing of Documents / MOA", "Institutional / External Partnership Meeting", "Award / Recognition Ceremony", "Other"],
+    "Office of the Executive Vice President": ["Strategic / Institutional Meeting", "Policy / Implementation Discussion", "Project Monitoring / Evaluation", "Signing of Documents", "Other"],
+    "Office of the VP for Academic Affairs (VPAA)": ["Academic Policy Consultation", "Program / Curriculum Meeting", "Accreditation / QA Coordination", "Faculty / Academic Concerns", "Other"],
+    "Office of the VP for Administration (VPA)": ["Administrative Policy Consultation", "Facilities / Services Discussion", "HR / Admin Coordination Meeting", "Project / Infrastructure Concerns", "Other"],
+    "Office of the VP for Finance (VPF)": ["Budget / Funding Meeting", "Financial Policy Consultation", "Project Costing / Evaluation", "Audit / Compliance Discussion", "Other"],
+    "Office of the VP for External Affairs (VPEA)": ["External Relations / Partnership Meeting", "Public / Community Engagement", "Alumni / Industry Collaboration", "Internationalization / Exchange Program Meeting", "Other"]
 };
-
-// ===== SIMPLE "NONSENSE" DETECTION =====
-const bannedShortValues = ['lol', 'test', 'asdf', 'qwerty', 'hehe', 'huhu'];
-
-function isMostlyNonsense(text) {
-    const value = text.trim().toLowerCase();
-    if (!value) return true;
-    if (bannedShortValues.includes(value)) return true;
-    if (value.length < 3) return true;
-    return false;
-}
-
-function hasMinWords(text, minWords) {
-    return text.trim().split(/\s+/).length >= minWords;
-}
 
 // ===== WARNING MODAL =====
 function showWarning(title, message) {
@@ -623,11 +204,11 @@ function showWarning(title, message) {
     const warningTitle = document.getElementById('warningTitle');
     const warningMessage = document.getElementById('warningMessage');
 
-    if (!warningModal || !warningTitle || !warningMessage) return;
-
-    warningTitle.textContent = title;
-    warningMessage.textContent = message;
-    warningModal.style.display = 'flex';
+    if (warningModal) {
+        warningTitle.textContent = title;
+        warningMessage.textContent = message;
+        warningModal.style.display = 'flex';
+    }
 }
 
 // ===== PURPOSE / OTHER HANDLING =====
@@ -698,18 +279,12 @@ function toggleOther(field) {
     if (selectEl.value === 'Other') {
         otherInput.style.display = 'block';
         otherInput.required = true;
-
-        if (field === 'purpose') {
-            selectEl.required = false;
-        }
+        if (field === 'purpose') selectEl.required = false;
     } else {
         otherInput.style.display = 'none';
         otherInput.required = false;
         otherInput.value = '';
-
-        if (field === 'purpose') {
-            selectEl.required = true;
-        }
+        if (field === 'purpose') selectEl.required = true;
     }
 }
 
@@ -724,76 +299,43 @@ function formatLocalDate(date) {
 // ===== MAIN DOM LOGIC =====
 document.addEventListener('DOMContentLoaded', function () {
     const visitDateInput = document.getElementById('visit_date');
-    const deptSelect = document.getElementById('department');
-    const deptOther = document.getElementById('department_other');
-    const purposeSelect = document.getElementById('purpose');
-    const purposeOther = document.getElementById('purpose_other');
-    const form = document.querySelector('form');
+    const form = document.querySelector('.booking-form');
     const submitBtn = document.getElementById('submitBtn');
 
-    if (!visitDateInput || !deptSelect || !purposeSelect || !form) {
-        return;
+    if (visitDateInput) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = formatLocalDate(today);
+
+        const maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 7);
+        const maxStr = formatLocalDate(maxDate);
+
+        visitDateInput.setAttribute('min', todayStr);
+        visitDateInput.setAttribute('max', maxStr);
+
+        visitDateInput.addEventListener('input', function () {
+            if (!this.value) return;
+            const selectedDate = new Date(this.value + 'T00:00:00');
+            selectedDate.setHours(0, 0, 0, 0);
+
+            if (selectedDate < today) {
+                showWarning('📅 Invalid Date', 'You cannot select a past date.');
+                this.value = '';
+                return;
+            }
+            if (selectedDate > maxDate) {
+                showWarning('📅 Too Far Ahead', 'You can only book up to 7 days in advance.');
+                this.value = '';
+                return;
+            }
+            if (selectedDate.getDay() === 0) {
+                showWarning('📅 Sunday Not Available', 'Visits cannot be scheduled on Sundays. Please select a Monday-Saturday date.');
+                this.value = '';
+            }
+        });
     }
 
-    // ===== DATE LIMITS (NO PAST, NO SUNDAY, MAX 7 DAYS AHEAD) =====
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayStr = formatLocalDate(today);
-
-    const maxDate = new Date(today);
-    maxDate.setDate(maxDate.getDate() + 7);
-    const maxStr = formatLocalDate(maxDate);
-
-    visitDateInput.setAttribute('min', todayStr);
-    visitDateInput.setAttribute('max', maxStr);
-
-    visitDateInput.addEventListener('input', function () {
-        if (!this.value) return;
-
-        const selectedDate = new Date(this.value + 'T00:00:00');
-        selectedDate.setHours(0, 0, 0, 0);
-        const day = selectedDate.getDay(); // 0 = Sunday
-
-        if (selectedDate < today) {
-            showWarning(
-                '📅 Invalid Date',
-                'You cannot select a date that has already passed. Please select today or a future date.'
-            );
-            this.value = '';
-            return;
-        }
-
-        if (selectedDate > maxDate) {
-            showWarning(
-                '📅 Too Far in the Future',
-                'You can only book a visit up to 7 days from today.'
-            );
-            this.value = '';
-            return;
-        }
-
-        if (day === 0) {
-            showWarning(
-                '📅 Sunday Not Available',
-                'Visits cannot be scheduled on Sundays. Please select a weekday (Monday–Saturday).'
-            );
-            this.value = '';
-        }
-    });
-
-    // ===== HOOK SELECT EVENTS =====
-    deptSelect.addEventListener('change', function () {
-        updatePurposeOptions();
-        toggleOther('department');
-        this.blur();
-    });
-
-    purposeSelect.addEventListener('change', function () {
-        toggleOther('purpose');
-        this.blur();
-    });
-
-    // ===== WARNING MODAL CLOSE =====
     const warningOkBtn = document.getElementById('warningOkBtn');
     if (warningOkBtn) {
         warningOkBtn.onclick = function () {
@@ -802,100 +344,15 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    // ===== FORM SUBMISSION VALIDATION =====
-    form.addEventListener('submit', function (e) {
-        const deptUsesOther = deptOther.style.display === 'block';
-        const purposeUsesOther = purposeOther.style.display === 'block';
-
-        const departmentValue = (deptUsesOther ? deptOther.value : deptSelect.value || '').trim();
-        const purposeValue = (purposeUsesOther ? purposeOther.value : purposeSelect.value || '').trim();
-
-        // Department validation
-        if (!departmentValue) {
-            e.preventDefault();
-            showWarning('🏢 Department Required', 'Please select or specify a valid department.');
-            return false;
-        }
-        if (deptUsesOther) {
-            if (departmentValue.length < 5 || isMostlyNonsense(departmentValue)) {
-                e.preventDefault();
-                showWarning(
-                    '🏢 Department Too Vague',
-                    'Please enter a more descriptive department name (e.g., specific office or unit).'
-                );
-                return false;
+    if (form) {
+        form.addEventListener('submit', function() {
+            if (form.checkValidity()) {
+                submitBtn.innerHTML = 'Processing...';
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
             }
-        }
-
-        // Purpose validation
-        if (!purposeValue) {
-            e.preventDefault();
-            showWarning('❓ Purpose Required', 'Please select or specify your purpose for visiting.');
-            return false;
-        }
-        if (purposeUsesOther) {
-            if (purposeValue.length < 10 || !hasMinWords(purposeValue, 2) || isMostlyNonsense(purposeValue)) {
-                e.preventDefault();
-                showWarning(
-                    'Purpose Too Short',
-                    'Please provide a short description of your purpose (at least 10 characters and 2 words).'
-                );
-                return false;
-            }
-        }
-
-        // Date validation
-        if (!visitDateInput.value) {
-            e.preventDefault();
-            showWarning('📅 Missing Date', 'Please select a visit date.');
-            return false;
-        }
-
-        const selectedDate = new Date(visitDateInput.value + 'T00:00:00');
-        selectedDate.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-            e.preventDefault();
-            showWarning(
-                '📅 Invalid Date',
-                'You cannot select a date that has already passed. Please select today or a future date.'
-            );
-            return false;
-        }
-
-        if (selectedDate > maxDate) {
-            e.preventDefault();
-            showWarning(
-                '📅 Too Far in the Future',
-                'You can only book a visit up to 7 days from today.'
-            );
-            return false;
-        }
-
-        if (selectedDate.getDay() === 0) {
-            e.preventDefault();
-            showWarning(
-                '📅 Sunday Not Available',
-                'Visits cannot be scheduled on Sundays. Please select a weekday (Monday-Saturday).'
-            );
-            return false;
-        }
-
-        submitBtn.classList.add('loading');
-        submitBtn.disabled = true;
-    });
-
-    // ===== AUTO-DISMISS DJANGO MESSAGES =====
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(function (alert) {
-        setTimeout(function () {
-            alert.style.opacity = '0';
-            alert.style.transform = 'translateX(400px)';
-            setTimeout(function () {
-                alert.remove();
-            }, 500);
-        }, 5000);
-    });
+        });
+    }
 });
 </script>
 {% endblock %}

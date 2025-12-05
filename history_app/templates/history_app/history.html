@@ -10,130 +10,145 @@
 
 {% block content %}
 <div class="welcome-section">
-    <h1>My History</h1>
-    <p>Welcome, {{ user_first_name }}. Here are all your past and upcoming visits.</p>
+    <div class="welcome-text">
+        <h1>My Visit History</h1>
+        <p>View your complete visit records. Tap upcoming visits to manage them.</p>
+    </div>
 </div>
 
 <div class="filter-section">
-        <form method="get" class="filter-form">
+    <form method="get" class="filter-form">
         <input type="hidden" name="filter_submitted" value="1">
         <div class="filter-row">
             <div class="filter-group">
-                <label for="filter_date">Visit Date</label>
-                <input
-                    type="date"
-                    id="filter_date"
-                    name="date"
-                    value="{{ filter_date }}"
-                >
+                <label for="filter_date">Filter by Date</label>
+                <div class="input-icon-wrapper">
+                    <input type="date" id="filter_date" name="date" value="{{ filter_date }}" class="input-modern">
+                </div>
             </div>
             <div class="filter-group filter-search-group">
-                <label for="search_query">Search</label>
-                <input
-                    type="text"
-                    id="search_query"
-                    name="q"
-                    placeholder="Search by Pass Code or Department"
-                    value="{{ filter_query }}"
-                >
+                <label for="search_query">Search Visits</label>
+                <div class="search-input-wrapper">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="search-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" id="search_query" name="q" placeholder="Search by Code, Department or Purpose..." value="{{ filter_query }}" class="input-modern">
+                </div>
             </div>
             <div class="filter-actions">
-                <button type="submit" class="btn-pill btn-primary">Apply</button>
+                <button type="submit" class="btn-pill btn-primary">Apply Filters</button>
                 <a href="{% url 'history_app:visit_history' %}" class="btn-pill btn-secondary-outline">Reset</a>
             </div>
         </div>
-        <p class="filter-helper-text">
-            {% if filter_date %}
-                {{ filter_mode_text }} <strong>{{ filter_date_display }}</strong>.
-            {% else %}
-                {{ filter_mode_text }} <strong>{{ filter_date_display }}</strong>.
-            {% endif %}
-        </p>
     </form>
 </div>
 
 {% if visits %}
-    <div class="visit-list">
+    <div class="visit-grid-3d">
         {% for visit in visits %}
-            <div class="visit-card status-{{ visit.status|lower }}" data-status="{{ visit.status|lower }}" data-visit-id="{{ visit.visit_id }}">
-                <div class="visit-header">
-                    <div class="visit-code-section">
-                        <h3>{{ visit.code }}</h3>
-                        <span class="status-badge status-{{ visit.status|lower }}">{{ visit.status }}</span>
-                    </div>
-                </div>
-                <div class="visit-details">
-                    <div class="detail-row">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>{{ visit.display_date }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>{{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>{{ visit.department }}</span>
-                    </div>
-                    <div class="detail-row purpose-row">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>{{ visit.purpose }}</span>
-                    </div>
-                </div>
+            <div class="flip-card-scene">
+                
+                <div class="flip-card-inner {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}interactive-card{% endif %}" id="card-{{ visit.visit_id }}">
+                    
+                    <div class="card-face card-front">
+                        <div class="status-stripe status-{{ visit.status|lower }}"></div>
+                        
+                        <div class="front-content">
+                            <div class="front-header">
+                                <div class="code-badge">
+                                    <span class="code-label">CODE</span>
+                                    <span class="code-text">{{ visit.code }}</span>
+                                </div>
+                                <span class="status-pill status-{{ visit.status|lower }}">{{ visit.status }}</span>
+                            </div>
 
-                {% if visit.status|lower == "upcoming" or visit.status|lower == "active" %}
-                <div class="card-actions">
-                    <button class="cancel-visit-btn" data-visit-id="{{ visit.visit_id }}" data-visit-code="{{ visit.code }}">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
-                        Cancel Booking
-                    </button>
+                            <div class="front-body">
+                                <h3 class="visit-purpose single-line" title="{{ visit.purpose }}">{{ visit.purpose }}</h3>
+                                
+                                <div class="visit-department single-line" title="{{ visit.department }}">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                    <span class="dept-text">{{ visit.department }}</span>
+                                </div>
+                            </div>
+
+                            <div class="card-divider"></div>
+
+                            <div class="front-footer">
+                                <div class="meta-col">
+                                    <span class="meta-label">DATE</span>
+                                    <span class="meta-value">{{ visit.display_date }}</span>
+                                </div>
+                                <div class="meta-col">
+                                    <span class="meta-label">TIME</span>
+                                    <span class="meta-value" title="{{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}">{{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}</span>
+                                </div>
+                            </div>
+
+                            {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}
+                                <div class="tap-indicator-row">
+                                    <span class="tap-text">Tap to manage</span> 
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                </div>
+                            {% else %}
+                                <div class="tap-spacer"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}
+                    <div class="card-face card-back">
+                        <div class="back-content">
+                            <div class="back-header">
+                                <h4>Manage Visit</h4>
+                                <button type="button" class="btn-close-flip" onclick="flipCardBack(event, 'card-{{ visit.visit_id }}')">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                            
+                            <div class="back-body">
+                                <div class="warning-icon-sm">
+                                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                </div>
+                                <p>Do you want to cancel this visit?</p>
+                                <div class="visit-code-display">{{ visit.code }}</div>
+                            </div>
+
+                            <div class="back-actions">
+                                <button class="btn-cancel-full cancel-visit-btn" data-visit-id="{{ visit.visit_id }}" data-visit-code="{{ visit.code }}">
+                                    Cancel Booking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
                 </div>
-                {% endif %}
             </div>
         {% endfor %}
     </div>
 {% else %}
-    <div class="empty-state">
-        <svg width="80" height="80" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-        </svg>
+    <div class="empty-state-container">
+        <div class="empty-icon-bg">
+            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+        </div>
         <h3>No visits found</h3>
-        <p>Try changing the date or search term, or book a new visit.</p>
-        <a href="{% url 'book_visit_app:book_visit' %}" class="book-visit-btn">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-            </svg>
-            Book Your First Visit
-        </a>
+        <p>We couldn't find any visits matching your filters.</p>
+        <a href="{% url 'book_visit_app:book_visit' %}" class="btn-reset-empty">Book a Visit</a>
     </div>
 {% endif %}
 {% endblock %}
 
 {% block extra_js %}
-
-<!-- Cancel Visit Confirmation Modal -->
 <div id="cancelVisitModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-icon-warning">
-            <svg width="60" height="60" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-            </svg>
+    <div class="modal-content warning-card">
+        <div class="warning-icon-wrapper">
+            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
-        <h2>Cancel This Visit?</h2>
-        <p class="modal-description">Are you sure you want to cancel visit <strong id="cancelVisitCode"></strong>? This action cannot be undone.</p>
+        <h2 id="warningTitle">Cancel Visit?</h2>
+        <p id="warningMessage">You are about to cancel visit <strong id="cancelVisitCode" style="color:#8B1538;"></strong>. This action cannot be undone.</p>
         <div class="modal-buttons">
-            <button id="confirmCancelVisit" class="btn-danger">Yes, Cancel Visit</button>
-            <button id="cancelCancelVisit" class="btn-secondary">No, Keep It</button>
+            <button id="confirmCancelVisit" class="btn-warning-action btn-danger-solid">Yes, Cancel It</button>
+            <button id="cancelCancelVisit" class="btn-warning-action btn-secondary-outline">Keep Visit</button>
         </div>
     </div>
 </div>
@@ -144,43 +159,22 @@
 </form>
 
 <script>
-
-// ===== LIMIT HISTORY DATE FILTER TO MAX 7 DAYS AHEAD =====
-document.addEventListener('DOMContentLoaded', function () {
-    const dateInput = document.getElementById('filter_date');
-    if (!dateInput) return;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // today string (YYYY-MM-DD)
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${yyyy}-${mm}-${dd}`;
-
-    // max = today + 7 days
-    const maxDate = new Date(today);
-    maxDate.setDate(maxDate.getDate() + 7);
-    const maxY = maxDate.getFullYear();
-    const maxM = String(maxDate.getMonth() + 1).padStart(2, '0');
-    const maxD = String(maxDate.getDate()).padStart(2, '0');
-    const maxStr = `${maxY}-${maxM}-${maxD}`;
-
-    // You can pick any past date, but future is capped at +7 days
-    dateInput.setAttribute('max', maxStr);
-
-    dateInput.addEventListener('input', function () {
-        if (!this.value) return;
-
-        if (this.value > maxStr) {
-            alert('You can only view visits up to 7 days from today.');
-            this.value = maxStr;
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.interactive-card');
+    cards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('button')) return;
+            this.classList.toggle('is-flipped');
+        });
     });
 });
 
-// Cancel Visit Modal
+function flipCardBack(event, cardId) {
+    event.stopPropagation();
+    const card = document.getElementById(cardId);
+    if(card) card.classList.remove('is-flipped');
+}
+
 const cancelVisitModal = document.getElementById('cancelVisitModal');
 const confirmCancelVisit = document.getElementById('confirmCancelVisit');
 const cancelCancelVisit = document.getElementById('cancelCancelVisit');
@@ -188,10 +182,10 @@ const cancelVisitButtons = document.querySelectorAll('.cancel-visit-btn');
 let currentVisitId = null;
 
 cancelVisitButtons.forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
         currentVisitId = this.getAttribute('data-visit-id');
         const visitCode = this.getAttribute('data-visit-code');
-        console.log('Cancel button clicked. Visit ID:', currentVisitId, 'Visit Code:', visitCode);
         document.getElementById('cancelVisitCode').textContent = visitCode;
         cancelVisitModal.style.display = 'flex';
     });
@@ -199,23 +193,18 @@ cancelVisitButtons.forEach(btn => {
 
 confirmCancelVisit.onclick = function() {
     if (currentVisitId) {
-        console.log('Confirming cancellation for visit ID:', currentVisitId);
         document.getElementById('cancelVisitIdInput').value = currentVisitId;
         document.getElementById('cancelVisitForm').submit();
-    } else {
-        console.error('No visit ID set!');
     }
 }
 
 cancelCancelVisit.onclick = function() {
     cancelVisitModal.style.display = 'none';
-    currentVisitId = null;
 }
 
 window.onclick = function(e) {
     if (e.target == cancelVisitModal) {
         cancelVisitModal.style.display = 'none';
-        currentVisitId = null;
     }
 }
 </script>

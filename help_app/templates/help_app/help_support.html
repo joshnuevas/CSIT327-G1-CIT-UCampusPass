@@ -9,346 +9,233 @@
 {% block help_active %}active{% endblock %}
 
 {% block content %}
-<div class="welcome-section">
-    <h1>Help & Support</h1>
-    <p>Find answers to common questions or get in touch with us</p>
-</div>
+<div class="page-hero-bg"></div>
 
-<!-- Messages -->
-{% if messages %}
-    <div class="messages-container">
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
-
-<!-- Quick Navigation -->
-<div class="quick-nav-grid">
-    <a href="#faqs" class="quick-nav-card">
-        <div class="nav-card-icon">❓</div>
-        <h3>FAQs</h3>
-        <p>Common questions answered</p>
-    </a>
-    <a href="#contact" class="quick-nav-card">
-        <div class="nav-card-icon">📧</div>
-        <h3>Contact Us</h3>
-        <p>Send us a message</p>
-    </a>
-    <a href="#troubleshooting" class="quick-nav-card">
-        <div class="nav-card-icon">🔧</div>
-        <h3>Troubleshooting</h3>
-        <p>Fix common issues</p>
-    </a>
-    <a href="#feedback" class="quick-nav-card">
-        <div class="nav-card-icon">💡</div>
-        <h3>Feedback</h3>
-        <p>Share your suggestions</p>
-    </a>
-</div>
-
-<!-- FAQs Section -->
-<div id="faqs" class="card">
-    <div class="card-header">
-        <h3 class="card-title">Frequently Asked Questions</h3>
+<div class="content-wrapper">
+    <div class="welcome-section">
+        <div class="welcome-text">
+            <h1>Help Center</h1>
+            <p>Guides, troubleshooting, and answers to common questions.</p>
+        </div>
     </div>
 
-    <div class="accordion">
-        <!-- FAQ 1 -->
-        <div class="accordion-item">
-            <button class="accordion-header">
-                <span>How do I book a visit?</span>
-                <span class="accordion-icon">+</span>
-            </button>
-            <div class="accordion-content">
-                <p>Booking a visit is simple:</p>
-                <ol>
-                    <li>Go to the <strong>Book Visit</strong> page from the sidebar</li>
-                    <li>Select your <strong>purpose</strong> (or enter a custom purpose)</li>
-                    <li>Choose the <strong>department</strong> you wish to visit</li>
-                    <li>Pick your preferred <strong>date</strong> (weekdays only)</li>
-                    <li>Select <strong>start and end times</strong> between 7:30 AM - 9:00 PM</li>
-                    <li>Click <strong>Submit</strong> to receive your unique visit code</li>
-                </ol>
-                <p>You'll receive a confirmation with your visit code.</p>
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="quick-nav-grid">
+        <a href="#faqs" class="nav-card">
+            <div class="nav-icon-circle icon-faq">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
+            <div class="nav-text">
+                <h3>FAQs</h3>
+                <p>Common questions answered</p>
+            </div>
+        </a>
+        <a href="#troubleshooting" class="nav-card">
+            <div class="nav-icon-circle icon-trouble">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </div>
+            <div class="nav-text">
+                <h3>Troubleshooting</h3>
+                <p>Fix technical issues</p>
+            </div>
+        </a>
+    </div>
+
+    <div id="faqs" class="content-card">
+        <div class="card-header-clean">
+            <h3 class="card-title">Frequently Asked Questions</h3>
         </div>
 
-        <!-- FAQ 2 -->
-        <div class="accordion-item">
-            <button class="accordion-header">
-                <span>How do I cancel or reschedule a visit?</span>
-                <span class="accordion-icon">+</span>
-            </button>
-            <div class="accordion-content">
-                <p>To cancel or reschedule your visit:</p>
-                <ol>
-                    <li>Go to your <strong>Dashboard</strong> or <strong>My History</strong> page</li>
-                    <li>Find the visit you want to modify</li>
-                    <li>Click the <strong>Cancel</strong> button for upcoming visits</li>
-                    <li>To reschedule, cancel the existing visit and book a new one</li>
-                </ol>
-                <p><strong>Note:</strong> Cancellations should be made at least 24 hours before your scheduled visit.</p>
+        <div class="accordion">
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="q-text">How do I book a visit?</span>
+                    <span class="accordion-icon"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                </button>
+                <div class="accordion-content">
+                    <div class="content-pad">
+                        <ol class="steps-list">
+                            <li>Navigate to the <strong>Book Visit</strong> page.</li>
+                            <li>Select your <strong>Target Department</strong> and <strong>Purpose</strong>.</li>
+                            <li>Choose a valid <strong>Date</strong> (Mon-Sat).</li>
+                            <li>Click <strong>Confirm & Book Visit</strong>.</li>
+                        </ol>
+                        <p class="note-text">Your visit code will appear instantly on your Dashboard.</p>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- FAQ 3 -->
-        <div class="accordion-item">
-            <button class="accordion-header">
-                <span>Why can't I see my visit on the dashboard?</span>
-                <span class="accordion-icon">+</span>
-            </button>
-            <div class="accordion-content">
-                <p>If your visit isn't showing up, try these steps:</p>
-                <ul>
-                    <li><strong>Refresh the page</strong> - Press F5 or click refresh</li>
-                    <li><strong>Check My History</strong> - Past visits appear there</li>
-                    <li><strong>Verify booking</strong> - Make sure you got a success message</li>
-                    <li><strong>Clear cache</strong> - Sometimes cached data needs clearing</li>
-                    <li><strong>Log out and back in</strong> - This refreshes your session</li>
-                </ul>
-                <p>If the problem persists, please <a href="#contact">contact support</a>.</p>
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="q-text">How do I cancel or reschedule?</span>
+                    <span class="accordion-icon"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                </button>
+                <div class="accordion-content">
+                    <div class="content-pad">
+                        <p>Go to <strong>My History</strong>, find the upcoming visit card, tap it to flip, and click <strong>Cancel Booking</strong>.</p>
+                        <p>To reschedule, simply book a new visit after cancelling the old one.</p>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- FAQ 4 -->
-        <div class="accordion-item">
-            <button class="accordion-header">
-                <span>How can I reset my password?</span>
-                <span class="accordion-icon">+</span>
-            </button>
-            <div class="accordion-content">
-                <p>To reset your password:</p>
-                <ol>
-                    <li>Go to the <strong>Login</strong> page</li>
-                    <li>Click on <strong>"Forgot Password?"</strong></li>
-                    <li>Enter your registered email address</li>
-                    <li>Check your email for a password reset link</li>
-                    <li>Follow the instructions to create a new password</li>
-                </ol>
-                <p>Check your spam folder if you don't receive the email within 5 minutes.</p>
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="q-text">My visit isn't showing on the dashboard.</span>
+                    <span class="accordion-icon"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                </button>
+                <div class="accordion-content">
+                    <div class="content-pad">
+                        <p>Try refreshing the page or checking the <strong>My History</strong> tab. Ensure you are looking at the correct date filter.</p>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- FAQ 5 -->
-        <div class="accordion-item">
-            <button class="accordion-header">
-                <span>What should I do if I didn't receive a confirmation email?</span>
-                <span class="accordion-icon">+</span>
-            </button>
-            <div class="accordion-content">
-                <p>Don't worry! Your visit is still booked even without the email.</p>
-                <ul>
-                    <li><strong>Check spam folder</strong> - Emails sometimes land there</li>
-                    <li><strong>View your code</strong> - It's displayed after booking</li>
-                    <li><strong>Check Dashboard</strong> - Your visit details are saved there</li>
-                    <li><strong>Note your code</strong> - You'll need it upon arrival</li>
-                </ul>
-                <p>The email is optional - as long as you have your visit code, you're set!</p>
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="q-text">How can I reset my password?</span>
+                    <span class="accordion-icon"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                </button>
+                <div class="accordion-content">
+                    <div class="content-pad">
+                        <p>Log out and click <strong>"Forgot Password?"</strong> on the login screen. Follow the email instructions sent to your registered address.</p>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- FAQ 6 -->
-        <div class="accordion-item">
-            <button class="accordion-header">
-                <span>What are the visiting hours?</span>
-                <span class="accordion-icon">+</span>
-            </button>
-            <div class="accordion-content">
-                <p>CIT-U CampusPass visiting schedule:</p>
-                <ul>
-                    <li><strong>Days:</strong> Monday to Friday (Weekdays only)</li>
-                    <li><strong>Times:</strong> 7:30 AM to 9:00 PM</li>
-                    <li><strong>Weekends:</strong> Not available on Saturdays and Sundays</li>
-                </ul>
-                <p><strong>Important:</strong> All visit times must fall within this window.</p>
-            </div>
-        </div>
-
-        <!-- FAQ 7 -->
-        <div class="accordion-item">
-            <button class="accordion-header">
-                <span>What should I bring when visiting?</span>
-                <span class="accordion-icon">+</span>
-            </button>
-            <div class="accordion-content">
-                <p>Please bring:</p>
-                <ul>
-                    <li><strong>Valid ID</strong> - Government-issued or school ID</li>
-                    <li><strong>Visit Code</strong> - The code from your booking</li>
-                    <li><strong>Purpose Documentation</strong> - If applicable</li>
-                </ul>
-                <p>Present your visit code to security at the entrance.</p>
+            <div class="accordion-item">
+                <button class="accordion-header">
+                    <span class="q-text">What are the visiting hours?</span>
+                    <span class="accordion-icon"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></span>
+                </button>
+                <div class="accordion-content">
+                    <div class="content-pad">
+                        <ul class="bullet-list">
+                            <li><strong>Monday - Saturday:</strong> 7:30 AM to 9:00 PM</li>
+                            <li><strong>Sundays/Holidays:</strong> Closed (unless announced)</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Troubleshooting Section -->
-<div id="troubleshooting" class="card">
-    <div class="card-header">
-        <h3 class="card-title">Troubleshooting</h3>
+    <div id="troubleshooting" class="content-card">
+    <div class="card-header-clean">
+        <h3 class="card-title">Troubleshooting Guide</h3>
     </div>
     <div class="troubleshooting-grid">
-        <div class="troubleshooting-item">
-            <div class="trouble-icon">🔄</div>
-            <h4>Pages not loading?</h4>
-            <p>Clear your browser cache. Press <kbd>Ctrl+Shift+Delete</kbd> and select cached images and files.</p>
+        <div class="trouble-card">
+            <div class="trouble-icon bg-blue">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+            </div>
+            <h4>Page Won't Load?</h4>
+            <p>Clear your browser cache (Ctrl+Shift+R) or try a different browser.</p>
         </div>
 
-        <div class="troubleshooting-item">
-            <div class="trouble-icon">📶</div>
-            <h4>Connection issues?</h4>
-            <p>Check your internet connection. Try switching between WiFi and mobile data.</p>
+        <div class="trouble-card">
+            <div class="trouble-icon bg-green">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
+                </svg>
+            </div>
+            <h4>Connection Error?</h4>
+            <p>Check your internet connection. Switch between WiFi and mobile data.</p>
         </div>
 
-        <div class="troubleshooting-item">
-            <div class="trouble-icon">🔐</div>
-            <h4>Session expired?</h4>
-            <p>For security, sessions expire after inactivity. Simply log in again.</p>
+        <div class="trouble-card">
+            <div class="trouble-icon bg-gold">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+            </div>
+            <h4>Session Expired?</h4>
+            <p>For security, you are logged out after inactivity. Please log in again.</p>
         </div>
 
-        <div class="troubleshooting-item">
-            <div class="trouble-icon">🖥️</div>
-            <h4>Display issues?</h4>
-            <p>Try a different browser or update your current one to the latest version.</p>
-        </div>
-    </div>
-</div>
-
-<!-- Contact & Feedback Grid -->
-<div class="contact-feedback-grid">
-    <!-- Contact Section -->
-    <div id="contact" class="card">
-        <div class="card-header">
-            <h3 class="card-title">Contact Support</h3>
+        <div class="trouble-card">
+            <div class="trouble-icon bg-gray">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <h4>Display Glitches?</h4>
+            <p>Update your browser to the latest version for the best experience.</p>
         </div>
 
-        <div class="contact-info-box">
-            <div class="contact-method">
-                <span class="method-icon">📧</span>
-                <div>
-                    <strong>Email</strong>
-                    <p><a href="mailto:citucampuspass@gmail.com">citucampuspass@gmail.com</a></p>
-                </div>
+        <div class="trouble-card">
+            <div class="trouble-icon bg-blue">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7V5a3 3 0 013-3h2a3 3 0 013 3v2m-1 4h-8a2 2 0 00-2 2v5h12v-5a2 2 0 00-2-2z"></path>
+                </svg>
             </div>
-            <div class="contact-method">
-                <span class="method-icon">⏰</span>
-                <div>
-                    <strong>Response Time</strong>
-                    <p>Within 24-48 hours</p>
-                </div>
-            </div>
+            <h4>Wrong Visit Details?</h4>
+            <p>Cancel the incorrect booking in <strong>My History</strong> and create a new visit with updated details.</p>
         </div>
 
-        <form method="POST" class="support-form">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="contact">
-
-            <div class="form-group">
-                <label>Full Name <span class="required">*</span></label>
-                <input type="text" name="name" value="{{ user_first_name }}" required>
+        <div class="trouble-card">
+            <div class="trouble-icon bg-green">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3zm0 2c-2.21 0-4 1.343-4 3v1h8v-1c0-1.657-1.79-3-4-3zM15 3h4m0 0v4m0-4l-5 5"></path>
+                </svg>
             </div>
-
-            <div class="form-group">
-                <label>Email <span class="required">*</span></label>
-                <input type="email" name="email" value="{{ user_email }}" required>
-            </div>
-
-            <div class="form-group">
-                <label>Subject <span class="required">*</span></label>
-                <select name="subject" required>
-                    <option value="">Select a subject</option>
-                    <option value="Booking Issue">Booking Issue</option>
-                    <option value="Cannot Login">Cannot Login</option>
-                    <option value="Technical Problem">Technical Problem</option>
-                    <option value="Visit Code Issue">Visit Code Issue</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Message <span class="required">*</span></label>
-                <textarea name="message" rows="4" required></textarea>
-            </div>
-
-            <button type="submit" class="submit-btn">Send Message</button>
-        </form>
-    </div>
-
-    <!-- Feedback Section -->
-    <div id="feedback" class="card feedback-card">
-        <div class="card-header">
-            <h3 class="card-title">Share Your Feedback</h3>
+            <h4>Visit Code Not Working?</h4>
+            <p>Verify the code from your Dashboard/My History. If it still fails, present your ID and coordinate with campus staff.</p>
         </div>
-
-        <div class="feedback-intro">
-            <div class="feedback-icon">💡</div>
-            <p>Have ideas to improve CampusPass? We'd love to hear from you!</p>
-        </div>
-
-        <form method="POST" class="support-form">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="feedback">
-
-            <div class="form-group">
-                <label>Name <span class="required">*</span></label>
-                <input type="text" name="name" value="{{ user_first_name }}" required>
-            </div>
-
-            <div class="form-group">
-                <label>Email <span class="required">*</span></label>
-                <input type="email" name="email" value="{{ user_email }}" required>
-            </div>
-
-            <div class="form-group">
-                <label>Your Feedback <span class="required">*</span></label>
-                <textarea name="message" rows="4" placeholder="Share your suggestions..." required></textarea>
-            </div>
-
-            <button type="submit" class="submit-btn feedback-btn">Submit Feedback</button>
-        </form>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Accordion functionality
+// Accordion Logic
 document.querySelectorAll('.accordion-header').forEach(button => {
     button.addEventListener('click', () => {
-        const accordionItem = button.parentElement;
-        const isActive = accordionItem.classList.contains('active');
+        const item = button.parentElement;
+        const isActive = item.classList.contains('active');
 
-        document.querySelectorAll('.accordion-item').forEach(item => {
-            item.classList.remove('active');
-            item.querySelector('.accordion-icon').textContent = '+';
+        // Close all others
+        document.querySelectorAll('.accordion-item').forEach(i => {
+            i.classList.remove('active');
         });
 
+        // Toggle current
         if (!isActive) {
-            accordionItem.classList.add('active');
-            button.querySelector('.accordion-icon').textContent = '−';
+            item.classList.add('active');
         }
     });
 });
 
-// Smooth scrolling
+// Smooth Scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth', block: 'start'
+        });
     });
 });
 
-// Auto-dismiss messages
+// Dismiss Alerts
 setTimeout(() => {
     document.querySelectorAll('.alert').forEach(msg => {
-        msg.style.transition = 'opacity 0.5s';
         msg.style.opacity = '0';
         setTimeout(() => msg.remove(), 500);
     });

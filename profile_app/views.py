@@ -78,9 +78,11 @@ def profile_view(request):
             user.visitor_type = visitor_type
             user.save()
 
-            # Update session email if changed
+            # Update session so header initials stay in sync
             request.session['user_email'] = email
             request.session['user_first_name'] = first_name
+            request.session['user_last_name'] = last_name
+
             messages.success(request, "Profile updated successfully!")
             return redirect('profile_app:profile')
 
@@ -118,7 +120,11 @@ def profile_view(request):
             messages.success(request, "Account deleted permanently.")
             return redirect('login_app:login')
 
-    return render(request, 'profile_app/profile.html', {"user": user})
+    return render(request, 'profile_app/profile.html', {
+        "user": user,
+        "user_first_name": request.session.get("user_first_name"),
+        "user_last_name": request.session.get("user_last_name"),
+    })
 
 def admin_profile_view(request):
     if 'admin_username' not in request.session:

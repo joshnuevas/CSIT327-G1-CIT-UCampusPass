@@ -6,54 +6,119 @@
 
 {% block content %}
 <div class="welcome-section">
-    <h1>Welcome, {{ user_first_name }}!</h1>
-    <p>Here's what's happening with your campus visits today</p>
+    <div class="welcome-text">
+        <h1>Welcome back, {{ user_first_name }}!</h1>
+        <p>Manage your campus access and view upcoming schedules.</p>
+    </div>
+    <div class="current-date">
+        {% now "l, F j, Y" %}
+    </div>
 </div>
 
 <div class="stats-grid">
     <div class="stat-card active-pass-stat">
-        <div class="stat-value">{{ active_visits|length }}</div>
-        <div class="stat-label">Active Pass</div>
+        <div class="stat-icon-wrapper icon-green">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ active_visits|length }}</div>
+            <div class="stat-label">Active Passes</div>
+        </div>
     </div>
+
     <div class="stat-card">
-        <div class="stat-value">{{ upcoming_visits|length }}</div>
-        <div class="stat-label">Upcoming Visits</div>
+        <div class="stat-icon-wrapper icon-gold">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ upcoming_visits|length }}</div>
+            <div class="stat-label">Upcoming Visits</div>
+        </div>
     </div>
+
     <div class="stat-card total-visits-stat">
-        <div class="stat-value">{{ completed_visits_count }}</div>
-        <div class="stat-label">Completed Pass</div>
+        <div class="stat-icon-wrapper icon-blue">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+            </svg>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ completed_visits_count }}</div>
+            <div class="stat-label">History Total</div>
+        </div>
     </div>
 </div>
 
 <div class="dashboard-grid">
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">My Visit Codes</h3>
-            <a href="{% url 'history_app:visit_history' %}" class="view-all">View All →</a>
+            <div class="header-title-group">
+                <h3 class="card-title">Recent Visit Codes</h3>
+                <span class="badge-count">{{ visits|length }} total</span>
+            </div>
+            
+            <div class="header-actions">
+                <a href="{% url 'book_visit_app:book_visit' %}" class="btn-sm btn-primary">
+                    + Book New
+                </a>
+                <a href="{% url 'history_app:visit_history' %}" class="btn-sm btn-outline">
+                    View History
+                </a>
+            </div>
         </div>
 
-        {% now "Y-m-d" as today %}
-        {% for visit in visits %}
-            <div class="pass-code-item">
-                <div class="pass-code-info">
-                    <h4>{{ visit.code }}</h4>
-                    <p>{{ visit.display_date }} • {{ visit.formatted_start_time }} - {{ visit.formatted_end_time }} • {{ visit.purpose }}</p>
-                </div>
-                <span class="pass-status status-{{ visit.status|lower }}">{{ visit.status }}</span>
-            </div>
-        {% empty %}
-            <p>No visits found.</p>
-        {% endfor %}
+        <div class="visits-list-container">
+            {% for visit in visits %}
+                <div class="ticket-wrapper">
+                    <div class="ticket-stub">
+                        <div class="stub-texture"></div>
+                        
+                        <span class="ticket-month">{{ visit.date|date:"M"|upper }}</span>
+                        <span class="ticket-day">{{ visit.date|date:"d" }}</span>
+                        <span class="ticket-year">{{ visit.date|date:"Y" }}</span>
+                        
+                        <div class="notch notch-top"></div>
+                        <div class="notch notch-bottom"></div>
+                    </div>
 
-        <div style="margin-top: 20px;">
-            <a href="{% url 'book_visit_app:book_visit' %}" class="quick-action-btn">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-                </svg>
-                Book New Visit
-            </a>
+                    <div class="ticket-body">
+                        <div class="ticket-main-info">
+                            <h4 class="ticket-purpose">{{ visit.purpose }}</h4>
+                            
+                            <div class="ticket-meta-row">
+                                <div class="meta-item">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    {{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}
+                                </div>
+                                <span class="ticket-status-badge status-{{ visit.status|lower }}">
+                                    {{ visit.status }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="ticket-code-section">
+                            <span class="code-label">PASS CODE</span>
+                            <span class="ticket-code">{{ visit.code }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state-dashboard">
+                    <div class="empty-icon-circle">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
+                    <h3>No visits scheduled</h3>
+                    <p>You haven't booked any campus visits yet.</p>
+                    <a href="{% url 'book_visit_app:book_visit' %}" class="btn-empty-action">Book a Visit Now</a>
+                </div>
+            {% endfor %}
         </div>
     </div>
-
 </div>
 {% endblock %}
