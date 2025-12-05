@@ -15,7 +15,8 @@
 </div>
 
 <div class="filter-section">
-    <form method="get" class="filter-form">
+        <form method="get" class="filter-form">
+        <input type="hidden" name="filter_submitted" value="1">
         <div class="filter-row">
             <div class="filter-group">
                 <label for="filter_date">Visit Date</label>
@@ -143,6 +144,42 @@
 </form>
 
 <script>
+
+// ===== LIMIT HISTORY DATE FILTER TO MAX 7 DAYS AHEAD =====
+document.addEventListener('DOMContentLoaded', function () {
+    const dateInput = document.getElementById('filter_date');
+    if (!dateInput) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // today string (YYYY-MM-DD)
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    // max = today + 7 days
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 7);
+    const maxY = maxDate.getFullYear();
+    const maxM = String(maxDate.getMonth() + 1).padStart(2, '0');
+    const maxD = String(maxDate.getDate()).padStart(2, '0');
+    const maxStr = `${maxY}-${maxM}-${maxD}`;
+
+    // You can pick any past date, but future is capped at +7 days
+    dateInput.setAttribute('max', maxStr);
+
+    dateInput.addEventListener('input', function () {
+        if (!this.value) return;
+
+        if (this.value > maxStr) {
+            alert('You can only view visits up to 7 days from today.');
+            this.value = maxStr;
+        }
+    });
+});
+
 // Cancel Visit Modal
 const cancelVisitModal = document.getElementById('cancelVisitModal');
 const confirmCancelVisit = document.getElementById('confirmCancelVisit');

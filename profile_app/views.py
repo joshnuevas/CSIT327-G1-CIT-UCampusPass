@@ -5,6 +5,19 @@ import re
 from django.contrib.auth.hashers import check_password, make_password
 from django.db import IntegrityError
 from manage_reports_logs_app import services as logs_services
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.contrib.auth.tokens import default_token_generator
+from django.views.decorators.http import require_http_methods
+from profile_app.tokens import simple_token_generator
+from login_app.models import PasswordResetToken
+
+
+from django.conf import settings
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 # Import Django models
 from register_app.models import User
@@ -182,3 +195,45 @@ def admin_profile_view(request):
 
     context = {"admin": admin}
     return render(request, "profile_app/admin_profile.html", context)
+
+def change_password_request(request):
+    # Session-based authentication for visitor users
+    if "user_email" not in request.session:
+        return redirect("login_app:login")
+
+    user = User.objects.get(email=request.session["user_email"])
+
+    if request.method == "POST":
+        # Create password reset token
+        reset_token = PasswordResetToken.objects.create(user=user)
+
+        reset_url = request.build_absolute_uri(
+            reverse("login_app:reset_password", args=[reset_token.token])
+        )
+
+        subject = "Campus Pass - Change Password"
+        body_text = (
+            f"Hi {user.first_name},\n\n"
+            "You requested to change your Campus Pass password.\n"
+            f"Click the link below to set a new password:\n\n{reset_url}\n\n"
+            "If you did not request this, you may ignore this email.\n\n"
+            "CIT-U Campus Pass"
+        )
+
+        try:
+            sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+            message = Mail(
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to_emails=user.email,
+                subject=subject,
+                plain_text_content=body_text,
+            )
+            sg.send(message)
+            messages.success(request, "A password change link has been sent to your email.")
+        except Exception:
+            messages.error(request, "Unable to send email right now. Please try again later.")
+
+        return redirect("profile_app:change_password_request")
+
+    # GET → Show the page
+    return render(request, "profile_app/change_password_request.html", {"user": user})

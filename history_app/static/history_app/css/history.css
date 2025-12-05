@@ -559,10 +559,20 @@ body {
     border-radius: 50px;
     font-weight: 600;
     font-size: 14px;
+    line-height: 1;          /* 🔹 Add this */
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
     text-decoration: none;
+}
+
+.book-visit-btn svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin: 0;
+    transform: translateY(0px);
 }
 
 .book-visit-btn:hover {

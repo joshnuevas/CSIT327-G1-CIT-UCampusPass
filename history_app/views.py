@@ -10,6 +10,18 @@ from dashboard_app.models import Visit, SystemLog
 from register_app.models import User
 
 
+from datetime import datetime, date, timedelta
+
+import pytz
+from django.contrib import messages
+from django.db.models import Q
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
+
+from dashboard_app.models import Visit, SystemLog
+from register_app.models import User
+
+
 def history_view(request):
     """
     Visitor 'My History' page.
@@ -17,9 +29,9 @@ def history_view(request):
     - Redirects if user is not logged in.
     - Auto-expires visits whose date is already past today (Upcoming/Active -> Expired).
     - Supports filtering by:
-        * Date (single date)
+        * Date (single date, up to today + 7 days)
         * Search query (code or department)
-    - Default range: last week + this week + next week (3-week rolling window).
+    - Default range: last week up to 7 days ahead.
     """
     # ----- AUTH CHECK -----
     if "user_email" not in request.session:
@@ -31,26 +43,25 @@ def history_view(request):
     philippines_tz = pytz.timezone("Asia/Manila")
     now_ph = datetime.now(philippines_tz)
     today = now_ph.date()
+    max_allowed_date = today + timedelta(days=7)   # ⬅️ same as booking
 
     # ----- AUTO-EXPIRE OLD VISITS -----
-    # Any visit before today that is still 'Upcoming' or 'Active' becomes 'Expired'
     Visit.objects.filter(
         user_email=user_email,
         visit_date__lt=today,
         status__in=["Upcoming", "Active"],
     ).update(status="Expired")
 
-    # ----- DEFAULT 3-WEEK WINDOW (last week + this week + next week) -----
-    this_week_start = today - timedelta(days=today.weekday())  # Monday
-    last_week_start = this_week_start - timedelta(days=7)      # Previous Monday
-    next_week_end = this_week_start + timedelta(days=13)       # Sunday next week
+    # ----- DEFAULT WINDOW (LAST WEEK → TODAY+7) -----
+    this_week_start = today - timedelta(days=today.weekday())  # Monday of this week
+    last_week_start = this_week_start - timedelta(days=7)      # Monday of last week
 
     default_start_date = last_week_start
-    default_end_date = next_week_end
+    default_end_date = max_allowed_date
 
     # ----- READ FILTER PARAMS -----
-    date_str = request.GET.get("date", "").strip()
-    search_query = request.GET.get("q", "").strip()
+    date_str = (request.GET.get("date") or "").strip()
+    search_query = (request.GET.get("q") or "").strip()
 
     visits_qs = Visit.objects.filter(user_email=user_email)
 
@@ -58,20 +69,30 @@ def history_view(request):
     filter_date_display = ""
     filter_date_value = ""
 
-    # Date filter
+    # ✅ Only warn if the filter form was actually submitted
+    filter_submitted = request.GET.get("filter_submitted") == "1"
+    if filter_submitted and not date_str and not search_query:
+        messages.warning(
+            request,
+            "Please enter a visit date or a search keyword before applying filters."
+        )
+
+    # ----- DATE FILTER (CLAMP TO TODAY+7) -----
     if date_str:
-        # User selected a specific date
         try:
             selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
         except ValueError:
             selected_date = today
+
+        if selected_date > max_allowed_date:
+            selected_date = max_allowed_date
 
         visits_qs = visits_qs.filter(visit_date=selected_date)
         filter_mode_text = "Showing visits for"
         filter_date_display = selected_date.strftime("%b %d, %Y")
         filter_date_value = selected_date.isoformat()
     else:
-        # Default rolling 3-week window
+        # Default: from last week up to today+7
         visits_qs = visits_qs.filter(
             visit_date__gte=default_start_date,
             visit_date__lte=default_end_date,
@@ -82,7 +103,10 @@ def history_view(request):
             f"to {default_end_date.strftime('%b %d, %Y')}"
         )
 
-    # Text search (Pass Code OR Department)
+    # 🔒 SAFETY: never show visits beyond +7 days
+    visits_qs = visits_qs.filter(visit_date__lte=max_allowed_date)
+
+    # ----- TEXT SEARCH (Pass Code OR Department) -----
     if search_query:
         visits_qs = visits_qs.filter(
             Q(code__icontains=search_query) |
@@ -97,13 +121,11 @@ def history_view(request):
     for visit in visits_qs:
         visit_date_obj = visit.visit_date
 
-        # Display date: "Today, Dec 05" vs "Dec 04, 2025"
         if visit_date_obj == today:
             visit.display_date = f"Today, {visit_date_obj.strftime('%b %d')}"
         else:
             visit.display_date = visit_date_obj.strftime("%b %d, %Y")
 
-        # Human-readable time slots
         if visit.start_time:
             visit.formatted_start_time = visit.start_time.strftime("%I:%M %p")
         else:
@@ -122,7 +144,6 @@ def history_view(request):
 
         "visits": visits,
 
-        # Filters
         "filter_date": filter_date_value,
         "filter_query": search_query,
         "filter_mode_text": filter_mode_text,

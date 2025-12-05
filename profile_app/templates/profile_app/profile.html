@@ -1,27 +1,34 @@
 {% extends "dashboard_app/visitor_dashboard_base.html" %}
 {% load static %}
+
 {% block title %}Profile Settings - CIT-U Campus Pass{% endblock %}
+{% block profile_active %}active{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'profile_app/css/profile.css' %}?v={{ now|date:'U' }}">
 {% endblock %}
 
-{% block profile_active %}active{% endblock %}
-
 {% block content %}
 <div class="welcome-section">
     <h1>Profile Settings</h1>
-    <p>Manage your account information and preferences</p>
+    <p>Manage your personal information and account security.</p>
 </div>
 
-<!-- Messages -->
+{# Django messages #}
 {% for message in messages %}
     <div class="alert alert-{{ message.tags }}">
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
             {% if 'success' in message.tags %}
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 
+                         7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd" />
             {% else %}
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10
+                         l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10
+                         l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clip-rule="evenodd" />
             {% endif %}
         </svg>
         {{ message }}
@@ -29,273 +36,352 @@
 {% endfor %}
 
 <div class="settings-grid">
-    <!-- Personal Information Card -->
-    <div class="settings-card">
-        <div class="card-header">
-            <div class="card-title-section">
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+
+    {# ================= PERSONAL PROFILE CARD ================= #}
+    <div class="settings-card profile-card">
+        <div class="card-header-clean">
+            <h3>Personal Profile</h3>
+            <button type="button" class="btn-edit-outline" id="editBtn">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793
+                             L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
-                <h3>Personal Information</h3>
-            </div>
-            <button type="button" class="btn-edit" id="editBtn">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                </svg>
-                Edit Profile
+                Edit Details
             </button>
         </div>
 
-        <!-- View Mode -->
-        <div id="viewMode" class="view-mode">
-            <div class="profile-view-row">
-                <div class="profile-view-field">
-                    <label>First Name</label>
-                    <div class="value">{{ user.first_name }}</div>
+        {# VIEW MODE #}
+        <div id="viewMode" class="profile-view-wrapper">
+            <div class="profile-hero">
+                <div class="profile-avatar-circle">
+                    {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
                 </div>
-                <div class="profile-view-field">
-                    <label>Last Name</label>
-                    <div class="value">{{ user.last_name }}</div>
+                <div class="profile-identity">
+                    <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+                    <span class="badge-role">{{ user.visitor_type }}</span>
                 </div>
             </div>
 
-            <div class="profile-view-field">
-                <label>Email Address</label>
-                <div class="value">{{ user.email }}</div>
-            </div>
-
-            <div class="profile-view-row">
-                <div class="profile-view-field">
-                    <label>Phone Number</label>
-                    <div class="value">{{ user.phone }}</div>
+            <div class="profile-details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">
+                        <svg width="14" height="14" fill="none" stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2
+                                     2 0 00-2 2v10a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        Email Address
+                    </span>
+                    <span class="detail-value">{{ user.email }}</span>
                 </div>
-                <div class="profile-view-field">
-                    <label>Visitor Type</label>
-                    <div class="value">{{ user.visitor_type }}</div>
+
+                <div class="detail-item">
+                    <span class="detail-label">
+                        <svg width="14" height="14" fill="none" stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 
+                                     01-.502 1.21l-2.257 1.13a11.042 11.042 0 
+                                     005.516 5.516l1.13-2.257a1 1 0 
+                                     011.21-.502l4.493 1.498a1 1 0 
+                                     01.684.949V19a2 2 0 01-2 2h-1C9.716 21 
+                                     3 14.284 3 6V5z">
+                            </path>
+                        </svg>
+                        Phone Number
+                    </span>
+                    <span class="detail-value">{{ user.phone }}</span>
                 </div>
             </div>
         </div>
 
-        <!-- Edit Mode -->
-        <form method="POST" id="editMode" class="settings-form edit-mode" style="display: none;">
+        {# EDIT MODE #}
+        <form method="POST" id="editMode" class="settings-form" style="display: none;">
             {% csrf_token %}
             <input type="hidden" name="action" value="update_info">
 
-            <div class="form-row">
+            <div class="form-grid-modern">
                 <div class="form-group">
-                    <label>First Name</label>
-                    <input type="text" name="first_name" id="firstNameInput" value="{{ user.first_name }}" required>
+                    <label for="firstNameInput">First Name</label>
+                    <input type="text"
+                           name="first_name"
+                           id="firstNameInput"
+                           value="{{ user.first_name }}"
+                           required
+                           class="input-modern">
                 </div>
+
                 <div class="form-group">
-                    <label>Last Name</label>
-                    <input type="text" name="last_name" id="lastNameInput" value="{{ user.last_name }}" required>
+                    <label for="lastNameInput">Last Name</label>
+                    <input type="text"
+                           name="last_name"
+                           id="lastNameInput"
+                           value="{{ user.last_name }}"
+                           required
+                           class="input-modern">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="emailInput">Email Address</label>
+                    <input type="email"
+                           name="email"
+                           id="emailInput"
+                           value="{{ user.email }}"
+                           required
+                           class="input-modern">
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneInput">Phone Number</label>
+                    <input type="text"
+                           name="phone"
+                           id="phoneInput"
+                           value="{{ user.phone }}"
+                           required
+                           maxlength="11"
+                           inputmode="numeric"
+                           pattern="\d{11}"
+                           autocomplete="tel"
+                           class="input-modern">
+                </div>
+
+                <div class="form-group">
+                    <label for="visitorTypeSelect">Visitor Type</label>
+                    <div class="select-wrapper">
+                        <select name="visitorType"
+                                id="visitorTypeSelect"
+                                required
+                                onchange="toggleOtherVisitorType()">
+                            <option value="Student" {% if user.visitor_type == "Student" %}selected{% endif %}>Student</option>
+                            <option value="Faculty" {% if user.visitor_type == "Faculty" %}selected{% endif %}>Faculty</option>
+                            <option value="Staff" {% if user.visitor_type == "Staff" %}selected{% endif %}>Staff</option>
+                            <option value="Guest" {% if user.visitor_type == "Guest" %}selected{% endif %}>Guest</option>
+                            <option value="Other" {% if user.visitor_type == "Other" %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group full-width"
+                     id="otherVisitorTypeGroup"
+                     style="display: none;">
+                    <label for="otherVisitorTypeInput">Please specify visitor type</label>
+                    {# name matched to what the view expects: visitor_type_other #}
+                    <input type="text"
+                           name="visitor_type_other"
+                           id="otherVisitorTypeInput"
+                           class="input-modern">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" name="email" id="emailInput" value="{{ user.email }}" required>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="text" name="phone" id="phoneInput" value="{{ user.phone }}" required maxlength="11" inputmode="numeric" pattern="\d{11}" autocomplete="tel" >
-                </div>
-                <div class="form-group">
-                    <label>Visitor Type</label>
-                    <select name="visitorType" id="visitorTypeSelect" required onchange="toggleOtherVisitorType()">
-                        <option value="Student" {% if user.visitor_type == 'Student' %}selected{% endif %}>Student</option>
-                        <option value="Parent" {% if user.visitor_type == 'Parent' %}selected{% endif %}>Parent</option>
-                        <option value="Staff" {% if user.visitor_type == 'Staff' %}selected{% endif %}>Staff</option>
-                        <option value="Alumni" {% if user.visitor_type == 'Alumni' %}selected{% endif %}>Alumni</option>
-                        <option value="Guest" {% if user.visitor_type == 'Guest' %}selected{% endif %}>Guest</option>
-                        <option value="Other" {% if user.visitor_type not in 'Student,Parent,Staff,Alumni,Guest' and user.visitor_type %}selected{% endif %}>Other</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group" id="otherVisitorTypeGroup" style="display: {% if user.visitor_type not in 'Student,Parent,Staff,Alumni,Guest' and user.visitor_type %}block{% else %}none{% endif %};">
-                <label style="display: block; margin-bottom: 16px;">Please specify visitor type</label>
-                <input type="text" name="visitor_type_other" id="otherVisitorTypeInput"
-                       placeholder="Enter visitor type"
-                       style="max-width: 400px;"
-                       value="{% if user.visitor_type not in 'Student,Parent,Staff,Alumni,Guest' %}{{ user.visitor_type }}{% endif %}">
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    Save Changes
-                </button>
-                <button type="button" class="btn-cancel" id="cancelBtn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                    </svg>
-                    Cancel
-                </button>
+            <div class="form-actions-clean">
+                <button type="button" class="btn-cancel-clean" id="cancelBtn">Cancel</button>
+                <button type="submit" class="btn-save-clean">Save Changes</button>
             </div>
         </form>
     </div>
 
-    <!-- Change Password Card -->
-    <div class="settings-card">
-        <div class="card-header">
-            <div class="card-title-section">
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+    {# ================= PASSWORD & SECURITY CARD ================= #}
+    <div class="settings-card action-row-card">
+        <div class="row-content-wrapper">
+            <div class="row-icon-box icon-secure">
+                <svg width="28" height="28" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                          d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 
+                             0017.834 5c.11.65.166 1.32.166 2.001 0 
+                             5.225-3.34 9.67-8 11.317C5.34 16.67 2 
+                             12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 
+                             3.708a1 1 0 00-1.414-1.414L9 10.586 
+                             7.707 9.293a1 1 0 00-1.414 1.414l2 
+                             2a1 1 0 001.414 0l4-4z"
+                          clip-rule="evenodd" />
                 </svg>
-                <h3>Change Password</h3>
+            </div>
+
+            <div class="row-info">
+                <h3>Password &amp; Security</h3>
+                <p class="row-desc">
+                    Secure your account by updating your password regularly via email verification.
+                </p>
+                <div class="email-badge">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 
+                                 00-1.997 1.884z"/>
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 
+                                 002-2V8.118z"/>
+                    </svg>
+                    {{ user.email }}
+                </div>
+            </div>
+
+            <div class="row-action">
+                <form method="GET" action="{% url 'profile_app:change_password_request' %}">
+                    <button type="submit" class="btn-primary btn-action">
+                        Send Reset Link
+                    </button>
+                </form>
             </div>
         </div>
-        <form method="POST" class="settings-form">
+    </div>
+
+    {# ================= DELETE ACCOUNT CARD ================= #}
+    <div class="settings-card action-row-card danger-theme">
+        <div class="row-content-wrapper">
+            <div class="row-icon-box icon-danger">
+                <svg width="28" height="28" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 
+                             000 2v10a2 2 0 002 2h8a2 2 0 
+                             002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 
+                             1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 
+                             11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 
+                             102 0V8a1 1 0 00-1-1z"
+                          clip-rule="evenodd" />
+                </svg>
+            </div>
+
+            <div class="row-info">
+                <h3 class="text-danger">Delete Account</h3>
+                <p class="row-desc">
+                    Permanently remove your account and all associated data. This action cannot be undone.
+                </p>
+            </div>
+
+            <div class="row-action">
+                <button type="button" class="btn-danger-outline" id="deleteAccountBtn">
+                    Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ============== DELETE ACCOUNT MODAL (Book Visit style) ============= #}
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <h2>Delete Account</h2>
+        <p>This action cannot be undone. Please enter your password to confirm.</p>
+        <form method="POST" id="deleteForm">
             {% csrf_token %}
-            <input type="hidden" name="action" value="change_password">
-
-            <div class="form-group">
-                <label>Current Password</label>
-                <input type="password" name="current_password" required>
+            <input type="hidden" name="action" value="delete_account">
+            <div class="form-group full-width">
+                <input type="password"
+                       name="delete_password"
+                       placeholder="Enter your password"
+                       required
+                       class="input-modern"
+                       style="text-align:center;">
             </div>
-
-            <div class="form-group">
-                <label>New Password</label>
-                <input type="password" name="new_password" required>
+            <div class="modal-buttons">
+                <button type="submit" class="btn-danger-solid">Confirm Delete</button>
+                <button type="button" id="cancelDelete" class="btn-secondary">Cancel</button>
             </div>
-
-            <div class="form-group">
-                <label>Confirm New Password</label>
-                <input type="password" name="confirm_password" required>
-            </div>
-
-            <button type="submit" class="btn-primary">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                </svg>
-                Change Password
-            </button>
         </form>
-    </div>
-
-    <!-- Delete Account Card -->
-    <div class="settings-card danger-card">
-        <div class="card-header">
-            <div class="card-title-section">
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                <h3>Danger Zone</h3>
-            </div>
-        </div>
-        <div class="danger-content">
-            <div class="danger-warning">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                <p>Once you delete your account, there is no going back. Please be certain.</p>
-            </div>
-            <button type="button" class="btn-danger" id="deleteAccountBtn">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                Delete Account
-            </button>
-        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Edit Profile Functionality
-const editBtn = document.getElementById('editBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const viewMode = document.getElementById('viewMode');
-const editMode = document.getElementById('editMode');
+document.addEventListener('DOMContentLoaded', function () {
+    // ========= Elements =========
+    const editBtn = document.getElementById('editBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const viewMode = document.getElementById('viewMode');
+    const editMode = document.getElementById('editMode');
+    const phoneInput = document.getElementById('phoneInput');
 
-const phoneInput = document.getElementById('phoneInput');
-if (phoneInput) {
-    phoneInput.addEventListener('input', function (e) {
-        // Remove all non-digits
-        let cleaned = this.value.replace(/\D/g, '');
-        // Limit to 11 digits
-        if (cleaned.length > 11) {
-            cleaned = cleaned.slice(0, 11);
-        }
-        this.value = cleaned;
-    });
-}
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    const deleteModal = document.getElementById('deleteModal');
+    const cancelDeleteBtn = document.getElementById('cancelDelete');
 
-editBtn.onclick = function() {
-    viewMode.style.display = 'none';
-    editMode.style.display = 'block';
-    editBtn.style.display = 'none';
-}
-
-cancelBtn.onclick = function() {
-    viewMode.style.display = 'block';
-    editMode.style.display = 'none';
-    editBtn.style.display = 'inline-flex';
-    // Reset form values to original
-    editMode.reset();
-    // Hide the "Other" input if it's showing
-    document.getElementById('otherVisitorTypeGroup').style.display = 'none';
-}
-
-// Toggle "Other" visitor type input
-function toggleOtherVisitorType() {
-    const visitorType = document.getElementById("visitorTypeSelect").value;
-    const otherGroup = document.getElementById("otherVisitorTypeGroup");
-    if (visitorType === "Other") {
-        otherGroup.style.display = "block";
-        document.getElementById("otherVisitorTypeInput").required = true;
-    } else {
-        otherGroup.style.display = "none";
-        document.getElementById("otherVisitorTypeInput").required = false;
+    // ========= Phone input: numbers only + max 11 =========
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function () {
+            let cleaned = this.value.replace(/\D/g, '');
+            if (cleaned.length > 11) cleaned = cleaned.slice(0, 11);
+            this.value = cleaned;
+        });
     }
-}
 
-// Delete Account Modal
-const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-const deleteModal = document.getElementById('deleteModal');
-const cancelDelete = document.getElementById('cancelDelete');
+    // ========= Toggle Edit / View Mode =========
+    if (editBtn && cancelBtn && viewMode && editMode) {
+        editBtn.addEventListener('click', function () {
+            viewMode.style.display = 'none';
+            editMode.style.display = 'block';
+            editBtn.style.display = 'none';
+        });
 
-deleteAccountBtn.onclick = function() {
-    deleteModal.style.display = 'block';
-}
+        cancelBtn.addEventListener('click', function () {
+            // Reset form and switch back
+            editMode.reset();
+            viewMode.style.display = 'block';
+            editMode.style.display = 'none';
+            editBtn.style.display = 'inline-flex';
+            // Re-evaluate "Other" visibility in case
+            if (typeof window.toggleOtherVisitorType === 'function') {
+                window.toggleOtherVisitorType();
+            }
+        });
+    }
 
-cancelDelete.onclick = function() {
-    deleteModal.style.display = 'none';
-}
+    // ========= Delete Account Modal =========
+    if (deleteAccountBtn && deleteModal) {
+        deleteAccountBtn.addEventListener('click', function () {
+            deleteModal.style.display = 'flex';  // center like in Book Visit
+        });
+    }
 
-// Auto-dismiss messages
-setTimeout(() => {
-    document.querySelectorAll('.alert').forEach(msg => {
-        msg.style.transition = 'opacity 0.5s';
-        msg.style.opacity = '0';
-        setTimeout(() => msg.remove(), 500);
+    if (cancelDeleteBtn && deleteModal) {
+        cancelDeleteBtn.addEventListener('click', function () {
+            deleteModal.style.display = 'none';
+        });
+    }
+
+    // Click outside to close
+    window.addEventListener('click', function (e) {
+        if (e.target === deleteModal) {
+            deleteModal.style.display = 'none';
+        }
     });
-}, 5000);
-</script>
 
-<!-- Delete Account Confirmation Modal -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content danger-modal">
-        <h2>Delete Account</h2>
-        <p>This action cannot be undone. Please enter your password to confirm.</p>
-        <form method="POST" id="deleteForm">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="delete_account">
-            <div class="form-group">
-                <label>Confirm Password</label>
-                <input type="password" name="delete_password" required>
-            </div>
-            <div class="modal-buttons">
-                <button type="submit" class="btn-danger">Delete My Account</button>
-                <button type="button" id="cancelDelete" class="btn-secondary">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
+    // ========= Auto-dismiss Django messages =========
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function (alert) {
+        setTimeout(function () {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateX(40px)';
+            setTimeout(function () {
+                alert.remove();
+            }, 400);
+        }, 5000);
+    });
+});
+
+// ========= Visitor Type "Other" toggle (global for inline onchange) =========
+window.toggleOtherVisitorType = function () {
+    const visitorTypeSelect = document.getElementById('visitorTypeSelect');
+    const otherGroup = document.getElementById('otherVisitorTypeGroup');
+    const otherInput = document.getElementById('otherVisitorTypeInput');
+
+    if (!visitorTypeSelect || !otherGroup || !otherInput) return;
+
+    if (visitorTypeSelect.value === 'Other') {
+        otherGroup.style.display = 'block';
+        otherInput.required = true;
+    } else {
+        otherGroup.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+    }
+};
+
+// Run once on load in case "Other" is already selected
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof window.toggleOtherVisitorType === 'function') {
+        window.toggleOtherVisitorType();
+    }
+});
+</script>
 {% endblock %}
