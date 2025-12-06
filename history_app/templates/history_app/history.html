@@ -48,8 +48,12 @@
         {% for visit in visits %}
             <div class="flip-card-scene">
                 <div class="flip-card-inner 
-                            {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}interactive-card{% endif %}
-                            {% if visit.visit_date == today %}is-today-card{% endif %}"
+                    {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}
+                        interactive-card
+                    {% elif visit.status|lower == 'completed' or visit.status|lower == 'expired' %}
+                        card-inactive
+                    {% endif %}
+                    {% if visit.visit_date == today %}is-today-card{% endif %}"
                     id="card-{{ visit.visit_id }}"
                     data-status="{{ visit.status|lower }}">
 

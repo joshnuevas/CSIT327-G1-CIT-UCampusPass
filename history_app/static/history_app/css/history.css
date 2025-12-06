@@ -130,6 +130,47 @@
      background: #F7FAFC;
      color: #2D3748;
 }
+/* 1. Flatten the card (Remove 3D depth) */
+.card-inactive {
+    box-shadow: none !important; /* Remove shadow */
+    transform: none !important;
+}
+
+/* 2. Change Background & Border */
+.card-inactive .card-face {
+    background: #F4F6F8; /* Light gray background to recede */
+    border: 1px dashed #CBD5E0; /* Dashed border implies "Used/Ticket Torn" */
+}
+
+/* 3. Dim the Stripe */
+.card-inactive .status-stripe {
+    opacity: 0.5; /* Fade out the color bar */
+    filter: grayscale(0.4); /* Desaturate slightly */
+}
+
+/* 4. Mute the Text Colors */
+.card-inactive .visit-purpose {
+    color: #718096; /* Dark Gray instead of Black */
+    font-weight: 600; /* Slightly less bold */
+}
+
+.card-inactive .code-text {
+    color: #A0AEC0; /* Light Gray code */
+    text-decoration: line-through; /* Optional: Strikethrough effect on code */
+    text-decoration-color: #CBD5E0;
+}
+
+.card-inactive .visit-department, 
+.card-inactive .meta-value {
+    color: #A0AEC0; /* Much lighter gray for metadata */
+}
+
+/* 5. Mute the Badge */
+.card-inactive .status-pill {
+    background: #EDF2F7 !important; /* Force light gray bg */
+    color: #718096 !important; /* Force dark gray text */
+    border: 1px solid #E2E8F0;
+}
 /* ========================================= 3D FLIP CARD GRID SYSTEM (FIXED UNIFORM SIZE) ========================================= */
  .visit-grid-3d {
      display: grid;
