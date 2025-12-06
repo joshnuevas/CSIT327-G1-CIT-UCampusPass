@@ -410,11 +410,21 @@
     </div>
 
     <div id="logoutModal" class="modal">
-        <div class="modal-content">
-            <h2>Are you sure you want to logout?</h2>
+        <div class="modal-content logout-card">
+            <div class="logout-icon-wrapper">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+
+            <h2 class="logout-title">Signing Out?</h2>
+            <p class="logout-subtitle">You will need to sign in again to access your visitor dashboard.</p>
+
             <div class="modal-buttons">
-                <button id="confirmLogout" class="btn-primary">Logout</button>
-                <button id="cancelLogout" class="btn-secondary">Cancel</button>
+                <button id="cancelLogout" class="btn-secondary btn-logout-cancel">
+                    Cancel
+                </button>
+                <button id="confirmLogout" class="btn-primary btn-logout-confirm">
+                    Yes, Logout
+                </button>
             </div>
         </div>
     </div>

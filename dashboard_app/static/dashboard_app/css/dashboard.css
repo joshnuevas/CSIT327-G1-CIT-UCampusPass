@@ -12,6 +12,86 @@
      overflow: hidden;
 }
 /* =========================================
+   POLISHED LOGOUT MODAL STYLES
+   ========================================= */
+
+/* 1. The Card Container */
+.logout-card {
+    background: #FFFFFF !important; /* Clean white base */
+    border-top: 6px solid #8B1538; /* Maroon Top Border */
+    border-bottom: 6px solid #D4AF37; /* Gold Bottom Border */
+    padding: 40px 30px !important;
+    max-width: 400px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 50px -12px rgba(139, 21, 56, 0.25) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 2. The Floating Icon */
+.logout-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: #FFF5F5; /* Very light maroon tint */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px auto;
+    color: #8B1538;
+    font-size: 32px;
+    box-shadow: 0 10px 20px rgba(139, 21, 56, 0.1);
+    border: 2px dashed rgba(139, 21, 56, 0.2); /* Dashed border matches your ticket stub theme */
+    animation: popInIcon 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 3. Typography Updates */
+.logout-title {
+    color: #2D3748 !important;
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    margin-bottom: 12px !important;
+}
+
+.logout-subtitle {
+    color: #718096;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 30px;
+    padding: 0 10px;
+}
+
+/* 4. Button Tweaks for this modal specifically */
+.btn-logout-cancel {
+    background: #F7FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #4A5568 !important;
+    padding: 12px 24px !important;
+    flex: 1;
+}
+
+.btn-logout-cancel:hover {
+    background: #EDF2F7 !important;
+    color: #2D3748 !important;
+}
+
+.btn-logout-confirm {
+    background: #8B1538 !important;
+    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3) !important;
+    flex: 1;
+}
+
+.btn-logout-confirm:hover {
+    background: #6B0F2A !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Animation for the icon popping in */
+@keyframes popInIcon {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+/* =========================================
    TOAST NOTIFICATIONS (Success/Error Alerts)
    ========================================= */
 
