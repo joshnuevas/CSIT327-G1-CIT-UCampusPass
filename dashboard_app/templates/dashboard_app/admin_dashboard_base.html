@@ -1,90 +1,98 @@
-  {% load static %}
-  <!DOCTYPE html>
-  <html lang="en">
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta name="csrf-token" content="{{ csrf_token }}">
-      <title>{% block title %}CIT-U Campus Pass - Admin Dashboard{% endblock %}</title>
-      
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-      <link rel="stylesheet" href="{% static 'dashboard_app/css/dashboard.css' %}?v={{ now|date:'U' }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token }}" />
+    <title>
+      {% block title %}CIT-U Campus Pass - Admin Dashboard{% endblock %}
+    </title>
 
-      <style>
-        body {
-          overflow-x: hidden;
-          position: relative;
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'dashboard_app/css/dashboard.css' %}?v={{ now|date:'U' }}"
+    />
+
+    <style>
+      body {
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* ===== MENU TOGGLE ===== */
+      .menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.8rem;
+        color: #8b1538;
+        cursor: pointer;
+        margin-right: 10px;
+        z-index: 1201;
+        position: relative;
+      }
+
+      /* ===== MOBILE SIDEBAR ===== */
+      @media (max-width: 1100px) {
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+          z-index: 1300;
         }
 
-        /* ===== MENU TOGGLE ===== */
+        .sidebar.active {
+          transform: translateX(0);
+        }
+
         .menu-toggle {
-          display: none;
-          background: none;
-          border: none;
-          font-size: 1.8rem;
-          color: #8b1538;
-          cursor: pointer;
-          margin-right: 10px;
-          z-index: 1201;
-          position: relative;
+          display: inline-block;
         }
 
-        /* ===== MOBILE SIDEBAR ===== */
-        @media (max-width: 1100px) {
-          .sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            z-index: 1300;
-          }
-
-          .sidebar.active {
-            transform: translateX(0);
-          }
-
-          .menu-toggle {
-            display: inline-block;
-          }
-
-          .main-content {
-            margin-left: 0 !important;
-          }
+        .main-content {
+          margin-left: 0 !important;
         }
+      }
 
-        /* ===== OVERLAY ===== */
-        .overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.45);
-          opacity: 0;
-          visibility: hidden;
-          transition: all 0.3s ease;
-          z-index: 1200;
-        }
+      /* ===== OVERLAY ===== */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 1200;
+      }
 
-        .overlay.active {
-          opacity: 1;
-          visibility: visible;
-        }
+      .overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
 
-        /* ===== TOP BAR ADJUSTMENTS ===== */
-        .top-bar {
-          background: #FFFFFF;
-          border-bottom: 2px solid #8b1538;
-          box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-          padding: 18px 35px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: relative;
-          top: 0;
-          z-index: 110;
-          flex-wrap: nowrap;
-        }
+      /* ===== TOP BAR ADJUSTMENTS ===== */
+      .top-bar {
+        background: #ffffff;
+        border-bottom: 2px solid #8b1538;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        padding: 18px 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        top: 0;
+        z-index: 110;
+        flex-wrap: nowrap;
+      }
 
-        /* .search-bar {
+      /* .search-bar {
           flex: 1;
           min-width: 220px;
           max-width: 500px;
@@ -106,516 +114,640 @@
           outline: none;
         } */
 
-        @media (max-width: 768px) {
-          /* .search-bar {
+      @media (max-width: 768px) {
+        /* .search-bar {
             max-width: 300px;
             margin-top: 8px;
           } */
-        }
+      }
 
-        /* ===== ICON AREA ===== */
-        .user-info {
-          position: relative;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-left: auto;
-        }
+      /* ===== ICON AREA ===== */
+      .user-info {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+      }
 
-        /* ===== DROPDOWNS ===== */
-        .dropdown {
-          position: absolute;
-          top: 70px;
-          right: 0;
-          background: #fff;
-          border-radius: 14px;
-          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
-          display: none;
-          width: 270px;
-          z-index: 1400;
-          overflow: hidden;
-          animation: fadeIn 0.25s ease forwards;
-        }
+      /* ===== USER AVATAR ===== */
+      .user-avatar {
+        width: 42px;
+        height: 42px;
+        background-color: #8b1538; /* Maroon Background */
+        color: #ffffff; /* White Text */
+        border-radius: 50%; /* Circle Shape */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+        border: 2px solid #d4af37; /* Gold Border */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
 
-        .dropdown.active {
-          display: block;
-        }
+      .user-avatar:hover {
+        transform: scale(1.05);
+      }
 
-        .dropdown-header {
-          padding: 14px 20px;
-          font-weight: 600;
-          font-size: 15px;
-          color: #8b1538;
-          border-bottom: 1px solid #eee;
-        }
+      /* ===== NOTIFICATION ICON ===== */
+      .notification-icon {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        background-color: #ffffff; /* White Background */
+        color: #8B1538;            /* Maroon Icon */
+        border-radius: 50%;        /* Circle Shape */
+        border: 2px solid #D4AF37; /* Gold Border */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+      }
 
-        .dropdown-item {
-          padding: 14px 22px;
-          font-size: 15px;
-          color: #333;
-          cursor: pointer;
-          border-bottom: 1px solid #f2f2f2;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          text-decoration: none;
-          position: relative;
-          padding-right: 25px; 
-          transition: background 0.2s ease;
-        }
+      .notification-icon:hover {
+        transform: scale(1.05);
+        background-color: #f8f8f8; /* Light gray on hover */
+      }
 
-        .dropdown-item .btn-delete {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          background: transparent;
-          border: none;
-          color: #8b1538;
-          font-weight: bold;
-          cursor: pointer;
-          font-size: 14px;
-          display: none;
-        }
-        
-        .dropdown-item:hover .btn-delete {
-          display: inline-block;
-        }
+      .notification-icon svg {
+        width: 20px;
+        height: 20px;
+        fill: #8B1538;
+      }
 
-        .dropdown-item:hover {
-          background: #fafafa;
-        }
+      /* ===== DROPDOWNS ===== */
+      .dropdown {
+        position: absolute;
+        top: 70px;
+        right: 0;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+        display: none;
+        width: 270px;
+        z-index: 1400;
+        overflow: hidden;
+        animation: fadeIn 0.25s ease forwards;
+      }
 
-        .dropdown-item i {
-          color: #8b1538;
-          width: 20px;
-        }
+      .dropdown.active {
+        display: block;
+      }
 
-        .dropdown-empty {
-          padding: 20px;
-          text-align: center;
-          color: #666;
-          font-size: 14px;
-        }
+      .dropdown-header {
+        padding: 14px 20px;
+        font-weight: 600;
+        font-size: 15px;
+        color: #8b1538;
+        border-bottom: 1px solid #eee;
+      }
 
-        /* Highlight new notifications */
-        .dropdown-item.new-notification h4,
-        .dropdown-item.new-notification p {
-          font-weight: 600;
-        }
+      .dropdown-item {
+        padding: 14px 22px;
+        font-size: 15px;
+        color: #333;
+        cursor: pointer;
+        border-bottom: 1px solid #f2f2f2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        position: relative;
+        padding-right: 25px;
+        transition: background 0.2s ease;
+      }
 
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+      .dropdown-item .btn-delete {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        color: #8b1538;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+        display: none;
+      }
 
-        #notifDropdown {
-          right: 80px;
-          max-height: 380px;
-          overflow-y: auto;   
-          width: 320px;
-          scrollbar-width: thin;
-          scrollbar-color: #8B1538 #f5f5f5;
-        }
+      .dropdown-item:hover .btn-delete {
+        display: inline-block;
+      }
 
-        /* Badge adjustments */
-        .notification-badge {
-          display: none; 
-          position: absolute;
-          top: 0;
-          right: 0;
-          width: 12px;
-          height: 12px;
-          background-color: #D4AF37;
-          border-radius: 50%;
-          z-index: 1500;
-        }
+      .dropdown-item:hover {
+        background: #fafafa;
+      }
 
-        #profileDropdown {
-          right: 20px;
-        }
+      .dropdown-item i {
+        color: #8b1538;
+        width: 20px;
+      }
 
-        /* Allow SVG icons AND Font Awesome icons */
-        .nav-item svg {
-          width: 20px;
-          height: 20px;
-          margin-right: 14px;
-        }
+      .dropdown-empty {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+      }
 
-        .nav-item i {
-          width: 20px;
-          margin-right: 14px;
-          font-size: 18px;
-        }
+      /* Highlight new notifications */
+      .dropdown-item.new-notification h4,
+      .dropdown-item.new-notification p {
+        font-weight: 600;
+      }
 
-        /* ===== MODALS ===== */
-        .modal {
-          display: none;
-          position: fixed !important;
-          z-index: 9999 !important;
-          left: 0 !important;
-          top: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          background-color: rgba(0,0,0,0.45) !important;
-          backdrop-filter: blur(3px) !important;
-          justify-content: center;
-          align-items: center;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
         }
-        .modal.show { display: flex !important; }
-        .modal-content {
-          background: linear-gradient(135deg, #fff8f5, #fff1e5) !important;
-          border-radius: 25px;
-          padding: 35px 30px;
-          width: 90%;
-          max-width: 450px;
-          text-align: center;
-          box-shadow: 0 15px 50px rgba(139,21,56,0.3);
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      #notifDropdown {
+        right: 80px;
+        max-height: 380px;
+        overflow-y: auto;
+        width: 320px;
+        scrollbar-width: thin;
+        scrollbar-color: #8b1538 #f5f5f5;
+      }
+
+      /* Badge adjustments */
+      .notification-badge {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 12px;
+        height: 12px;
+        background-color: #d4af37;
+        border-radius: 50%;
+        z-index: 1500;
+      }
+
+      #profileDropdown {
+        right: 20px;
+      }
+
+      /* Allow SVG icons AND Font Awesome icons */
+      .nav-item svg {
+        width: 20px;
+        height: 20px;
+        margin-right: 14px;
+      }
+
+      .nav-item i {
+        width: 20px;
+        margin-right: 14px;
+        font-size: 18px;
+      }
+
+      /* ===== MODALS ===== */
+      .modal {
+        display: none;
+        position: fixed !important;
+        z-index: 9999 !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.45) !important;
+        backdrop-filter: blur(3px) !important;
+        justify-content: center;
+        align-items: center;
+      }
+      .modal.show {
+        display: flex !important;
+      }
+      .modal-content {
+        background: linear-gradient(135deg, #fff8f5, #fff1e5) !important;
+        border-radius: 25px;
+        padding: 35px 30px;
+        width: 90%;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 15px 50px rgba(139, 21, 56, 0.3);
+        transform: translateY(-20px);
+        animation: slideDownModal 0.4s ease forwards;
+      }
+
+      .modal-content h2 {
+        color: #8b1538 !important;
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        margin-bottom: 30px !important;
+        letter-spacing: 0.5px !important;
+      }
+
+      .modal-buttons {
+        display: flex !important;
+        gap: 12px !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+      }
+
+      .btn-primary {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        padding: 14px 32px !important;
+        background: linear-gradient(135deg, #8b1538, #6b0f2a) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3) !important;
+        text-decoration: none !important;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4) !important;
+        background: linear-gradient(135deg, #6b0f2a, #8b1538) !important;
+      }
+
+      .btn-secondary {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        padding: 14px 32px !important;
+        background: #ffffff !important;
+        color: #666666 !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        text-decoration: none !important;
+      }
+
+      .btn-secondary:hover {
+        border-color: #8b1538 !important;
+        color: #8b1538 !important;
+        transform: translateY(-2px) !important;
+      }
+
+      @keyframes fadeInModal {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideDownModal {
+        from {
+          opacity: 0;
           transform: translateY(-20px);
-          animation: slideDownModal 0.4s ease forwards;
         }
-
-        .modal-content h2 {
-          color: #8B1538 !important;
-          font-size: 22px !important;
-          font-weight: 700 !important;
-          margin-bottom: 30px !important;
-          letter-spacing: 0.5px !important;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
+      }
+    </style>
 
-        .modal-buttons {
-          display: flex !important;
-          gap: 12px !important;
-          justify-content: center !important;
-          flex-wrap: wrap !important;
-        }
-        
-        .btn-primary {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 10px !important;
-          padding: 14px 32px !important;
-          background: linear-gradient(135deg, #8B1538, #6B0F2A) !important;
-          color: #FFFFFF !important;
-          border: none !important;
-          border-radius: 50px !important;
-          font-weight: 600 !important;
-          font-size: 15px !important;
-          cursor: pointer !important;
-          transition: all 0.3s ease !important;
-          box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3) !important;
-          text-decoration: none !important;
-        }
-
-        .btn-primary:hover {
-          transform: translateY(-3px) !important;
-          box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4) !important;
-          background: linear-gradient(135deg, #6B0F2A, #8B1538) !important;
-        }
-
-        .btn-secondary {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 10px !important;
-          padding: 14px 32px !important;
-          background: #FFFFFF !important;
-          color: #666666 !important;
-          border: 2px solid #E0E0E0 !important;
-          border-radius: 50px !important;
-          font-weight: 600 !important;
-          font-size: 15px !important;
-          cursor: pointer !important;
-          transition: all 0.3s ease !important;
-          text-decoration: none !important;
-        }
-
-        .btn-secondary:hover {
-          border-color: #8B1538 !important;
-          color: #8B1538 !important;
-          transform: translateY(-2px) !important;
-        }
-
-        @keyframes fadeInModal {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        @keyframes slideDownModal {
-          from { 
-            opacity: 0; 
-            transform: translateY(-20px); 
-          }
-          to { 
-            opacity: 1; 
-            transform: translateY(0); 
-          }
-        }
-
-        
-      </style>
-
-      {% block extra_css %}{% endblock %}
-      <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png">
-      <link rel="shortcut icon" href="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png">
+    {% block extra_css %}{% endblock %}
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png"
+    />
+    <link
+      rel="shortcut icon"
+      href="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png"
+    />
   </head>
   <body>
-      <!-- ===== OVERLAY ===== -->
-      <div class="overlay" id="overlay"></div>
+    <!-- ===== OVERLAY ===== -->
+    <div class="overlay" id="overlay"></div>
 
-      <!-- Sidebar Navigation -->
-      <div class="sidebar" id="sidebar">
-          <div class="school-logo"></div>
-          <div class="sidebar-header">
-              <h2>CIT-U Campus Pass</h2>
-              <p>Administrator Panel</p>
-          </div>
-
-          <nav class="nav-menu">
-              <a href="{% url 'dashboard_app:admin_dashboard' %}" class="nav-item {% block dashboard_active %}{% endblock %}">
-                  <svg fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                  </svg>
-                  Dashboard
-              </a>
-
-              <a href="{% url 'manage_admin_app:admin_list' %}" class="nav-item {% block admin_active %}{% endblock %}">
-                  <svg fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                  </svg>
-                  Admin Management
-              </a>
-
-              <a href="{% url 'manage_staff_app:staff_list' %}" class="nav-item {% block staff_active %}{% endblock %}">
-                  <svg fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
-                  </svg>
-                  Staff Management
-              </a>
-
-              <a href="{% url 'manage_visitor_app:visitor_list' %}" class="nav-item {% block visitor_active %}{% endblock %}">
-                  <svg fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                  </svg>
-                  Visitor Management
-              </a>
-
-              <a href="{% url 'visit_records_app:visit_records' %}" class="nav-item {% block records_active %}{% endblock %}">
-                  <svg fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                  </svg>
-                  Visit Records
-              </a>
-
-              <div class="nav-divider"></div>
-
-              <a href="{% url 'manage_reports_logs_app:logs_view' %}" class="nav-item {% block logs_active %}{% endblock %}">
-                  <i class="fas fa-file-alt"></i> System Logs
-              </a>
-
-              <a href="{% url 'manage_reports_logs_app:reports_view' %}" class="nav-item {% block reports_active %}{% endblock %}">
-                  <i class="fas fa-chart-pie"></i> Reports
-              </a>
-
-              <a href="#" class="nav-item logout-item" id="sidebarLogoutBtn">
-                  <svg fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
-                  </svg>
-                  Logout
-              </a>
-          </nav>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+      <div class="school-logo"></div>
+      <div class="sidebar-header">
+        <h2>CIT-U Campus Pass</h2>
+        <p>Administrator Panel</p>
       </div>
 
-      <!-- Main Content -->
-      <div class="main-content">
-          <!-- Messages Display Section -->
-          {% if messages %}
-          <div class="messages-container">
-              {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
-                  <div class="alert-content">
-                      <span class="alert-icon">
-                          {% if message.tags == 'success' %}
-                              ✅
-                          {% elif message.tags == 'error' or message.tags == 'danger' %}
-                              ❌
-                          {% elif message.tags == 'warning' %}
-                              ⚠️
-                          {% else %}
-                              ℹ️
-                          {% endif %}
-                      </span>
-                      <span class="alert-text">{{ message }}</span>
-                      <button class="alert-close" onclick="this.parentElement.parentElement.remove()">×</button>
-                  </div>
-              </div>
-              {% endfor %}
+      <nav class="nav-menu">
+        <a
+          href="{% url 'dashboard_app:admin_dashboard' %}"
+          class="nav-item {% block dashboard_active %}{% endblock %}"
+        >
+          <svg fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
+            />
+          </svg>
+          Dashboard
+        </a>
+
+        <a
+          href="{% url 'manage_admin_app:admin_list' %}"
+          class="nav-item {% block admin_active %}{% endblock %}"
+        >
+          <svg fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
+            />
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+          </svg>
+          Admin Management
+        </a>
+
+        <a
+          href="{% url 'manage_staff_app:staff_list' %}"
+          class="nav-item {% block staff_active %}{% endblock %}"
+        >
+          <svg fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+            />
+          </svg>
+          Staff Management
+        </a>
+
+        <a
+          href="{% url 'manage_visitor_app:visitor_list' %}"
+          class="nav-item {% block visitor_active %}{% endblock %}"
+        >
+          <svg fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
+            />
+          </svg>
+          Visitor Management
+        </a>
+
+        <a
+          href="{% url 'visit_records_app:visit_records' %}"
+          class="nav-item {% block records_active %}{% endblock %}"
+        >
+          <svg fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Visit Records
+        </a>
+
+        <div class="nav-divider"></div>
+
+        <a
+          href="{% url 'manage_reports_logs_app:logs_view' %}"
+          class="nav-item {% block logs_active %}{% endblock %}"
+        >
+          <i class="fas fa-file-alt"></i> System Logs
+        </a>
+
+        <a
+          href="{% url 'manage_reports_logs_app:reports_view' %}"
+          class="nav-item {% block reports_active %}{% endblock %}"
+        >
+          <i class="fas fa-chart-pie"></i> Reports
+        </a>
+
+        <a href="#" class="nav-item logout-item" id="sidebarLogoutBtn">
+          <svg fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          Logout
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Messages Display Section -->
+      {% if messages %}
+      <div class="messages-container">
+        {% for message in messages %}
+        <div
+          class="alert alert-{{ message.tags }} {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}"
+        >
+          <div class="alert-content">
+            <span class="alert-icon">
+              {% if message.tags == 'success' %} ✅ {% elif message.tags ==
+              'error' or message.tags == 'danger' %} ❌ {% elif message.tags ==
+              'warning' %} ⚠️ {% else %} ℹ️ {% endif %}
+            </span>
+            <span class="alert-text">{{ message }}</span>
+            <button
+              class="alert-close"
+              onclick="this.parentElement.parentElement.remove()"
+            >
+              ×
+            </button>
           </div>
-          {% endif %}
-          <!-- End Messages Display -->
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <!-- End Messages Display -->
 
-          <div class="top-bar">
-              <button class="menu-toggle" id="menuToggle">
-                  <i class="fas fa-bars"></i>
-              </button>
+      <div class="top-bar">
+        <button class="menu-toggle" id="menuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
 
-              <!-- <div class="search-bar">
+        <!-- <div class="search-bar">
                   <input type="text" placeholder="Search admin data, staff, visitors..." />
               </div> -->
 
-              <div class="user-info">
-                  <div class="notification-icon" id="notifBtn">
-                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
-                      </svg>
-                      <span class="notification-badge" style="display:none;"></span>
-                  </div>
-                  <div class="user-avatar" id="profileBtn">
-                      {{ request.session.admin_first_name|default:"AD"|slice:":2"|upper }}
-                  </div>
-              </div>
+        <div class="user-info">
+          <div class="notification-icon" id="notifBtn">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+              />
+            </svg>
+            <span class="notification-badge" style="display: none"></span>
           </div>
-
-          <div class="content-area">
-              {% block content %}{% endblock %}
+          <div class="user-avatar" id="profileBtn">
+            {{ request.session.admin_first_name|default:"AD"|slice:":2"|upper }}
           </div>
+        </div>
       </div>
 
-      <!-- ===== NOTIFICATION DROPDOWN ===== -->
-      <div class="dropdown" id="notifDropdown">
-          <div class="dropdown-header">Notifications</div>
-          <div class="dropdown-empty">No new notifications</div>
+      <div class="content-area">{% block content %}{% endblock %}</div>
+    </div>
+
+    <!-- ===== NOTIFICATION DROPDOWN ===== -->
+    <div class="dropdown" id="notifDropdown">
+      <div class="dropdown-header">Notifications</div>
+      <div class="dropdown-empty">No new notifications</div>
+    </div>
+
+    <!-- ===== PROFILE DROPDOWN ===== -->
+    <div class="dropdown" id="profileDropdown">
+      <div class="dropdown-header">Administrator</div>
+      <a href="{% url 'profile_app:admin_profile' %}" class="dropdown-item">
+        <i class="fas fa-user"></i> Profile
+      </a>
+      <div class="dropdown-item" id="dropdownLogoutBtn">
+        <i class="fas fa-sign-out-alt"></i> Logout
       </div>
+    </div>
 
-      <!-- ===== PROFILE DROPDOWN ===== -->
-      <div class="dropdown" id="profileDropdown">
-          <div class="dropdown-header">Administrator</div>
-          <a href="{% url 'profile_app:admin_profile' %}" class="dropdown-item">
-              <i class="fas fa-user"></i> Profile
-          </a>
-          <div class="dropdown-item" id="dropdownLogoutBtn">
-              <i class="fas fa-sign-out-alt"></i> Logout
-          </div>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <h2>Are you sure you want to logout?</h2>
+        <div class="modal-buttons">
+          <button id="confirmLogout" class="btn-primary">Logout</button>
+          <button id="cancelLogout" class="btn-secondary">Cancel</button>
+        </div>
       </div>
+    </div>
 
-      <!-- Logout Confirmation Modal -->
-      <div id="logoutModal" class="modal">
-          <div class="modal-content">
-              <h2>Are you sure you want to logout?</h2>
-              <div class="modal-buttons">
-                  <button id="confirmLogout" class="btn-primary">Logout</button>
-                  <button id="cancelLogout" class="btn-secondary">Cancel</button>
-              </div>
-          </div>
-      </div>
+    <script>
+      // Auto-dismiss messages after 5 seconds
+      document.addEventListener("DOMContentLoaded", function () {
+        const alerts = document.querySelectorAll(".alert");
+        alerts.forEach(function (alert) {
+          setTimeout(function () {
+            alert.style.opacity = "0";
+            alert.style.transform = "translateX(400px)";
+            setTimeout(function () {
+              alert.remove();
+            }, 500);
+          }, 5000);
+        });
+      });
 
-      <script>
-        
-          // Auto-dismiss messages after 5 seconds
-          document.addEventListener('DOMContentLoaded', function() {
-              const alerts = document.querySelectorAll('.alert');
-              alerts.forEach(function(alert) {
-                  setTimeout(function() {
-                      alert.style.opacity = '0';
-                      alert.style.transform = 'translateX(400px)';
-                      setTimeout(function() {
-                          alert.remove();
-                      }, 500);
-                  }, 5000);
-              });
-          });
+      // ===== SIDEBAR TOGGLE =====
+      const menuToggle = document.getElementById("menuToggle");
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
 
-          // ===== SIDEBAR TOGGLE =====
-          const menuToggle = document.getElementById("menuToggle");
-          const sidebar = document.getElementById("sidebar");
-          const overlay = document.getElementById("overlay");
+      if (menuToggle) {
+        menuToggle.addEventListener("click", () => {
+          sidebar.classList.toggle("active");
+          overlay.classList.toggle("active");
+        });
+      }
 
-          if (menuToggle) {
-              menuToggle.addEventListener("click", () => {
-                  sidebar.classList.toggle("active");
-                  overlay.classList.toggle("active");
-              });
-          }
+      if (overlay) {
+        overlay.addEventListener("click", () => {
+          sidebar.classList.remove("active");
+          overlay.classList.remove("active");
+        });
+      }
 
-          if (overlay) {
-              overlay.addEventListener("click", () => {
-                  sidebar.classList.remove("active");
-                  overlay.classList.remove("active");
-              });
-          }
+      // ===== DROPDOWNS =====
+      const notifBtn = document.getElementById("notifBtn");
+      const notifDropdown = document.getElementById("notifDropdown");
+      const profileBtn = document.getElementById("profileBtn");
+      const profileDropdown = document.getElementById("profileDropdown");
 
-          // ===== DROPDOWNS =====
-          const notifBtn = document.getElementById("notifBtn");
-          const notifDropdown = document.getElementById("notifDropdown");
-          const profileBtn = document.getElementById("profileBtn");
-          const profileDropdown = document.getElementById("profileDropdown");
+      if (notifBtn) {
+        notifBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          notifDropdown.classList.toggle("active");
+          profileDropdown.classList.remove("active");
+        });
+      }
 
-          if (notifBtn) {
-              notifBtn.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  notifDropdown.classList.toggle("active");
-                  profileDropdown.classList.remove("active");
-              });
-          }
+      if (profileBtn) {
+        profileBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          profileDropdown.classList.toggle("active");
+          notifDropdown.classList.remove("active");
+        });
+      }
 
-          if (profileBtn) {
-              profileBtn.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  profileDropdown.classList.toggle("active");
-                  notifDropdown.classList.remove("active");
-              });
-          }
+      document.addEventListener("click", (e) => {
+        if (
+          notifDropdown &&
+          notifBtn &&
+          !notifDropdown.contains(e.target) &&
+          !notifBtn.contains(e.target)
+        )
+          notifDropdown.classList.remove("active");
+        if (
+          profileDropdown &&
+          profileBtn &&
+          !profileDropdown.contains(e.target) &&
+          !profileBtn.contains(e.target)
+        )
+          profileDropdown.classList.remove("active");
+      });
 
-          document.addEventListener("click", (e) => {
-              if (notifDropdown && notifBtn && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target))
-                  notifDropdown.classList.remove("active");
-              if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
-                  profileDropdown.classList.remove("active");
-          });
+      // ===== Modal Handling =====
+      const modals = document.querySelectorAll(".modal");
+      const csrftoken = document.querySelector(
+        'meta[name="csrf-token"]'
+      ).content;
 
-          // ===== Modal Handling =====
-          const modals = document.querySelectorAll('.modal');
-          const csrftoken = document.querySelector('meta[name="csrf-token"]').content;
+      window.openModal = function (modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.add("show");
+      };
 
+      window.closeModal = function (modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.remove("show");
+      };
 
-          window.openModal = function(modalId) {
-            const modal = document.getElementById(modalId);
-            if(modal) modal.classList.add('show');
-          }
+      // Close modal on overlay click
+      modals.forEach((modal) => {
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) modal.classList.remove("show");
+        });
+      });
 
-          window.closeModal = function(modalId) {
-            const modal = document.getElementById(modalId);
-            if(modal) modal.classList.remove('show');
-          }
+      // ===== Logout Modal =====
+      const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
+      const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
+      const logoutModal = document.getElementById("logoutModal");
+      const confirmLogout = document.getElementById("confirmLogout");
+      const cancelLogout = document.getElementById("cancelLogout");
 
-          // Close modal on overlay click
-          modals.forEach(modal=>{
-            modal.addEventListener('click', e=>{
-              if(e.target===modal) modal.classList.remove('show');
-            });
-          });
+      if (sidebarLogoutBtn)
+        sidebarLogoutBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          openModal("logoutModal");
+        });
+      if (dropdownLogoutBtn)
+        dropdownLogoutBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          profileDropdown.classList.remove("active");
+          openModal("logoutModal");
+        });
+      if (confirmLogout)
+        confirmLogout.addEventListener(
+          "click",
+          () => (window.location.href = "{% url 'login_app:logout' %}")
+        );
+      if (cancelLogout)
+        cancelLogout.addEventListener("click", () => closeModal("logoutModal"));
+    </script>
 
-          // ===== Logout Modal =====
-          const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
-          const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
-          const logoutModal = document.getElementById("logoutModal");
-          const confirmLogout = document.getElementById("confirmLogout");
-          const cancelLogout = document.getElementById("cancelLogout");
-
-          if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); openModal('logoutModal'); });
-          if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); openModal('logoutModal'); });
-          if(confirmLogout) confirmLogout.addEventListener("click", ()=>window.location.href="{% url 'login_app:logout' %}");
-          if(cancelLogout) cancelLogout.addEventListener("click", ()=>closeModal('logoutModal'));
-      </script>
-
-      <script src="{% static 'dashboard_app/js/admin_dashboard.js' %}"></script>
-      {% block extra_js %}{% endblock %}
+    <script src="{% static 'dashboard_app/js/admin_dashboard.js' %}"></script>
+    {% block extra_js %}{% endblock %}
   </body>
-  </html>
+</html>
