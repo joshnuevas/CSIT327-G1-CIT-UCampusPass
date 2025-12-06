@@ -583,7 +583,47 @@ body {
         transform: translateY(0);
     }
 }
+/* =========================================
+   PAGE LOAD ANIMATIONS
+   ========================================= */
 
+/* 1. Define the smooth slide-up motion */
+@keyframes fadeUpEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 2. Welcome Header (First) */
+.welcome-section {
+    opacity: 0; /* Hidden initially */
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* 3. Settings Cards (Staggered Entry) */
+.settings-card {
+    opacity: 0;
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Stagger delays based on the order inside .settings-grid 
+   1st = Profile Card
+   2nd = Password Card
+   3rd = Delete Card
+*/
+.settings-grid .settings-card:nth-child(1) { animation-delay: 0.15s; }
+.settings-grid .settings-card:nth-child(2) { animation-delay: 0.3s; }
+.settings-grid .settings-card:nth-child(3) { animation-delay: 0.45s; }
+
+/* Optional: Smooth fade-in for the edit form when toggled */
+#editMode {
+    animation: fadeUpEntrance 0.4s ease-out forwards;
+}
 /* =========================================
    RESPONSIVE
 ========================================= */

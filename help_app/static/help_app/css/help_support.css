@@ -307,6 +307,62 @@
      font-size: 13px;
      line-height: 1.5;
 }
+/* =========================================
+   PAGE LOAD ANIMATIONS
+   ========================================= */
+
+/* 1. Define the smooth slide-up motion */
+@keyframes fadeUpEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 2. Welcome Header (First) */
+.welcome-section {
+    opacity: 0; /* Hidden initially */
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* 3. Quick Nav Buttons (Second) */
+.quick-nav-grid {
+    opacity: 0;
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: 0.15s; /* Slight delay */
+}
+
+/* 4. FAQ Card (Third) */
+#faqs {
+    opacity: 0;
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: 0.3s;
+}
+
+/* 5. Troubleshooting Card (Fourth) */
+#troubleshooting {
+    opacity: 0;
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: 0.45s;
+}
+
+/* Optional: Stagger the little cards inside Troubleshooting for extra polish */
+.trouble-card {
+    opacity: 0;
+    animation: fadeUpEntrance 0.6s ease-out forwards;
+}
+
+/* Delay the trouble cards to appear after the main card loads */
+#troubleshooting .trouble-card:nth-child(1) { animation-delay: 0.5s; }
+#troubleshooting .trouble-card:nth-child(2) { animation-delay: 0.6s; }
+#troubleshooting .trouble-card:nth-child(3) { animation-delay: 0.7s; }
+#troubleshooting .trouble-card:nth-child(4) { animation-delay: 0.8s; }
+#troubleshooting .trouble-card:nth-child(5) { animation-delay: 0.9s; }
+#troubleshooting .trouble-card:nth-child(6) { animation-delay: 1.0s; }
 /* ===== RESPONSIVE ===== */
  @media (max-width: 768px) {
      .sidebar {

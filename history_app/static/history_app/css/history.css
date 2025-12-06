@@ -576,6 +576,57 @@
          transform: translateY(0);
     }
 }
+/* =========================================
+   PAGE LOAD ANIMATIONS
+   ========================================= */
+
+/* 1. Define the smooth slide-up motion */
+@keyframes fadeUpEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 2. Welcome Header (First) */
+.welcome-section {
+    opacity: 0; /* Start hidden */
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* 3. Filter Bar (Second) */
+.filter-section {
+    opacity: 0;
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: 0.15s; /* Slight delay after header */
+}
+
+/* 4. Visit Cards (Staggered Entry) */
+.flip-card-scene {
+    opacity: 0;
+    animation: fadeUpEntrance 0.6s ease-out forwards;
+}
+
+/* We stagger the first 6 cards so they cascade in nicely */
+.flip-card-scene:nth-child(1) { animation-delay: 0.3s; }
+.flip-card-scene:nth-child(2) { animation-delay: 0.4s; }
+.flip-card-scene:nth-child(3) { animation-delay: 0.5s; }
+.flip-card-scene:nth-child(4) { animation-delay: 0.6s; }
+.flip-card-scene:nth-child(5) { animation-delay: 0.7s; }
+.flip-card-scene:nth-child(6) { animation-delay: 0.8s; }
+/* Any remaining cards appear together */
+.flip-card-scene:nth-child(n+7) { animation-delay: 0.9s; }
+
+/* 5. Empty State (If no visits) */
+.empty-state-container {
+    opacity: 0;
+    animation: fadeUpEntrance 0.8s ease-out forwards;
+    animation-delay: 0.3s;
+}
 /* Responsive */
  @media (max-width: 768px) {
      .filter-row {
