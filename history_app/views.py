@@ -26,37 +26,44 @@ def history_view(request):
     """
     Visitor 'My History' page.
 
+    Default view:
+      - Only show visits from (today - 7 days) up to (today + 7 days).
+
     Rules:
-    - Redirects if user is not logged in.
-    - Auto-expires visits whose date is already past today (Upcoming/Active -> Expired).
-    - Supports filtering by:
-        * Date (single date, but never beyond today + 7 days)
-        * Search query (code or department)
-    - Default: show ALL past visits + up to 7 days ahead (same window as booking).
+      - Auto-expire visits whose date is already past today
+        (Upcoming/Active -> Expired).
+      - Filter by:
+          * Date (any past date, up to today + 7 days)
+          * Search query (code or department)
     """
 
-    # ----- AUTH CHECK -----
+    # ---------- AUTH CHECK ----------
     if "user_email" not in request.session:
         return redirect("login_app:login")
 
     user_email = request.session["user_email"]
 
-    # ----- TIME / DATE CONTEXT (Asia/Manila) -----
+    # ---------- TIME CONTEXT ----------
     philippines_tz = pytz.timezone("Asia/Manila")
     now_ph = datetime.now(philippines_tz)
     today = now_ph.date()
-    max_allowed_date = today + timedelta(days=7)  # same as booking page
+    max_allowed_date = today + timedelta(days=7)  # same as booking limit
 
-    # ----- AUTO-EXPIRE OLD VISITS -----
+    # ---------- AUTO-EXPIRE OLD VISITS ----------
     Visit.objects.filter(
         user_email=user_email,
         visit_date__lt=today,
         status__in=["Upcoming", "Active"],
     ).update(status="Expired")
 
-    # ----- READ FILTER PARAMS -----
+    # ---------- DEFAULT WINDOW (LAST 7 DAYS → NEXT 7 DAYS) ----------
+    default_start_date = today - timedelta(days=7)
+    default_end_date = max_allowed_date
+
+    # ---------- READ FILTER PARAMS ----------
     date_str = (request.GET.get("date") or "").strip()
     search_query = (request.GET.get("q") or "").strip()
+    filter_submitted = request.GET.get("filter_submitted") == "1"
 
     visits_qs = Visit.objects.filter(user_email=user_email)
 
@@ -64,53 +71,55 @@ def history_view(request):
     filter_date_display = ""
     filter_date_value = ""
 
-    # Only warn if filter form was actually submitted
-    filter_submitted = request.GET.get("filter_submitted") == "1"
+    # Warn only if the user actually hit “Apply Filters” with nothing set
     if filter_submitted and not date_str and not search_query:
         messages.warning(
             request,
             "Please enter a visit date or a search keyword before applying filters."
         )
 
-    # ----- DATE FILTER -----
+    # ---------- DATE FILTER ----------
     if date_str:
-        # User picked a specific date – clamp to max_allowed_date if needed
         try:
             selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
         except ValueError:
             selected_date = today
 
+        # Clamp only the *future* side (cannot see beyond +7 days)
         if selected_date > max_allowed_date:
             selected_date = max_allowed_date
 
-        # NOTE: we allow any past date here
         visits_qs = visits_qs.filter(visit_date=selected_date)
 
         filter_mode_text = "Showing visits for"
         filter_date_display = selected_date.strftime("%b %d, %Y")
         filter_date_value = selected_date.isoformat()
     else:
-        # Default: show ALL visits up to today + 7 days (no lower bound)
-        visits_qs = visits_qs.filter(visit_date__lte=max_allowed_date)
+        # DEFAULT: last 7 days up to next 7 days
+        visits_qs = visits_qs.filter(
+            visit_date__gte=default_start_date,
+            visit_date__lte=default_end_date,
+        )
+        filter_mode_text = "Showing visits from"
+        filter_date_display = (
+            f"{default_start_date.strftime('%b %d, %Y')} "
+            f"to {default_end_date.strftime('%b %d, %Y')}"
+        )
 
-        filter_mode_text = "Showing all visits up to"
-        filter_date_display = max_allowed_date.strftime("%b %d, %Y")
-        filter_date_value = ""
-
-    # 🔒 Final safety: never show beyond +7 days
+    # Safety: never show anything beyond +7 days ahead
     visits_qs = visits_qs.filter(visit_date__lte=max_allowed_date)
 
-    # ----- TEXT SEARCH (Pass Code OR Department) -----
+    # ---------- TEXT SEARCH ----------
     if search_query:
         visits_qs = visits_qs.filter(
             Q(code__icontains=search_query) |
             Q(department__icontains=search_query)
         )
 
-    # Order: newest first
+    # Most recent first
     visits_qs = visits_qs.order_by("-visit_date", "-start_time")
 
-    # ----- FORMAT DISPLAY FIELDS -----
+    # ---------- FORMAT DISPLAY FIELDS ----------
     visits = []
     for visit in visits_qs:
         visit_date_obj = visit.visit_date
@@ -135,9 +144,7 @@ def history_view(request):
     context = {
         "user_email": user_email,
         "user_first_name": request.session.get("user_first_name"),
-
         "visits": visits,
-
         "filter_date": filter_date_value,
         "filter_query": search_query,
         "filter_mode_text": filter_mode_text,
