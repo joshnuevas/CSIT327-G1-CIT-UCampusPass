@@ -104,12 +104,17 @@
 
                 <div class="form-group full-width">
                     <label for="emailInput">Email Address</label>
-                    <input type="email"
-                           name="email"
-                           id="emailInput"
-                           value="{{ user.email }}"
-                           required
-                           class="input-modern">
+                    <input
+                        type="email"
+                        name="email"
+                        id="emailInput"
+                        value="{{ user.email }}"
+                        required
+                        class="input-modern"
+                        pattern="^[^@]+@[^@]+\.[A-Za-z]{3,}$"
+                        oninvalid="this.setCustomValidity('Please enter a valid email address (e.g., name@example.com).')"
+                        oninput="this.setCustomValidity('')"
+                    >
                 </div>
 
                 <div class="form-group">
@@ -264,6 +269,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const deleteAccountBtn = document.getElementById('deleteAccountBtn');
     const deleteModal = document.getElementById('deleteModal');
     const cancelDeleteBtn = document.getElementById('cancelDelete');
+
+    const emailInput = document.getElementById('emailInput');
+    if (emailInput) {
+        emailInput.addEventListener('blur', function () {
+            this.value = this.value.trim();
+        });
+    }
 
     // ========= Phone input: numbers only + max 11 =========
     if (phoneInput) {

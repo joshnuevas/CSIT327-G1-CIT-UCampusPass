@@ -29,8 +29,8 @@ def profile_view(request):
         return redirect('login_app:login')
     
     user_email = request.session['user_email']
-    
-    # Use Django ORM instead of Supabase
+
+    # Load current user
     try:
         user = User.objects.get(email=user_email)
     except User.DoesNotExist:
@@ -42,35 +42,47 @@ def profile_view(request):
 
         # --------------- Update Personal Info ---------------
         if action == 'update_info':
-            first_name = request.POST.get('first_name').strip()
-            last_name = request.POST.get('last_name').strip()
-            email = request.POST.get('email').strip().lower()
-            phone = request.POST.get('phone').strip()
-            
+            first_name = (request.POST.get('first_name') or '').strip()
+            last_name = (request.POST.get('last_name') or '').strip()
+            email = (request.POST.get('email') or '').strip().lower()
+            phone = (request.POST.get('phone') or '').strip()
+
             # Handle visitor type - either from dropdown or "Other" input
             visitor_type_dropdown = request.POST.get('visitorType')
             if visitor_type_dropdown == 'Other':
-                visitor_type = request.POST.get('visitor_type_other', '').strip()
+                visitor_type = (request.POST.get('visitor_type_other') or '').strip()
                 if not visitor_type:
                     messages.error(request, "Please specify your visitor type.")
                     return redirect('profile_app:profile')
             else:
                 visitor_type = visitor_type_dropdown
 
-            # Validate phone format
-            if not re.fullmatch(r"09\d{9}$", phone):
-                messages.error(request, "Invalid phone number format.")
+            # Basic required checks
+            if not first_name or not last_name or not email or not phone:
+                messages.error(request, "Please complete all required fields.")
                 return redirect('profile_app:profile')
 
-            # Check if email or phone exists (other than current user)
+            # ✅ Validate phone format: must be 11 digits starting with 09
+            if not re.fullmatch(r"09\d{9}$", phone):
+                messages.error(request, "Invalid phone number format. It should be 11 digits and start with 09.")
+                return redirect('profile_app:profile')
+
+            # ✅ Validate email format (e.g., name@example.com)
+            email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$"
+            if not re.fullmatch(email_pattern, email):
+                messages.error(request, "Please enter a valid email address (e.g., name@example.com).")
+                return redirect('profile_app:profile')
+
+            # Check if email or phone already used by another account
             if User.objects.filter(email=email).exclude(email=user_email).exists():
                 messages.error(request, "Email already registered.")
                 return redirect('profile_app:profile')
+
             if User.objects.filter(phone=phone).exclude(email=user_email).exists():
                 messages.error(request, "Phone already registered.")
                 return redirect('profile_app:profile')
 
-            # Update user using Django ORM
+            # Update user
             user.first_name = first_name
             user.last_name = last_name
             user.email = email
@@ -78,7 +90,7 @@ def profile_view(request):
             user.visitor_type = visitor_type
             user.save()
 
-            # Update session so header initials stay in sync
+            # Update session values so header and profile stay in sync
             request.session['user_email'] = email
             request.session['user_first_name'] = first_name
             request.session['user_last_name'] = last_name
@@ -100,7 +112,6 @@ def profile_view(request):
                 messages.error(request, "New passwords do not match.")
                 return redirect('profile_app:profile')
 
-            # Update password using model method
             user.set_password(new_password)
             user.save()
             
@@ -114,12 +125,12 @@ def profile_view(request):
                 messages.error(request, "Password incorrect. Cannot delete account.")
                 return redirect('profile_app:profile')
             
-            # Delete user using Django ORM
             user.delete()
             request.session.flush()
             messages.success(request, "Account deleted permanently.")
             return redirect('login_app:login')
 
+    # GET → render profile page
     return render(request, 'profile_app/profile.html', {
         "user": user,
         "user_first_name": request.session.get("user_first_name"),
