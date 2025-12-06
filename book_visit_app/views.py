@@ -209,17 +209,17 @@ def book_visit_view(request):
                 )
                 return redirect("book_visit_app:book_visit")
 
-            # ===============================
             # VALIDATE PURPOSE
-            # ===============================
-            words = raw_purpose.split()
-            if len(raw_purpose) < 10 or len(words) < 2 or _looks_like_nonsense(raw_purpose):
-                messages.error(
-                    request,
-                    "Please provide a clear and descriptive purpose for your visit "
-                    "(at least two words and not random text)."
-                )
-                return redirect("book_visit_app:book_visit")
+            # Allow the literal dropdown choice "Other" without extra validation
+            if raw_purpose != "Other":
+                words = raw_purpose.split()
+                if len(raw_purpose) < 10 or len(words) < 2 or _looks_like_nonsense(raw_purpose):
+                    messages.error(
+                        request,
+                        "Please provide a clear and descriptive purpose for your visit "
+                        "(at least two words and not random text)."
+                    )
+                    return redirect("book_visit_app:book_visit")
 
             # ===============================
             # VALIDATE VISIT DATE

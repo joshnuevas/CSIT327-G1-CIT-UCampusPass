@@ -97,11 +97,10 @@
                 <div class="form-group">
                     <label for="purpose" class="required-label">Purpose of Visit</label>
                     <div class="select-wrapper">
-                        <select name="purpose" id="purpose" onchange="toggleOther('purpose')" required>
+                        <select name="purpose" id="purpose" required>
                             <option value="" selected disabled>Select Department First</option>
                         </select>
                     </div>
-                    <input type="text" name="purpose_other" id="purpose_other" placeholder="Please specify your purpose" class="input-modern" style="display:none; margin-top: 10px;">
                 </div>
 
                 <div class="form-group">
@@ -215,30 +214,38 @@ function showWarning(title, message) {
 function updatePurposeOptions() {
     const departmentSelect = document.getElementById('department');
     const purposeSelect = document.getElementById('purpose');
-    const purposeOther = document.getElementById('purpose_other');
 
-    if (!departmentSelect || !purposeSelect || !purposeOther) return;
+    if (!departmentSelect || !purposeSelect) return;
 
     const selectedDepartment = departmentSelect.value;
+
+    // Clear existing options
     purposeSelect.innerHTML = '';
 
+    // If department is "Other", just give a simple dropdown with "Other"
     if (selectedDepartment === 'Other') {
-        purposeSelect.style.display = 'none';
-        purposeSelect.required = false;
-        purposeSelect.value = '';
-
-        purposeOther.style.display = 'block';
-        purposeOther.required = true;
-        return;
-    }
-
-    if (selectedDepartment && purposeOptions[selectedDepartment]) {
         purposeSelect.style.display = 'block';
         purposeSelect.required = true;
 
-        purposeOther.style.display = 'none';
-        purposeOther.required = false;
-        purposeOther.value = '';
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Select Purpose';
+        defaultOption.selected = true;
+        defaultOption.disabled = true;
+        purposeSelect.appendChild(defaultOption);
+
+        const otherOption = document.createElement('option');
+        otherOption.value = 'Other';
+        otherOption.textContent = 'Other';
+        purposeSelect.appendChild(otherOption);
+
+        return;
+    }
+
+    // If the department has predefined purposes
+    if (selectedDepartment && purposeOptions[selectedDepartment]) {
+        purposeSelect.style.display = 'block';
+        purposeSelect.required = true;
 
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
@@ -254,12 +261,9 @@ function updatePurposeOptions() {
             purposeSelect.appendChild(option);
         });
     } else {
+        // No department selected – show default message
         purposeSelect.style.display = 'block';
         purposeSelect.required = true;
-
-        purposeOther.style.display = 'none';
-        purposeOther.required = false;
-        purposeOther.value = '';
 
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
@@ -271,6 +275,9 @@ function updatePurposeOptions() {
 }
 
 function toggleOther(field) {
+    // We only use this for department now
+    if (field !== 'department') return;
+
     const selectEl = document.getElementById(field);
     const otherInput = document.getElementById(field + '_other');
 
@@ -279,12 +286,10 @@ function toggleOther(field) {
     if (selectEl.value === 'Other') {
         otherInput.style.display = 'block';
         otherInput.required = true;
-        if (field === 'purpose') selectEl.required = false;
     } else {
         otherInput.style.display = 'none';
         otherInput.required = false;
         otherInput.value = '';
-        if (field === 'purpose') selectEl.required = true;
     }
 }
 

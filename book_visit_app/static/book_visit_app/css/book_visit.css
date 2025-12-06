@@ -30,123 +30,114 @@ body {
 }
 
 /* =========================================
-   TOAST / DJANGO MESSAGES (TOP-RIGHT)
-========================================= */
+   TOAST NOTIFICATIONS (Success/Error Alerts)
+   ========================================= */
+
 .messages-container {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    max-width: 450px;
-    width: 90%;
-}
-
-/* Base alert */
-.alert {
+    top: 25px;
+    right: 25px;
+    z-index: 9999; /* Ensures it floats above everything */
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 15px;
+    pointer-events: none; /* Allows clicking through the empty container */
+}
 
-    padding: 14px 16px;
-    margin-bottom: 12px;
-
+/* The actual message card */
+.alert {
+    background: #FFFFFF;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 16px 20px;
     border-radius: 12px;
-    border-left: 5px solid;
-    background: #ffffff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-left: 5px solid #ccc; /* Default border color */
+    pointer-events: auto; /* Re-enable clicks on the card itself */
+    
+    /* Animation */
+    opacity: 0;
+    transform: translateX(50px);
+    animation: slideInToast 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 
-    font-size: 14px;
-    font-weight: 500;
-
-    animation: slideInRight 0.4s ease forwards, fadeOut 0.5s ease 4.5s forwards;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
 }
 
-/* Color variants */
-.alert-success {
-    border-left-color: #28a745;
-    background: linear-gradient(135deg, #d4edda, #c3e6cb);
-    color: #155724;
-}
-
-.alert-danger,
-.alert-error {
-    border-left-color: #dc3545;
-    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-    color: #721c24;
-}
-
-.alert-warning {
-    border-left-color: #ffc107;
-    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-    color: #856404;
-}
-
-.alert-info {
-    border-left-color: #17a2b8;
-    background: linear-gradient(135deg, #d1ecf1, #bee5eb);
-    color: #0c5460;
-}
-
-/* Optional icon + text layout (works even if you don’t use it) */
 .alert-icon {
-    font-size: 20px;
+    font-size: 18px;
     flex-shrink: 0;
+    margin-top: 2px;
 }
 
 .alert-text {
+    font-size: 14px;
+    color: #2D3748;
+    line-height: 1.5;
     flex: 1;
+    font-weight: 500;
 }
 
-.alert .btn-close {
-    background: none !important;
+.alert-close {
+    background: none;
     border: none;
-    width: 28px;
-    height: 28px;
-    margin-left: auto;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
+    color: #A0AEC0;
     font-size: 20px;
-    font-weight: 700;
     line-height: 1;
-
     cursor: pointer;
-    color: #444;
-    opacity: 0.6;
-    transition: 0.2s ease;
+    padding: 0;
+    margin-left: 8px;
+    transition: color 0.2s;
 }
 
-.alert .btn-close:hover {
-    opacity: 1;
-    color: #000;
+.alert-close:hover {
+    color: #2D3748;
 }
 
-.alert .btn-close::before {
-    content: "×";
+/* Success (Green) */
+.alert-success {
+    border-left-color: #38A169;
+}
+.alert-success .alert-icon {
+    color: #38A169;
 }
 
-/* Animations */
-@keyframes slideInRight {
+/* Error/Danger (Red) */
+.alert-danger, 
+.alert-error {
+    border-left-color: #E53E3E;
+}
+.alert-danger .alert-icon,
+.alert-error .alert-icon {
+    color: #E53E3E;
+}
+
+/* Warning (Gold/Yellow) */
+.alert-warning {
+    border-left-color: #D69E2E;
+}
+.alert-warning .alert-icon {
+    color: #D69E2E;
+}
+
+/* Info (Blue) */
+.alert-info {
+    border-left-color: #3182CE;
+}
+.alert-info .alert-icon {
+    color: #3182CE;
+}
+
+/* Animation Keyframes */
+@keyframes slideInToast {
     from {
-        transform: translateX(400px);
         opacity: 0;
+        transform: translateX(50px) scale(0.95);
     }
     to {
-        transform: translateX(0);
         opacity: 1;
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(400px);
+        transform: translateX(0) scale(1);
     }
 }
 
