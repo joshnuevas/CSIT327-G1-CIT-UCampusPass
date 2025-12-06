@@ -93,6 +93,29 @@
         margin-left: auto;
       }
 
+      /* ===== USER AVATAR (ADDED THIS) ===== */
+      .user-avatar {
+        width: 42px;
+        height: 42px;
+        background-color: #8B1538; /* Maroon Background */
+        color: #ffffff;            /* White Text */
+        border-radius: 50%;        /* Circle Shape */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+        border: 2px solid #D4AF37; /* Gold Border */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+
+      .user-avatar:hover {
+        transform: scale(1.05);
+      }
+
       /* ===== DROPDOWNS ===== */
       .dropdown {
         position: absolute;
@@ -281,10 +304,8 @@
     <link rel="shortcut icon" href="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png">
 </head>
 <body>
-    <!-- ===== OVERLAY ===== -->
     <div class="overlay" id="overlay"></div>
 
-    <!-- Sidebar Navigation -->
     <div class="sidebar" id="sidebar">
         <div class="school-logo"></div>
         <div class="sidebar-header">
@@ -339,9 +360,7 @@
         </nav>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Messages Display Section -->
         {% if messages %}
         <div class="messages-container">
             {% for message in messages %}
@@ -365,8 +384,6 @@
             {% endfor %}
         </div>
         {% endif %}
-        <!-- End Messages Display -->
-
         <div class="top-bar">
             <button class="menu-toggle" id="menuToggle">
                 <i class="fas fa-bars"></i>
@@ -382,7 +399,6 @@
         </div>
     </div>
 
-    <!-- ===== PROFILE DROPDOWN ===== -->
     <div class="dropdown" id="profileDropdown">
         <div class="dropdown-header">Visitor</div>
         <a href="{% url 'profile_app:profile' %}" class="dropdown-item">
@@ -393,7 +409,6 @@
         </div>
     </div>
 
-    <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
         <div class="modal-content">
             <h2>Are you sure you want to logout?</h2>

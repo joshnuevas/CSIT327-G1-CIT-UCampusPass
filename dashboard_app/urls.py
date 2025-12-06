@@ -16,4 +16,3 @@ urlpatterns = [
     path('staff/check-in/', views.check_in_visitor, name='check_in_visitor'),
     path('staff/check-out/', views.check_out_visitor, name='check_out_visitor'),
 ]
-

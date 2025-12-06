@@ -1,4 +1,4 @@
-/* ===== GLOBAL RESETS ===== */
+/* ========================================= 1. GLOBAL RESETS & LAYOUT ========================================= */
  * {
      margin: 0;
      padding: 0;
@@ -11,94 +11,7 @@
      height: 100vh;
      overflow: hidden;
 }
-/* ===== MESSAGES/ALERTS ===== */
- .messages-container {
-     position: fixed;
-     top: 20px;
-     right: 20px;
-     z-index: 1000;
-     max-width: 450px;
-     width: 90%;
-}
- .alert {
-     position: relative;
-    /* NEW: so the X can be absolutely positioned */
-     padding: 16px 48px 16px 20px;
-    /* NEW: add right padding to make room for X */
-     border-radius: 12px;
-     margin-bottom: 12px;
-     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-     animation: slideInRight 0.4s ease forwards;
-     border-left: 5px solid;
-     background: #fff;
-     display: flex;
-     align-items: center;
-     gap: 10px;
-}
-/* Colors stay the same */
- .alert-success {
-     border-left-color: #28a745;
-     background: #f0fff4;
-     color: #155724;
-}
- .alert-danger {
-     border-left-color: #dc3545;
-     background: #fff5f5;
-     color: #721c24;
-}
- .alert-warning {
-     border-left-color: #ffc107;
-     background: #fffbf0;
-     color: #856404;
-}
- .alert-info {
-     border-left-color: #17a2b8;
-     background: #f0f9ff;
-     color: #0c5460;
-}
-/* ✨ Close button – now floats on the right */
- .messages-container .alert button, .messages-container .alert .btn-close, .messages-container .alert .alert-close {
-     position: absolute;
-    /* NEW */
-     top: 50%;
-    /* NEW */
-     right: 16px;
-    /* NEW */
-     transform: translateY(-50%);
-    /* NEW */
-     background: none;
-     border: none;
-     width: 26px;
-     height: 26px;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-size: 18px;
-     font-weight: 700;
-     line-height: 1;
-     cursor: pointer;
-     color: inherit;
-     opacity: 0.6;
-     border-radius: 50%;
-     transition: opacity 0.2s ease, background 0.15s ease, transform 0.1s ease;
-}
- .messages-container .alert button:hover, .messages-container .alert .btn-close:hover, .messages-container .alert .alert-close:hover {
-     opacity: 1;
-     background: rgba(0, 0, 0, 0.08);
-     transform: translateY(-50%) scale(1.05);
-    /* keep vertical centering on hover */
-}
- @keyframes slideInRight {
-     from {
-         transform: translateX(400px);
-         opacity: 0;
-    }
-     to {
-         transform: translateX(0);
-         opacity: 1;
-    }
-}
-/* ===== SIDEBAR ===== */
+/* ========================================= 2. SIDEBAR ========================================= */
  .sidebar {
      width: 260px;
      background: linear-gradient(180deg, #8B1538 0%, #5c0a0a 100%);
@@ -188,7 +101,7 @@
      background: transparent;
      color: #ff9999;
 }
-/* ===== MAIN CONTENT & TOP BAR ===== */
+/* ========================================= 3. MAIN CONTENT AREA ========================================= */
  .main-content {
      flex: 1;
      margin-left: 260px;
@@ -196,43 +109,12 @@
      flex-direction: column;
      height: 100vh;
 }
-/* User Avatar Fix - FIXED HERE */
- .user-info {
-     display: flex;
-     align-items: center;
-     gap: 15px;
-}
- .user-avatar {
-     width: 42px;
-     height: 42px;
-    /* Gradient background to ensure visibility */
-     background: linear-gradient(135deg, #8B1538, #6B0F2A);
-     color: #FFFFFF;
-    /* White text for contrast */
-     border-radius: 50%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-weight: 700;
-     font-size: 14px;
-     letter-spacing: 0.5px;
-     border: 2px solid #D4AF37;
-    /* Gold border */
-     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-     cursor: pointer;
-     transition: all 0.3s;
-}
- .user-avatar:hover {
-     transform: scale(1.05);
-     box-shadow: 0 4px 8px rgba(139, 21, 56, 0.2);
-}
  .content-area {
      flex: 1;
      overflow-y: auto;
      padding: 40px;
      background: #F5F7FA;
 }
-/* ===== DASHBOARD WELCOME SECTION ===== */
  .welcome-section {
      margin-bottom: 35px;
      display: flex;
@@ -258,7 +140,7 @@
      border-radius: 20px;
      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
-/* ===== STATS GRID ===== */
+/* ========================================= 4. STATS GRID ========================================= */
  .stats-grid {
      display: grid;
      grid-template-columns: repeat(3, 1fr);
@@ -316,7 +198,7 @@
      color: #718096;
      font-weight: 500;
 }
-/* ===== DASHBOARD CARD ===== */
+/* ========================================= 5. DASHBOARD CARD & BUTTONS ========================================= */
  .dashboard-grid {
      display: grid;
      grid-template-columns: 1fr;
@@ -359,7 +241,6 @@
      display: flex;
      gap: 10px;
 }
-/* Buttons */
  .btn-sm {
      padding: 8px 16px;
      border-radius: 8px;
@@ -389,28 +270,92 @@
      color: #2D3748;
      background: #F7FAFC;
 }
-/* ===== REALISTIC TICKET STYLING (FIXED STUB) ===== */
+/* =========================================
+   INTERACTION TIP BANNER
+   ========================================= */
+.interaction-tip {
+    background: #EBF8FF;       /* Light blue background */
+    border: 1px solid #BEE3F8; /* Slightly darker border */
+    color: #2C5282;            /* Dark blue text for readability */
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;       /* Space between tip and first ticket */
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.interaction-tip svg {
+    flex-shrink: 0;
+    color: #3182CE;            /* Icon color */
+}
+
+.interaction-tip strong {
+    font-weight: 700;
+    color: #2A4365;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* ========================================= 6. 3D FLIP TICKET STYLING (VERTICAL FLIP) ========================================= */
  .visits-list-container {
      display: flex;
      flex-direction: column;
      gap: 24px;
 }
+/* The Scene/Wrapper */
  .ticket-wrapper {
+     position: relative;
+     background: transparent;
+     perspective: 1000px;
+     cursor: pointer;
+     height: 140px;
+     margin-bottom: 10px;
+}
+/* The Object moving */
+ .ticket-inner {
+     position: relative;
+     width: 100%;
+     height: 100%;
+     text-align: left;
+     transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+     transform-style: preserve-3d;
+     border-radius: 12px;
+     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+ .ticket-wrapper:hover .ticket-inner {
+     box-shadow: 0 10px 15px rgba(0,0,0,0.08);
+     transform: translateY(-2px);
+}
+/* State: Flipped (CHANGED TO ROTATEX FOR VERTICAL FLIP) */
+ .ticket-wrapper.flipped .ticket-inner {
+     transform: rotateX(180deg);
+}
+/* Faces: Front and Back */
+ .ticket-front, .ticket-back {
+     position: absolute;
+     width: 100%;
+     height: 100%;
+     -webkit-backface-visibility: hidden;
+     backface-visibility: hidden;
+     border-radius: 12px;
+     top: 0;
+     left: 0;
+}
+/* --- FRONT FACE --- */
+ .ticket-front {
      display: flex;
      background: transparent;
-     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
-     transition: transform 0.2s ease;
+     z-index: 2;
 }
- .ticket-wrapper:hover {
-     transform: translateY(-4px);
-     filter: drop-shadow(0 10px 15px rgba(0,0,0,0.08));
-}
-/* Left Stub - Textured Background */
+/* Stub Styling */
  .ticket-stub {
      width: 100px;
-    /* Maroon Base */
      background-color: #8B1538;
-    /* Polka Dot Texture for "Security Paper" effect */
      background-image: radial-gradient(rgba(255, 255, 255, 0.15) 15%, transparent 16%);
      background-size: 6px 6px;
      color: #fff;
@@ -423,7 +368,6 @@
      position: relative;
      border-right: 2px dashed rgba(255,255,255,0.4);
      box-shadow: inset -3px 0 10px rgba(0,0,0,0.1);
-    /* Inner depth */
      flex-shrink: 0;
 }
  .ticket-month {
@@ -444,13 +388,11 @@
      font-size: 12px;
      opacity: 0.8;
 }
-/* Notches (Cutouts) */
  .notch {
      position: absolute;
      width: 24px;
      height: 24px;
      background-color: #F5F7FA;
-    /* MUST MATCH BODY BACKGROUND */
      border-radius: 50%;
      right: -12px;
      z-index: 10;
@@ -462,7 +404,7 @@
  .notch-bottom {
      bottom: -12px;
 }
-/* Right Body */
+/* Body Styling */
  .ticket-body {
      flex: 1;
      background: #FFFFFF;
@@ -497,7 +439,6 @@
      color: #718096;
      font-weight: 500;
 }
-/* Status Badges */
  .ticket-status-badge {
      padding: 5px 12px;
      border-radius: 20px;
@@ -526,7 +467,6 @@
      color: #A0AEC0;
      border: 1px solid #CBD5E0;
 }
-/* Code Section */
  .ticket-code-section {
      display: flex;
      flex-direction: column;
@@ -552,50 +492,318 @@
      border: 1px solid #E2E8F0;
      letter-spacing: 1px;
 }
-/* ===== EMPTY STATE ===== */
+ .tap-hint {
+     position: absolute;
+     bottom: 10px;
+     right: 30px;
+     font-size: 10px;
+     color: #A0AEC0;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     display: flex;
+     align-items: center;
+     gap: 4px;
+     font-weight: 600;
+     opacity: 0;
+     transform: translateY(5px);
+     transition: all 0.3s ease;
+}
+ .ticket-wrapper:hover .tap-hint {
+     opacity: 1;
+     transform: translateY(0);
+}
+/* --- BACK FACE (CHANGED TO ROTATEX FOR VERTICAL FLIP) --- */
+ .ticket-back {
+     background-color: #fff;
+     transform: rotateX(180deg);
+    /* Changed from rotateY */
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     border: 1px solid #E2E8F0;
+     border-left: 6px solid #8B1538;
+}
+ .back-content {
+     text-align: center;
+     width: 100%;
+     padding: 0 20px;
+}
+ .back-content h3 {
+     font-size: 18px;
+     color: #2D3748;
+     margin-bottom: 5px;
+     font-weight: 700;
+}
+ .back-content p {
+     font-size: 13px;
+     color: #718096;
+     margin-bottom: 15px;
+}
+ .back-actions {
+     display: flex;
+     justify-content: center;
+     gap: 12px;
+}
+ .btn-cancel-confirm {
+     background: #e53e3e;
+     color: white;
+     border: none;
+     padding: 8px 20px;
+     border-radius: 6px;
+     font-size: 13px;
+     font-weight: 600;
+     cursor: pointer;
+     transition: background 0.2s;
+     display: inline-flex;
+     align-items: center;
+     gap: 5px;
+}
+ .btn-cancel-confirm:hover {
+     background: #c53030;
+}
+ .btn-back-return {
+     background: #EDF2F7;
+     color: #4A5568;
+     border: none;
+     padding: 8px 20px;
+     border-radius: 6px;
+     font-size: 13px;
+     font-weight: 600;
+     cursor: pointer;
+     transition: background 0.2s;
+}
+ .btn-back-return:hover {
+     background: #E2E8F0;
+}
+/* Empty State */
  .empty-state-dashboard {
      text-align: center;
-     padding: 40px 20px;
+     padding: 60px 40px;
+    /* Increased padding for better breathing room */
+     background: #FFFFFF;
+    /* Changed to white for a cleaner look */
+     border-radius: 16px;
+     border: 2px dashed #CBD5E0;
+    /* Slightly darker border for contrast */
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     transition: all 0.3s ease;
+}
+ .empty-state-dashboard:hover {
+     border-color: #A0AEC0;
      background: #FAFAFA;
-     border-radius: 12px;
-     border: 2px dashed #E2E8F0;
 }
  .empty-icon-circle {
-     width: 60px;
-     height: 60px;
-     background: #EDF2F7;
+     width: 70px;
+    /* Slightly larger */
+     height: 70px;
+     background: #FFF5F7;
+    /* Light pink tint to match theme */
      border-radius: 50%;
      display: flex;
      align-items: center;
      justify-content: center;
-     margin: 0 auto 15px;
-     color: #A0AEC0;
+     margin-bottom: 20px;
+     color: #8B1538;
+    /* Icon color matches theme */
 }
  .empty-state-dashboard h3 {
-     font-size: 18px;
-     color: #4A5568;
-     margin-bottom: 6px;
+     font-size: 20px;
+     font-weight: 700;
+     color: #2D3748;
+     margin-bottom: 8px;
+    /* Space between title and subtitle */
 }
  .empty-state-dashboard p {
-     color: #A0AEC0;
-     font-size: 14px;
-     margin-bottom: 20px;
+     font-size: 15px;
+     color: #718096;
+     margin-bottom: 30px;
+    /* FIXED: Added space between text and button */
+     max-width: 300px;
+     line-height: 1.5;
 }
  .btn-empty-action {
-     display: inline-block;
-     padding: 10px 24px;
+     display: inline-flex;
+     align-items: center;
+     gap: 8px;
+     padding: 12px 32px;
+    /* Larger click area */
      background: #8B1538;
-     color: #fff;
-     border-radius: 30px;
+     color: #ffffff;
+     border-radius: 50px;
+    /* Fully rounded pill shape */
      text-decoration: none;
      font-weight: 600;
-     font-size: 14px;
-     transition: background 0.2s;
+     font-size: 15px;
+     box-shadow: 0 4px 14px rgba(139, 21, 56, 0.25);
+    /* Nice shadow */
+     transition: all 0.3s ease;
 }
  .btn-empty-action:hover {
      background: #6B0F2A;
+     transform: translateY(-2px);
+    /* Subtle lift on hover */
+     box-shadow: 0 6px 20px rgba(139, 21, 56, 0.35);
 }
-/* ===== RESPONSIVE ===== */
+
+/* ===== MODAL STYLES (shared with History page) ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s;
+}
+
+.warning-card {
+    background: #fff;
+    padding: 35px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s ease forwards;
+    position: relative;
+}
+
+.warning-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    background: #FFF5F5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: #C53030;
+}
+
+.warning-card h2 {
+    color: #2D3748;
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.warning-card p {
+    color: #718096;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-warning-action {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-danger-solid {
+    background: #DC3545;
+    color: #fff;
+}
+
+.btn-danger-solid:hover {
+    background: #C82333;
+}
+
+.btn-secondary-outline {
+    background: #fff;
+    color: #4A5568;
+    border: 1px solid #E2E8F0;
+}
+
+.btn-secondary-outline:hover {
+    background: #F7FAFC;
+}
+
+/* Modal animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+/* =========================================
+   7. ENTRANCE ANIMATIONS (Clean & Staggered)
+   ========================================= */
+
+/* 1. Define the smooth slide-up motion */
+@keyframes fadeUpEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(20px); /* Starts slightly lower */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);    /* Ends in original position */
+    }
+}
+
+/* 2. Welcome Section (Appears first) */
+.welcome-section {
+    opacity: 0; /* Hidden initially */
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* 3. Stats Cards (Appear second, one by one) */
+.stat-card {
+    opacity: 0;
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Stagger delays for stats */
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+
+/* 4. Main Content Card (Appears third) */
+.dashboard-grid .card {
+    opacity: 0;
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: 0.4s;
+}
+
+/* 5. Ticket List Items (Appear last, slightly staggered) */
+.ticket-wrapper {
+    opacity: 0;
+    animation: fadeUpEntrance 0.6s ease-out forwards;
+}
+
+/* Stagger the first few tickets for a cool cascading effect */
+.ticket-wrapper:nth-child(1) { animation-delay: 0.5s; }
+.ticket-wrapper:nth-child(2) { animation-delay: 0.6s; }
+.ticket-wrapper:nth-child(3) { animation-delay: 0.7s; }
+/* Any tickets after the 3rd one appear together */
+.ticket-wrapper:nth-child(n+4) { animation-delay: 0.8s; }
+
+/* 6. The "Note" banner */
+.interaction-tip {
+    opacity: 0;
+    animation: fadeUpEntrance 0.6s ease-out forwards;
+    animation-delay: 0.5s; /* Appears with the first ticket */
+}
+/* Responsive adjustments */
  @media (max-width: 1024px) {
      .stats-grid {
          grid-template-columns: repeat(2, 1fr);
@@ -608,17 +816,20 @@
      .main-content {
          margin-left: 0;
     }
-     .welcome-section {
-         flex-direction: column;
-         align-items: flex-start;
-         gap: 15px;
-    }
      .stats-grid {
          grid-template-columns: 1fr;
     }
-    /* Mobile Ticket Stack */
      .ticket-wrapper {
+         height: auto;
+         min-height: 180px;
+    }
+     .ticket-front {
+         position: relative;
          flex-direction: column;
+         height: auto;
+    }
+     .ticket-back {
+         position: absolute;
     }
      .ticket-stub {
          width: 100%;
@@ -635,6 +846,7 @@
          align-items: flex-start;
          gap: 20px;
          padding: 20px;
+         width: 100%;
     }
      .ticket-code-section {
          border-left: none;
@@ -646,8 +858,6 @@
     }
      .notch {
          top: auto;
-         width: 20px;
-         height: 20px;
          bottom: -10px;
     }
      .notch-top {
@@ -658,9 +868,689 @@
          right: -10px;
          left: auto;
     }
-     .card-header {
-         flex-direction: column;
-         align-items: flex-start;
-         gap: 15px;
+}
+/* ========================================= 1. GLOBAL RESETS & LAYOUT ========================================= */
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+}
+ body {
+     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+     background: #F5F7FA;
+     display: flex;
+     height: 100vh;
+     overflow: hidden;
+}
+/* ========================================= 2. SIDEBAR ========================================= */
+ .sidebar {
+     width: 260px;
+     background: linear-gradient(180deg, #8B1538 0%, #5c0a0a 100%);
+     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+     display: flex;
+     flex-direction: column;
+     position: fixed;
+     height: 100vh;
+     left: 0;
+     top: 0;
+     border-right: 1px solid rgba(212, 175, 55, 0.3);
+     z-index: 100;
+}
+ .school-logo {
+     width: 80px;
+     height: 80px;
+     background: url("https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png") no-repeat center;
+     background-size: 70px;
+     background-color: #fff;
+     border-radius: 50%;
+     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+     border: 4px solid #D4AF37;
+     margin: 30px auto 20px auto;
+     transition: transform 0.3s ease;
+}
+ .school-logo:hover {
+     transform: rotate(360deg) scale(1.05);
+}
+ .sidebar-header {
+     padding: 0 25px 20px;
+     border-bottom: 1px solid rgba(255,255,255,0.1);
+     text-align: center;
+}
+ .sidebar-header h2 {
+     color: #fff;
+     font-size: 18px;
+     font-weight: 700;
+     letter-spacing: 0.5px;
+}
+ .sidebar-header p {
+     color: rgba(255,255,255,0.7);
+     font-size: 12px;
+     margin-top: 5px;
+}
+ .nav-menu {
+     flex: 1;
+     padding: 20px 15px;
+     overflow-y: auto;
+     display: flex;
+     flex-direction: column;
+     gap: 5px;
+}
+ .nav-item {
+     display: flex;
+     align-items: center;
+     padding: 12px 20px;
+     color: rgba(255,255,255,0.85);
+     text-decoration: none;
+     border-radius: 10px;
+     transition: all 0.2s ease;
+     font-size: 14px;
+     font-weight: 500;
+}
+ .nav-item:hover {
+     background: rgba(255,255,255,0.1);
+     color: #fff;
+     transform: translateX(5px);
+}
+ .nav-item.active {
+     background: rgba(212, 175, 55, 0.2);
+     color: #D4AF37;
+     font-weight: 700;
+}
+ .nav-item svg {
+     width: 20px;
+     height: 20px;
+     margin-right: 14px;
+     opacity: 0.9;
+}
+ .logout-item {
+     margin-top: auto !important;
+     border-top: 1px solid rgba(255,255,255,0.1);
+     padding-top: 20px;
+     border-radius: 0;
+}
+ .logout-item:hover {
+     background: transparent;
+     color: #ff9999;
+}
+/* ========================================= 3. MAIN CONTENT AREA ========================================= */
+ .main-content {
+     flex: 1;
+     margin-left: 260px;
+     display: flex;
+     flex-direction: column;
+     height: 100vh;
+}
+ .content-area {
+     flex: 1;
+     overflow-y: auto;
+     padding: 40px;
+     background: #F5F7FA;
+}
+ .welcome-section {
+     margin-bottom: 35px;
+     display: flex;
+     justify-content: space-between;
+     align-items: flex-end;
+}
+ .welcome-text h1 {
+     color: #2d3748;
+     font-size: 32px;
+     margin-bottom: 8px;
+     font-weight: 800;
+}
+ .welcome-text p {
+     color: #718096;
+     font-size: 16px;
+}
+ .current-date {
+     font-size: 14px;
+     color: #8B1538;
+     font-weight: 600;
+     background: #fff;
+     padding: 8px 16px;
+     border-radius: 20px;
+     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+/* ========================================= 4. STATS GRID ========================================= */
+ .stats-grid {
+     display: grid;
+     grid-template-columns: repeat(3, 1fr);
+     gap: 24px;
+     margin-bottom: 35px;
+}
+ .stat-card {
+     background: #FFFFFF;
+     border-radius: 16px;
+     padding: 24px;
+     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+     border: 1px solid #edf2f7;
+     display: flex;
+     align-items: center;
+     gap: 20px;
+     transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+ .stat-card:hover {
+     transform: translateY(-5px);
+     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+ .stat-icon-wrapper {
+     width: 56px;
+     height: 56px;
+     border-radius: 14px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     flex-shrink: 0;
+}
+ .icon-green {
+     background: #E6FFFA;
+     color: #2E7D32;
+}
+ .icon-gold {
+     background: #FFFAF0;
+     color: #D69E2E;
+}
+ .icon-blue {
+     background: #EBF8FF;
+     color: #3182CE;
+}
+ .stat-content {
+     display: flex;
+     flex-direction: column;
+}
+ .stat-value {
+     font-size: 28px;
+     font-weight: 800;
+     color: #2D3748;
+     line-height: 1.2;
+}
+ .stat-label {
+     font-size: 13px;
+     color: #718096;
+     font-weight: 500;
+}
+/* ========================================= 5. DASHBOARD CARD & BUTTONS ========================================= */
+ .dashboard-grid {
+     display: grid;
+     grid-template-columns: 1fr;
+     gap: 25px;
+}
+ .card {
+     background: #FFFFFF;
+     border-radius: 16px;
+     padding: 30px;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+     border: 1px solid #edf2f7;
+}
+ .card-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 25px;
+     padding-bottom: 20px;
+     border-bottom: 1px solid #edf2f7;
+}
+ .header-title-group {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+}
+ .card-title {
+     font-size: 20px;
+     font-weight: 700;
+     color: #2D3748;
+}
+ .badge-count {
+     background: #EDF2F7;
+     color: #4A5568;
+     font-size: 12px;
+     font-weight: 600;
+     padding: 4px 10px;
+     border-radius: 12px;
+}
+ .header-actions {
+     display: flex;
+     gap: 10px;
+}
+ .btn-sm {
+     padding: 8px 16px;
+     border-radius: 8px;
+     font-size: 13px;
+     font-weight: 600;
+     text-decoration: none;
+     transition: all 0.2s;
+     display: inline-flex;
+     align-items: center;
+}
+ .btn-primary {
+     background: #8B1538;
+     color: white;
+     border: 1px solid #8B1538;
+}
+ .btn-primary:hover {
+     background: #6B0F2A;
+     box-shadow: 0 4px 12px rgba(139, 21, 56, 0.2);
+}
+ .btn-outline {
+     background: transparent;
+     color: #718096;
+     border: 1px solid #E2E8F0;
+}
+ .btn-outline:hover {
+     border-color: #CBD5E0;
+     color: #2D3748;
+     background: #F7FAFC;
+}
+/* ========================================= 6. 3D FLIP TICKET STYLING (VERTICAL FLIP) ========================================= */
+ .visits-list-container {
+     display: flex;
+     flex-direction: column;
+     gap: 24px;
+}
+/* The Scene/Wrapper */
+ .ticket-wrapper {
+     position: relative;
+     background: transparent;
+     perspective: 1000px;
+     cursor: pointer;
+     height: 140px;
+     margin-bottom: 10px;
+}
+/* The Object moving */
+ .ticket-inner {
+     position: relative;
+     width: 100%;
+     height: 100%;
+     text-align: left;
+     transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+     transform-style: preserve-3d;
+     border-radius: 12px;
+     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+ .ticket-wrapper:hover .ticket-inner {
+     box-shadow: 0 10px 15px rgba(0,0,0,0.08);
+     transform: translateY(-2px);
+}
+/* State: Flipped (CHANGED TO ROTATEX FOR VERTICAL FLIP) */
+ .ticket-wrapper.flipped .ticket-inner {
+     transform: rotateX(180deg);
+}
+/* Faces: Front and Back */
+ .ticket-front, .ticket-back {
+     position: absolute;
+     width: 100%;
+     height: 100%;
+     -webkit-backface-visibility: hidden;
+     backface-visibility: hidden;
+     border-radius: 12px;
+     top: 0;
+     left: 0;
+}
+/* --- FRONT FACE --- */
+ .ticket-front {
+     display: flex;
+     background: transparent;
+     z-index: 2;
+}
+/* Stub Styling */
+ .ticket-stub {
+     width: 100px;
+     background-color: #8B1538;
+     background-image: radial-gradient(rgba(255, 255, 255, 0.15) 15%, transparent 16%);
+     background-size: 6px 6px;
+     color: #fff;
+     border-radius: 12px 0 0 12px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     padding: 20px 10px;
+     position: relative;
+     border-right: 2px dashed rgba(255,255,255,0.4);
+     box-shadow: inset -3px 0 10px rgba(0,0,0,0.1);
+     flex-shrink: 0;
+}
+ .ticket-month {
+     font-size: 13px;
+     font-weight: 600;
+     text-transform: uppercase;
+     letter-spacing: 1px;
+     opacity: 0.9;
+}
+ .ticket-day {
+     font-size: 32px;
+     font-weight: 800;
+     line-height: 1.1;
+     margin: 4px 0;
+     text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+ .ticket-year {
+     font-size: 12px;
+     opacity: 0.8;
+}
+ .notch {
+     position: absolute;
+     width: 24px;
+     height: 24px;
+     background-color: #F5F7FA;
+     border-radius: 50%;
+     right: -12px;
+     z-index: 10;
+     box-shadow: inset 1px 1px 3px rgba(0,0,0,0.05);
+}
+ .notch-top {
+     top: -12px;
+}
+ .notch-bottom {
+     bottom: -12px;
+}
+/* Body Styling */
+ .ticket-body {
+     flex: 1;
+     background: #FFFFFF;
+     border-radius: 0 12px 12px 0;
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 24px 30px;
+     position: relative;
+}
+ .ticket-main-info {
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+}
+ .ticket-purpose {
+     font-size: 18px;
+     font-weight: 700;
+     color: #2D3748;
+     margin: 0;
+}
+ .ticket-meta-row {
+     display: flex;
+     align-items: center;
+     gap: 16px;
+}
+ .meta-item {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     font-size: 14px;
+     color: #718096;
+     font-weight: 500;
+}
+ .ticket-status-badge {
+     padding: 5px 12px;
+     border-radius: 20px;
+     font-size: 12px;
+     font-weight: 700;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+}
+ .status-active {
+     background: #E6FFFA;
+     color: #2C7A7B;
+     border: 1px solid #B2F5EA;
+}
+ .status-upcoming {
+     background: #FFFAF0;
+     color: #C05621;
+     border: 1px solid #FEEBC8;
+}
+ .status-completed {
+     background: #EDF2F7;
+     color: #4A5568;
+     border: 1px solid #E2E8F0;
+}
+ .status-expired {
+     background: #F7FAFC;
+     color: #A0AEC0;
+     border: 1px solid #CBD5E0;
+}
+ .ticket-code-section {
+     display: flex;
+     flex-direction: column;
+     align-items: flex-end;
+     padding-left: 24px;
+     border-left: 1px solid #EDF2F7;
+}
+ .code-label {
+     font-size: 10px;
+     font-weight: 700;
+     color: #A0AEC0;
+     letter-spacing: 1px;
+     margin-bottom: 4px;
+}
+ .ticket-code {
+     font-family: 'Consolas', 'Monaco', monospace;
+     font-size: 16px;
+     font-weight: 700;
+     color: #2D3748;
+     background: #EDF2F7;
+     padding: 8px 14px;
+     border-radius: 6px;
+     border: 1px solid #E2E8F0;
+     letter-spacing: 1px;
+}
+ .tap-hint {
+     position: absolute;
+     bottom: 10px;
+     right: 30px;
+     font-size: 10px;
+     color: #A0AEC0;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     display: flex;
+     align-items: center;
+     gap: 4px;
+     font-weight: 600;
+     opacity: 0;
+     transform: translateY(5px);
+     transition: all 0.3s ease;
+}
+ .ticket-wrapper:hover .tap-hint {
+     opacity: 1;
+     transform: translateY(0);
+}
+/* --- BACK FACE (CHANGED TO ROTATEX FOR VERTICAL FLIP) --- */
+ .ticket-back {
+     background-color: #fff;
+     transform: rotateX(180deg);
+    /* Changed from rotateY */
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     border: 1px solid #E2E8F0;
+     border-left: 6px solid #8B1538;
+}
+ .back-content {
+     text-align: center;
+     width: 100%;
+     padding: 0 20px;
+}
+ .back-content h3 {
+     font-size: 18px;
+     color: #2D3748;
+     margin-bottom: 5px;
+     font-weight: 700;
+}
+ .back-content p {
+     font-size: 13px;
+     color: #718096;
+     margin-bottom: 15px;
+}
+ .back-actions {
+     display: flex;
+     justify-content: center;
+     gap: 12px;
+}
+ .btn-cancel-confirm {
+     background: #e53e3e;
+     color: white;
+     border: none;
+     padding: 8px 20px;
+     border-radius: 6px;
+     font-size: 13px;
+     font-weight: 600;
+     cursor: pointer;
+     transition: background 0.2s;
+     display: inline-flex;
+     align-items: center;
+     gap: 5px;
+}
+ .btn-cancel-confirm:hover {
+     background: #c53030;
+}
+ .btn-back-return {
+     background: #EDF2F7;
+     color: #4A5568;
+     border: none;
+     padding: 8px 20px;
+     border-radius: 6px;
+     font-size: 13px;
+     font-weight: 600;
+     cursor: pointer;
+     transition: background 0.2s;
+}
+ .btn-back-return:hover {
+     background: #E2E8F0;
+}
+/* Empty State */
+ .empty-state-dashboard {
+     text-align: center;
+     padding: 60px 40px;
+    /* Increased padding for better breathing room */
+     background: #FFFFFF;
+    /* Changed to white for a cleaner look */
+     border-radius: 16px;
+     border: 2px dashed #CBD5E0;
+    /* Slightly darker border for contrast */
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     transition: all 0.3s ease;
+}
+ .empty-state-dashboard:hover {
+     border-color: #A0AEC0;
+     background: #FAFAFA;
+}
+ .empty-icon-circle {
+     width: 70px;
+    /* Slightly larger */
+     height: 70px;
+     background: #FFF5F7;
+    /* Light pink tint to match theme */
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     margin-bottom: 20px;
+     color: #8B1538;
+    /* Icon color matches theme */
+}
+ .empty-state-dashboard h3 {
+     font-size: 20px;
+     font-weight: 700;
+     color: #2D3748;
+     margin-bottom: 8px;
+    /* Space between title and subtitle */
+}
+ .empty-state-dashboard p {
+     font-size: 15px;
+     color: #718096;
+     margin-bottom: 30px;
+    /* FIXED: Added space between text and button */
+     max-width: 300px;
+     line-height: 1.5;
+}
+ .btn-empty-action {
+     display: inline-flex;
+     align-items: center;
+     gap: 8px;
+     padding: 12px 32px;
+    /* Larger click area */
+     background: #8B1538;
+     color: #ffffff;
+     border-radius: 50px;
+    /* Fully rounded pill shape */
+     text-decoration: none;
+     font-weight: 600;
+     font-size: 15px;
+     box-shadow: 0 4px 14px rgba(139, 21, 56, 0.25);
+    /* Nice shadow */
+     transition: all 0.3s ease;
+}
+ .btn-empty-action:hover {
+     background: #6B0F2A;
+     transform: translateY(-2px);
+    /* Subtle lift on hover */
+     box-shadow: 0 6px 20px rgba(139, 21, 56, 0.35);
+}
+/* Responsive adjustments */
+ @media (max-width: 1024px) {
+     .stats-grid {
+         grid-template-columns: repeat(2, 1fr);
     }
 }
+ @media (max-width: 768px) {
+     .sidebar {
+         transform: translateX(-100%);
+    }
+     .main-content {
+         margin-left: 0;
+    }
+     .stats-grid {
+         grid-template-columns: 1fr;
+    }
+     .ticket-wrapper {
+         height: auto;
+         min-height: 180px;
+    }
+     .ticket-front {
+         position: relative;
+         flex-direction: column;
+         height: auto;
+    }
+     .ticket-back {
+         position: absolute;
+    }
+     .ticket-stub {
+         width: 100%;
+         border-radius: 12px 12px 0 0;
+         border-right: none;
+         border-bottom: 2px dashed rgba(255,255,255,0.4);
+         flex-direction: row;
+         gap: 10px;
+         padding: 15px;
+    }
+     .ticket-body {
+         border-radius: 0 0 12px 12px;
+         flex-direction: column;
+         align-items: flex-start;
+         gap: 20px;
+         padding: 20px;
+         width: 100%;
+    }
+     .ticket-code-section {
+         border-left: none;
+         padding-left: 0;
+         border-top: 1px solid #EDF2F7;
+         width: 100%;
+         padding-top: 15px;
+         align-items: flex-start;
+    }
+     .notch {
+         top: auto;
+         bottom: -10px;
+    }
+     .notch-top {
+         left: -10px;
+         right: auto;
+    }
+     .notch-bottom {
+         right: -10px;
+         left: auto;
+    }
+}
+ 

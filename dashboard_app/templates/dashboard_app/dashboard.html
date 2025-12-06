@@ -72,49 +72,104 @@
         </div>
 
         <div class="visits-list-container">
+            {% if visits %}
+            <div class="interaction-tip">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span><strong>Note:</strong> Tap ticket to manage</span>
+            </div>
+            {% endif %}
             {% for visit in visits %}
-                <div class="ticket-wrapper">
-                    <div class="ticket-stub">
-                        <div class="stub-texture"></div>
+                <div class="ticket-wrapper" onclick="this.classList.toggle('flipped')">
+                    <div class="ticket-inner">
                         
-                        <span class="ticket-month">{{ visit.visit_date|date:"M"|upper }}</span>
-                        <span class="ticket-day">{{ visit.visit_date|date:"d" }}</span>
-                        <span class="ticket-year">{{ visit.visit_date|date:"Y" }}</span>
+                        <div class="ticket-front">
+                            <div class="ticket-stub">
+                                <div class="stub-texture"></div>
+                                <span class="ticket-month">{{ visit.visit_date|date:"M"|upper }}</span>
+                                <span class="ticket-day">{{ visit.visit_date|date:"d" }}</span>
+                                <span class="ticket-year">{{ visit.visit_date|date:"Y" }}</span>
 
-                        <div class="notch notch-top"></div>
-                        <div class="notch notch-bottom"></div>
-                    </div>
+                                <div class="notch notch-top"></div>
+                                <div class="notch notch-bottom"></div>
+                            </div>
 
-                    <div class="ticket-body">
-                        <div class="ticket-main-info">
-                            <h4 class="ticket-purpose">{{ visit.purpose }}</h4>
-                            
-                            <div class="ticket-meta-row">
-                                <div class="meta-item">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3M5 11h14M5 19h14a2 2 0 00-2-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
+                            <div class="ticket-body">
+                                <div class="ticket-main-info">
+                                    <h4 class="ticket-purpose">{{ visit.purpose }}</h4>
+                                    
+                                    <div class="ticket-meta-row">
+                                        <div class="meta-item">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 7V3m8 4V3M5 11h14M5 19h14a2 2 0 00-2-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                            {{ visit.visit_date|date:"F j, Y" }}
+                                            &nbsp;•&nbsp;
+                                            {{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}
+                                            {% if visit.checkin_status_text %}
+                                                &nbsp;–&nbsp;{{ visit.checkin_status_text }}
+                                            {% endif %}
+                                        </div>
 
-                                    {{ visit.visit_date|date:"F j, Y" }}  {# e.g. December 9, 2025 #}
-                                    &nbsp;•&nbsp;
-                                    {{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}
-
-                                    {% if visit.checkin_status_text %}
-                                        &nbsp;–&nbsp;{{ visit.checkin_status_text }}
-                                    {% endif %}
+                                        <span class="ticket-status-badge status-{{ visit.status|lower }}">
+                                            {{ visit.status }}
+                                        </span>
+                                    </div>
                                 </div>
 
-                                <span class="ticket-status-badge status-{{ visit.status|lower }}">
-                                    {{ visit.status }}
-                                </span>
+                                <div class="ticket-code-section">
+                                    <span class="code-label">PASS CODE</span>
+                                    <span class="ticket-code">{{ visit.code }}</span>
+                                </div>
+                                
+                                <div class="tap-hint">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                                    </svg>
+                                    Tap to manage
+                                </div>
                             </div>
                         </div>
 
-                        <div class="ticket-code-section">
-                            <span class="code-label">PASS CODE</span>
-                            <span class="ticket-code">{{ visit.code }}</span>
+                        <div class="ticket-back">
+                            <div class="back-content">
+                                <h3>Manage Visit</h3>
+                                <p>Do you want to cancel this scheduled visit?</p>
+                                
+                                <div class="back-actions">
+                                    
+                                    <form action="{% url 'history_app:cancel_visit' %}"
+                                        method="POST"
+                                        style="display:inline;"
+                                        onclick="event.stopPropagation();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="visit_id" value="{{ visit.visit_id }}">
+                                        <input type="hidden" name="from_dashboard" value="1">
+
+                                        <button type="button"
+                                                class="btn-cancel-confirm cancel-visit-btn"
+                                                data-visit-id="{{ visit.visit_id }}"
+                                                data-visit-code="{{ visit.code }}"
+                                                onclick="event.stopPropagation();">
+                                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                            Cancel Visit
+                                        </button>
+                                    </form>
+
+                                    <button class="btn-back-return" onclick="event.stopPropagation(); this.closest('.ticket-wrapper').classList.remove('flipped');">
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="notch notch-top" style="left: -12px; background:#F5F7FA;"></div>
+                            <div class="notch notch-bottom" style="left: -12px; background:#F5F7FA;"></div>
                         </div>
+
                     </div>
                 </div>
             {% empty %}
@@ -132,4 +187,78 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<div id="cancelVisitModal" class="modal">
+    <div class="modal-content warning-card">
+        <div class="warning-icon-wrapper">
+            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        </div>
+        <h2 id="warningTitle">Cancel Visit?</h2>
+        <p id="warningMessage">
+            You are about to cancel visit
+            <strong id="cancelVisitCode" style="color:#8B1538;"></strong>.
+            This action cannot be undone.
+        </p>
+        <div class="modal-buttons">
+            <button id="confirmCancelVisit" class="btn-warning-action btn-danger-solid">
+                Yes, Cancel It
+            </button>
+            <button id="cancelCancelVisit" class="btn-warning-action btn-secondary-outline">
+                Keep Visit
+            </button>
+        </div>
+    </div>
+</div>
+
+<form id="cancelVisitForm"
+      method="POST"
+      action="{% url 'history_app:cancel_visit' %}"
+      style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="visit_id" id="cancelVisitIdInput">
+    <!-- keep redirect behaviour for dashboard -->
+    <input type="hidden" name="from_dashboard" value="1">
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const cancelVisitModal = document.getElementById('cancelVisitModal');
+    const confirmCancelVisit = document.getElementById('confirmCancelVisit');
+    const cancelCancelVisit = document.getElementById('cancelCancelVisit');
+    const cancelVisitButtons = document.querySelectorAll('.cancel-visit-btn');
+    let currentVisitId = null;
+
+    cancelVisitButtons.forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            currentVisitId = this.dataset.visitId;
+            const visitCode = this.dataset.visitCode;
+            document.getElementById('cancelVisitCode').textContent = visitCode;
+            cancelVisitModal.style.display = 'flex';
+        });
+    });
+
+    confirmCancelVisit.addEventListener('click', function () {
+        if (currentVisitId) {
+            document.getElementById('cancelVisitIdInput').value = currentVisitId;
+            document.getElementById('cancelVisitForm').submit();
+        }
+    });
+
+    cancelCancelVisit.addEventListener('click', function () {
+        cancelVisitModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function (e) {
+        if (e.target === cancelVisitModal) {
+            cancelVisitModal.style.display = 'none';
+        }
+    });
+});
+</script>
 {% endblock %}

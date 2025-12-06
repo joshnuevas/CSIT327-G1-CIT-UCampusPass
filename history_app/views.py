@@ -161,37 +161,46 @@ def cancel_visit(request):
     - Verifies the user is logged in.
     - Ensures the visit belongs to the current user.
     - Deletes the visit and logs the action in SystemLog.
+    - Redirects back to Dashboard or History depending on where it was triggered.
     """
+    # ---------- AUTH CHECK ----------
     if "user_email" not in request.session:
         return redirect("login_app:login")
 
-    visit_id = request.POST.get("visit_id")
     user_email = request.session["user_email"]
 
-    if not visit_id:
-        messages.error(request, "Invalid visit ID.")
+    # From which page did this come?
+    # Dashboard forms should send: <input type="hidden" name="from_dashboard" value="1">
+    from_dashboard = request.POST.get("from_dashboard") == "1"
+
+    def _redirect_back():
+        """Helper: go back to the correct page."""
+        if from_dashboard:
+            return redirect("dashboard_app:dashboard")
         return redirect("history_app:visit_history")
 
-    try:
-        # Get visit and verify ownership
-        try:
-            visit = Visit.objects.get(visit_id=visit_id)
-        except Visit.DoesNotExist:
-            messages.error(request, "Visit not found.")
-            return redirect("history_app:visit_history")
+    # ---------- GET VISIT ID ----------
+    visit_id = request.POST.get("visit_id")
+    if not visit_id:
+        messages.error(request, "Invalid visit ID.")
+        return _redirect_back()
 
-        if visit.user_email != user_email:
-            messages.error(request, "You do not have permission to cancel this visit.")
-            return redirect("history_app:visit_history")
+    try:
+        # ---------- FETCH VISIT (AND VERIFY OWNERSHIP) ----------
+        try:
+            visit = Visit.objects.get(visit_id=visit_id, user_email=user_email)
+        except Visit.DoesNotExist:
+            messages.error(request, "Visit not found or you do not have permission to cancel this visit.")
+            return _redirect_back()
 
         visit_code = visit.code or "N/A"
         visit_date = visit.visit_date or "N/A"
         department = visit.department or "N/A"
 
-        # Delete visit
+        # ---------- DELETE VISIT ----------
         visit.delete()
 
-        # Log the cancellation
+        # ---------- LOG THE CANCELLATION ----------
         philippines_tz = pytz.timezone("Asia/Manila")
         current_time = datetime.now(philippines_tz)
 
@@ -214,4 +223,5 @@ def cancel_visit(request):
             f"An error occurred while cancelling the visit: {str(e)}",
         )
 
-    return redirect("history_app:visit_history")
+    # ---------- FINAL REDIRECT ----------
+    return _redirect_back()
