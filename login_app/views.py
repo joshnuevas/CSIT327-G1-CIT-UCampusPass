@@ -40,6 +40,57 @@ def is_strong_password(password):
 
 def login_view(request):
     if request.method == 'POST':
+        # Handle change password form
+        if 'change_password' in request.POST:
+            new_pw = request.POST.get("new_password")
+            confirm_pw = request.POST.get("confirm_password")
+            temp_username = request.POST.get("temp_username")
+            temp_role = request.POST.get("temp_role")
+
+            if new_pw != confirm_pw:
+                messages.error(request, "Passwords do not match.")
+                return render(request, 'login_app/login.html', {
+                    'show_change_password': True,
+                    'temp_username': temp_username,
+                    'temp_role': temp_role
+                })
+
+            if not is_strong_password(new_pw):
+                messages.error(request, "Password too weak. Must contain uppercase, lowercase, number, and special character.")
+                return render(request, 'login_app/login.html', {
+                    'show_change_password': True,
+                    'temp_username': temp_username,
+                    'temp_role': temp_role
+                })
+
+            try:
+                # Update using Django ORM
+                if temp_role == "staff":
+                    user = FrontDeskStaff.objects.get(username=temp_username)
+                else:  # admin
+                    user = Administrator.objects.get(username=temp_username)
+
+                user.set_password(new_pw)
+                user.is_temp_password = False
+                user.save()
+    
+                messages.success(request, "Password changed successfully! Please log in again.")
+                # Clear temp password session keys
+                request.session.pop("force_pw_user", None)
+                request.session.pop("force_pw_role", None)
+                return redirect("login_app:login")
+
+            except (FrontDeskStaff.DoesNotExist, Administrator.DoesNotExist):
+                messages.error(request, "User not found. Please log in again.")
+                return render(request, 'login_app/login.html')
+            except Exception:
+                messages.error(request, "Failed to update password. Please try again.")
+                return render(request, 'login_app/login.html', {
+                    'show_change_password': True,
+                    'temp_username': temp_username,
+                    'temp_role': temp_role
+                })
+
         identifier = request.POST.get('identifier', '').strip().lower()
         password = request.POST.get('password', '')
         valid = False
@@ -108,7 +159,12 @@ def login_view(request):
                     request.session["force_pw_role"] = role
                     request.session["force_pw_user"] = identifier
                     messages.warning(request, "Please change your temporary password.")
-                    return redirect("login_app:change_temp_password")
+                    # Render login page with change password form instead of redirecting
+                    return render(request, 'login_app/login.html', {
+                        'show_change_password': True,
+                        'temp_username': identifier,
+                        'temp_role': role
+                    })
 
                 return redirect(redirect_url)
             else:
