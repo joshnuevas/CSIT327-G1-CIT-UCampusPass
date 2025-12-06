@@ -369,9 +369,10 @@ def staff_dashboard_view(request):
         checked_in_count = today_visits.filter(status__in=['Active', 'Completed']).count()
 
         # ----- Recent check-ins (from logs) -----
+        # UPDATED: Increased limit to 15 to allow better filtering
         recent_checkins = SystemLog.objects.filter(
             action_type__in=['Visitor Check-In', 'Visitor Check-Out']
-        ).order_by('-created_at')[:5]
+        ).order_by('-created_at')[:15]
 
         for checkin in recent_checkins:
             try:
@@ -559,19 +560,24 @@ def check_out_visitor(request):
         visit.end_time = checkout_time
         visit.save()
 
+        formatted_time = current_time.strftime("%I:%M %p")
+
         SystemLog.objects.create(
             actor=f"{staff_first_name} ({staff_username})",
             action_type="Visitor Check-Out",
-            description=f"Checked out visitor with code {visit_code} from {visit.department} at {checkout_time}",
+            # ⬇️ Removed the "at ..." part from description
+            description=f"Checked out visitor with code {visit_code} from {visit.department}",
             actor_role="Staff",
             created_at=current_time,
         )
 
         messages.success(
             request,
-            f'✅ Visitor checked out successfully at {current_time.strftime("%I:%M %p")}! Code: {visit_code}'
+            f'✅ Visitor checked out successfully at {formatted_time}! Code: {visit_code}'
         )
-        logger.info(f"Visitor checked out by {staff_username}: {visit_code} at {checkout_time}")
+
+        # Optional: if you care about console logs, format this too
+        logger.info(f"Visitor checked out by {staff_username}: {visit_code} at {formatted_time}")
 
     except Exception as e:
         logger.error(f"Error checking out visitor: {str(e)}")

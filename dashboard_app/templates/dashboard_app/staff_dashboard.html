@@ -2,677 +2,917 @@
 {% load static %}
 
 {% block title %}Staff Dashboard - CIT-U Campus Pass{% endblock %}
-
 {% block dashboard_active %}active{% endblock %}
 
 {% block extra_css %}
 <style>
-/* ===== Welcome Section ===== */
-.welcome-section {
-    margin-bottom: 30px;
-}
-
-.welcome-section h1 {
-    color: #8B1538;
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.welcome-section p {
-    color: #666;
-    font-size: 16px;
-}
-
-/* ===== Stats Grid ===== */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: linear-gradient(135deg, #ffffff, #f8f9fa);
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    border: 1px solid #e0e0e0;
-    text-align: center;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(139, 21, 56, 0.15);
-}
-
-.stat-card .stat-value {
-    font-size: 48px;
-    font-weight: 700;
-    color: #8B1538;
-    margin-bottom: 10px;
-    line-height: 1;
-}
-
-.stat-card .stat-label {
-    color: #666;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.stat-card.active-pass-stat .stat-value {
-    color: #4CAF50;
-}
-
-.stat-card.total-visits-stat .stat-value {
-    color: #D4AF37;
-}
-
-/* ===== Dashboard Grid - EQUAL HEIGHT LAYOUT ===== */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-    align-items: start;
-}
-
-/* Left column - stacked cards */
-.left-column {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-/* Code Checker - auto height */
-.code-checker-card {
-    height: fit-content;
-}
-
-/* Recent Check-Ins - fixed height, scrollable */
-.left-column .scrollable-card {
-    display: flex;
-    flex-direction: column;
-    height: 500px;
-}
-
-/* Right column - Today's Visits matches Recent Check-Ins height */
-.right-column-card {
-    display: flex;
-    flex-direction: column;
-    height: 725px;
-}
-
-@media (max-width: 1024px) {
+    /* ===== Dashboard Specific Layout (UNCHANGED) ===== */
     .dashboard-grid {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 25px;
+        align-items: flex-start;
+        margin-top: 20px;
     }
-    
-    .left-column .scrollable-card,
-    .right-column-card {
-        height: 450px;
-    }
-}
 
-/* ===== Card Base Styling ===== */
-.card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #8B1538;
-    flex-shrink: 0;
-}
-
-.card-title {
-    color: #8B1538;
-    font-size: 22px;
-    font-weight: 600;
-    margin: 0;
-}
-
-.view-all {
-    color: #8B1538;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-.view-all:hover {
-    color: #D4AF37;
-}
-
-.empty-placeholder {
-    text-align: center;
-    color: #999;
-    padding: 40px 20px;
-    font-size: 15px;
-}
-
-/* ===== Quick Code Checker Styling ===== */
-.code-checker-card {
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    border-radius: 16px;
-    padding: 24px;
-    color: white;
-    box-shadow: 0 8px 24px rgba(139, 21, 56, 0.25);
-    border: none;
-    display: flex;
-    flex-direction: column;
-}
-
-.code-checker-card h3 {
-    margin-bottom: 16px;
-    font-size: 1.4rem;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.code-checker-form {
-    margin-bottom: 0;
-}
-
-.code-input-group {
-    display: flex;
-    gap: 12px;
-}
-
-.code-input-group input {
-    flex: 1;
-    padding: 14px 18px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.code-input-group input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.code-input-group input:focus {
-    outline: none;
-    border-color: #D4AF37;
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.code-input-group button {
-    padding: 14px 32px;
-    background: #D4AF37;
-    color: #8B1538;
-    border: none;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
-
-.code-input-group button:hover {
-    background: #F5D76E;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
-}
-
-.code-helper-text {
-    margin-top: 12px;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.code-helper-text i {
-    color: #D4AF37;
-}
-
-.code-result {
-    margin-top: 20px;
-    padding: 18px;
-    border-radius: 12px;
-    display: block;
-}
-
-.code-result.success {
-    background: rgba(76, 175, 80, 0.2);
-    border: 2px solid rgba(76, 175, 80, 0.5);
-}
-
-.code-result.error {
-    background: rgba(244, 67, 54, 0.2);
-    border: 2px solid rgba(244, 67, 54, 0.5);
-}
-
-.code-result h4 {
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-    color: white;
-}
-
-.code-result p {
-    margin: 5px 0;
-    font-size: 0.95rem;
-    color: white;
-}
-
-.visit-detail-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.visit-detail-row:last-child {
-    border-bottom: none;
-}
-
-.check-in-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-}
-
-.check-in-actions button {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-check-in {
-    background: #4CAF50;
-    color: white;
-}
-
-.btn-check-in:hover {
-    background: #45a049;
-    transform: translateY(-2px);
-}
-
-.btn-check-out {
-    background: #FF9800;
-    color: white;
-}
-
-.btn-check-out:hover {
-    background: #FB8C00;
-    transform: translateY(-2px);
-}
-
-/* ===== Scrollable Content ===== */
-.scroll-container {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 8px;
-    margin-right: -8px;
-}
-
-/* Custom Scrollbar */
-.scroll-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.scroll-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-    margin: 5px 0;
-}
-
-.scroll-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #8B1538, #6B0F2A);
-    border-radius: 10px;
-    transition: background 0.3s ease;
-}
-
-.scroll-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #6B0F2A, #4A0A1C);
-}
-
-/* Firefox Scrollbar */
-.scroll-container {
-    scrollbar-width: thin;
-    scrollbar-color: #8B1538 #f1f1f1;
-}
-
-/* ===== Visit Item Styling ===== */
-.visit-item {
-    padding: 16px;
-    background: #f9f9f9;
-    border-left: 4px solid #8b1538;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    transition: all 0.3s ease;
-}
-
-.visit-item:hover {
-    background: #FFF8E1;
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(139, 21, 56, 0.1);
-}
-
-.visit-item h4 {
-    color: #8b1538;
-    margin-bottom: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-.visit-item p {
-    margin: 4px 0;
-    font-size: 0.9rem;
-    color: #666;
-}
-
-.visit-item .visit-status {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-top: 8px;
-}
-
-.visit-status.upcoming {
-    background: #FFF8E1;
-    color: #D4AF37;
-    border: 1px solid #D4AF37;
-}
-
-.visit-status.active {
-    background: #E8F5E9;
-    color: #4CAF50;
-    border: 1px solid #4CAF50;
-}
-
-.visit-status.completed {
-    background: #F5F5F5;
-    color: #999;
-    border: 1px solid #ccc;
-}
-
-/* ===== Check-in Item Styling ===== */
-.checkin-item {
-    padding: 16px;
-    background: #f9f9f9;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    border-left: 4px solid #4CAF50;
-    transition: all 0.3s ease;
-}
-
-.checkin-item:hover {
-    background: #E8F5E9;
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
-}
-
-.checkin-item h4 {
-    color: #8b1538;
-    font-size: 1rem;
-    margin-bottom: 6px;
-    font-weight: 600;
-}
-
-.checkin-item p {
-    color: #666;
-    font-size: 0.9rem;
-    margin: 4px 0;
-    line-height: 1.4;
-}
-
-.checkin-item small {
-    color: #999;
-    font-size: 0.85rem;
-    display: block;
-    margin-top: 8px;
-}
-
-/* ===== Responsive Design ===== */
-@media (max-width: 768px) {
-    .code-input-group {
+    .left-column {
+        display: flex;
         flex-direction: column;
+        gap: 25px;
+    }
+
+    /* Scrollable panels (UNCHANGED) */
+    .live-feed-scroll {
+        max-height: calc(100vh - 320px);
+        overflow-y: auto;
+        padding: 0 20px 20px 20px;
+    }
+
+    .schedule-scroll {
+        max-height: calc(100vh - 175px);
+        overflow-y: auto;
+        padding: 0 20px 20px 20px;
+    }
+
+    /* ===== Code Checker Widget (UNCHANGED) ===== */
+    .scanner-card {
+        background: linear-gradient(135deg, #8B1538 0%, #6B0F2A 100%);
+        color: white;
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .scanner-card::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        background: rgba(212, 175, 55, 0.15); /* Gold tint */
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .scanner-input-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* --- UPDATED INPUT STYLE (UNCHANGED FROM PREVIOUS) --- */
+    .scanner-input {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: white;
+        padding: 14px 20px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        font-family: 'Consolas', monospace;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .scanner-input:focus {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: #D4AF37;
+        outline: none;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2), 0 0 0 3px rgba(212, 175, 55, 0.2);
+    }
+
+    .scanner-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+        font-family: 'Segoe UI', sans-serif;
+        letter-spacing: 0;
+        font-size: 14px;
+        font-weight: 400;
+    }
+
+    /* --- POLISHED BUTTON STYLE (UNCHANGED FROM PREVIOUS) --- */
+    .btn-scan {
+        background: linear-gradient(to bottom, #F5D76E, #D4AF37);
+        color: #590d22;
+        font-weight: 700;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0 32px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.4);
+    }
+
+    .btn-scan:hover {
+        background: linear-gradient(to bottom, #ffe082, #e6c245);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+        color: #3b0916;
     }
     
-    .check-in-actions {
+    .btn-scan:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* ===== Scan Result Box (UNCHANGED) ===== */
+    .scan-result-box {
+        margin-top: 25px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 20px;
+        color: #333;
+        animation: slideUpFade 0.8s ease forwards;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .result-status {
+        font-weight: 800;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-valid { color: #2E7D32; }
+    .status-invalid { color: #C62828; }
+
+    .visit-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 20px;
+    }
+
+    .detail-item label {
+        display: block;
+        font-size: 11px;
+        color: #666;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .detail-item span {
+        font-size: 14px;
+        color: #222;
+        font-weight: 500;
+    }
+
+    .scan-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-checkin { background: #2E7D32; color: white; }
+    .btn-checkin:hover { background: #1B5E20; }
+    
+    .btn-checkout { background: #D69E2E; color: white; }
+    .btn-checkout:hover { background: #B7791F; }
+
+    /* ===== Timeline Styles (UNCHANGED) ===== */
+    .timeline-container {
+        position: relative;
+        padding-left: 15px;
+        margin-top: 10px;
+    }
+
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 15px;
+        bottom: 15px;
+        width: 2px;
+        background: #f1f5f9;
+        border-radius: 2px;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 30px;
+        padding-bottom: 20px;
+        padding-top: 5px;
+        transition: all 0.2s ease;
+    }
+    
+    .timeline-item:last-child { padding-bottom: 0; }
+
+    .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 8px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #fff;
+        border: 4px solid #cbd5e1;
+        z-index: 1;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-item.in .timeline-dot { border-color: #48BB78; box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.15); }
+    .timeline-item.out .timeline-dot { border-color: #F6AD55; box-shadow: 0 0 0 3px rgba(246, 173, 85, 0.15); }
+
+    .timeline-content {
+        background: #fff;
+        padding: 10px 15px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .timeline-item:hover .timeline-content {
+        background: #fcfcfc;
+        border-color: #f1f5f9;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        transform: translateX(5px);
+    }
+
+    .timeline-content h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 4px;
+    }
+    
+    .timeline-item.in h4 { color: #166534; }
+    .timeline-item.out h4 { color: #9a3412; }
+
+    .timeline-content p {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 6px;
+        line-height: 1.4;
+    }
+
+    .timeline-time {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* ===== STANDARD TOOLBAR (Used for Left Panel) ===== */
+    .feed-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        gap: 10px;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 5px;
+        background: #f8fafc;
+        padding: 4px;
+        border-radius: 50px;
+        border: 1px solid #e2e8f0;
+        flex-shrink: 0;
+    }
+
+    /* --- REVISED FILTER BUTTON STYLE --- */
+    .filter-btn {
+        background: #EDF2F7; /* Solid light gray background for definition */
+        border: 1px solid transparent; 
+        border-radius: 40px;
+        padding: 8px 16px;
+        font-size: 12px;
+        font-weight: 600; /* Slightly reduced boldness for subtlety */
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .filter-btn i { font-size: 1.1em; }
+
+    .filter-btn:hover {
+        color: #334155;
+        background: #E2E8F0; /* Subtle hover color */
+    }
+
+    .filter-btn.active {
+        background: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        transform: scale(1.02);
+        border-color: #fff; /* Hide border when active */
+        font-weight: 700;
+    }
+    /* --- END REVISED FILTER BUTTON STYLE --- */
+
+    .filter-btn.active[onclick*="all"] { color: #8B1538; }
+    .filter-btn.active[onclick*="'in'"] { color: #2E7D32; }
+    .filter-btn.active[onclick*="'out'"] { color: #D97706; }
+    .filter-btn.active[onclick*="'active'"] { color: #2E7D32; }
+    .filter-btn.active[onclick*="'upcoming'"] { color: #D69E2E; }
+
+    /* Static Search Field Base Styles (UNCHANGED) */
+    .static-search-wrapper {
+        position: relative;
+        flex-grow: 1;
+        max-width: 250px;
+        display: flex;
+        align-items: center;
+    }
+
+    .static-search-input {
+        width: 100%;
+        padding: 8px 15px 8px 35px;
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .static-search-input:focus {
+        border-color: #8B1538;
+        box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+    }
+
+    .static-search-icon {
+        position: absolute;
+        left: 12px;
+        color: #94a3b8;
+        font-size: 13px;
+        pointer-events: none;
+    }
+
+    /* ===== NEW: STACKED & STRETCHED TOOLBAR (For Right Panel Only) (UNCHANGED) ===== */
+    .schedule-toolbar-stacked {
+        display: flex;
         flex-direction: column;
+        width: 100%;
+        gap: 12px;
+        margin-top: 15px;
+        margin-bottom: 15px;
     }
 
-    .stats-grid {
-        grid-template-columns: 1fr;
+    .schedule-toolbar-stacked .filter-group {
+        width: 100%; 
+        display: flex;
+        justify-content: space-between;
     }
 
-    .welcome-section h1 {
-        font-size: 24px;
+    .schedule-toolbar-stacked .filter-btn {
+        flex: 1;
+        justify-content: center;
     }
-    
-    .left-column .scrollable-card {
-        min-height: 300px;
+
+    .schedule-toolbar-stacked .static-search-wrapper {
+        width: 100%;
+        max-width: none;
     }
-    
-    .right-column-card {
-        min-height: 400px;
+
+
+    /* ===== Mini Ticket (Today's Visits) (UNCHANGED) ===== */
+    .mini-ticket {
+        display: flex;
+        background: #fff;
+        border: 1px solid #EDF2F7;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        transition: all 0.2s;
+        overflow: hidden;
     }
-}
+
+    .mini-ticket:hover {
+        transform: translateX(3px);
+        border-color: #D4AF37;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .mt-stripe {
+        width: 6px;
+        background: #A0AEC0;
+    }
+    .mt-stripe.active { background: #48BB78; }
+    .mt-stripe.upcoming { background: #D4AF37; }
+    .mt-stripe.completed { background: #CBD5E0; }
+
+    .mt-content {
+        padding: 12px 15px;
+        flex: 1;
+    }
+
+    .mt-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+
+    .mt-code {
+        font-family: monospace;
+        font-weight: 700;
+        color: #8B1538;
+        font-size: 13px;
+    }
+
+    .mt-time {
+        font-size: 12px;
+        color: #718096;
+        font-weight: 600;
+    }
+
+    .mt-visitor {
+        font-weight: 700;
+        font-size: 14px;
+        color: #2D3748;
+        display: block;
+    }
+
+    .mt-dept {
+        font-size: 12px;
+        color: #718096;
+    }
+
+    /* Responsive (UNCHANGED) */
+    @media (max-width: 1024px) {
+        .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 1400px) {
+        .static-search-wrapper { max-width: 100%; order: 2; }
+    }
+
+    /* ===== ANIMATION: Slide Up Fade (Slower) (UNCHANGED) ===== */
+    @keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-entry {
+        opacity: 0;
+        animation: slideUpFade 0.8s ease forwards;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="welcome-section">
-    <h1>Welcome, {{ staff_first_name }}!</h1>
-    <p>Today's Overview - {{ today_date }}</p>
+    <div class="welcome-text">
+        <h1>Welcome, {{ staff_first_name }}!</h1>
+        <p>Manage campus entry and monitor visitor activity.</p>
+    </div>
+    <div class="current-date">
+        {% now "l, F j, Y" %}
+    </div>
 </div>
 
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-value">{{ today_visits_count }}</div>
-        <div class="stat-label">Today's Visits</div>
+        <div class="stat-icon-wrapper icon-blue">
+            <i class="fas fa-calendar-check fa-lg"></i>
+        </div>
+        <div class="stat-content">
+            <span class="stat-value">{{ today_visits_count }}</span>
+            <span class="stat-label">Scheduled Today</span>
+        </div>
     </div>
-    <div class="stat-card active-pass-stat">
-        <div class="stat-value">{{ active_visits_count }}</div>
-        <div class="stat-label">Currently Active</div>
+    
+    <div class="stat-card">
+        <div class="stat-icon-wrapper icon-green">
+            <i class="fas fa-walking fa-lg"></i>
+        </div>
+        <div class="stat-content">
+            <span class="stat-value">{{ active_visits_count }}</span>
+            <span class="stat-label">Currently Active</span>
+        </div>
     </div>
-    <div class="stat-card total-visits-stat">
-        <div class="stat-value">{{ checked_in_count }}</div>
-        <div class="stat-label">Checked In Today</div>
+
+    <div class="stat-card">
+        <div class="stat-icon-wrapper icon-gold">
+            <i class="fas fa-clipboard-check fa-lg"></i>
+        </div>
+        <div class="stat-content">
+            <span class="stat-value">{{ checked_in_count }}</span>
+            <span class="stat-label">Processed Today</span>
+        </div>
     </div>
 </div>
 
 <div class="dashboard-grid">
-    <!-- ===== Left Column ===== -->
     <div class="left-column">
-        <!-- Quick Code Checker -->
-        <div class="card code-checker-card">
-            <h3><i class="fas fa-qrcode"></i> Quick Code Checker</h3>
-            <form method="POST" action="{% url 'dashboard_app:check_code' %}" id="codeCheckerForm" class="code-checker-form">
+        <div class="card scanner-card">
+            <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; padding-bottom: 10px;">
+                <h3 class="card-title" style="color: white; font-size: 1.2rem;">
+                    <i class="fas fa-qrcode"></i> Quick Pass Validator
+                </h3>
+            </div>
+            
+            <form method="POST" action="{% url 'dashboard_app:check_code' %}" id="codeCheckerForm">
                 {% csrf_token %}
-                <div class="code-input-group">
+                <div class="scanner-input-group">
                     <input 
                         type="text" 
                         name="visit_code" 
                         id="visitCodeInput" 
-                        placeholder="Enter visit code" 
+                        class="scanner-input"
+                        placeholder="SCAN OR ENTER CODE" 
                         required
                         pattern="[A-Z0-9-]+"
-                        style="text-transform: uppercase;"
+                        autocomplete="off"
                     >
-                    <button type="submit">
-                        <i class="fas fa-search"></i> Check Code
+                    <button type="submit" class="btn-scan">
+                        <i class="fas fa-search"></i> Check
                     </button>
                 </div>
-                
-                {% if not code_check_result %}
-                <div class="code-helper-text">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Enter a visitor code to verify and manage check-ins/check-outs</span>
-                </div>
-                {% endif %}
             </form>
 
             {% if code_check_result %}
-            <div class="code-result {{ code_check_result.status }}">
-                <h4>
-                    {% if code_check_result.status == 'success' %}
-                        ✅ Valid Visit Code
-                    {% else %}
-                        ❌ Invalid Visit Code
-                    {% endif %}
-                </h4>
-                
-                {% if code_check_result.status == 'success' %}
-                    <div class="visit-detail-row">
-                        <strong>Visitor:</strong>
-                        <span>{{ code_check_result.visit.user_email }}</span>
-                    </div>
-                    <div class="visit-detail-row">
-                        <strong>Purpose:</strong>
-                        <span>{{ code_check_result.visit.purpose }}</span>
-                    </div>
-                    <div class="visit-detail-row">
-                        <strong>Department:</strong>
-                        <span>{{ code_check_result.visit.department }}</span>
-                    </div>
-                    <div class="visit-detail-row">
-                        <strong>Date:</strong>
-                        <span>{{ code_check_result.visit.visit_date }}</span>
-                    </div>
-                    <div class="visit-detail-row">
-                        <strong>Time:</strong>
-                        {% if code_check_result.visit.end_time %}
-                            <span>{{ code_check_result.visit.start_time|slice:":5" }} - {{ code_check_result.visit.end_time|slice:":5" }}</span>
-                        {% elif code_check_result.visit.start_time %}
-                            <span style="color: #FF9800; font-weight: 600;">Arrival: {{ code_check_result.visit.start_time|slice:":5" }}</span>
+            <div class="scan-result-box">
+                <div class="result-header">
+                    <div class="result-status {% if code_check_result.status == 'success' %}status-valid{% else %}status-invalid{% endif %}">
+                        {% if code_check_result.status == 'success' %}
+                            <i class="fas fa-check-circle"></i> VALID PASS
                         {% else %}
-                            <span style="color: #666; font-style: italic;">Not checked in yet</span>
+                            <i class="fas fa-times-circle"></i> INVALID / ERROR
                         {% endif %}
                     </div>
-                    <div class="visit-detail-row">
-                        <strong>Status:</strong>
-                        <span class="visit-status {{ code_check_result.visit.status|lower }}">
-                            {{ code_check_result.visit.status }}
+                    {% if code_check_result.status == 'success' %}
+                        <span style="font-size: 12px; font-weight: 700; color: #666; background: #eee; padding: 4px 8px; border-radius: 4px;">
+                            {{ code_check_result.visit.code }}
                         </span>
+                    {% endif %}
+                </div>
+
+                {% if code_check_result.status == 'success' %}
+                    <div class="visit-grid">
+                        <div class="detail-item">
+                            <label>Visitor Email</label>
+                            <span>{{ code_check_result.visit.user_email }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Department</label>
+                            <span>{{ code_check_result.visit.department }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Purpose</label>
+                            <span>{{ code_check_result.visit.purpose }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Time Slot</label>
+                            <span>
+                                {% if code_check_result.visit.start_time %}
+                                    {{ code_check_result.visit.start_time|slice:":5" }}
+                                {% else %}
+                                    --:--
+                                {% endif %}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="check-in-actions">
+                    <div class="scan-actions">
                         {% if code_check_result.visit.status == 'Upcoming' %}
-                        <form method="POST" action="{% url 'dashboard_app:check_in_visitor' %}" style="flex: 1;">
-                            {% csrf_token %}
-                            <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
-                            <button type="submit" class="btn-check-in">
-                                <i class="fas fa-sign-in-alt"></i> Check In
-                            </button>
-                        </form>
+                            <form method="POST" action="{% url 'dashboard_app:check_in_visitor' %}" style="flex: 1;">
+                                {% csrf_token %}
+                                <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
+                                <button type="submit" class="btn-action btn-checkin">
+                                    <i class="fas fa-sign-in-alt"></i> CHECK IN VISITOR
+                                </button>
+                            </form>
                         {% elif code_check_result.visit.status == 'Active' %}
-                        <form method="POST" action="{% url 'dashboard_app:check_out_visitor' %}" style="flex: 1;">
-                            {% csrf_token %}
-                            <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
-                            <button type="submit" class="btn-check-out">
-                                <i class="fas fa-sign-out-alt"></i> Check Out
-                            </button>
-                        </form>
+                            <form method="POST" action="{% url 'dashboard_app:check_out_visitor' %}" style="flex: 1;">
+                                {% csrf_token %}
+                                <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
+                                <button type="submit" class="btn-action btn-checkout">
+                                    <i class="fas fa-sign-out-alt"></i> CHECK OUT VISITOR
+                                </button>
+                            </form>
+                        {% else %}
+                            <div style="flex: 1; text-align: center; padding: 10px; background: #f0f0f0; border-radius: 8px; font-size: 13px; color: #666;">
+                                Action unavailable for status: {{ code_check_result.visit.status }}
+                            </div>
                         {% endif %}
                     </div>
                 {% else %}
-                    <p>{{ code_check_result.message }}</p>
+                    <p style="font-size: 14px; color: #666;">{{ code_check_result.message }}</p>
                 {% endif %}
             </div>
             {% endif %}
         </div>
 
-        <!-- Recent Check-Ins - Fills remaining space -->
-        <div class="card scrollable-card">
-            <div class="card-header">
-                <h3 class="card-title">Recent Check-Ins</h3>
-            </div>
+        <div class="card">
+            <div class="card-header" style="flex-direction: column; align-items: flex-start; padding-bottom: 0; border-bottom: none;">
+                <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 class="card-title">Live Check-in Feed</h3>
+                    <span class="badge-count" id="feedCount">{{ recent_checkins|length }}</span>
+                </div>
+                
+                <div class="feed-toolbar">
+                    <div class="filter-group">
+                        <button class="filter-btn active" onclick="setFeedFilter('all', this)">
+                            <i class="fas fa-layer-group"></i> All
+                        </button>
+                        <button class="filter-btn" onclick="setFeedFilter('in', this)">
+                            <i class="fas fa-sign-in-alt"></i> In
+                        </button>
+                        <button class="filter-btn" onclick="setFeedFilter('out', this)">
+                            <i class="fas fa-sign-out-alt"></i> Out
+                        </button>
+                    </div>
 
-            <div class="scroll-container">
+                    <div class="static-search-wrapper">
+                        <i class="fas fa-search static-search-icon"></i>
+                        <input 
+                            type="text" 
+                            id="feedSearchInput"
+                            class="static-search-input" 
+                            placeholder="Search..."
+                            onkeyup="applyFeedFilters()"
+                        >
+                    </div>
+                </div>
+            </div>
+            
+            <div class="custom-scroll live-feed-scroll">
                 {% if recent_checkins %}
-                    {% for checkin in recent_checkins %}
-                        <div class="checkin-item">
-                            <h4>{{ checkin.action_type }}</h4>
-                            <p>{{ checkin.description }}</p>
-                            <small>{{ checkin.display_time }}</small>
+                    <div class="timeline-container">
+                        {% for checkin in recent_checkins %}
+                        <div class="timeline-item {% if 'in' in checkin.action_type|lower %}in{% else %}out{% endif %}">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h4>{{ checkin.action_type }}</h4>
+                                <p>{{ checkin.description }}</p>
+                                <span class="timeline-time">
+                                    <i class="far fa-clock"></i> {{ checkin.display_time }}
+                                </span>
+                            </div>
                         </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 {% else %}
-                    <p class="empty-placeholder">No recent check-ins today.</p>
+                    <div class="empty-placeholder" style="text-align: center; padding: 40px; color: #94a3b8;">
+                        <i class="far fa-list-alt" style="font-size: 32px; margin-bottom: 10px; opacity: 0.5;"></i>
+                        <p>No activity recorded yet today.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- ===== Right Column - Today's Visits (FULL HEIGHT) ===== -->
-    <div class="card right-column-card">
-        <div class="card-header">
-            <h3 class="card-title">Today's Scheduled Visits</h3>
+    <div class="card" style="display: flex; flex-direction: column;">
+        <div class="card-header" style="flex-direction: column; align-items: flex-start; padding-bottom: 0; border-bottom: none;">
+            <div class="header-title-group"
+                style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 class="card-title">Today's Schedule</h3>
+                <span class="badge-count" id="scheduleCount">{{ today_visits|length }}</span>
+            </div>
+
+            <div class="schedule-toolbar-stacked">
+                <div class="filter-group">
+                    <button class="filter-btn active" onclick="setScheduleFilter('all', this)">
+                        <i class="fas fa-layer-group"></i> All
+                    </button>
+                    <button class="filter-btn" onclick="setScheduleFilter('active', this)">
+                        <i class="fas fa-walking"></i> Active
+                    </button>
+                    <button class="filter-btn" onclick="setScheduleFilter('upcoming', this)">
+                        <i class="fas fa-clock"></i> Upcoming
+                    </button>
+                </div>
+
+                <div class="static-search-wrapper">
+                    <i class="fas fa-search static-search-icon"></i>
+                    <input
+                        type="text"
+                        id="scheduleSearchInput"
+                        class="static-search-input"
+                        placeholder="Search..."
+                        onkeyup="applyScheduleFilters()"
+                    >
+                </div>
+            </div>
         </div>
 
-        <div class="scroll-container">
+        <div class="custom-scroll schedule-scroll">
             {% if today_visits %}
                 {% for visit in today_visits %}
-                    <div class="visit-item">
-                        <h4>{{ visit.code }}</h4>
-                        <p><strong>Visitor:</strong> {{ visit.user_email }}</p>
-                        <p><strong>Purpose:</strong> {{ visit.purpose }}</p>
-                        <p><strong>Department:</strong> {{ visit.department }}</p>
-                        <p>
-                            <strong>Time:</strong>
-                            {% if visit.end_time %}
-                                {{ visit.start_time|slice:":5" }} - {{ visit.end_time|slice:":5" }}
-                            {% elif visit.start_time %}
-                                <span style="color: #FF9800; font-weight: 600;">Arrival: {{ visit.start_time|slice:":5" }}</span>
-                            {% else %}
-                                <span style="color: #666; font-style: italic;">Not checked in yet</span>
-                            {% endif %}
-                        </p>
-                        <span class="visit-status {{ visit.status|lower }}">{{ visit.status }}</span>
+                <div class="mini-ticket schedule-item" data-status="{{ visit.status|lower }}">
+                    <div class="mt-stripe {{ visit.status|lower }}"></div>
+                    <div class="mt-content">
+                        <div class="mt-header">
+                            <span class="mt-code">{{ visit.code }}</span>
+                            <span class="mt-time">
+                                {% if visit.start_time %}
+                                    {{ visit.start_time|slice:":5" }}
+                                {% else %}
+                                    <span style="color:#D4AF37;">Pending</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <span class="mt-visitor">{{ visit.user_email }}</span>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px;">
+                            <span class="mt-dept">{{ visit.department }}</span>
+                            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #aaa;">
+                                {{ visit.status }}
+                            </span>
+                        </div>
                     </div>
+                </div>
                 {% endfor %}
             {% else %}
-                <p class="empty-placeholder">No visits scheduled for today.</p>
+                <div class="empty-state-dashboard" style="border: none; padding-top: 100px;">
+                    <div class="empty-icon-circle">
+                        <i class="fas fa-coffee fa-2x"></i>
+                    </div>
+                    <h3>All Clear!</h3>
+                    <p>No scheduled visits remaining for today.</p>
+                </div>
             {% endif %}
         </div>
     </div>
-</div>
+</div>  {# close .dashboard-grid #}
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Auto-uppercase visit code input
-    document.getElementById('visitCodeInput').addEventListener('input', function(e) {
-        e.target.value = e.target.value.toUpperCase();
-    });
-
-    // Auto-focus on code input field
     document.addEventListener('DOMContentLoaded', function() {
         const codeInput = document.getElementById('visitCodeInput');
         if (codeInput) {
+            codeInput.addEventListener('input', function(e) {
+                e.target.value = e.target.value.toUpperCase();
+            });
             codeInput.focus();
         }
+        
+        // Trigger initial animations on page load
+        applyFeedFilters();
+        applyScheduleFilters();
     });
+
+    /* =========================================
+       LOGIC FOR LIVE FEED WIDGET
+       ========================================= */
+    
+    let currentFilterType = 'all';
+
+    function setFeedFilter(type, btnElement) {
+        // Updated selector to search within both toolbar types
+        const toolbar = btnElement.closest('.feed-toolbar') || btnElement.closest('.schedule-toolbar-stacked');
+        if (toolbar) {
+            toolbar.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+
+        currentFilterType = type;
+        applyFeedFilters();
+    }
+
+    function applyFeedFilters() {
+        const searchInput = document.getElementById('feedSearchInput');
+        if (!searchInput) return; // Guard clause if element missing
+        
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const items = document.querySelectorAll('.timeline-item');
+        let visibleCount = 0;
+
+        items.forEach(item => {
+            const isCheckIn = item.classList.contains('in');
+            const isCheckOut = item.classList.contains('out');
+            const textContent = item.innerText.toLowerCase();
+
+            let typeMatch = (currentFilterType === 'all') || 
+                            (currentFilterType === 'in' && isCheckIn) || 
+                            (currentFilterType === 'out' && isCheckOut);
+
+            let searchMatch = textContent.includes(searchTerm);
+
+            // 1. Reset animation class
+            item.classList.remove('animate-entry');
+
+            if (typeMatch && searchMatch) {
+                item.style.display = 'block';
+
+                // 2. Trigger Reflow
+                void item.offsetWidth; 
+
+                // 3. Re-add animation class
+                item.classList.add('animate-entry');
+                
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        const countBadge = document.getElementById('feedCount');
+        if(countBadge) countBadge.textContent = visibleCount;
+    }
+
+    /* =========================================
+       LOGIC FOR SCHEDULE WIDGET
+       ========================================= */
+
+    let currentScheduleFilter = 'all';
+
+    function setScheduleFilter(type, btnElement) {
+        const toolbar = btnElement.closest('.feed-toolbar') || btnElement.closest('.schedule-toolbar-stacked');
+        if (toolbar) {
+            toolbar.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+
+        currentScheduleFilter = type;
+        applyScheduleFilters();
+    }
+
+    function applyScheduleFilters() {
+        const searchInput = document.getElementById('scheduleSearchInput');
+        if (!searchInput) return;
+
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const items = document.querySelectorAll('.schedule-item');
+        let visibleCount = 0;
+
+        items.forEach(item => {
+            const status = item.getAttribute('data-status'); // active, upcoming, completed
+            const textContent = item.innerText.toLowerCase();
+
+            let typeMatch = false;
+            if (currentScheduleFilter === 'all') {
+                typeMatch = true; 
+            } else if (currentScheduleFilter === 'active' && status === 'active') {
+                typeMatch = true;
+            } else if (currentScheduleFilter === 'upcoming' && status === 'upcoming') {
+                typeMatch = true;
+            }
+
+            let searchMatch = textContent.includes(searchTerm);
+
+            // 1. Reset animation class
+            item.classList.remove('animate-entry');
+
+            if (typeMatch && searchMatch) {
+                item.style.display = 'flex';
+                
+                // 2. Trigger Reflow
+                void item.offsetWidth;
+
+                // 3. Re-add animation class
+                item.classList.add('animate-entry');
+
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        const countBadge = document.getElementById('scheduleCount');
+        if(countBadge) countBadge.textContent = visibleCount;
+    }
 </script>
 {% endblock %}
