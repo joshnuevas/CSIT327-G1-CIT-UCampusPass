@@ -671,9 +671,18 @@ body {
     opacity: 1;
 }
 
+/* --- FIXED BADGE STYLE HERE --- */
 .ticket-wrapper.is-today:not([data-status="active"]) .today-label-badge {
     background: #8B1538;
     color: #ffffff;
+    /* Added missing layout properties below: */
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* --- CASE B: Today AND Active (Checked In/Go) = GREEN --- */
