@@ -160,6 +160,29 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // ===== LIMIT FILTER DATE TO TODAY + 7 DAYS (like Book Visit) =====
+    const filterDateInput = document.getElementById('filter_date');
+
+    function formatLocalDate(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    if (filterDateInput) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 7);
+
+        const maxStr = formatLocalDate(maxDate);
+        filterDateInput.setAttribute('max', maxStr);
+        // no min → user can choose *any* date in the past
+    }
+
+    // ===== EXISTING CARD FLIP LOGIC =====
     const cards = document.querySelectorAll('.interactive-card');
     cards.forEach(card => {
         card.addEventListener('click', function(e) {

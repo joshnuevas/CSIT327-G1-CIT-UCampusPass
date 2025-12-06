@@ -11,6 +11,122 @@
      height: 100vh;
      overflow: hidden;
 }
+/* =========================================
+   TOAST NOTIFICATIONS (Success/Error Alerts)
+   ========================================= */
+
+.messages-container {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 9999; /* Ensures it floats above everything */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    pointer-events: none; /* Allows clicking through the empty container */
+}
+
+/* The actual message card */
+.alert {
+    background: #FFFFFF;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-left: 5px solid #ccc; /* Default border color */
+    pointer-events: auto; /* Re-enable clicks on the card itself */
+    
+    /* Animation */
+    opacity: 0;
+    transform: translateX(50px);
+    animation: slideInToast 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Inner content layout */
+.alert-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.alert-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.alert-text {
+    font-size: 14px;
+    color: #2D3748;
+    line-height: 1.5;
+    flex: 1;
+    font-weight: 500;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    color: #A0AEC0;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 8px;
+    transition: color 0.2s;
+}
+
+.alert-close:hover {
+    color: #2D3748;
+}
+
+/* === Color Variants === */
+
+/* Success (Green) */
+.alert-success {
+    border-left-color: #38A169;
+}
+.alert-success .alert-icon {
+    color: #38A169;
+}
+
+/* Error/Danger (Red) */
+.alert-danger, 
+.alert-error {
+    border-left-color: #E53E3E;
+}
+.alert-danger .alert-icon,
+.alert-error .alert-icon {
+    color: #E53E3E;
+}
+
+/* Warning (Gold/Yellow) */
+.alert-warning {
+    border-left-color: #D69E2E;
+}
+.alert-warning .alert-icon {
+    color: #D69E2E;
+}
+
+/* Info (Blue) */
+.alert-info {
+    border-left-color: #3182CE;
+}
+.alert-info .alert-icon {
+    color: #3182CE;
+}
+
+/* === Animation Keyframes === */
+@keyframes slideInToast {
+    from {
+        opacity: 0;
+        transform: translateX(50px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
 /* ========================================= 2. SIDEBAR ========================================= */
  .sidebar {
      width: 260px;

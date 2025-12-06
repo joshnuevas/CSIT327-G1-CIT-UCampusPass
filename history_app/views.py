@@ -26,13 +26,15 @@ def history_view(request):
     """
     Visitor 'My History' page.
 
+    Rules:
     - Redirects if user is not logged in.
     - Auto-expires visits whose date is already past today (Upcoming/Active -> Expired).
     - Supports filtering by:
-        * Date (single date, up to today + 7 days)
+        * Date (single date, but never beyond today + 7 days)
         * Search query (code or department)
-    - Default range: last week up to 7 days ahead.
+    - Default: show ALL past visits + up to 7 days ahead (same window as booking).
     """
+
     # ----- AUTH CHECK -----
     if "user_email" not in request.session:
         return redirect("login_app:login")
@@ -43,7 +45,7 @@ def history_view(request):
     philippines_tz = pytz.timezone("Asia/Manila")
     now_ph = datetime.now(philippines_tz)
     today = now_ph.date()
-    max_allowed_date = today + timedelta(days=7)   # ⬅️ same as booking
+    max_allowed_date = today + timedelta(days=7)  # same as booking page
 
     # ----- AUTO-EXPIRE OLD VISITS -----
     Visit.objects.filter(
@@ -51,13 +53,6 @@ def history_view(request):
         visit_date__lt=today,
         status__in=["Upcoming", "Active"],
     ).update(status="Expired")
-
-    # ----- DEFAULT WINDOW (LAST WEEK → TODAY+7) -----
-    this_week_start = today - timedelta(days=today.weekday())  # Monday of this week
-    last_week_start = this_week_start - timedelta(days=7)      # Monday of last week
-
-    default_start_date = last_week_start
-    default_end_date = max_allowed_date
 
     # ----- READ FILTER PARAMS -----
     date_str = (request.GET.get("date") or "").strip()
@@ -69,7 +64,7 @@ def history_view(request):
     filter_date_display = ""
     filter_date_value = ""
 
-    # ✅ Only warn if the filter form was actually submitted
+    # Only warn if filter form was actually submitted
     filter_submitted = request.GET.get("filter_submitted") == "1"
     if filter_submitted and not date_str and not search_query:
         messages.warning(
@@ -77,8 +72,9 @@ def history_view(request):
             "Please enter a visit date or a search keyword before applying filters."
         )
 
-    # ----- DATE FILTER (CLAMP TO TODAY+7) -----
+    # ----- DATE FILTER -----
     if date_str:
+        # User picked a specific date – clamp to max_allowed_date if needed
         try:
             selected_date = datetime.strptime(date_str, "%Y-%m-%d").date()
         except ValueError:
@@ -87,23 +83,21 @@ def history_view(request):
         if selected_date > max_allowed_date:
             selected_date = max_allowed_date
 
+        # NOTE: we allow any past date here
         visits_qs = visits_qs.filter(visit_date=selected_date)
+
         filter_mode_text = "Showing visits for"
         filter_date_display = selected_date.strftime("%b %d, %Y")
         filter_date_value = selected_date.isoformat()
     else:
-        # Default: from last week up to today+7
-        visits_qs = visits_qs.filter(
-            visit_date__gte=default_start_date,
-            visit_date__lte=default_end_date,
-        )
-        filter_mode_text = "Showing visits from"
-        filter_date_display = (
-            f"{default_start_date.strftime('%b %d, %Y')} "
-            f"to {default_end_date.strftime('%b %d, %Y')}"
-        )
+        # Default: show ALL visits up to today + 7 days (no lower bound)
+        visits_qs = visits_qs.filter(visit_date__lte=max_allowed_date)
 
-    # 🔒 SAFETY: never show visits beyond +7 days
+        filter_mode_text = "Showing all visits up to"
+        filter_date_display = max_allowed_date.strftime("%b %d, %Y")
+        filter_date_value = ""
+
+    # 🔒 Final safety: never show beyond +7 days
     visits_qs = visits_qs.filter(visit_date__lte=max_allowed_date)
 
     # ----- TEXT SEARCH (Pass Code OR Department) -----
@@ -113,7 +107,7 @@ def history_view(request):
             Q(department__icontains=search_query)
         )
 
-    # Order: most recent first
+    # Order: newest first
     visits_qs = visits_qs.order_by("-visit_date", "-start_time")
 
     # ----- FORMAT DISPLAY FIELDS -----
@@ -151,7 +145,6 @@ def history_view(request):
     }
 
     return render(request, "history_app/history.html", context)
-
 
 @require_POST
 def cancel_visit(request):
