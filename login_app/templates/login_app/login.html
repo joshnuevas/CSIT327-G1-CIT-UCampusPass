@@ -68,8 +68,13 @@
         <div class="right-panel">
             <div class="login-container">
                 <div class="login-header">
-                    <h1>Welcome Back</h1>
-                    <p>Sign in to your account to continue</p>
+                    {% if show_change_password %}
+                        <h1>Set a New Password</h1>
+                        <p>You’re required to change your temporary password before proceeding.</p>
+                    {% else %}
+                        <h1>Welcome Back</h1>
+                        <p>Sign in to your account to continue</p>
+                    {% endif %}
                 </div>
 
                 {% if messages %}
@@ -80,48 +85,86 @@
                     </ul>
                 {% endif %}
 
-                <form method="POST" action="{% url 'login_app:login' %}">
-                    {% csrf_token %}
+                {% if show_change_password %}
+                    <form method="POST" action="{% url 'login_app:login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="temp_username" value="{{ temp_username }}">
+                        <input type="hidden" name="temp_role" value="{{ temp_role }}">
 
-                    <!-- Email/Username Field -->
-                    <div class="form-group">
-                        <label for="identifier">Email Address</label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-envelope input-icon"></i>
-                            <input type="text" 
-                                   id="identifier" 
-                                   name="identifier" 
-                                   placeholder="your@email.com" 
-                                   required>
+                        <!-- New Password Field -->
+                        <div class="form-group">
+                            <label for="new_password">New Password</label>
+                            <div class="input-wrapper password-toggle">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password"
+                                       id="new_password"
+                                       name="new_password"
+                                       placeholder="Enter new password"
+                                       required>
+                                <i class="fas fa-eye toggle-password" data-target="new_password"></i>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Password Field -->
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <div class="input-wrapper password-toggle">
-                            <i class="fas fa-lock input-icon"></i>
-                            <input type="password" 
-                                   id="password" 
-                                   name="password" 
-                                   placeholder="••••••••" 
-                                   required>
-                            <i class="fas fa-eye toggle-password" data-target="password"></i>
+                        <!-- Confirm Password Field -->
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password</label>
+                            <div class="input-wrapper password-toggle">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password"
+                                       id="confirm_password"
+                                       name="confirm_password"
+                                       placeholder="Re-enter password"
+                                       required>
+                                <i class="fas fa-eye toggle-password" data-target="confirm_password"></i>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="remember-forgot">
-                        <label class="remember-me">
-                            <input type="checkbox" id="remember" name="remember">
-                            <span>Remember me</span>
-                        </label>
-                        <a href="{% url 'login_app:forgot_password' %}" class="forgot-password">
-                            Forgot password?
-                        </a>
-                    </div>
+                        <button type="submit" name="change_password" class="login-btn">Update Password</button>
+                    </form>
+                {% else %}
+                    <form method="POST" action="{% url 'login_app:login' %}">
+                        {% csrf_token %}
 
-                    <button type="submit" class="login-btn">Sign In</button>
-                </form>
+                        <!-- Email/Username Field -->
+                        <div class="form-group">
+                            <label for="identifier">Email Address</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="text"
+                                       id="identifier"
+                                       name="identifier"
+                                       placeholder="your@email.com"
+                                       required>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-wrapper password-toggle">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password"
+                                       id="password"
+                                       name="password"
+                                       placeholder="••••••••"
+                                       required>
+                                <i class="fas fa-eye toggle-password" data-target="password"></i>
+                            </div>
+                        </div>
+
+                        <div class="remember-forgot">
+                            <label class="remember-me">
+                                <input type="checkbox" id="remember" name="remember">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="{% url 'login_app:forgot_password' %}" class="forgot-password">
+                                Forgot password?
+                            </a>
+                        </div>
+
+                        <button type="submit" class="login-btn">Sign In</button>
+                    </form>
+                {% endif %}
 
                 <div class="divider">
                     <span>OR</span>
@@ -138,19 +181,6 @@
         </div>
     </div>
 
-    <!-- Success Modal -->
-    {% if messages %}
-        {% for message in messages %}
-            {% if message.tags == 'success' %}
-                <div id="successModal" class="modal">
-                    <div class="modal-content">
-                        <h2>{{ message }}</h2>
-                        <button id="continueBtn">Continue</button>
-                    </div>
-                </div>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -172,25 +202,20 @@
                 });
             });
 
-            // Modal functionality
-            const modal = document.getElementById('successModal');
-            const continueBtn = document.getElementById('continueBtn');
-            
-            if (modal) {
-                modal.style.display = 'block';
-                
-                if (continueBtn) {
-                    continueBtn.addEventListener('click', function() {
-                        modal.style.display = 'none';
-                    });
-                }
-                
-                window.addEventListener('click', function(event) {
-                    if (event.target === modal) {
-                        modal.style.display = 'none';
-                    }
+            // Prevent copy-paste on confirm password field
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                });
+                confirmPasswordInput.addEventListener('copy', function(e) {
+                    e.preventDefault();
+                });
+                confirmPasswordInput.addEventListener('cut', function(e) {
+                    e.preventDefault();
                 });
             }
+
         });
     </script>
 </body>
