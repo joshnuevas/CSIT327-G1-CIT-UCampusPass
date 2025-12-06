@@ -149,6 +149,7 @@ def history_view(request):
         "filter_query": search_query,
         "filter_mode_text": filter_mode_text,
         "filter_date_display": filter_date_display,
+        "today": today,
     }
 
     return render(request, "history_app/history.html", context)

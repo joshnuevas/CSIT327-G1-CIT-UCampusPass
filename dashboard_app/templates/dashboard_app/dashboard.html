@@ -81,11 +81,15 @@
             </div>
             {% endif %}
             {% for visit in visits %}
-                <div class="ticket-wrapper" onclick="this.classList.toggle('flipped')">
+                <div class="ticket-wrapper {% if visit.visit_date == today %}is-today{% endif %}" onclick="this.classList.toggle('flipped')">
                     <div class="ticket-inner">
                         
                         <div class="ticket-front">
                             <div class="ticket-stub">
+                                {% if visit.visit_date == today %}
+                                    <span class="today-label-badge">TODAY</span>
+                                {% endif %}
+
                                 <div class="stub-texture"></div>
                                 <span class="ticket-month">{{ visit.visit_date|date:"M"|upper }}</span>
                                 <span class="ticket-day">{{ visit.visit_date|date:"d" }}</span>

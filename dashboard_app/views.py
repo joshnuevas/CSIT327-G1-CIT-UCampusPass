@@ -39,40 +39,47 @@ def format_ph_time(timestamp):
     return ph_time.strftime("%b %d, %Y %I:%M %p")
 
 def dashboard_view(request):
-    if 'user_email' not in request.session:
-        return redirect('login_app:login')
+    """
+    Visitor dashboard.
 
-    user_email = request.session['user_email']
+    - Requires logged-in visitor.
+    - Auto-expires visits strictly BEFORE today (Upcoming/Active -> Expired).
+    - DOES NOT recompute status for today/future — we trust
+      whatever staff / other logic already stored in the DB.
+    - Shows only Upcoming + Active visits in the "Recent Visit Codes" tickets,
+      limited to the next 3 by date/time.
+    """
+    if "user_email" not in request.session:
+        return redirect("login_app:login")
 
-    # Use Philippines time consistently
+    user_email = request.session["user_email"]
+
     now_ph = django_now().astimezone(PHILIPPINES_TZ)
     today = now_ph.date()
 
-    # ===== 1) AUTO-EXPIRE PAST VISITS (same idea as history_view) =====
+    # 1) Auto-expire past visits (yesterday and earlier) that are still Upcoming/Active
     Visit.objects.filter(
         user_email=user_email,
         visit_date__lt=today,
-        status__in=['Upcoming', 'Active']
-    ).update(status='Expired')
+        status__in=["Upcoming", "Active"],
+    ).update(status="Expired")
 
-    # Re-fetch visits after the bulk update
+    # 2) Load all visits for this user
     all_visits = Visit.objects.filter(user_email=user_email)
 
-    # COUNT COMPLETED VISITS
-    completed_visits_count = all_visits.filter(status='Completed').count()
+    completed_visits_count = all_visits.filter(status="Completed").count()
 
-    # ===== 2) FORMAT & UPDATE STATUS FOR TODAY/FUTURE ONLY =====
     for visit in all_visits:
         visit_date_obj = visit.visit_date
         visit.visit_date_obj = visit_date_obj
 
-        # ----- Display date -----
+        # Friendly display date
         if visit_date_obj == today:
             visit.display_date = f"Today, {visit_date_obj.strftime('%b %d')}"
         else:
             visit.display_date = visit_date_obj.strftime("%b %d, %Y")
 
-        # ----- Display times -----
+        # Display times (we're only formatting, not changing anything)
         if visit.start_time:
             visit.formatted_start_time = visit.start_time.strftime("%I:%M %p")
         else:
@@ -83,75 +90,27 @@ def dashboard_view(request):
         else:
             visit.formatted_end_time = "Pending"
 
-        # For sorting purposes (even if no start_time)
-        if visit.start_time:
-            visit.visit_start_datetime = datetime.combine(visit.visit_date, visit.start_time)
-        else:
-            visit.visit_start_datetime = datetime.combine(visit.visit_date, datetime.min.time())
+        # For sorting (if no start_time, push early in the day)
+        visit.visit_start_datetime = datetime.combine(
+            visit.visit_date,
+            visit.start_time or datetime.min.time(),
+        )
 
-        # ----- STATUS LOGIC -----
-        # Keep completed as-is
-        if visit.status == 'Completed':
-            continue
-
-        # 2.1 Past days (already expired by bulk update above)
-        if visit_date_obj < today:
-            # Just make sure they stay expired
-            if visit.status not in ['Expired', 'Completed']:
-                visit.status = 'Expired'
-                visit.save()
-            continue
-
-        # 2.2 Future days → always Upcoming
-        if visit_date_obj > today:
-            new_status = 'Upcoming'
-
-        # 2.3 Today → decide Active / Upcoming / Expired based on time
-        else:  # visit_date_obj == today
-            if visit.start_time:
-                visit_start = datetime.combine(visit.visit_date, visit.start_time).replace(
-                    tzinfo=PHILIPPINES_TZ
-                )
-                if visit.end_time:
-                    visit_end = datetime.combine(visit.visit_date, visit.end_time).replace(
-                        tzinfo=PHILIPPINES_TZ
-                    )
-                else:
-                    # If no end_time yet, assume end of day
-                    visit_end = datetime.combine(
-                        visit.visit_date,
-                        datetime.max.time()
-                    ).replace(tzinfo=PHILIPPINES_TZ)
-
-                if visit_start <= now_ph <= visit_end:
-                    new_status = 'Active'
-                elif now_ph > visit_end:
-                    new_status = 'Expired'
-                else:
-                    new_status = 'Upcoming'
-            else:
-                # No check-in time yet, but visit is today → Upcoming
-                new_status = 'Upcoming'
-
-        # Apply status change if needed
-        if visit.status != new_status:
-            visit.status = new_status
-            visit.save()
-
-    # ===== 3) PICK ONLY ACTIVE + UPCOMING FOR "MY VISIT CODES" =====
-    active_visits = [v for v in all_visits if v.status == 'Active']
-    upcoming_visits = [v for v in all_visits if v.status == 'Upcoming']
+    # 3) Use the status exactly as stored in DB
+    active_visits = [v for v in all_visits if v.status == "Active"]
+    upcoming_visits = [v for v in all_visits if v.status == "Upcoming"]
 
     active_upcoming = active_visits + upcoming_visits
     active_upcoming.sort(key=lambda x: x.visit_start_datetime)
 
-    display_visits = active_upcoming[:3]  # only the next 3 relevant passes
+    # Only show the next 3 relevant passes on the dashboard
+    display_visits = active_upcoming[:3]
 
     context = {
         "user_email": user_email,
-        "user_first_name": request.session.get('user_first_name'),
+        "user_first_name": request.session.get("user_first_name"),
 
-        # Only ACTIVE + UPCOMING are shown in "My Visit Codes"
+        # Tickets section
         "visits": display_visits,
 
         # Stats cards
@@ -163,7 +122,7 @@ def dashboard_view(request):
         "today": today,
     }
 
-    return render(request, 'dashboard_app/dashboard.html', context)
+    return render(request, "dashboard_app/dashboard.html", context)
 
 # ========== ADMIN DASHBOARD ==========
 def admin_dashboard_view(request):

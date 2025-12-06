@@ -919,6 +919,65 @@
     animation: fadeUpEntrance 0.6s ease-out forwards;
     animation-delay: 0.5s; /* Appears with the first ticket */
 }
+/* =========================================
+   TODAY'S TICKET HIGHLIGHT STYLES
+   ========================================= */
+
+/* 1. Pulse the whole wrapper (no rotation here!) */
+.ticket-wrapper.is-today {
+    opacity: 1;
+    animation: fadeUpEntrance 0.6s ease-out forwards,
+               float-pulse 3s ease-in-out infinite;
+}
+
+/* 2. Extra glow and border on the inner card */
+.ticket-wrapper.is-today .ticket-inner {
+    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+}
+
+/* 3. Keep your stub + badge styles (these you already have) */
+.ticket-wrapper.is-today .ticket-stub {
+    background: linear-gradient(135deg, #D4AF37 0%, #C5A028 100%);
+    color: #8B1538;
+    border-right: 2px dashed rgba(139, 21, 56, 0.3);
+}
+
+.today-label-badge {
+    background: #8B1538;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* 4. Adjust the date text colors for the Gold background */
+.ticket-wrapper.is-today .ticket-day {
+    text-shadow: none; /* Remove shadow for cleaner look on gold */
+    color: #5c0a0a; /* Darker Maroon */
+}
+
+.ticket-wrapper.is-today .ticket-month,
+.ticket-wrapper.is-today .ticket-year {
+    color: #8B1538;
+    opacity: 1;
+}
+
+/* 5. The Pulse Animation */
+@keyframes float-pulse {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-4px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
 /* Responsive adjustments */
  @media (max-width: 1024px) {
      .stats-grid {
@@ -1285,7 +1344,6 @@
 }
  .ticket-wrapper:hover .ticket-inner {
      box-shadow: 0 10px 15px rgba(0,0,0,0.08);
-     transform: translateY(-2px);
 }
 /* State: Flipped (CHANGED TO ROTATEX FOR VERTICAL FLIP) */
  .ticket-wrapper.flipped .ticket-inner {

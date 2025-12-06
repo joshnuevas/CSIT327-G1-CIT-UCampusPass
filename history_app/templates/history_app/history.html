@@ -48,7 +48,10 @@
         {% for visit in visits %}
             <div class="flip-card-scene">
                 
-                <div class="flip-card-inner {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}interactive-card{% endif %}" id="card-{{ visit.visit_id }}">
+                <div class="flip-card-inner 
+                            {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}interactive-card{% endif %}
+                            {% if visit.visit_date == today %}is-today-card{% endif %}" 
+                    id="card-{{ visit.visit_id }}">
                     
                     <div class="card-face card-front">
                         <div class="status-stripe status-{{ visit.status|lower }}"></div>
@@ -59,6 +62,11 @@
                                     <span class="code-label">CODE</span>
                                     <span class="code-text">{{ visit.code }}</span>
                                 </div>
+
+                                {% if visit.visit_date == today %}
+                                    <span class="today-history-badge">TODAY</span>
+                                {% endif %}
+
                                 <span class="status-pill status-{{ visit.status|lower }}">{{ visit.status }}</span>
                             </div>
 

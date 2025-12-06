@@ -627,6 +627,64 @@
     animation: fadeUpEntrance 0.8s ease-out forwards;
     animation-delay: 0.3s;
 }
+/* =========================================
+   TODAY'S CARD HIGHLIGHT (GOLD THEME)
+   ========================================= */
+
+/* 1. The Gold Pulse Animation & Border */
+.flip-card-inner.is-today-card {
+    border: 2px solid rgba(212, 175, 55, 0.6); /* Gold Border */
+    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.25); /* Gold Glow */
+    animation: history-pulse 3s ease-in-out infinite;
+    position: relative;
+    z-index: 10; /* Ensure it floats above others */
+}
+
+/* 2. Override the top stripe to be Gold */
+.flip-card-inner.is-today-card .status-stripe {
+    background: linear-gradient(90deg, #D4AF37, #F3E5AB, #D4AF37) !important;
+    height: 8px; /* Slightly thicker */
+}
+
+/* 3. The "TODAY" Badge Style */
+.today-history-badge {
+    background: #8B1538; /* Maroon Background */
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 50px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 6px rgba(139, 21, 56, 0.3);
+    margin: 0 10px; /* Spacing between code and status pill */
+    animation: popInBadge 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 4. Highlight the text color slightly */
+.flip-card-inner.is-today-card .visit-purpose {
+    color: #8B1538; /* Maroon Title */
+}
+
+/* 5. Animation Keyframes */
+@keyframes history-pulse {
+    0% {
+        transform: translateY(0);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+    }
+    50% {
+        transform: translateY(-5px); /* Gentle float */
+        box-shadow: 0 15px 30px rgba(212, 175, 55, 0.5);
+    }
+    100% {
+        transform: translateY(0);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+    }
+}
+
+@keyframes popInBadge {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
 /* Responsive */
  @media (max-width: 768px) {
      .filter-row {
