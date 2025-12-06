@@ -374,9 +374,34 @@ def book_visit_view(request):
             messages.error(request, "Unexpected error. Please try again.")
             return redirect("book_visit_app:book_visit")
 
-    # ===== GET: SHOW FORM =====
+        # ===== GET: SHOW FORM =====
+    # Optional pre-filled date from calendar (?date=YYYY-MM-DD)
+    prefill_date = None
+    raw_date = request.GET.get("date")
+
+    if raw_date:
+        try:
+            candidate = datetime.strptime(raw_date, "%Y-%m-%d").date()
+            today = timezone.localdate()
+            max_date = today + timedelta(days=7)
+
+            # Same rules as booking:
+            # - not past
+            # - not more than 7 days ahead
+            # - not Sunday
+            if today <= candidate <= max_date and candidate.weekday() != 6:
+                prefill_date = candidate.strftime("%Y-%m-%d")
+        except ValueError:
+            # ignore invalid format, just don't prefill
+            pass
+
+    context = {
+        "user_first_name": first_name,
+        "prefill_date": prefill_date,
+    }
+
     return render(
         request,
         "book_visit_app/book_visit.html",
-        {"user_first_name": first_name},
+        context,
     )

@@ -1,0 +1,353 @@
+/* =========================================
+   1. ANIMATIONS
+   ========================================= */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   2. MAIN LAYOUT & HEADERS
+   ========================================= */
+.welcome-section {
+    margin-bottom: 30px;
+    animation: fadeUp 0.6s ease-out forwards;
+}
+
+.welcome-text h1 {
+    color: #2D3748;
+    font-size: 32px;
+    margin-bottom: 8px;
+    font-weight: 800;
+}
+
+.welcome-text p {
+    color: #718096;
+    font-size: 16px;
+}
+
+/* =========================================
+   3. CALENDAR CARD CONTAINER
+   ========================================= */
+.calendar-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    border: 1px solid #EDF2F7;
+    animation: fadeUp 0.6s ease-out forwards;
+    animation-delay: 0.2s;
+    opacity: 0;
+    /* Ensure tooltips can spill out */
+    position: relative; 
+    z-index: 1;
+}
+
+/* Header */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #EDF2F7;
+}
+
+.calendar-title h3 {
+    font-size: 24px;
+    color: #8B1538;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.current-date-sub {
+    font-size: 13px;
+    color: #718096;
+    font-weight: 500;
+    background: #F7FAFC;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Navigation Buttons */
+.nav-group { display: flex; gap: 8px; }
+
+.calendar-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #E2E8F0;
+    background: #FFFFFF;
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4A5568;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.calendar-nav-btn:hover {
+    border-color: #8B1538;
+    color: #8B1538;
+    background: #FFF5F7;
+    transform: translateY(-1px);
+}
+
+/* =========================================
+   4. CALENDAR GRID / TABLE
+   ========================================= */
+.calendar-table {
+    width: 100%;
+    border-collapse: separate; 
+    border-spacing: 4px;
+    table-layout: fixed;
+}
+
+.calendar-table th {
+    padding: 10px 0;
+    text-align: center;
+    color: #A0AEC0;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.calendar-table td {
+    height: 80px;
+    vertical-align: top;
+    padding: 8px;
+    background: #FFFFFF;
+    border: 1px solid #F1F5F9;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    cursor: default;
+    /* IMPORTANT: Needed for absolute positioning of tooltip */
+    position: relative;
+}
+
+/* Hover effect on the cell itself */
+.calendar-table td:hover {
+    border-color: #CBD5E0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    z-index: 10; /* Bring above other cells */
+}
+
+/* --- Cell States --- */
+.day-number {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2D3748;
+    margin-bottom: 4px;
+}
+
+.is-outside { background: #FAFAFA; border: 1px dashed #E2E8F0; color: #CBD5E0; }
+.is-outside .day-number { color: #CBD5E0; }
+
+.is-today {
+    background: #FFF5F7 !important;
+    border: 1px solid #FED7D7 !important;
+    box-shadow: 0 4px 10px rgba(139, 21, 56, 0.1);
+}
+.is-today .day-number { color: #8B1538; font-weight: 800; }
+
+.visit-dots { display: flex; gap: 3px; margin-top: 4px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot-upcoming { background-color: #D4AF37; }
+
+/* =========================================
+   5. HOVER TOOLTIP (Replaces Agenda List)
+   ========================================= */
+.visit-tooltip {
+    position: absolute;
+    /* Position it below the cell, centered */
+    top: 90%; 
+    left: 50%;
+    transform: translateX(-50%);
+    
+    /* Styling */
+    background: #ffffff;
+    width: 280px;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    border: 1px solid #E2E8F0;
+    z-index: 100; /* Ensure it's on top of everything */
+    
+    /* Hiding State */
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(0.4, 0.2, 0.2, 1);
+    pointer-events: none; /* Prevents flickering */
+}
+
+/* The Arrow pointing up */
+.visit-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: transparent transparent #ffffff transparent;
+}
+
+/* SHOW TOOLTIP ON CELL HOVER */
+.calendar-table td:hover .visit-tooltip {
+    visibility: visible;
+    opacity: 1;
+    top: 105%; /* Slight downward movement animation */
+    pointer-events: auto;
+}
+
+/* Tooltip Content Styles */
+.tooltip-header {
+    padding: 12px 16px;
+    background: #FFF5F7; /* Light Maroon Bg */
+    border-bottom: 1px solid #FED7D7;
+    border-radius: 12px 12px 0 0;
+    font-weight: 800;
+    color: #8B1538;
+    font-size: 14px;
+}
+
+.tooltip-body {
+    padding: 8px 0;
+    max-height: 300px; /* Limit height if many visits */
+    overflow-y: auto;
+}
+
+.tooltip-visit-item {
+    padding: 12px 16px;
+    border-bottom: 1px dashed #EDF2F7;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.tooltip-visit-item:last-child { border-bottom: none; }
+
+.tooltip-visit-main strong {
+    display: block;
+    font-size: 14px;
+    color: #2D3748;
+    margin-bottom: 3px;
+    line-height: 1.3;
+}
+
+.tooltip-visit-main span {
+    font-size: 13px;
+    color: #718096;
+    display: block;
+}
+
+.tooltip-visit-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Status & Code Styles (Mini versions) */
+.status-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+.pill-active { background: #F0FFF4; color: #276749; }
+.pill-upcoming { background: #FFFAF0; color: #9C4221; }
+.pill-completed { background: #F7FAFC; color: #718096; }
+
+.ticket-code {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    background: #F7FAFC;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border: 1px solid #EDF2F7;
+    color: #718096;
+}
+
+/* =========================================
+   6. FLIP-TO-BOOK (BLANK DATES)
+   ========================================= */
+
+/* The container inside the TD */
+.flip-cell-wrapper {
+    width: 100%;
+    height: 100%;
+    perspective: 1000px; /* Essential for 3D effect */
+    cursor: pointer;
+}
+
+.flip-cell-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+/* The toggle class added by JS on click */
+.flip-cell-wrapper.is-flipped .flip-cell-inner {
+    transform: rotateY(180deg);
+}
+
+/* Common Face Styles */
+.flip-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+/* FRONT: Just the day number (Transparent/Default) */
+.flip-front {
+    background-color: transparent;
+    z-index: 2;
+    align-items: flex-start; /* Align number to top-left like normal cells */
+    justify-content: flex-start;
+}
+
+/* BACK: The "Book?" Call to Action */
+.flip-back {
+    background-color: #FFF5F7; /* Light Maroon tint */
+    color: #8B1538;
+    transform: rotateY(180deg);
+    border: 1px dashed #FED7D7;
+    z-index: 1;
+}
+
+/* The Book Button */
+.btn-book-mini {
+    background: #8B1538;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(139, 21, 56, 0.2);
+    transition: all 0.2s;
+}
+
+.btn-book-mini:hover {
+    background: #6B0F2A;
+    transform: scale(1.05);
+}
+
+.book-label {
+    font-size: 10px;
+    color: #8B1538;
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}

@@ -34,4 +34,5 @@ urlpatterns = [
     path('staff-visit-records/', include('staff_visit_records_app.urls', namespace="staff_visit_records_app")),
     path('walk-in/', include('walk_in_app.urls')),
     path('visitor/', include('visitor_search_app.urls')),
+    path('calendar/', include('calendar_app.urls', namespace='calendar_app')),
 ]

@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'walk_in_app',
     'visitor_search_app',
     'staff_visit_records_app',
+    'calendar_app',
 ]
 
 # Middleware

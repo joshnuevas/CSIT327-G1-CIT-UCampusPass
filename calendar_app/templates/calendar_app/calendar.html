@@ -1,0 +1,134 @@
+{% extends "dashboard_app/visitor_dashboard_base.html" %}
+{% load static %}
+{# Load our new custom filter #}
+{% load calendar_tags %}
+
+{% block title %}Calendar - CIT-U Campus Pass{% endblock %}
+{% block calendar_active %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'calendar_app/css/calendar.css' %}?v={% now 'U' %}">
+{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <div class="welcome-text">
+        <h1>Calendar</h1>
+        <p>Hover over a date to view scheduled visits.</p>
+    </div>
+</div>
+
+<div class="calendar-card">
+    <div class="calendar-header">
+        <div class="calendar-title">
+            <h3>{{ month_name }} {{ year }}</h3>
+            <span class="current-date-sub">Today: {{ today|date:"F j, Y" }}</span>
+        </div>
+        <div class="nav-group">
+            <a class="calendar-nav-btn" href="?year={{ prev_year }}&month={{ prev_month }}">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Prev
+            </a>
+            <a class="calendar-nav-btn" href="?year={{ next_year }}&month={{ next_month }}">
+                Next
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <table class="calendar-table">
+        <thead>
+            <tr>
+                <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for week in weeks %}
+            <tr>
+                {% for day in week %}
+                    {% with day_str=day|date:"Y-m-d" %}
+                    <td class="
+                        {% if day.month != month %}is-outside{% endif %}
+                        {% if day == today %} is-today{% endif %}
+                    ">
+                        
+                        {# --- CASE 1: HAS VISITS (Show Tooltip) --- #}
+                        {% if day_str in visits_by_date %}
+                            <div class="day-number">{{ day.day }}</div>
+                            
+                            <div class="visit-dots">
+                                <div class="dot dot-upcoming"></div>
+                            </div>
+
+                            <div class="visit-tooltip">
+                                <div class="tooltip-header">
+                                    {{ day|date:"F j, Y" }}
+                                </div>
+                                <div class="tooltip-body">
+                                    {% for v in visits_by_date|get_item:day_str %}
+                                    <div class="tooltip-visit-item">
+                                        <div class="tooltip-visit-main">
+                                            <strong>{{ v.purpose }}</strong>
+                                            <span>{{ v.department }}</span>
+                                        </div>
+                                        <div class="tooltip-visit-meta">
+                                            <span class="status-pill pill-{{ v.status|lower }}">{{ v.status }}</span>
+                                            <span class="ticket-code">{{ v.code }}</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                        {# --- CASE 2: NO VISITS (Flip to Book or just disabled) --- #}
+                        {% else %}
+                            {% with dow=day|date:"w" %}
+                                {% if day >= today and day <= max_booking_date and dow != "0" %}
+                                    {# Valid booking window: show flip + Book link #}
+                                    <div class="flip-cell-wrapper" onclick="toggleFlip(this)">
+                                        <div class="flip-cell-inner">
+                                            <div class="flip-face flip-front">
+                                                <div class="day-number">{{ day.day }}</div>
+                                            </div>
+
+                                            <div class="flip-face flip-back">
+                                                <span class="book-label">Empty</span>
+                                                <a href="{% url 'book_visit_app:book_visit' %}?date={{ day_str }}"
+                                                class="btn-book-mini">
+                                                    Book?
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    {# Outside booking window or Sunday: just show disabled day #}
+                                    <div class="day-number day-disabled">{{ day.day }}</div>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+
+                    </td>
+                    {% endwith %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleFlip(element) {
+    // 1. Close any other open flips first (optional, keeps UI clean)
+    document.querySelectorAll('.flip-cell-wrapper.is-flipped').forEach(el => {
+        if (el !== element) el.classList.remove('is-flipped');
+    });
+
+    // 2. Toggle the clicked one
+    element.classList.toggle('is-flipped');
+}
+</script>
+{% endblock %}
