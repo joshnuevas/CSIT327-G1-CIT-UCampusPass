@@ -81,9 +81,9 @@
             </div>
             {% endif %}
             {% for visit in visits %}
-                <div class="ticket-wrapper {% if visit.visit_date == today %}is-today{% endif %}" onclick="this.classList.toggle('flipped')">
+                <div class="ticket-wrapper {% if visit.visit_date == today %}is-today{% endif %}"
+                    data-status="{{ visit.status|lower }}">
                     <div class="ticket-inner">
-                        
                         <div class="ticket-front">
                             <div class="ticket-stub">
                                 {% if visit.visit_date == today %}
@@ -140,40 +140,47 @@
                         <div class="ticket-back">
                             <div class="back-content">
                                 <h3>Manage Visit</h3>
-                                <p>Do you want to cancel this scheduled visit?</p>
-                                
-                                <div class="back-actions">
-                                    
-                                    <form action="{% url 'history_app:cancel_visit' %}"
-                                        method="POST"
-                                        style="display:inline;"
-                                        onclick="event.stopPropagation();">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="visit_id" value="{{ visit.visit_id }}">
-                                        <input type="hidden" name="from_dashboard" value="1">
 
-                                        <button type="button"
-                                                class="btn-cancel-confirm cancel-visit-btn"
-                                                data-visit-id="{{ visit.visit_id }}"
-                                                data-visit-code="{{ visit.code }}"
-                                                onclick="event.stopPropagation();">
-                                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                            Cancel Visit
+                                {% if visit.status == "Upcoming" %}
+                                    <p>Do you want to cancel this scheduled visit?</p>
+                                    <div class="back-actions">
+                                        <form action="{% url 'history_app:cancel_visit' %}"
+                                            method="POST"
+                                            style="display:inline;"
+                                            onclick="event.stopPropagation();">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="visit_id" value="{{ visit.visit_id }}">
+                                            <input type="hidden" name="from_dashboard" value="1">
+
+                                            <button type="button"
+                                                    class="btn-cancel-confirm cancel-visit-btn"
+                                                    data-visit-id="{{ visit.visit_id }}"
+                                                    data-visit-code="{{ visit.code }}">
+                                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                                Cancel Visit
+                                            </button>
+                                        </form>
+
+                                        <button class="btn-back-return">
+                                            Close
                                         </button>
-                                    </form>
-
-                                    <button class="btn-back-return" onclick="event.stopPropagation(); this.closest('.ticket-wrapper').classList.remove('flipped');">
-                                        Close
-                                    </button>
-                                </div>
+                                    </div>
+                                {% else %}
+                                    <p>This visit is <strong>{{ visit.status }}</strong> and can no longer be cancelled.</p>
+                                    <div class="back-actions">
+                                        <button class="btn-back-return">
+                                            Close
+                                        </button>
+                                    </div>
+                                {% endif %}
                             </div>
+
                             <div class="notch notch-top" style="left: -12px; background:#F5F7FA;"></div>
                             <div class="notch notch-bottom" style="left: -12px; background:#F5F7FA;"></div>
                         </div>
-
                     </div>
                 </div>
             {% empty %}
@@ -225,12 +232,45 @@
       style="display:none;">
     {% csrf_token %}
     <input type="hidden" name="visit_id" id="cancelVisitIdInput">
-    <!-- keep redirect behaviour for dashboard -->
     <input type="hidden" name="from_dashboard" value="1">
 </form>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // ====== 1) CARD FLIP BEHAVIOR ======
+    document.querySelectorAll('.ticket-wrapper').forEach(wrapper => {
+        const status = (wrapper.dataset.status || '').toLowerCase();
+
+        // Allow flipping for Upcoming + Active only
+        const canFlip = (status === 'upcoming' || status === 'active');
+
+        if (!canFlip) {
+            return; // don’t attach click handler for completed/expired/cancelled
+        }
+
+        wrapper.addEventListener('click', function (e) {
+            // Ignore clicks coming from buttons/forms inside the back
+            if (e.target.closest('form') ||
+                e.target.closest('.btn-back-return') ||
+                e.target.closest('.cancel-visit-btn')) {
+                return;
+            }
+            wrapper.classList.toggle('flipped');
+        });
+    });
+
+    // Close buttons should just unflip the card
+    document.querySelectorAll('.btn-back-return').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const wrapper = this.closest('.ticket-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('flipped');
+            }
+        });
+    });
+
+    // ====== 2) CANCEL VISIT MODAL LOGIC ======
     const cancelVisitModal = document.getElementById('cancelVisitModal');
     const confirmCancelVisit = document.getElementById('confirmCancelVisit');
     const cancelCancelVisit = document.getElementById('cancelCancelVisit');

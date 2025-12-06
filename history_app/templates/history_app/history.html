@@ -47,12 +47,13 @@
     <div class="visit-grid-3d">
         {% for visit in visits %}
             <div class="flip-card-scene">
-                
                 <div class="flip-card-inner 
                             {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}interactive-card{% endif %}
-                            {% if visit.visit_date == today %}is-today-card{% endif %}" 
-                    id="card-{{ visit.visit_id }}">
-                    
+                            {% if visit.visit_date == today %}is-today-card{% endif %}"
+                    id="card-{{ visit.visit_id }}"
+                    data-status="{{ visit.status|lower }}">
+
+                    <!-- FRONT -->
                     <div class="card-face card-front">
                         <div class="status-stripe status-{{ visit.status|lower }}"></div>
                         
@@ -74,7 +75,11 @@
                                 <h3 class="visit-purpose single-line" title="{{ visit.purpose }}">{{ visit.purpose }}</h3>
                                 
                                 <div class="visit-department single-line" title="{{ visit.department }}">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                        </path>
+                                    </svg>
                                     <span class="dept-text">{{ visit.department }}</span>
                                 </div>
                             </div>
@@ -88,14 +93,21 @@
                                 </div>
                                 <div class="meta-col">
                                     <span class="meta-label">TIME</span>
-                                    <span class="meta-value" title="{{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}">{{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}</span>
+                                    <span class="meta-value"
+                                        title="{{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}">
+                                        {{ visit.formatted_start_time }} - {{ visit.formatted_end_time }}
+                                    </span>
                                 </div>
                             </div>
 
                             {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}
                                 <div class="tap-indicator-row">
                                     <span class="tap-text">Tap to manage</span> 
-                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 7l5 5m0 0l-5 5m5-5H6">
+                                        </path>
+                                    </svg>
                                 </div>
                             {% else %}
                                 <div class="tap-spacer"></div>
@@ -103,36 +115,64 @@
                         </div>
                     </div>
 
+                    {# BACK: exists for Upcoming + Active, but cancel only for Upcoming #}
                     {% if visit.status|lower == 'upcoming' or visit.status|lower == 'active' %}
-                    <div class="card-face card-back">
-                        <div class="back-content">
-                            <div class="back-header">
-                                <h4>Manage Visit</h4>
-                                <button type="button" class="btn-close-flip" onclick="flipCardBack(event, 'card-{{ visit.visit_id }}')">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
-                            </div>
-                            
-                            <div class="back-body">
-                                <div class="warning-icon-sm">
-                                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <div class="card-face card-back">
+                            <div class="back-content">
+                                <div class="back-header">
+                                    <h4>Manage Visit</h4>
+                                    <button type="button"
+                                            class="btn-close-flip"
+                                            onclick="flipCardBack(event, 'card-{{ visit.visit_id }}')">
+                                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12">
+                                            </path>
+                                        </svg>
+                                    </button>
                                 </div>
-                                <p>Do you want to cancel this visit?</p>
-                                <div class="visit-code-display">{{ visit.code }}</div>
-                            </div>
+                                
+                                <div class="back-body">
+                                    <div class="warning-icon-sm">
+                                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4
+                                                    c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                            </path>
+                                        </svg>
+                                    </div>
 
-                            <div class="back-actions">
-                                <button class="btn-cancel-full cancel-visit-btn" data-visit-id="{{ visit.visit_id }}" data-visit-code="{{ visit.code }}">
-                                    Cancel Booking
-                                </button>
+                                    {% if visit.status|lower == 'upcoming' %}
+                                        <p>Do you want to cancel this visit?</p>
+                                    {% else %}
+                                        <p>This visit is <strong>{{ visit.status }}</strong> and can no longer be cancelled.</p>
+                                    {% endif %}
+
+                                    <div class="visit-code-display">{{ visit.code }}</div>
+                                </div>
+
+                                <div class="back-actions">
+                                    {% if visit.status|lower == 'upcoming' %}
+                                        <button class="btn-cancel-full cancel-visit-btn"
+                                                data-visit-id="{{ visit.visit_id }}"
+                                                data-visit-code="{{ visit.code }}">
+                                            Cancel Booking
+                                        </button>
+                                    {% else %}
+                                        <button type="button"
+                                                class="btn-close-only"
+                                                onclick="flipCardBack(event, 'card-{{ visit.visit_id }}')">
+                                            Close
+                                        </button>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
-                    </div>
                     {% endif %}
-                    
                 </div>
             </div>
         {% endfor %}
+
     </div>
 {% else %}
     <div class="empty-state-container">
@@ -168,7 +208,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ===== LIMIT FILTER DATE TO TODAY + 7 DAYS (like Book Visit) =====
+    // ===== LIMIT FILTER DATE TO TODAY + 7 DAYS (same as before) =====
     const filterDateInput = document.getElementById('filter_date');
 
     function formatLocalDate(date) {
@@ -187,56 +227,63 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const maxStr = formatLocalDate(maxDate);
         filterDateInput.setAttribute('max', maxStr);
-        // no min → user can choose *any* date in the past
     }
 
-    // ===== EXISTING CARD FLIP LOGIC =====
-    const cards = document.querySelectorAll('.interactive-card');
-    cards.forEach(card => {
+    // ===== FLIP LOGIC (Upcoming + Active only, like dashboard) =====
+    document.querySelectorAll('.flip-card-inner').forEach(card => {
+        const status = (card.dataset.status || '').toLowerCase();
+        const canFlip = (status === 'upcoming' || status === 'active');
+
+        if (!canFlip) return;
+
+        card.classList.add('interactive-card');
+
         card.addEventListener('click', function(e) {
+            // Ignore clicks on any buttons inside the card (cancel, close, etc.)
             if (e.target.closest('button')) return;
             this.classList.toggle('is-flipped');
         });
+    });
+
+    // ===== CANCEL VISIT MODAL LOGIC (Upcoming only) =====
+    const cancelVisitModal = document.getElementById('cancelVisitModal');
+    const confirmCancelVisit = document.getElementById('confirmCancelVisit');
+    const cancelCancelVisit = document.getElementById('cancelCancelVisit');
+    const cancelVisitButtons = document.querySelectorAll('.cancel-visit-btn');
+    let currentVisitId = null;
+
+    cancelVisitButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            currentVisitId = this.getAttribute('data-visit-id');
+            const visitCode = this.getAttribute('data-visit-code');
+            document.getElementById('cancelVisitCode').textContent = visitCode;
+            cancelVisitModal.style.display = 'flex';
+        });
+    });
+
+    confirmCancelVisit.addEventListener('click', function() {
+        if (currentVisitId) {
+            document.getElementById('cancelVisitIdInput').value = currentVisitId;
+            document.getElementById('cancelVisitForm').submit();
+        }
+    });
+
+    cancelCancelVisit.addEventListener('click', function() {
+        cancelVisitModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(e) {
+        if (e.target === cancelVisitModal) {
+            cancelVisitModal.style.display = 'none';
+        }
     });
 });
 
 function flipCardBack(event, cardId) {
     event.stopPropagation();
     const card = document.getElementById(cardId);
-    if(card) card.classList.remove('is-flipped');
-}
-
-const cancelVisitModal = document.getElementById('cancelVisitModal');
-const confirmCancelVisit = document.getElementById('confirmCancelVisit');
-const cancelCancelVisit = document.getElementById('cancelCancelVisit');
-const cancelVisitButtons = document.querySelectorAll('.cancel-visit-btn');
-let currentVisitId = null;
-
-cancelVisitButtons.forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        currentVisitId = this.getAttribute('data-visit-id');
-        const visitCode = this.getAttribute('data-visit-code');
-        document.getElementById('cancelVisitCode').textContent = visitCode;
-        cancelVisitModal.style.display = 'flex';
-    });
-});
-
-confirmCancelVisit.onclick = function() {
-    if (currentVisitId) {
-        document.getElementById('cancelVisitIdInput').value = currentVisitId;
-        document.getElementById('cancelVisitForm').submit();
-    }
-}
-
-cancelCancelVisit.onclick = function() {
-    cancelVisitModal.style.display = 'none';
-}
-
-window.onclick = function(e) {
-    if (e.target == cancelVisitModal) {
-        cancelVisitModal.style.display = 'none';
-    }
+    if (card) card.classList.remove('is-flipped');
 }
 </script>
 {% endblock %}

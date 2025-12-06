@@ -444,6 +444,21 @@
  .btn-cancel-full:hover {
      background: #9B2C2C;
 }
+.btn-close-only {
+    width: 100%;
+    padding: 12px;
+    background: #EDF2F7;
+    color: #4A5568;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-close-only:hover {
+    background: #E2E8F0;
+}
 /* ===== MODAL & EMPTY STATE ===== */
  .empty-state-container {
      text-align: center;
@@ -668,15 +683,15 @@
 /* 5. Animation Keyframes */
 @keyframes history-pulse {
     0% {
-        transform: translateY(0);
+        /* remove transform here */
         box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
     }
     50% {
-        transform: translateY(-5px); /* Gentle float */
+        /* remove transform here */
         box-shadow: 0 15px 30px rgba(212, 175, 55, 0.5);
     }
     100% {
-        transform: translateY(0);
+        /* remove transform here */
         box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
     }
 }

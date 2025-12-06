@@ -140,19 +140,19 @@ def book_visit_view(request):
     - User must be logged in
     - Department and Purpose must be present and not obvious nonsense
     - Visit date must be today or future, not Sunday, and within 7 days
-    - Only one active booking per user per day (excluding cancelled)
+    - Only one active booking per user per day (Upcoming/Active)
     - Uses SendGrid to send confirmation email
     - Logs action in reports/logs service
     """
 
-    # User must be logged in
+    # ===== AUTH CHECK =====
     if "user_email" not in request.session:
         messages.warning(request, "Please log in first to book a visit.")
         return redirect("login_app:login")
 
     user_email = request.session["user_email"]
 
-    # Get user info
+    # ===== LOAD USER =====
     try:
         user = User.objects.get(email=user_email)
         user_id = user.user_id
@@ -166,10 +166,10 @@ def book_visit_view(request):
         messages.error(request, "Unexpected error. Please try again.")
         return redirect("login_app:login")
 
-    # POST = form submission
+    # ===== POST: HANDLE FORM SUBMISSION =====
     if request.method == "POST":
         try:
-            # Department and purpose (including 'Other' overrides)
+            # ----- Read form data (respecting 'Other' fields) -----
             raw_department = (
                 request.POST.get("department_other")
                 or request.POST.get("department")
@@ -184,8 +184,8 @@ def book_visit_view(request):
 
             visit_date_str = (request.POST.get("visit_date") or "").strip()
 
-            # Basic required check
-            if not raw_purpose or not raw_department or not visit_date_str:
+            # ----- Basic required checks -----
+            if not raw_department or not raw_purpose or not visit_date_str:
                 messages.error(request, "Please complete all required fields.")
                 return redirect("book_visit_app:book_visit")
 
@@ -195,7 +195,8 @@ def book_visit_view(request):
             if len(raw_department) < 5 or _looks_like_nonsense(raw_department):
                 messages.error(
                     request,
-                    "Please provide a more descriptive department name (no test or random values)."
+                    "Please provide a more descriptive department name "
+                    "(no test or random values)."
                 )
                 return redirect("book_visit_app:book_visit")
 
@@ -229,7 +230,6 @@ def book_visit_view(request):
                 messages.error(request, "Invalid date format.")
                 return redirect("book_visit_app:book_visit")
 
-            # Use Django's local date (respects TIME_ZONE)
             today = timezone.localdate()
             max_date = today + timedelta(days=7)
 
@@ -252,12 +252,15 @@ def book_visit_view(request):
                 return redirect("book_visit_app:book_visit")
 
             # ===============================
-            # CHECK FOR EXISTING BOOKING THAT DAY
+            # CHECK FOR EXISTING ACTIVE BOOKING THAT DAY
             # ===============================
             existing_visit = (
                 Visit.objects
-                .filter(user_id=user_id, visit_date=visit_date)
-                .exclude(status__iexact="Cancelled")
+                .filter(
+                    user_id=user_id,
+                    visit_date=visit_date,
+                    status__in=["Upcoming", "Active"]  # ✅ only these block
+                )
                 .first()
             )
 
@@ -364,7 +367,6 @@ def book_visit_view(request):
             # ===============================
             messages.success(request, f"Visit booked successfully! Your code is: {code}")
             messages.info(request, "A confirmation email has been sent to your inbox.")
-
             return redirect("dashboard_app:dashboard")
 
         except Exception as e:
@@ -372,7 +374,7 @@ def book_visit_view(request):
             messages.error(request, "Unexpected error. Please try again.")
             return redirect("book_visit_app:book_visit")
 
-    # GET request = show form
+    # ===== GET: SHOW FORM =====
     return render(
         request,
         "book_visit_app/book_visit.html",
