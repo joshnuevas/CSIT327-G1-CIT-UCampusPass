@@ -468,7 +468,7 @@
                 <i class="fas fa-search"></i>
             </div>
             <h1>Visitor Search</h1>
-            <p>Find visitors by name, email, phone number, or visit code.</p>
+            <p>Find visitors by name or email.</p>
         </div>
 
         <form method="GET" action="{% url 'visitor_search_app:search' %}">
@@ -501,7 +501,7 @@
                 <div class="card-header-row">
                     <div class="visitor-profile">
                         <div class="profile-initial">
-                            {{ result.visitor_name|slice:":1" }}
+                            {{ result.visitor_name.split|first|slice:":2"|upper }}
                         </div>
                         <div>
                             <div class="visitor-name">{{ result.visitor_name }}</div>

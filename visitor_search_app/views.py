@@ -30,124 +30,149 @@ def staff_required(view_func):
 
 @staff_required
 def visitor_search(request):
-    """Search for visitors by name, email, phone, or code"""
-    staff_first_name = request.session.get('staff_first_name', 'Staff')
-    query = request.GET.get('query', '').strip()
-    filter_type = request.GET.get('filter', 'all')
-    
-    results = []
-    
-    if query:
-        try:
-            # Get all visits and users using Django ORM
-            all_visits = Visit.objects.all()
-            all_users = User.objects.all()
-            
-            # Create a mapping of email to user info
-            users_dict = {}
-            for user in all_users:
-                email = user.email.lower()
-                users_dict[email] = {
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'full_name': f"{user.first_name} {user.last_name}".strip()
-                }
-            
-            # Filter visits based on query using Django ORM
-            matching_visits = []
-            for visit in all_visits:
-                email = visit.user_email.lower() if visit.user_email else ''
-                code = visit.code.lower() if visit.code else ''
-                purpose = visit.purpose.lower() if visit.purpose else ''
-                department = visit.department.lower() if visit.department else ''
-                
-                # Also search by visitor name
-                visitor_name = users_dict.get(email, {}).get('full_name', '').lower()
-                
-                if (query.lower() in email or 
-                    query.lower() in code or
-                    query.lower() in purpose or
-                    query.lower() in department or
-                    query.lower() in visitor_name):
-                    matching_visits.append({
-                        'visit_id': visit.visit_id,
-                        'user_email': visit.user_email,
-                        'code': visit.code,
-                        'purpose': visit.purpose,
-                        'department': visit.department,
-                        'visit_date': visit.visit_date,
-                        'start_time': visit.start_time,
-                        'end_time': visit.end_time,
-                        'status': visit.status,
-                        'created_at': visit.created_at
-                    })
-            
-            # Apply filters
-            today = date.today()
-            if filter_type == 'active':
-                matching_visits = [v for v in matching_visits if v.get('status') == 'Active']
-            elif filter_type == 'today':
-                today_str = today.strftime('%Y-%m-%d')
-                matching_visits = [v for v in matching_visits if v.get('visit_date') == today_str]
-            elif filter_type == 'week':
-                week_start = (today - timedelta(days=today.weekday())).strftime('%Y-%m-%d')
-                matching_visits = [v for v in matching_visits if v.get('visit_date') >= week_start]
-            
-            # Group by visitor email
-            visitors_dict_results = {}
-            for visit in matching_visits:
-                email = visit.get('user_email')
-                if email not in visitors_dict_results:
-                    # Get name from users_dict
-                    user_info = users_dict.get(email.lower(), {})
-                    visitor_name = user_info.get('full_name', email.split('@')[0].title())
-                    
-                    visitors_dict_results[email] = {
-                        'user_email': email,
-                        'visitor_name': visitor_name,
-                        'first_name': user_info.get('first_name', ''),
-                        'last_name': user_info.get('last_name', ''),
-                        'visits': [],
-                        'current_visit': None,
-                        'current_status': 'Completed',
-                    }
-                
-                visitors_dict_results[email]['visits'].append(visit)
-                
-                # Set current visit (Active or most recent Upcoming)
-                if visit.get('status') in ['Active', 'Upcoming']:
-                    if not visitors_dict_results[email]['current_visit']:
-                        visitors_dict_results[email]['current_visit'] = visit
-                        visitors_dict_results[email]['current_status'] = visit.get('status')
-                    elif visit.get('status') == 'Active':
-                        visitors_dict_results[email]['current_visit'] = visit
-                        visitors_dict_results[email]['current_status'] = 'Active'
-            
-            # Prepare results
-            for email, visitor_data in visitors_dict_results.items():
-                # Sort visits by date descending
-                visitor_data['visits'].sort(key=lambda x: x.get('visit_date', ''), reverse=True)
-                visitor_data['visit_history'] = visitor_data['visits'][:10]  # Last 10 visits
-                visitor_data['total_visits'] = len(visitor_data['visits'])
-                results.append(visitor_data)
-            
-            # Sort results by current status (Active first, then Upcoming, then others)
-            status_priority = {'Active': 0, 'Upcoming': 1, 'Completed': 2, 'Expired': 3}
-            results.sort(key=lambda x: status_priority.get(x['current_status'], 9))
-            
-        except Exception as e:
-            logger.error(f"Error in visitor search: {str(e)}")
-            messages.error(request, "An error occurred during search.")
-    
-    context = {
-        'staff_first_name': staff_first_name,
-        'query': query,
-        'filter': filter_type,
-        'results': results,
-    }
-    
-    return render(request, 'visitor_search_app/visitor_search.html', context)
+    """Search visitors and show their next valid visit (upcoming or active)."""
 
+    staff_first_name = request.session.get("staff_first_name", "Staff")
+    query = request.GET.get("query", "").strip()
+    filter_type = request.GET.get("filter", "all")
+
+    # No search query → render empty state
+    if not query:
+        return render(request, "visitor_search_app/visitor_search.html", {
+            "staff_first_name": staff_first_name,
+            "query": "",
+            "filter": filter_type,
+            "results": []
+        })
+
+    results = []
+    today = date.today()
+
+    # Load users and visits efficiently
+    users = User.objects.all()
+    visits = Visit.objects.all()
+
+    # Map email → user info
+    users_dict = {
+        u.email.lower(): {
+            "first_name": u.first_name,
+            "last_name": u.last_name,
+            "full_name": f"{u.first_name} {u.last_name}".strip()
+        }
+        for u in users
+    }
+
+    # --- STEP 1: MATCH SEARCH QUERY (NAME + EMAIL ONLY) ---
+    q = query.lower()
+    matched = []
+
+    for v in visits:
+        email = (v.user_email or "").lower()
+        name = users_dict.get(email, {}).get("full_name", "").lower()
+
+        # Only match: name OR email
+        if q in email or q in name:
+            matched.append({
+                "visit_id": v.visit_id,
+                "user_email": v.user_email,
+                "code": v.code,
+                "purpose": v.purpose,
+                "department": v.department,
+                "visit_date": v.visit_date,
+                "start_time": v.start_time,
+                "end_time": v.end_time,
+                "status": v.status,
+                "created_at": v.created_at
+            })
+
+    # --- STEP 2: APPLY FILTERS ---
+    if filter_type == "active":
+        matched = [v for v in matched if v["status"] == "Active"]
+
+    elif filter_type == "today":
+        matched = [v for v in matched if v["visit_date"] == today]
+
+    elif filter_type == "week":
+        monday = today - timedelta(days=today.weekday())
+        matched = [v for v in matched if v["visit_date"] >= monday]
+
+    # --- STEP 3: GROUP BY USER (email) ---
+    grouped = {}
+
+    for v in matched:
+        email = v["user_email"]
+
+        if email not in grouped:
+            uinfo = users_dict.get(email.lower(), {})
+            grouped[email] = {
+                "user_email": email,
+                "visitor_name": uinfo.get("full_name", email.split("@")[0].title()),
+                "first_name": uinfo.get("first_name", ""),
+                "last_name": uinfo.get("last_name", ""),
+                "visits": []
+            }
+
+        grouped[email]["visits"].append(v)
+
+    # --- STEP 4: SELECT NEXT VISIT + DETERMINE STATUS ---
+    for email, data in grouped.items():
+        visit_list = sorted(data["visits"], key=lambda x: x["visit_date"])
+
+        today = date.today()
+
+        # 1️⃣ PRIORITY: Active today
+        active_today = next(
+            (v for v in visit_list if v["visit_date"] == today and v["status"] == "Active"),
+            None
+        )
+
+        # 2️⃣ Next: Upcoming (today or future) and NOT completed
+        upcoming = next(
+            (v for v in visit_list
+            if v["visit_date"] >= today and v["status"] != "Completed"),
+            None
+        )
+
+        # 3️⃣ If NO valid next visit → show nothing (all completed)
+        next_visit = active_today or upcoming
+
+        # If everything was completed, fallback to None
+        if not next_visit:
+            # OPTIONAL: show last completed visit instead of None
+            next_visit = max(visit_list, key=lambda x: x["visit_date"])
+
+        # Determine final display status
+        if next_visit["status"] == "Active":
+            display_status = "Active"
+        elif next_visit["visit_date"] > today:
+            display_status = "Upcoming"
+        elif next_visit["visit_date"] == today:
+            display_status = "Upcoming" if next_visit["status"] != "Active" else "Active"
+        else:
+            display_status = "Completed"
+
+        results.append({
+            "user_email": email,
+            "visitor_name": data["visitor_name"],
+            "first_name": data["first_name"],
+            "last_name": data["last_name"],
+            "current_visit": next_visit,
+            "current_status": display_status,
+            "visit_history": sorted(data["visits"], key=lambda x: x["visit_date"], reverse=True),
+            "total_visits": len(data["visits"])
+        })
+
+
+    # Sort results by status priority
+    priority = {"Active": 0, "Upcoming": 1, "Completed": 2, "Expired": 3}
+    results.sort(key=lambda r: priority.get(r["current_status"], 99))
+
+    return render(request, "visitor_search_app/visitor_search.html", {
+        "staff_first_name": staff_first_name,
+        "query": query,
+        "filter": filter_type,
+        "results": results
+    })
 
 @staff_required
 def visitor_detail(request):
