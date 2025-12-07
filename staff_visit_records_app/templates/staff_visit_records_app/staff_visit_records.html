@@ -29,7 +29,7 @@
   text-decoration: none;
 }
 
-/* Reset (copy of visitor .btn-secondary but matching your class name) */
+/* Reset */
 .filter-section .filter-actions .btn-pill.btn-secondary-outline {
   display: inline-flex;
   align-items: center;
@@ -72,8 +72,10 @@
 <div class="filter-section">
     <form method="get" class="filter-form">
         <input type="hidden" name="filter_submitted" value="1">
-        <div class="filter-row">
-            <div class="filter-group">
+
+        {# ===== TOP ROW: DATE, SEARCH, ACTION BUTTONS (same layout as My Passes) ===== #}
+        <div class="filter-row top-row">
+            <div class="filter-group date-filter-group">
                 <label for="filter_date">Filter by Date</label>
                 <div class="input-icon-wrapper">
                     <input type="date"
@@ -83,30 +85,128 @@
                            class="input-modern">
                 </div>
             </div>
+
             <div class="filter-group filter-search-group">
                 <label for="search_query">Search Visits</label>
                 <div class="search-input-wrapper">
                     <svg width="20" height="20" fill="none" stroke="currentColor"
-                         viewBox="0 0 24 24" class="search-icon">
+                        viewBox="0 0 24 24" class="search-icon">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
+
                     <input type="text"
-                           id="search_query"
-                           name="q"
-                           placeholder="Search by Code, Email, Department or Purpose..."
-                           value="{{ filter_query }}"
-                           class="input-modern">
+                        id="search_query"
+                        name="q"
+                        placeholder="Search by Code, Email, Department or Purpose..."
+                        value="{{ filter_query }}"
+                        class="input-modern">
+
+                    <!-- Clear (X) Button -->
+                    <button type="button"
+                            id="clear_search_btn"
+                            class="clear-search-btn"
+                            aria-label="Clear search">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
+
             <div class="filter-actions">
                 <button type="submit" class="btn-pill btn-primary">
                     Apply Filters
                 </button>
                 <a href="{% url 'staff_visit_records_app:staff_visit_records' %}"
-                class="btn-pill btn-secondary-outline">
+                   class="btn-pill btn-secondary-outline">
                     Reset
                 </a>
+            </div>
+        </div>
+
+        {# ===== BOTTOM ROW: STATUS PILLS + DATE SUMMARY (aligned to the right) ===== #}
+        <div class="filter-row bottom-row">
+            {# LEFT: Status pills #}
+            <div class="filter-group status-filter-group">
+                <label>Status</label>
+                <div class="status-pill-group">
+                    <label class="status-pill-option {% if not status_filter or status_filter == 'all' %}is-selected{% endif %}"
+                        data-status-value="all">
+                        <input type="radio" name="status" value="all"
+                            {% if not status_filter or status_filter == 'all' %}checked{% endif %}>
+                        <span class="pill-icon-wrapper">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </span>
+                        <span>All</span>
+                    </label>
+
+                    <label class="status-pill-option {% if status_filter == 'active' %}is-selected{% endif %}"
+                        data-status-value="active">
+                        <input type="radio" name="status" value="active"
+                            {% if status_filter == 'active' %}checked{% endif %}>
+                        <span class="pill-icon-wrapper">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </span>
+                        <span>Active</span>
+                    </label>
+
+                    <label class="status-pill-option {% if status_filter == 'upcoming' %}is-selected{% endif %}"
+                        data-status-value="upcoming">
+                        <input type="radio" name="status" value="upcoming"
+                            {% if status_filter == 'upcoming' %}checked{% endif %}>
+                        <span class="pill-icon-wrapper">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </span>
+                        <span>Upcoming</span>
+                    </label>
+
+                    <label class="status-pill-option {% if status_filter == 'completed' %}is-selected{% endif %}"
+                        data-status-value="completed">
+                        <input type="radio" name="status" value="completed"
+                            {% if status_filter == 'completed' %}checked{% endif %}>
+                        <span class="pill-icon-wrapper">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </span>
+                        <span>Completed</span>
+                    </label>
+
+                    <label class="status-pill-option {% if status_filter == 'expired' %}is-selected{% endif %}"
+                        data-status-value="expired">
+                        <input type="radio" name="status" value="expired"
+                            {% if status_filter == 'expired' %}checked{% endif %}>
+                        <span class="pill-icon-wrapper">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4h16v4H4zm0 6h16v10H4z"></path>
+                            </svg>
+                        </span>
+                        <span>Expired</span>
+                    </label>
+                </div>
+            </div>
+
+            {# RIGHT: date summary, same placement as My Passes #}
+            <div class="filter-summary">
+                {% if filter_mode_text and filter_date_display %}
+                    <span class="summary-label">{{ filter_mode_text }}</span>
+                    <span class="summary-range">{{ filter_date_display }}</span>
+                {% endif %}
             </div>
         </div>
     </form>
@@ -179,16 +279,12 @@
                                     <span class="meta-value">
                                         {% if visit.status == 'Upcoming' %}
                                             Not checked in
-
                                         {% elif visit.status == 'Active' %}
                                             Checked in at {{ visit.start_time|time:"h:i A" }}, not yet checked out
-
                                         {% elif visit.status == 'Completed' %}
                                             {{ visit.start_time|time:"h:i A" }} – {{ visit.end_time|time:"h:i A" }}
-
                                         {% elif visit.status == 'Expired' %}
                                             Visit expired (not checked in)
-
                                         {% else %}
                                             --
                                         {% endif %}
@@ -322,6 +418,32 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.toggle('is-flipped');
         });
     });
+
+    // ===== STATUS FILTER PILL TOGGLE + AUTO SUBMIT (same as My Passes) =====
+    const statusPills = document.querySelectorAll('.status-pill-option');
+
+    statusPills.forEach(pill => {
+        pill.addEventListener('click', function () {
+            const group = this.closest('.status-pill-group');
+            if (!group) return;
+
+            group.querySelectorAll('.status-pill-option').forEach(p => {
+                p.classList.remove('is-selected');
+            });
+
+            this.classList.add('is-selected');
+
+            const input = this.querySelector('input[type="radio"]');
+            if (input) {
+                input.checked = true;
+            }
+
+            const form = this.closest('form');
+            if (form) {
+                form.submit();
+            }
+        });
+    });
 });
 
 function flipCardBack(event, cardId) {
@@ -329,5 +451,32 @@ function flipCardBack(event, cardId) {
     const card = document.getElementById(cardId);
     if (card) card.classList.remove('is-flipped');
 }
+
+    // ===== CLEAR SEARCH FIELD (X BUTTON) =====
+    const staffSearchInput = document.getElementById("search_query");
+    const staffClearBtn = document.getElementById("clear_search_btn");
+
+    if (staffSearchInput && staffClearBtn) {
+        function toggleStaffClearButton() {
+            if (staffSearchInput.value.trim() !== "") {
+                staffClearBtn.classList.add("is-visible");
+            } else {
+                staffClearBtn.classList.remove("is-visible");
+            }
+        }
+
+        // On load (in case ?q= is present)
+        toggleStaffClearButton();
+
+        // On typing
+        staffSearchInput.addEventListener("input", toggleStaffClearButton);
+
+        // Clear when X is clicked
+        staffClearBtn.addEventListener("click", function () {
+            staffSearchInput.value = "";
+            toggleStaffClearButton();
+            staffSearchInput.focus();
+        });
+    }
 </script>
 {% endblock %}

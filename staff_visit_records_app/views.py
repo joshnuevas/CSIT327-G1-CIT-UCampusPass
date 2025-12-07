@@ -20,17 +20,25 @@ def staff_visit_records_view(request):
     """
     Staff Visit Records
 
-    - Defaults to showing ONLY today's visits (PH time).
-    - Supports the same date + search filters as the user "My Passes" page.
-    - Shows ALL visits for that date (any status, any visitor).
+    - Defaults to showing today's visits (PH time)
+    - Supports filtering by:
+        * Date
+        * Search query (code, purpose, dept, email)
+        * Status (all, upcoming, active, completed, expired)
+    - Matches the filtering behavior of the "My Passes" page
     """
+
     today = timezone.now().astimezone(PH_TZ).date()
 
+    # GET parameters
     filter_submitted = request.GET.get("filter_submitted")
     filter_date_str = (request.GET.get("date") or "").strip()
     filter_query = (request.GET.get("q") or "").strip()
+    status_filter = (request.GET.get("status") or "all").lower().strip()
 
-    # --- Determine which date we're showing ---
+    # ----------------------
+    # 1. Determine which date to show
+    # ----------------------
     if filter_submitted:
         if filter_date_str:
             try:
@@ -40,12 +48,16 @@ def staff_visit_records_view(request):
         else:
             filter_date = today
     else:
-        filter_date = today  # initial load
+        filter_date = today
 
-    # --- Base queryset: ALL visits for that calendar date ---
+    # ----------------------
+    # 2. Base queryset (specific date)
+    # ----------------------
     qs = Visit.objects.filter(visit_date=filter_date)
 
-    # --- Search: code, department, purpose, email ---
+    # ----------------------
+    # 3. Apply search filter
+    # ----------------------
     if filter_query:
         qs = qs.filter(
             Q(code__icontains=filter_query)
@@ -54,9 +66,39 @@ def staff_visit_records_view(request):
             | Q(user_email__icontains=filter_query)
         )
 
-    # Order by start_time then code so the day reads nicely
+    # ----------------------
+    # 4. Apply status filter (from pills)
+    # ----------------------
+    status_map = {
+        "upcoming": "Upcoming",
+        "active": "Active",
+        "completed": "Completed",
+        "expired": "Expired",
+    }
+
+    if status_filter in status_map:
+        qs = qs.filter(status=status_map[status_filter])
+
+    # ----------------------
+    # 5. Sorting
+    # ----------------------
     visits = qs.order_by("start_time", "code")
 
+    # ----------------------
+    # 6. Summary label (matches My Passes UI)
+    # ----------------------
+    # Mode text (for example: "Filtered By Date")
+    filter_mode_text = "Selected Date"
+
+    # Show “Today” instead of a long date
+    if filter_date == today:
+        filter_date_display = "Today"
+    else:
+        filter_date_display = filter_date.strftime("%B %d, %Y")  # Example: January 14, 2025
+
+    # ----------------------
+    # 7. Render
+    # ----------------------
     return render(
         request,
         "staff_visit_records_app/staff_visit_records.html",
@@ -65,9 +107,11 @@ def staff_visit_records_view(request):
             "today": today,
             "filter_date": filter_date.strftime("%Y-%m-%d"),
             "filter_query": filter_query,
+            "status_filter": status_filter,
+            "filter_mode_text": filter_mode_text,
+            "filter_date_display": filter_date_display,
         },
     )
-
 
 @staff_required
 @require_POST

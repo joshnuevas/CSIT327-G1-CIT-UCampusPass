@@ -13,10 +13,10 @@ body {
     overflow: hidden;
 }
 
-/* ===== MAIN LAYOUT ===== */
+/* ===== MAIN LAYOUT (Assuming a sidebar is present) ===== */
 .main-content {
     flex: 1;
-    margin-left: 260px;
+    margin-left: 260px; /* Adjust based on your actual sidebar width */
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -29,7 +29,7 @@ body {
     background: #F5F7FA;
 }
 
-/* ===== HEADER & FILTER ===== */
+/* ===== HEADER & FILTER (REVISED FOR TWO ROWS) ===== */
 .welcome-section {
     margin-bottom: 30px;
 }
@@ -50,19 +50,38 @@ body {
     margin-bottom: 40px;
 }
 
-.filter-row {
+.filter-form {
     display: flex;
-    align-items: flex-end;
+    flex-direction: column; /* Stack the two main rows vertically */
+    gap: 20px; /* Space between the input row and the status pill row */
+}
+
+/* TOP ROW (Date, Search, Actions) */
+.filter-row.top-row {
+    display: flex;
+    align-items: flex-end; /* Align inputs and buttons by the bottom edge */
     gap: 20px;
     width: 100%;
 }
 
+/* BOTTOM ROW (Status Pills) */
+.filter-row.bottom-row {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+}
+
 .filter-group {
-    flex: 0 0 200px;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.date-filter-group {
+    width: 160px; /* Fixed narrow width for date input */
 }
 
 .filter-search-group {
-    flex: 1;
+    flex: 1; /* Search field takes up the majority of the space */
 }
 
 .filter-group label {
@@ -108,15 +127,18 @@ body {
     padding-left: 44px;
 }
 
+/* FILTER ACTIONS (Buttons beside each other on the top right) */
 .filter-actions {
     display: flex;
-    align-items: center;
+    align-items: center; 
     gap: 12px;
-    height: 48px;
+    height: 48px; /* Set height to align with input fields */
+    flex-shrink: 0;
+    /* No longer need margin/padding overrides, flex-end aligns buttons with inputs */
 }
 
 .btn-pill {
-    height: 100%;
+    height: 100%; /* Match the 48px height of the filter-actions container */
     padding: 0 24px;
     border-radius: 8px;
     font-size: 14px;
@@ -129,33 +151,130 @@ body {
     text-decoration: none;
 }
 
-.btn-primary {
-    background: #8B1538;
-    color: #FFFFFF;
-    border: 1px solid #8B1538;
+/* ===== STATUS FILTER PILL GROUP (Ensuring horizontal flow) ===== */
+.status-filter-group {
+    /* Set max width to prevent it from flowing awkwardly under the search bar */
+    max-width: 500px;
+    flex-shrink: 0;
 }
 
-.btn-primary:hover {
-    background: #6B0F2A;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(139, 21, 56, 0.2);
+.status-pill-group {
+    display: flex;
+    flex-wrap: nowrap; /* CRITICAL: Prevents pills from wrapping to the next line */
+    gap: 8px;
 }
 
-.btn-secondary-outline {
-    background: white;
-    color: #4A5568;
+.status-pill-option {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px; /* Space between icon and text */
+    padding: 8px 12px; 
+    border-radius: 999px;
     border: 1px solid #E2E8F0;
+    background: #FFFFFF;
+    font-size: 13px; 
+    font-weight: 600;
+    color: #4A5568;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* Ensures the pill won't shrink if space is tight */
 }
 
-.btn-secondary-outline:hover {
-    border-color: #CBD5E0;
-    background: #F7FAFC;
+.status-pill-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Icon styles */
+.pill-icon-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.status-pill-option svg {
+    width: 16px;
+    height: 16px;
+    color: #A0AEC0; /* Default icon color */
+    transition: color 0.2s ease;
+}
+
+.status-pill-option:hover {
+    border-color: #8B1538;
+    color: #8B1538;
+    box-shadow: 0 2px 8px rgba(139, 21, 56, 0.15);
+}
+
+.status-pill-option:hover svg {
+    color: #8B1538; /* Icon color change on hover */
+}
+
+/* Selected state with strong branding */
+.status-pill-option.is-selected {
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: 0 3px 10px rgba(139, 21, 56, 0.35);
+}
+
+.status-pill-option.is-selected svg {
+    color: #FFFFFF; /* White icon when selected */
+}
+
+/* Force icon + text to sit side-by-side inside the status pills */
+.status-filter-group .status-pill-option {
+    display: inline-flex;
+    flex-direction: row;      /* make sure it's horizontal */
+    align-items: center;      /* vertical alignment */
+    justify-content: center;
+    gap: 6px;                 /* space between icon and text */
+}
+
+.status-filter-group .pill-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Optional: make sure the text itself doesn’t wrap oddly */
+.status-filter-group .status-pill-option span {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Bottom row: pills on left, summary on right */
+.filter-row.bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Right-side summary block */
+.filter-summary {
+    text-align: right;
+    color: #718096;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.filter-summary .summary-label {
+    display: block;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #A0AEC0;
+}
+
+.filter-summary .summary-range {
+    display: block;
+    font-weight: 600;
     color: #2D3748;
 }
 
 /* ========================================= 
-   3D FLIP CARD GRID SYSTEM 
-   ========================================= */
+    3D FLIP CARD GRID SYSTEM 
+    ========================================= */
 .visit-grid-3d {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -541,8 +660,8 @@ body {
 }
 
 /* ========================================= 
-   PAGE LOAD ANIMATIONS 
-   ========================================= */
+    PAGE LOAD ANIMATIONS 
+    ========================================= */
 @keyframes fadeUpEntrance {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -579,8 +698,8 @@ body {
 }
 
 /* ========================================= 
-   TODAY'S CARD HIGHLIGHT (GOLD & GREEN LOGIC) 
-   ========================================= */
+    TODAY'S CARD HIGHLIGHT (GOLD & GREEN LOGIC) 
+    ========================================= */
 
 /* --- CASE 1: Standard Today (Upcoming/Warning) = GOLD --- */
 .flip-card-inner.is-today-card:not([data-status="active"]) {
@@ -669,8 +788,8 @@ body {
 }
 
 /* ========================================= 
-   MODAL & EMPTY STATES 
-   ========================================= */
+    MODAL & EMPTY STATES 
+    ========================================= */
 .empty-state-container {
     text-align: center;
     padding: 60px 20px;
@@ -812,7 +931,7 @@ body {
 
 /* ==== VISIT HISTORY FILTER BUTTON TWEAKS (Apply + Reset) ==== */
 
-/* Apply Filters – pill, gradient style */
+/* Apply Filters – match STAFF style */
 .filter-section .filter-actions .btn-pill.btn-primary {
     display: inline-flex;
     align-items: center;
@@ -822,7 +941,7 @@ body {
     background: linear-gradient(135deg, #8B1538, #6B0F2A);
     color: #FFFFFF;
     border: none;
-    border-radius: 50px;
+    border-radius: 50px;          /* <<< important */
     font-weight: 600;
     font-size: 15px;
     cursor: pointer;
@@ -837,6 +956,30 @@ body {
     background: linear-gradient(135deg, #6B0F2A, #8B1538);
 }
 
+/* Reset – match STAFF style */
+.filter-section .filter-actions .btn-pill.btn-secondary-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: #FFFFFF;
+    color: #666666;
+    border: 2px solid #E0E0E0;
+    border-radius: 50px;          /* <<< important */
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.filter-section .filter-actions .btn-pill.btn-secondary-outline:hover {
+    border-color: #8B1538;
+    color: #8B1538;
+    transform: translateY(-2px);
+}
+
 /* Reset – pill outline, same as staff/visitor version */
 .filter-section .filter-actions .btn-pill.btn-secondary-outline {
     display: inline-flex;
@@ -847,7 +990,6 @@ body {
     background: #FFFFFF;
     color: #666666;
     border: 2px solid #E0E0E0;
-    border-radius: 50px;
     font-weight: 600;
     font-size: 15px;
     cursor: pointer;
@@ -862,15 +1004,90 @@ body {
 }
 
 /* ========================================= 
-   RESPONSIVE 
-   ========================================= */
+    RESPONSIVE 
+    ========================================= */
+@media (max-width: 1200px) {
+    /* At narrower desktop widths, allow search to shrink more */
+    .filter-search-group {
+        min-width: 250px;
+    }
+}
+
 @media (max-width: 768px) {
-    .filter-row {
+    /* Stack everything vertically on mobile screens */
+    .filter-form {
+        gap: 15px;
+    }
+    .filter-row.top-row {
         flex-direction: column;
         align-items: stretch;
     }
-    .filter-group { flex: auto; }
+    
+    .date-filter-group,
+    .filter-search-group {
+        width: 100%;
+        flex: auto;
+    }
+
+    /* Move actions below search/date, spanning full width */
+    .filter-actions {
+        order: 10; /* Ensure actions appear at the bottom of the top-row stack */
+        flex-direction: row; 
+        justify-content: space-between;
+        width: 100%;
+        height: auto;
+    }
+    
+    .filter-row.bottom-row {
+        /* Status pills also span full width */
+        margin-top: 0; /* Already handled by filter-form gap */
+    }
+    
+    .filter-actions button,
+    .filter-actions a {
+        flex: 1;
+        margin: 0;
+        padding: 12px 20px;
+    }
+    
+    .status-filter-group {
+        max-width: 100%;
+    }
+    
     .visit-grid-3d { grid-template-columns: 1fr; }
     .sidebar { transform: translateX(-100%); }
     .main-content { margin-left: 0; }
+}
+
+/* Clear (X) button inside search input */
+.clear-search-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: none;              /* hidden by default */
+    align-items: center;
+    justify-content: center;
+    color: #A0AEC0;
+}
+
+.clear-search-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* When visible */
+.clear-search-btn.is-visible {
+    display: inline-flex;
+}
+
+/* Give room for the X on the right side */
+.search-input-wrapper input {
+    padding-left: 44px;         /* already in your CSS */
+    padding-right: 40px;        /* new: space for the X */
 }

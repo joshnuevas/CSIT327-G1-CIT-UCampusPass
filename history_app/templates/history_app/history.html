@@ -19,25 +19,116 @@
 <div class="filter-section">
     <form method="get" class="filter-form">
         <input type="hidden" name="filter_submitted" value="1">
-        <div class="filter-row">
-            <div class="filter-group">
+        
+        {# TOP ROW: DATE, SEARCH, AND ACTION BUTTONS #}
+        <div class="filter-row top-row">
+            
+            {# 1. FILTER BY DATE #}
+            <div class="filter-group date-filter-group">
                 <label for="filter_date">Filter by Date</label>
                 <div class="input-icon-wrapper">
                     <input type="date" id="filter_date" name="date" value="{{ filter_date }}" class="input-modern">
                 </div>
             </div>
+            
+            {# 2. SEARCH VISITS #}
             <div class="filter-group filter-search-group">
                 <label for="search_query">Search Visits</label>
                 <div class="search-input-wrapper">
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="search-icon">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                    <input type="text" id="search_query" name="q" placeholder="Search by Code, Department or Purpose..." value="{{ filter_query }}" class="input-modern">
+
+                    <input type="text"
+                        id="search_query"
+                        name="q"
+                        placeholder="Search by Code, Department or Purpose..."
+                        value="{{ filter_query }}"
+                        class="input-modern">
+
+                    <!-- Clear (X) Button -->
+                    <button type="button"
+                            id="clear_search_btn"
+                            class="clear-search-btn"
+                            aria-label="Clear search">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
-            <div class="filter-actions">
-                <button type="submit" class="btn-pill btn-primary">Apply Filters</button>
-                <a href="{% url 'history_app:visit_history' %}" class="btn-pill btn-secondary-outline">Reset</a>
+
+            {# 3. APPLY & RESET BUTTONS (MUST BE ON TOP RIGHT) #}
+            <div class="filter-actions action-row">
+                <button type="submit" class="btn-pill btn-primary btn-apply">Apply Filters</button>
+                <a href="{% url 'history_app:visit_history' %}" class="btn-pill btn-secondary-outline btn-reset">Reset</a>
+            </div>
+        </div>
+
+        {# BOTTOM ROW: STATUS FILTER + SUMMARY #}
+        <div class="filter-row bottom-row">
+            <div class="filter-group status-filter-group">
+                <label>Status</label>
+                <div class="status-pill-group">
+                    <label class="status-pill-option {% if not status_filter or status_filter == 'all' %}is-selected{% endif %}">
+                        <input type="radio" name="status" value="all"
+                            {% if not status_filter or status_filter == 'all' %}checked{% endif %}>
+                        <span class="pill-icon-wrapper">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </span>
+                        <span>All</span>
+                    </label>
+
+                    <label class="status-pill-option {% if status_filter == 'active' %}is-selected{% endif %}">
+                        <input type="radio" name="status" value="active"
+                            {% if status_filter == 'active' %}checked{% endif %}>
+                        <span class="pill-icon-wrapper">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </span>
+                        <span>Active</span>
+                    </label>
+
+                    <label class="status-pill-option {% if status_filter == 'upcoming' %}is-selected{% endif %}">
+                        <input type="radio" name="status" value="upcoming"
+                            {% if status_filter == 'upcoming' %}checked{% endif %}>
+                        <span class="pill-icon-wrapper">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </span>
+                        <span>Upcoming</span>
+                    </label>
+
+                    <label class="status-pill-option {% if status_filter == 'completed' %}is-selected{% endif %}">
+                        <input type="radio" name="status" value="completed"
+                            {% if status_filter == 'completed' %}checked{% endif %}>
+                        <span class="pill-icon-wrapper">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </span>
+                        <span>Completed</span>
+                    </label>
+                </div>
+            </div>
+
+            {# Summary text on the right #}
+            <div class="filter-summary">
+                {% if filter_mode_text and filter_date_display %}
+                    <span class="summary-label">{{ filter_mode_text }}</span>
+                    <span class="summary-range">{{ filter_date_display }}</span>
+                {% endif %}
             </div>
         </div>
     </form>
@@ -57,7 +148,6 @@
                     id="card-{{ visit.visit_id }}"
                     data-status="{{ visit.status|lower }}">
 
-                    <!-- FRONT -->
                     <div class="card-face card-front">
                         <div class="status-stripe status-{{ visit.status|lower }}"></div>
                         
@@ -126,8 +216,8 @@
                                 <div class="back-header">
                                     <h4>Manage Visit</h4>
                                     <button type="button"
-                                            class="btn-close-flip"
-                                            onclick="flipCardBack(event, 'card-{{ visit.visit_id }}')">
+                                                class="btn-close-flip"
+                                                onclick="flipCardBack(event, 'card-{{ visit.visit_id }}')">
                                         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M6 18L18 6M6 6l12 12">
@@ -158,14 +248,14 @@
                                 <div class="back-actions">
                                     {% if visit.status|lower == 'upcoming' %}
                                         <button class="btn-cancel-full cancel-visit-btn"
-                                                data-visit-id="{{ visit.visit_id }}"
-                                                data-visit-code="{{ visit.code }}">
+                                                    data-visit-id="{{ visit.visit_id }}"
+                                                    data-visit-code="{{ visit.code }}">
                                             Cancel Booking
                                         </button>
                                     {% else %}
                                         <button type="button"
-                                                class="btn-close-only"
-                                                onclick="flipCardBack(event, 'card-{{ visit.visit_id }}')">
+                                                    class="btn-close-only"
+                                                    onclick="flipCardBack(event, 'card-{{ visit.visit_id }}')">
                                             Close
                                         </button>
                                     {% endif %}
@@ -176,7 +266,6 @@
                 </div>
             </div>
         {% endfor %}
-
     </div>
 {% else %}
     <div class="empty-state-container">
@@ -194,10 +283,19 @@
 <div id="cancelVisitModal" class="modal">
     <div class="modal-content warning-card">
         <div class="warning-icon-wrapper">
-            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4
+                          c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                </path>
+            </svg>
         </div>
         <h2 id="warningTitle">Cancel Visit?</h2>
-        <p id="warningMessage">You are about to cancel visit <strong id="cancelVisitCode" style="color:#8B1538;"></strong>. This action cannot be undone.</p>
+        <p id="warningMessage">
+            You are about to cancel visit
+            <strong id="cancelVisitCode" style="color:#8B1538;"></strong>.
+            This action cannot be undone.
+        </p>
         <div class="modal-buttons">
             <button id="confirmCancelVisit" class="btn-warning-action btn-danger-solid">Yes, Cancel It</button>
             <button id="cancelCancelVisit" class="btn-warning-action btn-secondary-outline">Keep Visit</button>
@@ -212,7 +310,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ===== LIMIT FILTER DATE TO TODAY + 7 DAYS (same as before) =====
+    // ===============================
+    // 1) LIMIT FILTER DATE (TODAY → TODAY+7)
+    // ===============================
     const filterDateInput = document.getElementById('filter_date');
 
     function formatLocalDate(date) {
@@ -233,7 +333,9 @@ document.addEventListener('DOMContentLoaded', function() {
         filterDateInput.setAttribute('max', maxStr);
     }
 
-    // ===== FLIP LOGIC (Upcoming + Active only, like dashboard) =====
+    // ===============================
+    // 2) FLIP LOGIC (Upcoming + Active only)
+    // ===============================
     document.querySelectorAll('.flip-card-inner').forEach(card => {
         const status = (card.dataset.status || '').toLowerCase();
         const canFlip = (status === 'upcoming' || status === 'active');
@@ -249,16 +351,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== CANCEL VISIT MODAL LOGIC (Upcoming only) =====
-    const cancelVisitModal = document.getElementById('cancelVisitModal');
+    // ===============================
+    // 3) CANCEL VISIT MODAL (Upcoming only)
+    // ===============================
+    const cancelVisitModal   = document.getElementById('cancelVisitModal');
     const confirmCancelVisit = document.getElementById('confirmCancelVisit');
-    const cancelCancelVisit = document.getElementById('cancelCancelVisit');
+    const cancelCancelVisit  = document.getElementById('cancelCancelVisit');
     const cancelVisitButtons = document.querySelectorAll('.cancel-visit-btn');
     let currentVisitId = null;
 
     cancelVisitButtons.forEach(btn => {
         btn.addEventListener('click', function(e) {
-            e.stopPropagation();
+            e.stopPropagation(); // don't flip the card
             currentVisitId = this.getAttribute('data-visit-id');
             const visitCode = this.getAttribute('data-visit-code');
             document.getElementById('cancelVisitCode').textContent = visitCode;
@@ -266,24 +370,91 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    confirmCancelVisit.addEventListener('click', function() {
-        if (currentVisitId) {
-            document.getElementById('cancelVisitIdInput').value = currentVisitId;
-            document.getElementById('cancelVisitForm').submit();
-        }
-    });
+    if (confirmCancelVisit) {
+        confirmCancelVisit.addEventListener('click', function() {
+            if (currentVisitId) {
+                document.getElementById('cancelVisitIdInput').value = currentVisitId;
+                document.getElementById('cancelVisitForm').submit();
+            }
+        });
+    }
 
-    cancelCancelVisit.addEventListener('click', function() {
-        cancelVisitModal.style.display = 'none';
-    });
+    if (cancelCancelVisit) {
+        cancelCancelVisit.addEventListener('click', function() {
+            cancelVisitModal.style.display = 'none';
+        });
+    }
 
     window.addEventListener('click', function(e) {
         if (e.target === cancelVisitModal) {
             cancelVisitModal.style.display = 'none';
         }
     });
+
+    // ===============================
+    // 4) STATUS FILTER PILL TOGGLE + AUTO-SUBMIT
+    // ===============================
+    const statusPills = document.querySelectorAll('.status-pill-option');
+
+    statusPills.forEach(pill => {
+        pill.addEventListener('click', function () {
+            const group = this.closest('.status-pill-group');
+            if (!group) return;
+
+            // Remove highlight from all in same group
+            group.querySelectorAll('.status-pill-option').forEach(p => {
+                p.classList.remove('is-selected');
+            });
+
+            // Highlight clicked pill
+            this.classList.add('is-selected');
+
+            // Ensure underlying radio is checked
+            const input = this.querySelector('input[type="radio"]');
+            if (input) {
+                input.checked = true;
+            }
+
+            // Auto-submit the filter form
+            const form = this.closest('form');
+            if (form) {
+                form.submit();
+            }
+        });
+    });
 });
 
+// ===============================
+// 5) CLEAR SEARCH FIELD (X BUTTON)
+// ===============================
+const searchInput = document.getElementById("search_query");
+const clearBtn = document.getElementById("clear_search_btn");
+
+if (searchInput && clearBtn) {
+    // Show/hide X based on input content
+    function toggleClearButton() {
+        if (searchInput.value.trim() !== "") {
+            clearBtn.classList.add("is-visible");
+        } else {
+            clearBtn.classList.remove("is-visible");
+        }
+    }
+
+    // Trigger on load (in case value came from GET ?q=...)
+    toggleClearButton();
+
+    // Trigger on typing
+    searchInput.addEventListener("input", toggleClearButton);
+
+    // Clear search when X is clicked
+    clearBtn.addEventListener("click", function () {
+        searchInput.value = "";
+        toggleClearButton();
+        searchInput.focus();
+    });
+}
+
+// Helper for flip-back button on card back
 function flipCardBack(event, cardId) {
     event.stopPropagation();
     const card = document.getElementById(cardId);
