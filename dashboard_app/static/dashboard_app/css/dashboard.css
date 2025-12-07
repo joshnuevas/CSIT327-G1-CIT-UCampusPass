@@ -30,6 +30,8 @@ body {
     top: 0;
     border-right: 1px solid rgba(212, 175, 55, 0.3);
     z-index: 100;
+    transform: translateX(0);
+    transition: transform 0.3s ease;
 }
 
 .school-logo {
@@ -129,6 +131,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    transition: margin-left 0.3s ease;
 }
 
 .content-area {

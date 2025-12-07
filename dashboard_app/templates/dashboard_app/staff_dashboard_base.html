@@ -12,7 +12,7 @@
 
     <style>
     /* =========================================
-      1. GLOBAL RESETS & LAYOUT  (match user)
+      1. GLOBAL RESETS & LAYOUT
       ========================================= */
     * {
         margin: 0;
@@ -25,12 +25,13 @@
         background: #F5F7FA;
         display: flex;
         height: 100vh;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: hidden;
         position: relative;
     }
 
     /* =========================================
-      2. SIDEBAR  (same look as user)
+      2. SIDEBAR
       ========================================= */
     .sidebar {
         width: 260px;
@@ -44,6 +45,10 @@
         top: 0;
         border-right: 1px solid rgba(212, 175, 55, 0.3);
         z-index: 100;
+
+        /* default visible on desktop */
+        transform: translateX(0);
+        transition: transform 0.3s ease;
     }
 
     .school-logo {
@@ -141,7 +146,7 @@
     }
 
     /* =========================================
-      3. MAIN CONTENT AREA (match user)
+      3. MAIN CONTENT AREA
       ========================================= */
     .main-content {
         flex: 1;
@@ -150,6 +155,7 @@
         flex-direction: column;
         height: 100vh;
         overflow: hidden;
+        transition: margin-left 0.3s ease;
     }
 
     .content-area {
@@ -160,7 +166,7 @@
     }
 
     /* =========================================
-      4. TOP BAR + AVATAR (aligned with user look)
+      4. TOP BAR + AVATAR
       ========================================= */
     .top-bar {
         background: #FFFFFF;
@@ -184,7 +190,6 @@
         margin-left: auto;
     }
 
-    /* Avatar style — simple, clean, coherent with user design */
     .user-avatar {
         width: 40px;
         height: 40px;
@@ -209,7 +214,7 @@
     }
 
     /* =========================================
-      5. TOAST NOTIFICATIONS (same as user)
+      5. TOAST NOTIFICATIONS
       ========================================= */
     .messages-container {
         position: fixed;
@@ -283,7 +288,7 @@
     .alert-info .alert-icon { color: #3182CE; }
 
     /* =========================================
-      6. DROPDOWNS (reused from your base)
+      6. DROPDOWNS
       ========================================= */
     .dropdown {
         position: absolute;
@@ -356,7 +361,7 @@
     }
 
     /* =========================================
-      7. OVERLAY & MODAL (aligned with your style)
+      7. OVERLAY & MODAL
       ========================================= */
     .overlay {
         position: fixed;
@@ -376,7 +381,6 @@
         visibility: visible;
     }
 
-    /* Logout + generic modal */
     .modal {
         display: none;
         position: fixed;
@@ -422,7 +426,6 @@
         flex-wrap: wrap;
     }
 
-    /* Buttons in modal */
     .btn-primary {
         display: inline-flex;
         align-items: center;
@@ -469,7 +472,38 @@
     }
 
     /* =========================================
-      8. MENU TOGGLE / RESPONSIVE SIDEBAR
+      8. NAV VISIBILITY TOGGLE (DESKTOP)
+      ========================================= */
+    .nav-visibility-toggle {
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        color: #8b1538;
+        cursor: pointer;
+        margin-right: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Hide it on mobile; mobile already uses the hamburger + overlay */
+    @media (max-width: 768px) {
+        .nav-visibility-toggle {
+            display: none;
+        }
+    }
+
+    /* When nav is hidden on desktop */
+    .nav-hidden .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .nav-hidden .main-content {
+        margin-left: 0 !important;
+    }
+
+    /* =========================================
+      9. MENU TOGGLE (MOBILE)
       ========================================= */
     .menu-toggle {
         display: none;
@@ -483,11 +517,7 @@
         position: relative;
     }
 
-    @media (max-width: 1024px) {
-        .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 1100px) {
+    @media (max-width: 768px) {
         .sidebar {
             transform: translateX(-100%);
             transition: transform 0.3s ease;
@@ -507,14 +537,8 @@
         }
     }
 
-    @media (max-width: 768px) {
-        .main-content {
-            margin-left: 0;
-        }
-    }
-
     /* =========================================
-      9. ANIMATIONS (from user)
+      10. ANIMATIONS
       ========================================= */
     @keyframes slideInToast {
         from { opacity: 0; transform: translateX(50px) scale(0.95); }
@@ -586,7 +610,6 @@
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Messages Display Section -->
         {% if messages %}
         <div class="messages-container">
             {% for message in messages %}
@@ -610,11 +633,16 @@
             {% endfor %}
         </div>
         {% endif %}
-        <!-- End Messages Display -->
 
         <div class="top-bar">
+            <!-- Mobile hamburger -->
             <button class="menu-toggle" id="menuToggle">
                 <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Desktop hide/show sidebar toggle -->
+            <button class="nav-visibility-toggle" id="navToggle" title="Hide sidebar">
+                <i class="fas fa-angle-double-left"></i>
             </button>
 
             <div class="user-info">
@@ -638,9 +666,6 @@
     <!-- ===== PROFILE DROPDOWN ===== -->
     <div class="dropdown" id="profileDropdown">
         <div class="dropdown-header">Front Desk Staff</div>
-        <!-- <a href="#" class="dropdown-item">
-            <i class="fas fa-user"></i> Profile
-        </a> -->
         <div class="dropdown-item" id="dropdownLogoutBtn">
             <i class="fas fa-sign-out-alt"></i> Logout
         </div>
@@ -658,8 +683,9 @@
     </div>
 
     <script>
-        // Auto-dismiss messages after 5 seconds
+        // Auto-dismiss messages after 5 seconds + init sidebar preference
         document.addEventListener('DOMContentLoaded', function() {
+            // ===== TOASTS =====
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {
                 setTimeout(function() {
@@ -670,9 +696,51 @@
                     }, 500);
                 }, 5000);
             });
+
+            // ===== DESKTOP NAVBAR HIDE/SHOW =====
+            const navToggle = document.getElementById('navToggle');
+
+            function updateNavToggleIcon(isHidden) {
+                if (!navToggle) return;
+                const icon = navToggle.querySelector('i');
+                if (!icon) return;
+
+                if (isHidden) {
+                    icon.classList.remove('fa-angle-double-left');
+                    icon.classList.add('fa-angle-double-right');
+                    navToggle.title = 'Show sidebar';
+                } else {
+                    icon.classList.remove('fa-angle-double-right');
+                    icon.classList.add('fa-angle-double-left');
+                    navToggle.title = 'Hide sidebar';
+                }
+            }
+
+            function applySavedNavPreference() {
+                const saved = localStorage.getItem('staffNavHidden');
+                const shouldHide = saved === '1';
+                if (shouldHide) {
+                    document.body.classList.add('nav-hidden');
+                } else {
+                    document.body.classList.remove('nav-hidden');
+                }
+                updateNavToggleIcon(shouldHide);
+            }
+
+            if (navToggle) {
+                // Apply saved state on load
+                applySavedNavPreference();
+
+                // Toggle on click
+                navToggle.addEventListener('click', function () {
+                    const isHiddenNow = document.body.classList.toggle('nav-hidden');
+                    localStorage.setItem('staffNavHidden', isHiddenNow ? '1' : '0');
+                    updateNavToggleIcon(isHiddenNow);
+                });
+            }
         });
 
-        // ===== SIDEBAR TOGGLE =====
+        // ===== MOBILE SIDEBAR TOGGLE =====
         const menuToggle = document.getElementById("menuToggle");
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
@@ -709,7 +777,7 @@
             profileBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 profileDropdown.classList.toggle("active");
-                notifDropdown.classList.remove("active");
+                if (notifDropdown) notifDropdown.classList.remove("active");
             });
         }
 
@@ -734,7 +802,7 @@
           if(modal) modal.classList.remove('show');
         }
 
-        // Close modal on overlay click
+        // Close modal on overlay click (for modals)
         modals.forEach(modal=>{
           modal.addEventListener('click', e=>{
             if(e.target===modal) modal.classList.remove('show');
@@ -748,8 +816,15 @@
         const confirmLogout = document.getElementById("confirmLogout");
         const cancelLogout = document.getElementById("cancelLogout");
 
-        if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); openModal('logoutModal'); });
-        if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); openModal('logoutModal'); });
+        if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", e=>{ 
+            e.preventDefault(); 
+            openModal('logoutModal'); 
+        });
+        if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ 
+            e.preventDefault(); 
+            profileDropdown.classList.remove('active'); 
+            openModal('logoutModal'); 
+        });
         if(confirmLogout) confirmLogout.addEventListener("click", ()=>window.location.href="{% url 'login_app:logout' %}");
         if(cancelLogout) cancelLogout.addEventListener("click", ()=>closeModal('logoutModal'));
     </script>
