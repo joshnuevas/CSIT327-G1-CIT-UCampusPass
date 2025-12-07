@@ -6,6 +6,8 @@ Handles registration of visitors who arrive without pre-booking
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
+from django.utils import timezone
+
 import random
 import string
 from datetime import datetime
@@ -45,13 +47,13 @@ def walk_in_registration(request):
 
     if request.method == 'POST':
         try:
-            # ----- Get form data ----- 
+            # ----- Get form data -----
             first_name = (request.POST.get('first_name') or '').strip()
             last_name = (request.POST.get('last_name') or '').strip()
             email = (request.POST.get('email') or '').strip()
             phone = (request.POST.get('phone') or '').strip()
 
-            # Department & purpose (no more *_other fields)
+            # Department & purpose
             department = (request.POST.get('department') or '').strip()
             purpose = (request.POST.get('purpose') or '').strip()
 
@@ -79,7 +81,8 @@ def walk_in_registration(request):
             if not re.fullmatch(r"09\d{9}", phone):
                 messages.error(
                     request,
-                    "Please enter a valid 11-digit mobile number starting with 09 (e.g., 09171234567)."
+                    "Please enter a valid 11-digit mobile number starting with 09 "
+                    "(e.g., 09171234567)."
                 )
                 context = {
                     'staff_first_name': staff_first_name,
@@ -111,9 +114,10 @@ def walk_in_registration(request):
                 return render(request, 'walk_in_app/walk_in_registration.html', context)
 
             # ----- Set visit times - walk-ins are checked in immediately -----
-            now = datetime.now(PHILIPPINES_TZ)
-            start_time = now.time()
-            visit_date = now.date()
+            # Use Django's timezone + convert to Asia/Manila
+            now_aware = timezone.now().astimezone(PHILIPPINES_TZ)
+            visit_date = now_aware.date()
+            start_time = now_aware.time()
 
             visitor_name = f"{first_name} {last_name}"
 
@@ -140,11 +144,15 @@ def walk_in_registration(request):
                     f"for {purpose} at {department}. Visit code: {visit_code}"
                 ),
                 actor_role="Staff",
-                created_at=now
+                created_at=now_aware,  # stored as PH time
             )
             log_entry.save()
 
             logger.info(f"Walk-in visitor registered by {staff_username}: {visit_code}")
+
+            # Pre-format display string in PH time, desired format:
+            # Example: "Dec 07, 2025 06:46 PM"
+            visit_datetime_display = now_aware.strftime("%b %d, %Y %I:%M %p")
 
             # Success context
             context = {
@@ -155,6 +163,7 @@ def walk_in_registration(request):
                 'visitor_phone': phone,
                 'purpose': purpose,
                 'department': department,
+                'visit_datetime_display': visit_datetime_display,
             }
             return render(request, 'walk_in_app/walk_in_registration.html', context)
 
