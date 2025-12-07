@@ -323,7 +323,7 @@ def staff_dashboard_view(request):
     today = now_ph.date()
 
     try:
-        # ✅ IMPORTANT: use the date object directly, not a string
+        # ✅ Use the date object directly
         today_visits = Visit.objects.filter(visit_date=today)
 
         # ----- Update status for today's visits -----
@@ -332,22 +332,28 @@ def staff_dashboard_view(request):
             if visit.status == 'Completed':
                 continue
 
-            # Build datetime range for the visit
+            # Build datetime range for the visit (PH time)
             if visit.start_time:
-                visit_start = datetime.combine(visit.visit_date, visit.start_time).replace(
-                    tzinfo=PHILIPPINES_TZ
-                )
+                visit_start = datetime.combine(
+                    visit.visit_date,
+                    visit.start_time
+                ).replace(tzinfo=PHILIPPINES_TZ)
+
                 if visit.end_time:
-                    visit_end = datetime.combine(visit.visit_date, visit.end_time).replace(
-                        tzinfo=PHILIPPINES_TZ
-                    )
+                    visit_end = datetime.combine(
+                        visit.visit_date,
+                        visit.end_time
+                    ).replace(tzinfo=PHILIPPINES_TZ)
                 else:
                     # No end_time yet → assume end of day for status logic
-                    visit_end = datetime.combine(visit.visit_date, datetime.max.time()).replace(
-                        tzinfo=PHILIPPINES_TZ
-                    )
+                    visit_end = datetime.combine(
+                        visit.visit_date,
+                        datetime.max.time()
+                    ).replace(tzinfo=PHILIPPINES_TZ)
 
+                # Status logic
                 if visit.end_time is None and visit.status == 'Active':
+                    # Already active and no explicit end → keep as Active
                     new_status = 'Active'
                 elif visit_start <= now_ph <= visit_end:
                     new_status = 'Active'
@@ -368,10 +374,17 @@ def staff_dashboard_view(request):
         active_visits_count = today_visits.filter(status='Active').count()
         checked_in_count = today_visits.filter(status__in=['Active', 'Completed']).count()
 
-        # ----- Recent check-ins (from logs) -----
-        # UPDATED: Increased limit to 15 to allow better filtering
+        # ===== 🔁 LIVE FEED: only show TODAY's check-ins / check-outs =====
+        today_start_ph = datetime.combine(
+            today,
+            datetime.min.time()
+        ).replace(tzinfo=PHILIPPINES_TZ)
+        tomorrow_start_ph = today_start_ph + timedelta(days=1)
+
         recent_checkins = SystemLog.objects.filter(
-            action_type__in=['Visitor Check-In', 'Visitor Check-Out']
+            action_type__in=['Visitor Check-In', 'Visitor Check-Out'],
+            created_at__gte=today_start_ph,
+            created_at__lt=tomorrow_start_ph,
         ).order_by('-created_at')[:15]
 
         for checkin in recent_checkins:
@@ -395,7 +408,7 @@ def staff_dashboard_view(request):
             'active_visits_count': active_visits_count,
             'checked_in_count': checked_in_count,
             'today_visits': list(today_visits[:10]),  # Show first 10
-            'recent_checkins': recent_checkins,
+            'recent_checkins': recent_checkins,       # ✅ only today's logs
             'code_check_result': code_check_result,
         }
 
@@ -414,7 +427,6 @@ def staff_dashboard_view(request):
             'today_visits': [],
             'recent_checkins': [],
         })
-
 
 @staff_required
 def code_checker(request):

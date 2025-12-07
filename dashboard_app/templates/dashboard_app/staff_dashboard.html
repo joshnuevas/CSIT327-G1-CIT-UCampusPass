@@ -6,12 +6,12 @@
 
 {% block extra_css %}
 <style>
-    /* ===== Dashboard Specific Layout (UNCHANGED) ===== */
+    /* ===== Dashboard Layout ===== */
     .dashboard-grid {
         display: grid;
         grid-template-columns: 1.2fr 0.8fr;
         gap: 25px;
-        align-items: flex-start;
+        align-items: stretch;     /* stretch both columns to same row height */
         margin-top: 20px;
     }
 
@@ -19,22 +19,30 @@
         display: flex;
         flex-direction: column;
         gap: 25px;
+        height: 100%;            /* fill the row height */
+        min-height: 0;
     }
 
-    /* Scrollable panels (UNCHANGED) */
-    .live-feed-scroll {
-        max-height: calc(100vh - 320px);
+    /* Make the *bottom* card in the left column (Live Check-in Feed) fill leftover space */
+    .left-column > .card:last-child {
+        flex: 1;                 /* take up all remaining height in column */
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    /* The right card (Today's Schedule) already has inline flex styles in HTML */
+
+    /* Scrollable panels – fill card height instead of using max-height */
+    .custom-scroll.live-feed-scroll,
+    .custom-scroll.schedule-scroll {
+        flex: 1;
+        min-height: 0;
         overflow-y: auto;
         padding: 0 20px 20px 20px;
     }
 
-    .schedule-scroll {
-        max-height: calc(100vh - 175px);
-        overflow-y: auto;
-        padding: 0 20px 20px 20px;
-    }
-
-    /* ===== Code Checker Widget (UNCHANGED) ===== */
+    /* ===== Code Checker Widget ===== */
     .scanner-card {
         background: linear-gradient(135deg, #8B1538 0%, #6B0F2A 100%);
         color: white;
@@ -63,7 +71,6 @@
         z-index: 2;
     }
 
-    /* --- UPDATED INPUT STYLE (UNCHANGED FROM PREVIOUS) --- */
     .scanner-input {
         flex: 1;
         background: rgba(0, 0, 0, 0.2);
@@ -95,7 +102,6 @@
         font-weight: 400;
     }
 
-    /* --- POLISHED BUTTON STYLE (UNCHANGED FROM PREVIOUS) --- */
     .btn-scan {
         background: linear-gradient(to bottom, #F5D76E, #D4AF37);
         color: #590d22;
@@ -127,7 +133,7 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    /* ===== Scan Result Box (UNCHANGED) ===== */
+    /* ===== Scan Result Box ===== */
     .scan-result-box {
         margin-top: 25px;
         background: rgba(255, 255, 255, 0.95);
@@ -205,7 +211,7 @@
     .btn-checkout { background: #D69E2E; color: white; }
     .btn-checkout:hover { background: #B7791F; }
 
-    /* ===== Timeline Styles (UNCHANGED) ===== */
+    /* ===== Timeline Styles ===== */
     .timeline-container {
         position: relative;
         padding-left: 15px;
@@ -290,7 +296,7 @@
         gap: 5px;
     }
 
-    /* ===== STANDARD TOOLBAR (Used for Left Panel) ===== */
+    /* ===== Toolbars ===== */
     .feed-toolbar {
         display: flex;
         flex-wrap: wrap;
@@ -312,14 +318,13 @@
         flex-shrink: 0;
     }
 
-    /* --- REVISED FILTER BUTTON STYLE --- */
     .filter-btn {
-        background: #EDF2F7; /* Solid light gray background for definition */
+        background: #EDF2F7;
         border: 1px solid transparent; 
         border-radius: 40px;
         padding: 8px 16px;
         font-size: 12px;
-        font-weight: 600; /* Slightly reduced boldness for subtlety */
+        font-weight: 600;
         color: #64748b;
         cursor: pointer;
         transition: all 0.2s ease;
@@ -333,17 +338,16 @@
 
     .filter-btn:hover {
         color: #334155;
-        background: #E2E8F0; /* Subtle hover color */
+        background: #E2E8F0;
     }
 
     .filter-btn.active {
         background: #fff;
         box-shadow: 0 2px 5px rgba(0,0,0,0.08);
         transform: scale(1.02);
-        border-color: #fff; /* Hide border when active */
+        border-color: #fff;
         font-weight: 700;
     }
-    /* --- END REVISED FILTER BUTTON STYLE --- */
 
     .filter-btn.active[onclick*="all"] { color: #8B1538; }
     .filter-btn.active[onclick*="'in'"] { color: #2E7D32; }
@@ -351,7 +355,6 @@
     .filter-btn.active[onclick*="'active'"] { color: #2E7D32; }
     .filter-btn.active[onclick*="'upcoming'"] { color: #D69E2E; }
 
-    /* Static Search Field Base Styles (UNCHANGED) */
     .static-search-wrapper {
         position: relative;
         flex-grow: 1;
@@ -386,7 +389,6 @@
         pointer-events: none;
     }
 
-    /* ===== NEW: STACKED & STRETCHED TOOLBAR (For Right Panel Only) (UNCHANGED) ===== */
     .schedule-toolbar-stacked {
         display: flex;
         flex-direction: column;
@@ -412,8 +414,7 @@
         max-width: none;
     }
 
-
-    /* ===== Mini Ticket (Today's Visits) (UNCHANGED) ===== */
+    /* ===== Mini Ticket ===== */
     .mini-ticket {
         display: flex;
         background: #fff;
@@ -474,15 +475,24 @@
         color: #718096;
     }
 
-    /* Responsive (UNCHANGED) */
+    /* ===== Responsive ===== */
     @media (max-width: 1024px) {
-        .dashboard-grid { grid-template-columns: 1fr; }
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        .left-column {
+            height: auto;
+        }
+        .left-column > .card:last-child {
+            flex: none;
+        }
     }
+
     @media (max-width: 1400px) {
         .static-search-wrapper { max-width: 100%; order: 2; }
     }
 
-    /* ===== ANIMATION: Slide Up Fade (Slower) (UNCHANGED) ===== */
+    /* ===== Animation ===== */
     @keyframes slideUpFade {
         from {
             opacity: 0;
