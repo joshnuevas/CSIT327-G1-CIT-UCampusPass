@@ -42,106 +42,126 @@
         padding: 0 20px 20px 20px;
     }
 
-    /* ===== Code Checker Widget ===== */
-    .scanner-card {
-        background: linear-gradient(135deg, #8B1538 0%, #6B0F2A 100%);
-        color: white;
-        border: none;
-        position: relative;
-        overflow: hidden;
-    }
+    /* ===== Code Checker Widget (Updated) ===== */
+/* This section replaces the original Code Checker Widget CSS block */
 
+.scanner-card {
+    /* Refined deep burgundy/crimson background */
+    background: linear-gradient(135deg, #7C0A2A 0%, #59081E 100%);
+    color: white;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    /* Deeper, more noticeable shadow for professionalism */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35), 
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    border-radius: 16px; /* Slightly more rounded corners for a modern feel */
+    padding: 25px; /* Add slight padding for content to breathe */
+}
+
+    /* Updated accent bubble with a more subtle, metallic gold gleam */
     .scanner-card::before {
         content: '';
         position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 150px;
-        height: 150px;
-        background: rgba(212, 175, 55, 0.15); /* Gold tint */
+        top: -60px; /* Adjusted position */
+        right: -60px; /* Adjusted position */
+        width: 180px; /* Larger, softer accent */
+        height: 180px;
+        background: rgba(212, 175, 55, 0.1); /* Very subtle gold tint */
         border-radius: 50%;
         pointer-events: none;
+        opacity: 0.8; /* Slightly less opaque */
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.2); /* Soft inner glow */
     }
 
     .scanner-input-group {
         display: flex;
-        gap: 12px;
+        gap: 15px; /* Slightly increased gap for visual separation */
         margin-top: 15px;
         position: relative;
         z-index: 2;
+        background: rgba(0, 0, 0, 0.15); /* Enclose input/button in a subtle dark background */
+        border-radius: 12px;
+        padding: 5px; /* Padding for the group wrapper */
     }
 
     .scanner-input {
         flex: 1;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        /* Darker, flatter background for a sleek 'embedded' look */
+        background: rgba(0, 0, 0, 0.1); 
+        border: 1px solid rgba(255, 255, 255, 0.1);
         color: white;
-        padding: 14px 20px;
-        border-radius: 12px;
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: 2px;
+        padding: 12px 18px; /* Adjusted padding to fit inside wrapper */
+        border-radius: 10px; /* Slightly less rounded than the wrapper */
+        font-size: 16px; /* Slightly smaller font size */
+        font-weight: 500; /* Medium font weight */
+        letter-spacing: 1.5px; /* Reduced letter spacing */
         font-family: 'Consolas', monospace;
         transition: all 0.3s ease;
         text-transform: uppercase;
-        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); /* Inner shadow for depth */
+        margin: 0; /* Remove potential margin from original styles */
     }
 
     .scanner-input:focus {
-        background: rgba(0, 0, 0, 0.3);
-        border-color: #D4AF37;
+        background: rgba(0, 0, 0, 0.2);
+        border-color: #D4AF37; /* Gold border on focus */
         outline: none;
-        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2), 0 0 0 3px rgba(212, 175, 55, 0.2);
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.5), 0 0 0 2px rgba(212, 175, 55, 0.3); /* Gold outer glow */
     }
 
     .scanner-input::placeholder {
         color: rgba(255, 255, 255, 0.4);
         font-family: 'Segoe UI', sans-serif;
         letter-spacing: 0;
-        font-size: 14px;
+        font-size: 13px; /* Slightly smaller placeholder text */
         font-weight: 400;
     }
 
     .btn-scan {
-        background: linear-gradient(to bottom, #F5D76E, #D4AF37);
-        color: #590d22;
-        font-weight: 700;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        padding: 0 32px;
+        /* Solid, rich gold gradient for the button */
+        background: linear-gradient(to bottom, #FFDD88, #D4AF37);
+        color: #4C071C; /* Darker text for better contrast */
+        font-weight: 700; /* REDUCED BOLDNESS: Changed from 800 to 700 */
+        border: 1px solid #FFDD88; /* Match border to the light part of the gradient */
+        border-radius: 10px;
+        padding: 0 25px; /* Adjusted padding */
         font-size: 14px;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px; 
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.4);
+        gap: 8px;
+        /* Cleaner, sharper shadow */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.7);
+        flex-shrink: 0;
     }
 
     .btn-scan:hover {
-        background: linear-gradient(to bottom, #ffe082, #e6c245);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255,255,255,0.4);
-        color: #3b0916;
-    }
-    
-    .btn-scan:active {
-        transform: translateY(1px);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        /* Lighter hover state */
+        background: linear-gradient(to bottom, #FFE5A0, #E6C245);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255,255,255,0.7);
+        color: #3b0916; /* Subtle darker hover text color */
     }
 
-    /* ===== Scan Result Box ===== */
+    .btn-scan:active {
+        transform: translateY(1px);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 2px rgba(0,0,0,0.1); 
+    }
+
+    /* Also updated the result box to look a bit cleaner */
     .scan-result-box {
         margin-top: 25px;
-        background: rgba(255, 255, 255, 0.95);
+        background: #ffffff; /* Use pure white for a crisp look against the dark card */
         border-radius: 12px;
         padding: 20px;
         color: #333;
         animation: slideUpFade 0.8s ease forwards;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15), 0 0 0 1px #e0e0e0; /* Added a subtle outline */
     }
 
     .result-header {
@@ -571,11 +591,11 @@
                         name="visit_code" 
                         id="visitCodeInput" 
                         class="scanner-input"
-                        placeholder="SCAN OR ENTER CODE" 
+                        value="CIT-"
                         required
                         pattern="[A-Z0-9-]+"
                         autocomplete="off"
-                    >
+                    />
                     <button type="submit" class="btn-scan">
                         <i class="fas fa-search"></i> Check
                     </button>
@@ -790,29 +810,120 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    // ================================
+    // 1) CODE INPUT: LOCK "CIT-" PREFIX
+    // ================================
+    function setupCodeInputProtection() {
         const codeInput = document.getElementById('visitCodeInput');
-        if (codeInput) {
-            codeInput.addEventListener('input', function(e) {
-                e.target.value = e.target.value.toUpperCase();
-            });
-            codeInput.focus();
-        }
-        
-        // Trigger initial animations on page load
-        applyFeedFilters();
-        applyScheduleFilters();
-    });
+        if (!codeInput) return;
 
-    /* =========================================
-       LOGIC FOR LIVE FEED WIDGET
-       ========================================= */
-    
+        const PREFIX = "CIT-";
+
+        // Ensure it always starts with CIT-
+        if (!codeInput.value || !codeInput.value.startsWith(PREFIX)) {
+            codeInput.value = PREFIX;
+        }
+
+        // Helper: keep cursor after prefix
+        function clampCursor() {
+            if (codeInput.selectionStart < PREFIX.length) {
+                codeInput.setSelectionRange(PREFIX.length, codeInput.selectionEnd);
+            }
+        }
+
+        // On focus, put cursor at the end (after user's text)
+        codeInput.addEventListener('focus', function () {
+            const len = codeInput.value.length;
+            if (len < PREFIX.length) {
+                codeInput.value = PREFIX;
+            }
+            codeInput.setSelectionRange(len, len);
+        });
+
+        // Prevent deleting or moving into the prefix
+        codeInput.addEventListener('keydown', function (e) {
+            const start = codeInput.selectionStart;
+            const end = codeInput.selectionEnd;
+
+            // Block Backspace if at/inside prefix
+            if (e.key === 'Backspace' && start <= PREFIX.length) {
+                e.preventDefault();
+                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                return;
+            }
+
+            // Block Delete if starting inside prefix
+            if (e.key === 'Delete' && start < PREFIX.length) {
+                e.preventDefault();
+                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                return;
+            }
+
+            // Block ArrowLeft into prefix
+            if (e.key === 'ArrowLeft' && start <= PREFIX.length) {
+                e.preventDefault();
+                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                return;
+            }
+
+            // Block Home key from jumping before prefix
+            if (e.key === 'Home') {
+                e.preventDefault();
+                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                return;
+            }
+        });
+
+        // Handle paste so prefix is preserved and rest is cleaned
+        codeInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const clipboardData = (e.clipboardData || window.clipboardData);
+            const pasted = clipboardData.getData('text') || "";
+
+            const clean = pasted.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+            const current = codeInput.value.substring(PREFIX.length);
+            codeInput.value = PREFIX + current + clean;
+
+            // Move cursor to end
+            const len = codeInput.value.length;
+            codeInput.setSelectionRange(len, len);
+        });
+
+        // Enforce prefix + uppercase + valid chars
+        codeInput.addEventListener('input', function () {
+            let value = codeInput.value;
+
+            // If somehow prefix got touched, restore it
+            if (!value.startsWith(PREFIX)) {
+                value = value.replace(/cit-?/gi, '');
+                value = PREFIX + value;
+            }
+
+            // Everything after prefix: uppercase + restrict charset
+            let suffix = value.substring(PREFIX.length).toUpperCase();
+            suffix = suffix.replace(/[^A-Z0-9-]/g, '');
+
+            codeInput.value = PREFIX + suffix;
+
+            // Keep cursor at end if it drifted into prefix
+            clampCursor();
+        });
+
+        // Enforce cursor position when user clicks or moves
+        codeInput.addEventListener('click', clampCursor);
+        codeInput.addEventListener('keyup', clampCursor);
+
+        // NOTE: no auto-focus here anymore
+        // (We don't call codeInput.focus() on load.)
+    }
+
+    // =========================================
+    // 2) LIVE FEED WIDGET (TIMELINE FILTERING)
+    // =========================================
     let currentFilterType = 'all';
 
     function setFeedFilter(type, btnElement) {
-        // Updated selector to search within both toolbar types
-        const toolbar = btnElement.closest('.feed-toolbar') || btnElement.closest('.schedule-toolbar-stacked');
+        const toolbar = btnElement.closest('.feed-toolbar');
         if (toolbar) {
             toolbar.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
@@ -824,8 +935,8 @@
 
     function applyFeedFilters() {
         const searchInput = document.getElementById('feedSearchInput');
-        if (!searchInput) return; // Guard clause if element missing
-        
+        if (!searchInput) return;
+
         const searchTerm = searchInput.value.toLowerCase().trim();
         const items = document.querySelectorAll('.timeline-item');
         let visibleCount = 0;
@@ -835,24 +946,19 @@
             const isCheckOut = item.classList.contains('out');
             const textContent = item.innerText.toLowerCase();
 
-            let typeMatch = (currentFilterType === 'all') || 
-                            (currentFilterType === 'in' && isCheckIn) || 
-                            (currentFilterType === 'out' && isCheckOut);
+            let typeMatch =
+                currentFilterType === 'all' ||
+                (currentFilterType === 'in' && isCheckIn) ||
+                (currentFilterType === 'out' && isCheckOut);
 
             let searchMatch = textContent.includes(searchTerm);
 
-            // 1. Reset animation class
             item.classList.remove('animate-entry');
 
             if (typeMatch && searchMatch) {
                 item.style.display = 'block';
-
-                // 2. Trigger Reflow
-                void item.offsetWidth; 
-
-                // 3. Re-add animation class
+                void item.offsetWidth;
                 item.classList.add('animate-entry');
-                
                 visibleCount++;
             } else {
                 item.style.display = 'none';
@@ -860,17 +966,16 @@
         });
 
         const countBadge = document.getElementById('feedCount');
-        if(countBadge) countBadge.textContent = visibleCount;
+        if (countBadge) countBadge.textContent = visibleCount;
     }
 
-    /* =========================================
-       LOGIC FOR SCHEDULE WIDGET
-       ========================================= */
-
+    // =========================================
+    // 3) TODAY'S SCHEDULE WIDGET FILTERING
+    // =========================================
     let currentScheduleFilter = 'all';
 
     function setScheduleFilter(type, btnElement) {
-        const toolbar = btnElement.closest('.feed-toolbar') || btnElement.closest('.schedule-toolbar-stacked');
+        const toolbar = btnElement.closest('.schedule-toolbar-stacked');
         if (toolbar) {
             toolbar.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
@@ -889,12 +994,12 @@
         let visibleCount = 0;
 
         items.forEach(item => {
-            const status = item.getAttribute('data-status'); // active, upcoming, completed
+            const status = item.getAttribute('data-status');
             const textContent = item.innerText.toLowerCase();
 
             let typeMatch = false;
             if (currentScheduleFilter === 'all') {
-                typeMatch = true; 
+                typeMatch = true;
             } else if (currentScheduleFilter === 'active' && status === 'active') {
                 typeMatch = true;
             } else if (currentScheduleFilter === 'upcoming' && status === 'upcoming') {
@@ -903,18 +1008,12 @@
 
             let searchMatch = textContent.includes(searchTerm);
 
-            // 1. Reset animation class
             item.classList.remove('animate-entry');
 
             if (typeMatch && searchMatch) {
                 item.style.display = 'flex';
-                
-                // 2. Trigger Reflow
                 void item.offsetWidth;
-
-                // 3. Re-add animation class
                 item.classList.add('animate-entry');
-
                 visibleCount++;
             } else {
                 item.style.display = 'none';
@@ -922,7 +1021,16 @@
         });
 
         const countBadge = document.getElementById('scheduleCount');
-        if(countBadge) countBadge.textContent = visibleCount;
+        if (countBadge) countBadge.textContent = visibleCount;
     }
+
+    // =========================================
+    // 4) INIT
+    // =========================================
+    document.addEventListener('DOMContentLoaded', function () {
+        setupCodeInputProtection();
+        applyFeedFilters();
+        applyScheduleFilters();
+    });
 </script>
 {% endblock %}

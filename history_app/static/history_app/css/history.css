@@ -810,6 +810,57 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* ==== VISIT HISTORY FILTER BUTTON TWEAKS (Apply + Reset) ==== */
+
+/* Apply Filters – pill, gradient style */
+.filter-section .filter-actions .btn-pill.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
+    text-decoration: none;
+}
+
+.filter-section .filter-actions .btn-pill.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4);
+    background: linear-gradient(135deg, #6B0F2A, #8B1538);
+}
+
+/* Reset – pill outline, same as staff/visitor version */
+.filter-section .filter-actions .btn-pill.btn-secondary-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: #FFFFFF;
+    color: #666666;
+    border: 2px solid #E0E0E0;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.filter-section .filter-actions .btn-pill.btn-secondary-outline:hover {
+    border-color: #8B1538;
+    color: #8B1538;
+    transform: translateY(-2px);
+}
+
 /* ========================================= 
    RESPONSIVE 
    ========================================= */
