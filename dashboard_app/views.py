@@ -36,7 +36,7 @@ def format_ph_time(timestamp):
     if timestamp.tzinfo is None:
         timestamp = timestamp.replace(tzinfo=timezone.utc)
     ph_time = timestamp.astimezone(timezone(timedelta(hours=8)))
-    return ph_time.strftime("%b %d, %Y %I:%M %p")
+    return ph_time.strftime("%b %d, %Y")
 
 
 def dashboard_view(request):
@@ -139,6 +139,12 @@ def admin_dashboard_view(request):
     # === Fetch Logs ===
     try:
         logs = SystemLog.objects.all().order_by('-created_at')[:50]
+        for log in logs:
+            if not log.created_at:
+                log.created_at = django_now()
+            if log.created_at.tzinfo is None:
+                log.created_at = log.created_at.replace(tzinfo=timezone.utc)
+            log.display_time = format_ph_time(log.created_at)
     except Exception as e:
         print("Error fetching logs:", e)
         logs = []

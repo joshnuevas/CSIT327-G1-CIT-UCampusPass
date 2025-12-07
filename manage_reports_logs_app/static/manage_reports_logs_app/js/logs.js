@@ -18,23 +18,23 @@
 
   // ===== Helper: Fix Supabase timestamp + format to PH time =====
   function formatToPhilippineTime(dateString) {
-    if (!dateString) return "-";
+    if (!dateString || dateString === 'N/A') return "N/A";
 
     let cleanDate = dateString.trim();
     if (!cleanDate.endsWith("Z") && !cleanDate.includes("+")) cleanDate += "Z";
 
     const parsedDate = new Date(cleanDate);
-    if (isNaN(parsedDate.getTime())) return "-";
+    if (isNaN(parsedDate.getTime())) return "N/A";
 
-    return parsedDate.toLocaleString("en-PH", {
-      timeZone: "Asia/Manila",
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+    // Convert to Philippine time
+    const phDate = new Date(parsedDate.toLocaleString("en-US", {timeZone: "Asia/Manila"}));
+
+    const month = phDate.toLocaleString("en-US", {month: "short"});
+    const day = phDate.toLocaleString("en-US", {day: "2-digit"});
+    const year = phDate.toLocaleString("en-US", {year: "numeric"});
+    const timeStr = phDate.toLocaleString("en-US", {hour: "2-digit", minute: "2-digit", hour12: true});
+
+    return `${month} ${day}, ${year}`;
   }
 
   // ===== Filtering logic =====

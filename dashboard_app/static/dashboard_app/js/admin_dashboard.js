@@ -10,18 +10,15 @@
 
   // === Helper: Format time in PH timezone ===
   function formatPHTime(dateString) {
-    if (!dateString) return "-";
+    if (!dateString) return "N/A";
     const d = new Date(dateString);
-    if (isNaN(d.getTime())) return "-";
-    return d.toLocaleString("en-PH", {
-      timeZone: "Asia/Manila",
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+    if (isNaN(d.getTime())) return "N/A";
+    // Convert to Philippine time
+    const phDate = new Date(d.toLocaleString("en-US", {timeZone: "Asia/Manila"}));
+    const month = phDate.toLocaleString("en-US", {month: "short"});
+    const day = phDate.toLocaleString("en-US", {day: "2-digit"});
+    const year = phDate.toLocaleString("en-US", {year: "numeric"});
+    return `${month} ${day}, ${year}`;
   }
 
   // === Fetch notifications from API ===
@@ -47,8 +44,8 @@
         const clearAllBtn = document.createElement("a");
         clearAllBtn.textContent = "Clear All";
         clearAllBtn.href = "#";
-        clearAllBtn.classList.add("view-all", "small-clear-btn");
-        clearAllBtn.style.float = "right";
+        clearAllBtn.classList.add("small-clear-btn");
+        clearAllBtn.style.cssText = "font-size: 0.8rem; color: #8b1538; float: right; text-decoration: none;";
         clearAllBtn.addEventListener("click", (e) => {
           e.preventDefault();
           clearAllNotifications();
@@ -64,17 +61,27 @@
           notifications.forEach((notif, index) => {
             const item = document.createElement("div");
             item.classList.add("dropdown-item", "new-notification");
-
+  
+            let iconClass = 'fas fa-bell';
+            if (notif.title.includes('Staff')) {
+              iconClass = 'fas fa-user-tie';
+            } else if (notif.title.includes('Visitor')) {
+              iconClass = 'fas fa-users';
+            }
+  
             item.innerHTML = `
-              <div style="width:100%; position:relative;">
+              <div class="activity-icon" style="margin-right: 10px;">
+                <i class="${iconClass}"></i>
+              </div>
+              <div class="activity-content" style="flex: 1;">
                 <h4 style="margin-bottom:2px;">${notif.title}</h4>
                 <p style="margin:0;">${notif.message}</p>
                 <small>${formatPHTime(notif.time)}</small>
-                <button class="btn-delete" data-id="${notif.id}" 
-                        style="position:absolute; top:8px; right:8px; background:none; border:none; color:#8b1538; font-size:13px; cursor:pointer; display:none;">
-                  ✕
-                </button>
               </div>
+              <button class="btn-delete" data-id="${notif.id}"
+                      style="position:absolute; top:8px; right:8px; background:none; border:none; color:#8b1538; font-size:13px; cursor:pointer; display:none;">
+                ✕
+              </button>
             `;
             notifDropdown.appendChild(item);
 
@@ -100,11 +107,24 @@
           const item = document.createElement("div");
           item.classList.add("notification-item");
           item.dataset.id = notif.id;
+
+          let iconClass = 'fas fa-bell';
+          if (notif.title.includes('Staff')) {
+            iconClass = 'fas fa-user-tie';
+          } else if (notif.title.includes('Visitor')) {
+            iconClass = 'fas fa-users';
+          }
+
           item.innerHTML = `
-            <h4>${notif.title}</h4>
-            <p>${notif.message}</p>
-            <small>${formatPHTime(notif.time)}</small>
-            <button class="btn-delete" data-id="${notif.id}" 
+            <div class="activity-icon">
+              <i class="${iconClass}"></i>
+            </div>
+            <div class="activity-content">
+              <h4>${notif.title}</h4>
+              <p>${notif.message}</p>
+              <small>${formatPHTime(notif.time)}</small>
+            </div>
+            <button class="btn-delete" data-id="${notif.id}"
                     style="background:none; border:none; color:#8b1538; font-size:14px; cursor:pointer; position:absolute; top:8px; right:8px; display:none;">✕</button>
           `;
           dashboardContainer.appendChild(item);
