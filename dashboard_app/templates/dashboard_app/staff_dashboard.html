@@ -19,29 +19,15 @@
         display: flex;
         flex-direction: column;
         gap: 25px;
-        height: 100%;            /* fill the row height */
-        min-height: 0;
     }
-
-    /* Make the *bottom* card in the left column (Live Check-in Feed) fill leftover space */
-    .left-column > .card:last-child {
-        flex: 1;                 /* take up all remaining height in column */
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
-    }
-
-    /* The right card (Today's Schedule) already has inline flex styles in HTML */
 
     /* Scrollable panels – fill card height instead of using max-height */
     .custom-scroll.live-feed-scroll,
     .custom-scroll.schedule-scroll {
-        flex: 1;
-        min-height: 0;
+        max-height: 380px;   /* 🔧 tweak this number as you like */
         overflow-y: auto;
         padding: 0 20px 20px 20px;
     }
-
     /* ===== Code Checker Widget (Updated) ===== */
 /* This section replaces the original Code Checker Widget CSS block */
 

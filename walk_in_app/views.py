@@ -45,30 +45,28 @@ def walk_in_registration(request):
 
     if request.method == 'POST':
         try:
-            # Get form data
+            # ----- Get form data ----- 
             first_name = (request.POST.get('first_name') or '').strip()
             last_name = (request.POST.get('last_name') or '').strip()
             email = (request.POST.get('email') or '').strip()
             phone = (request.POST.get('phone') or '').strip()
 
-            # Purpose & department (prefer *_other if present)
-            purpose = (request.POST.get('purpose_other')
-                       or request.POST.get('purpose')
-                       or '').strip()
-            department = (request.POST.get('department_other')
-                          or request.POST.get('department')
-                          or '').strip()
+            # Department & purpose (no more *_other fields)
+            department = (request.POST.get('department') or '').strip()
+            purpose = (request.POST.get('purpose') or '').strip()
 
-            # Preserve minimal form data in case of error (optional)
+            # Preserve form data for re-render on error
             form_data = {
                 'first_name': first_name,
                 'last_name': last_name,
                 'email': email,
                 'phone': phone,
+                'department': department,
+                'purpose': purpose,
             }
 
-            # Validate required fields
-            if not all([first_name, last_name, email, phone, purpose, department]):
+            # ----- Validate required fields -----
+            if not all([first_name, last_name, email, phone, department, purpose]):
                 messages.error(request, "Please fill in all required fields.")
                 context = {
                     'staff_first_name': staff_first_name,
@@ -90,7 +88,7 @@ def walk_in_registration(request):
                 }
                 return render(request, 'walk_in_app/walk_in_registration.html', context)
 
-            # Generate visit code
+            # ----- Generate visit code (purpose-based) -----
             purpose_prefix = purpose[:3].upper() if purpose else "WLK"
             random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
             visit_code = f"CIT-{purpose_prefix}-{random_str}"
@@ -112,12 +110,11 @@ def walk_in_registration(request):
                 }
                 return render(request, 'walk_in_app/walk_in_registration.html', context)
 
-            # Set visit times - walk-ins are checked in immediately
+            # ----- Set visit times - walk-ins are checked in immediately -----
             now = datetime.now(PHILIPPINES_TZ)
             start_time = now.time()
             visit_date = now.date()
 
-            # Create visitor name
             visitor_name = f"{first_name} {last_name}"
 
             # Insert visit record using Django ORM
@@ -166,7 +163,7 @@ def walk_in_registration(request):
             messages.error(request, "An error occurred during registration.")
             context = {
                 'staff_first_name': staff_first_name,
-                'form_data': {},
+                'form_data': locals().get('form_data', {}),
                 'success': False,
             }
             return render(request, 'walk_in_app/walk_in_registration.html', context)

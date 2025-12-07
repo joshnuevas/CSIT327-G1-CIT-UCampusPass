@@ -382,9 +382,12 @@ def staff_dashboard_view(request):
         tomorrow_start_ph = today_start_ph + timedelta(days=1)
 
         recent_checkins = SystemLog.objects.filter(
-            action_type__in=['Visitor Check-In', 'Visitor Check-Out'],
-            created_at__gte=today_start_ph,
-            created_at__lt=tomorrow_start_ph,
+            action_type__in=[
+                'Visitor Check-In',
+                'Visitor Check-Out',
+                'Walk-In Registration',
+            ],
+            created_at__date=today,
         ).order_by('-created_at')[:15]
 
         for checkin in recent_checkins:
