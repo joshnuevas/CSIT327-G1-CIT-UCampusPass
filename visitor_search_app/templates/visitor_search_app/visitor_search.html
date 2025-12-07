@@ -5,362 +5,485 @@
 
 {% block extra_css %}
 <style>
-.search-container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
+    :root {
+        /* Brand Colors with a "Lively" Gradient */
+        --primary-color: #8B1538; 
+        --primary-gradient: linear-gradient(135deg, #8B1538 0%, #be123c 100%); /* Maroon to Bright Raspberry */
+        --primary-light: rgba(139, 21, 56, 0.08);
+        
+        /* Surfaces */
+        --bg-body: #f3f4f6;
+        --bg-surface: #ffffff;
+        --bg-input: #f8fafc;
+        
+        /* Text */
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        
+        /* Borders & Radius */
+        --border-color: #e2e8f0;
+        --focus-ring: rgba(190, 18, 60, 0.25);
+        --radius-lg: 20px;
+        --radius-pill: 50px;
+        
+        /* Shadows - Infused with color for liveliness */
+        --shadow-sm: 0 2px 4px rgba(139, 21, 56, 0.05);
+        --shadow-md: 0 8px 16px -4px rgba(139, 21, 56, 0.08);
+        --shadow-lg: 0 20px 25px -5px rgba(139, 21, 56, 0.1), 0 10px 10px -5px rgba(139, 21, 56, 0.04);
+        
+        /* Status Colors - More Vibrant */
+        --status-active-bg: #dcfce7;
+        --status-active-text: #15803d; /* Richer Green */
+        --status-upcoming-bg: #fef3c7;
+        --status-upcoming-text: #b45309; /* Richer Amber */
+        --status-completed-bg: #f1f5f9;
+        --status-completed-text: #475569;
+    }
 
-.search-card {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    margin-bottom: 30px;
-}
+    body {
+        /* Subtle warm gradient background instead of flat grey */
+        background: radial-gradient(circle at top right, #fff1f2 0%, #f3f4f6 40%);
+        color: var(--text-main);
+        min-height: 100vh;
+    }
 
-.search-header {
-    text-align: center;
-    margin-bottom: 32px;
-}
+    .search-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
 
-.search-icon {
-    width: 70px;
-    height: 70px;
-    margin: 0 auto 16px;
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 32px;
-}
-
-.search-header h1 {
-    color: #8B1538;
-    margin-bottom: 8px;
-    font-size: 1.8rem;
-}
-
-.search-box {
-    position: relative;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.search-input {
-    width: 100%;
-    padding: 18px 60px 18px 24px;
-    border: 3px solid #E0E0E0;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: #8B1538;
-    box-shadow: 0 0 0 4px rgba(139, 21, 56, 0.1);
-}
-
-.search-button {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    border: none;
-    border-radius: 50%;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.search-button:hover {
-    transform: translateY(-50%) scale(1.1);
-}
-
-.results-section {
-    margin-top: 32px;
-}
-
-.results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.results-count {
-    font-size: 1.1rem;
-    color: #666;
-}
-
-.results-count strong {
-    color: #8B1538;
-    font-size: 1.3rem;
-}
-
-.visitor-card {
-    background: white;
-    border: 2px solid #F5F5F5;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 16px;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.visitor-card:hover {
-    border-color: #8B1538;
-    transform: translateX(4px);
-    box-shadow: 0 4px 16px rgba(139, 21, 56, 0.1);
-}
-
-.visitor-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-    margin-bottom: 16px;
-}
-
-.visitor-info {
-    flex: 1;
-}
-
-.visitor-name {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 4px;
-}
-
-.visitor-email {
-    color: #666;
-    font-size: 0.95rem;
-}
-
-.visitor-status {
-    display: inline-block;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.85rem;
-}
-
-.status-active {
-    background: #E8F5E9;
-    color: #2E7D32;
-}
-
-.status-completed {
-    background: #F5F5F5;
-    color: #666;
-}
-
-.status-upcoming {
-    background: #FFF8E1;
-    color: #F57F17;
-}
-
-.visitor-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin: 16px 0;
-    padding: 16px;
-    background: #FAFAFA;
-    border-radius: 12px;
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.detail-label {
-    font-size: 0.85rem;
-    color: #666;
-    margin-bottom: 4px;
-}
-
-.detail-value {
-    font-weight: 600;
-    color: #333;
-}
-
-.visitor-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 2px solid #F5F5F5;
-}
-
-.action-btn {
-    flex: 1;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.btn-checkin {
-    background: #4CAF50;
-    color: white;
-}
-
-.btn-checkin:hover {
-    background: #45a049;
-    transform: translateY(-2px);
-}
-
-.btn-checkout {
-    background: #FF9800;
-    color: white;
-}
-
-.btn-checkout:hover {
-    background: #FB8C00;
-    transform: translateY(-2px);
-}
-
-.btn-view {
-    background: #2196F3;
-    color: white;
-}
-
-.btn-view:hover {
-    background: #1976D2;
-    transform: translateY(-2px);
-}
-
-.btn-history {
-    background: #F5F5F5;
-    color: #666;
-}
-
-.btn-history:hover {
-    background: #E0E0E0;
-    transform: translateY(-2px);
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #999;
-}
-
-.empty-icon {
-    font-size: 64px;
-    margin-bottom: 16px;
-    color: #DDD;
-}
-
-.empty-text {
-    font-size: 1.2rem;
-    margin-bottom: 8px;
-}
-
-.visit-history {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 2px solid #F5F5F5;
-}
-
-.history-title {
-    font-weight: 700;
-    color: #8B1538;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.history-list {
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.history-item {
-    padding: 12px;
-    background: white;
-    border-left: 3px solid #E0E0E0;
-    margin-bottom: 8px;
-    border-radius: 8px;
-}
-
-.history-date {
-    font-weight: 600;
-    color: #333;
-    font-size: 0.95rem;
-}
-
-.history-details {
-    font-size: 0.9rem;
-    color: #666;
-    margin-top: 4px;
-}
-
-.total-visits-badge {
-    display: inline-block;
-    background: #8B1538;
-    color: white;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-@media (max-width: 768px) {
+    /* --- Search Card --- */
     .search-card {
+        background: var(--bg-surface);
+        border-radius: var(--radius-lg);
+        padding: 48px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid white;
+        opacity: 0;
+        transform: translateY(24px);
+        animation: fadeInUpSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Subtle colorful decorative top bar */
+    .search-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 6px;
+        background: var(--primary-gradient);
+    }
+
+    .search-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        /* Gradient Background */
+        background: linear-gradient(135deg, #fff0f5, #ffe4e6);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        box-shadow: 0 4px 12px rgba(190, 18, 60, 0.15);
+        transition: transform 0.3s ease;
+    }
+    
+    .icon-wrapper i {
+        /* Gradient Text Icon */
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .search-card:hover .icon-wrapper {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .search-header h1 {
+        color: #111;
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 8px;
+        letter-spacing: -0.03em;
+    }
+
+    .search-header p {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+    }
+
+    /* --- Search Input --- */
+    .search-box-wrapper {
+        position: relative;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 18px 64px 18px 28px;
+        background-color: var(--bg-input);
+        border: 2px solid transparent; /* Prepare for border transition */
+        border-radius: var(--radius-pill);
+        font-size: 1.15rem;
+        color: var(--text-main);
+        transition: all 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .search-input:focus {
+        outline: none;
+        background: #ffffff;
+        border-color: #8B1538; /* same as booking */
+        box-shadow: 0 0 0 4px rgba(139, 21, 56, 0.08); /* identical soft red glow */
+    }
+
+    .search-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 48px;
+        height: 48px;
+        /* Lively Gradient Button */
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy transition */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(139, 21, 56, 0.3);
+    }
+
+    .search-btn:hover {
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 6px 15px rgba(139, 21, 56, 0.4);
+    }
+
+    /* --- Results Section --- */
+    .results-section {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUpSmooth 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        animation-delay: 0.2s;
+    }
+
+    .results-count {
+        margin-bottom: 24px;
+        padding-left: 12px;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .results-count strong {
+        color: #be123c; /* Brighter Red */
+        font-weight: 800;
+        font-size: 1.2rem;
+    }
+
+    /* --- Visitor Card Styling --- */
+    .visitor-card {
+        background: var(--bg-surface);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 24px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    /* Colorful left accent bar on hover */
+    .visitor-card::after {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 4px;
+        background: var(--primary-gradient);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .visitor-card:hover {
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08), 0 5px 10px rgba(139, 21, 56, 0.05);
+        transform: translateY(-4px);
+        border-color: #fed7aa; /* Subtle warmth on border */
+    }
+
+    .visitor-card:hover::after {
+        opacity: 1;
+    }
+
+    .card-header-row {
         padding: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        background: linear-gradient(to right, #ffffff, #fafafa);
+    }
+
+    .visitor-profile {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .profile-initial {
+        width: 52px;
+        height: 52px;
+        /* Lively Gradient Initial */
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        color: #64748b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.4rem;
+        border: 2px solid white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     
-    .visitor-details {
-        grid-template-columns: 1fr;
+    /* Make initial pop on hover */
+    .visitor-card:hover .profile-initial {
+        background: var(--primary-gradient);
+        color: white;
     }
-    
-    .visitor-actions {
+
+    .visitor-name {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1.2;
+    }
+
+    .visitor-email {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
+
+    .status-active { background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; }
+    .status-upcoming { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .status-completed { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
+    /* --- Card Body --- */
+    .card-body {
+        padding: 24px 24px 0 24px;
+        background: white;
+    }
+
+    .details-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 32px;
+        width: 100%;
+        margin-bottom: 24px;
+    }
+
+    .detail-item {
+        display: flex;
         flex-direction: column;
+        min-width: 0;
     }
-}
+
+    .detail-item.col-code { flex: 0 0 160px; }
+    .detail-item.col-date { flex: 0 0 120px; }
+    .detail-item.col-wide { flex: 1; } 
+
+    .detail-item label {
+        display: block;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #94a3b8;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+
+    .detail-item span {
+        font-weight: 600;
+        color: #334155;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        max-width: 100%;
+    }
+
+    .detail-item .code-value {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        letter-spacing: 0.5px;
+        color: #be123c; 
+        font-weight: 700;
+        font-size: 1.1rem;
+        background: #fff1f2;
+        padding: 4px 8px;
+        border-radius: 6px;
+        
+        /* --- CHANGE STARTS HERE --- */
+        display: inline-block; 
+        border: 1px dashed #fda4af;
+        
+        /* Add this line to stop it from stretching: */
+        width: fit-content; 
+        /* --- CHANGE ENDS HERE --- */
+    }
+
+    .card-actions {
+        display: flex;
+        justify-content: center; /* centers the button */
+        margin-top: 8px;
+        padding-bottom: 24px;
+    }
+
+    .btn-view {
+        padding: 12px 22px;
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-main);
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        transition: all 0.2s;
+    }
+
+    .btn-view:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: var(--primary-color);
+    }
+
+    /* --- History Section --- */
+    .history-section {
+        border-top: 1px dashed #e2e8f0;
+        background: #f8fafc;
+        padding: 20px 24px;
+    }
+
+    .history-header {
+        margin-bottom: 12px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .history-item {
+        display: flex;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+    }
+    
+    .history-item:last-child { border-bottom: none; }
+    
+    .history-date {
+        font-weight: 600;
+        color: #1e293b;
+        width: 120px;
+        flex-shrink: 0;
+    }
+    
+    .history-info {
+        color: #64748b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* --- Empty State --- */
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--text-muted);
+    }
+    
+    .empty-icon {
+        font-size: 56px;
+        margin-bottom: 20px;
+        color: #e2e8f0;
+        /* Animated gradient text for icon */
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    @keyframes fadeInUpSmooth {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .card-header-row { flex-direction: column; gap: 16px; align-items: flex-start; }
+        .details-row { flex-direction: column; gap: 20px; }
+        .detail-item.col-code, .detail-item.col-date { flex: auto; }
+        .visitor-profile { width: 100%; }
+        .status-badge { align-self: flex-start; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="search-container">
+    
     <div class="search-card">
         <div class="search-header">
-            <div class="search-icon">
+            <div class="icon-wrapper">
                 <i class="fas fa-search"></i>
             </div>
             <h1>Visitor Search</h1>
-            <p style="color: #666;">Search by name, email, phone, or visit code</p>
+            <p>Find visitors by name, email, phone number, or visit code.</p>
         </div>
 
         <form method="GET" action="{% url 'visitor_search_app:search' %}">
-            <div class="search-box">
+            <div class="search-box-wrapper">
                 <input 
                     type="text" 
                     name="query" 
                     class="search-input" 
-                    placeholder="Enter name, email, phone, or visit code..."
+                    placeholder="Enter keywords..."
                     value="{{ query }}"
                     autofocus
+                    autocomplete="off"
                 >
-                <button type="submit" class="search-button">
-                    <i class="fas fa-search"></i>
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
         </form>
@@ -368,136 +491,124 @@
 
     {% if query %}
     <div class="results-section">
-        <div class="results-header">
-            <div class="results-count">
-                Found <strong>{{ results|length }}</strong> result{{ results|length|pluralize }}
-            </div>
+        <div class="results-count">
+            Found <strong>{{ results|length }}</strong> result{{ results|length|pluralize }} for "{{ query }}"
         </div>
 
         {% if results %}
             {% for result in results %}
             <div class="visitor-card">
-                <div class="visitor-header">
-                    <div class="visitor-info">
-                        <div class="visitor-name">
-                            {{ result.visitor_name }}
+                <div class="card-header-row">
+                    <div class="visitor-profile">
+                        <div class="profile-initial">
+                            {{ result.visitor_name|slice:":1" }}
                         </div>
-                        <div class="visitor-email">
-                            <i class="fas fa-envelope"></i> {{ result.user_email }}
+                        <div>
+                            <div class="visitor-name">{{ result.visitor_name }}</div>
+                            <div class="visitor-email">{{ result.user_email }}</div>
                         </div>
                     </div>
-                    <span class="visitor-status status-{{ result.current_status|lower }}">
+
+                    <span class="status-badge status-{{ result.current_status|lower }}">
                         {% if result.current_status == 'Active' %}
-                            <i class="fas fa-circle"></i> Active Now
+                            <i class="fas fa-circle" style="font-size: 8px; color: #059669;"></i> Active
                         {% elif result.current_status == 'Upcoming' %}
-                            <i class="fas fa-clock"></i> Upcoming
+                            <i class="fas fa-clock" style="font-size: 10px; color: #d97706;"></i> Upcoming
                         {% else %}
-                            <i class="fas fa-check"></i> {{ result.current_status }}
+                            <i class="fas fa-check" style="font-size: 10px;"></i> {{ result.current_status }}
                         {% endif %}
                     </span>
                 </div>
 
-                {% if result.current_visit %}
-                <div class="visitor-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Visit Code</span>
-                        <span class="detail-value">{{ result.current_visit.code }}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Purpose</span>
-                        <span class="detail-value">{{ result.current_visit.purpose }}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Department</span>
-                        <span class="detail-value">{{ result.current_visit.department }}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Visit Date</span>
-                        <span class="detail-value">{{ result.current_visit.visit_date }}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Time</span>
-                        <span class="detail-value">{{ result.current_visit.start_time|slice:":5" }} - {{ result.current_visit.end_time|slice:":5" }}</span>
-                    </div>
-                </div>
+                <div class="card-body">
+                    {% if result.current_visit %}
+                    <div class="details-row">
+                        <div class="detail-item col-code">
+                            <label>Visit Code</label>
+                            <span class="code-value">{{ result.current_visit.code }}</span>
+                        </div>
 
-                <div class="visitor-actions">
-                    {% if result.current_status == 'Upcoming' %}
-                    <form method="POST" action="{% url 'dashboard_app:check_in_visitor' %}" style="flex: 1;">
-                        {% csrf_token %}
-                        <input type="hidden" name="visit_code" value="{{ result.current_visit.code }}">
-                        <button type="submit" class="action-btn btn-checkin">
-                            <i class="fas fa-sign-in-alt"></i> Check In
-                        </button>
-                    </form>
-                    {% elif result.current_status == 'Active' %}
-                    <form method="POST" action="{% url 'dashboard_app:check_out_visitor' %}" style="flex: 1;">
-                        {% csrf_token %}
-                        <input type="hidden" name="visit_code" value="{{ result.current_visit.code }}">
-                        <button type="submit" class="action-btn btn-checkout">
-                            <i class="fas fa-sign-out-alt"></i> Check Out
-                        </button>
-                    </form>
+                        <div class="detail-item col-wide">
+                            <label>Department</label>
+                            <span class="department-name" title="{{ result.current_visit.department }}">{{ result.current_visit.department }}</span>
+                        </div>
+
+                        <div class="detail-item col-wide">
+                            <label>Purpose</label>
+                            <span title="{{ result.current_visit.purpose }}">{{ result.current_visit.purpose }}</span>
+                        </div>
+
+                        <div class="detail-item col-date">
+                            <label>Date</label>
+                            <span>{{ result.current_visit.visit_date }}</span>
+                        </div>
+                    </div>
                     {% endif %}
-                    <a href="{% url 'visitor_search_app:detail' %}?email={{ result.user_email }}" 
-                       class="action-btn btn-view">
-                        <i class="fas fa-eye"></i> View Details
-                    </a>
+
+                    <div class="card-actions">
+                        <a href="{% url 'visitor_search_app:detail' %}?email={{ result.user_email }}" class="btn-view">
+                            View Full Profile
+                        </a>
+                    </div>
                 </div>
-                {% endif %}
 
                 {% if result.visit_history %}
-                <div class="visit-history">
-                    <div class="history-title">
-                        <i class="fas fa-history"></i> 
-                        Visit History
-                        <span class="total-visits-badge">{{ result.total_visits }} visit{{ result.total_visits|pluralize }}</span>
+                <div class="history-section">
+                    <div class="history-header">
+                        <span>Recent History</span>
+                        <span>{{ result.total_visits }} total visits</span>
                     </div>
-                    <div class="history-list">
-                        {% for visit in result.visit_history|slice:":5" %}
-                        <div class="history-item">
-                            <div class="history-date">
-                                <i class="fas fa-calendar"></i> {{ visit.visit_date }}
-                            </div>
-                            <div class="history-details">
-                                {{ visit.purpose }} at {{ visit.department }} - {{ visit.status }}
-                            </div>
-                        </div>
-                        {% endfor %}
+                    {% for visit in result.visit_history|slice:":3" %}
+                    <div class="history-item">
+                        <div class="history-date">{{ visit.visit_date }}</div>
+                        <div class="history-info">{{ visit.department }} - {{ visit.status }}</div>
                     </div>
+                    {% endfor %}
                 </div>
                 {% endif %}
             </div>
             {% endfor %}
+
         {% else %}
             <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-search"></i>
-                </div>
-                <div class="empty-text">No visitors found</div>
-                <p style="color: #999;">Try searching with a different term</p>
+                <i class="fas fa-search empty-icon"></i>
+                <h3>No visitors found</h3>
+                <p>We couldn't find any records matching "{{ query }}".</p>
             </div>
         {% endif %}
     </div>
     {% else %}
-    <div class="empty-state">
-        <div class="empty-icon">
-            <i class="fas fa-users"></i>
+        <div class="empty-state" style="opacity: 0; animation: fadeInUpSmooth 0.9s forwards 0.3s;">
+            <i class="fas fa-users empty-icon"></i>
+            <h3>Ready to Search</h3>
+            <p>Enter visitor details above to manage check-ins or view history.</p>
         </div>
-        <div class="empty-text">Start searching for visitors</div>
-        <p style="color: #999;">Enter a name, email, phone number, or visit code above</p>
-    </div>
     {% endif %}
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Allow Enter key to search
-document.querySelector('.search-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.querySelector('form').submit();
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('.search-input');
+    const form = input ? input.closest('form') : null;
+
+    // Allow Enter to submit via JS (optional – Django already handles GET)
+    if (input && form) {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                form.submit();
+            }
+        });
+    }
+
+    // Strip ?query=... from URL after first render
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('query')) {
+        url.search = '';
+        window.history.replaceState({}, '', url.pathname);
     }
 });
 </script>
