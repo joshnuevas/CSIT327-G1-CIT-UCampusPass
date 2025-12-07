@@ -21,10 +21,16 @@
         gap: 25px;
     }
 
-    /* Scrollable panels – fill card height instead of using max-height */
-    .custom-scroll.live-feed-scroll,
+    /* Live Check-in Feed – keep it shorter */
+    .custom-scroll.live-feed-scroll {
+        max-height: 380px;          /* keep as-is */
+        overflow-y: auto;
+        padding: 0 20px 20px 20px;
+    }
+
+    /* RIGHT: Today's Schedule – taller but still bounded */
     .custom-scroll.schedule-scroll {
-        max-height: 380px;   /* 🔧 tweak this number as you like */
+        max-height: 520px;          /* 🔧 make this bigger/smaller as you like */
         overflow-y: auto;
         padding: 0 20px 20px 20px;
     }
