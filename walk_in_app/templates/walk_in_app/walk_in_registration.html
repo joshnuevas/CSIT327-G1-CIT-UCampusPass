@@ -473,14 +473,6 @@
             <p>Generate a pass for visitors without a pre-booking.</p>
         </div>
 
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-
         <form method="POST" action="{% url 'walk_in_app:registration' %}" autocomplete="off">
             {% csrf_token %}
 
