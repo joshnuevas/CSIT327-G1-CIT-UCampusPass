@@ -1091,3 +1091,29 @@ body {
     padding-left: 44px;         /* already in your CSS */
     padding-right: 40px;        /* new: space for the X */
 }
+
+/* --- Fix vertical alignment of status pill icon + text --- */
+.status-pill-option {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;      /* center icon + text vertically */
+    justify-content: center;
+    gap: 6px;
+    line-height: 1;          /* avoid extra space below the text */
+}
+
+.status-pill-option svg {
+    display: block;          /* remove inline SVG baseline spacing */
+}
+
+.status-pill-option span {
+    display: inline-flex;
+    align-items: center;     /* center the text inside its span */
+}
+
+.status-pill-option span:not(.pill-icon-wrapper) {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    transform: translateY(-1px);   /* tweak to -2px if you want it higher */
+}
