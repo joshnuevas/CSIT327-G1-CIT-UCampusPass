@@ -38,6 +38,7 @@ def format_ph_time(timestamp):
     ph_time = timestamp.astimezone(timezone(timedelta(hours=8)))
     return ph_time.strftime("%b %d, %Y %I:%M %p")
 
+
 def dashboard_view(request):
     """
     Visitor dashboard.
@@ -124,6 +125,7 @@ def dashboard_view(request):
 
     return render(request, "dashboard_app/dashboard.html", context)
 
+
 # ========== ADMIN DASHBOARD ==========
 def admin_dashboard_view(request):
     if "admin_username" not in request.session:
@@ -187,6 +189,7 @@ def admin_dashboard_view(request):
 
     return render(request, "dashboard_app/admin_dashboard.html", context)
 
+
 # ========= NOTIFICATIONS API (for dropdown + AJAX) =========
 def admin_notifications_api(request):
     if "admin_username" not in request.session:
@@ -240,6 +243,7 @@ def admin_notifications_api(request):
 
     return JsonResponse({"notifications": notifications[:10]})
 
+
 # ========== DELETE NOTIFICATIONS  ==========
 @csrf_exempt
 @require_POST
@@ -264,6 +268,7 @@ def delete_notification_api(request):
         return JsonResponse({"success": True})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
 
 # ========== CLEAR ALL NOTIFICATIONS ==========
 @csrf_exempt
@@ -298,6 +303,7 @@ def clear_notifications_api(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
+
 # ============================================================================
 # ===== STAFF DASHBOARD - Enhanced with Code Checker & Check-in/Check-out ===
 # ============================================================================
@@ -323,7 +329,7 @@ def staff_dashboard_view(request):
     today = now_ph.date()
 
     try:
-        # ✅ Use the date object directly
+        # ✅ Use the date object directly for visit_date
         today_visits = Visit.objects.filter(visit_date=today)
 
         # ----- Update status for today's visits -----
@@ -374,27 +380,20 @@ def staff_dashboard_view(request):
         active_visits_count = today_visits.filter(status='Active').count()
         checked_in_count = today_visits.filter(status__in=['Active', 'Completed']).count()
 
-        # ===== 🔁 LIVE FEED: only show TODAY's check-ins / check-outs =====
-        today_start_ph = datetime.combine(
-            today,
-            datetime.min.time()
-        ).replace(tzinfo=PHILIPPINES_TZ)
-        tomorrow_start_ph = today_start_ph + timedelta(days=1)
-
+                # ===== 🔁 LIVE FEED: show most recent check-ins/check-outs (no date filter) =====
         recent_checkins = SystemLog.objects.filter(
             action_type__in=[
-                'Visitor Check-In',
-                'Visitor Check-Out',
-                'Walk-In Registration',
-            ],
-            created_at__date=today,
-        ).order_by('-created_at')[:15]
+                "Visitor Check-In",
+                "Visitor Check-Out",
+                "Walk-In Registration",
+            ]
+        ).order_by("-created_at")[:15]
 
         for checkin in recent_checkins:
             try:
                 checkin.display_time = checkin.created_at.astimezone(
                     PHILIPPINES_TZ
-                ).strftime('%b %d, %Y %I:%M %p')
+                ).strftime("%b %d, %Y %I:%M %p")
             except Exception:
                 checkin.display_time = str(checkin.created_at)
 
@@ -411,7 +410,7 @@ def staff_dashboard_view(request):
             'active_visits_count': active_visits_count,
             'checked_in_count': checked_in_count,
             'today_visits': list(today_visits[:10]),  # Show first 10
-            'recent_checkins': recent_checkins,       # ✅ only today's logs
+            'recent_checkins': recent_checkins,       # ✅ only today's logs (PH time)
             'code_check_result': code_check_result,
         }
 
@@ -430,6 +429,7 @@ def staff_dashboard_view(request):
             'today_visits': [],
             'recent_checkins': [],
         })
+
 
 @staff_required
 def code_checker(request):
@@ -580,7 +580,6 @@ def check_out_visitor(request):
         SystemLog.objects.create(
             actor=f"{staff_first_name} ({staff_username})",
             action_type="Visitor Check-Out",
-            # ⬇️ Removed the "at ..." part from description
             description=f"Checked out visitor with code {visit_code} from {visit.department}",
             actor_role="Staff",
             created_at=current_time,
@@ -591,7 +590,6 @@ def check_out_visitor(request):
             f'✅ Visitor checked out successfully at {formatted_time}! Code: {visit_code}'
         )
 
-        # Optional: if you care about console logs, format this too
         logger.info(f"Visitor checked out by {staff_username}: {visit_code} at {formatted_time}")
 
     except Exception as e:
