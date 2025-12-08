@@ -247,12 +247,6 @@
         gap: 12px;
     }
 
-    .alert-icon {
-        font-size: 18px;
-        flex-shrink: 0;
-        margin-top: 2px;
-    }
-
     .alert-text {
         font-size: 14px;
         color: #2D3748;
@@ -274,18 +268,6 @@
     }
 
     .alert-close:hover { color: #2D3748; }
-
-    .alert-success { border-left-color: #38A169; }
-    .alert-success .alert-icon { color: #38A169; }
-
-    .alert-danger, .alert-error { border-left-color: #E53E3E; }
-    .alert-danger .alert-icon, .alert-error .alert-icon { color: #E53E3E; }
-
-    .alert-warning { border-left-color: #D69E2E; }
-    .alert-warning .alert-icon { color: #D69E2E; }
-
-    .alert-info { border-left-color: #3182CE; }
-    .alert-info .alert-icon { color: #3182CE; }
 
     /* =========================================
       6. DROPDOWNS
@@ -615,17 +597,7 @@
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }} {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
                 <div class="alert-content">
-                    <span class="alert-icon">
-                        {% if message.tags == 'success' %}
-                            ✅
-                        {% elif message.tags == 'error' or message.tags == 'danger' %}
-                            ❌
-                        {% elif message.tags == 'warning' %}
-                            ⚠️
-                        {% else %}
-                            ℹ️
-                        {% endif %}
-                    </span>
+                    <span class="alert-icon"></span>
                     <span class="alert-text">{{ message }}</span>
                     <button class="alert-close" onclick="this.parentElement.parentElement.remove()">×</button>
                 </div>

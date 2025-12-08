@@ -6,23 +6,14 @@
 {% block extra_css %}
 <style>
     :root {
-        /* Brand Colors */
         --primary-maroon: #8B1538;
         --maroon-dark: #6d102b;
         --primary-gold: #F1C40F;
-        
-        /* UI Colors */
         --text-dark: #1e293b;
         --text-muted: #64748b;
         --bg-surface: #ffffff;
         --bg-background: #f8fafc;
         --border-color: #e2e8f0;
-        
-        /* State Colors */
-        --success-bg: #ecfdf5;
-        --success-text: #047857;
-        --success-border: #a7f3d0;
-        
         --error-bg: #fff1f2;
         --error-text: #be123c;
         --error-border: #fecdd3;
@@ -39,38 +30,41 @@
         padding: 0 1rem;
     }
 
-    /* --- Main Checker Card --- */
+    /* ============================================
+       MAIN CHECKER CARD
+    ============================================ */
     .checker-card {
         background: var(--bg-surface);
         border-radius: 20px;
-        padding: 3rem 2rem;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        padding: 2.5rem 2rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         text-align: center;
         border: 1px solid var(--border-color);
         position: relative;
         overflow: hidden;
     }
 
-    /* Decorative top bar */
     .checker-card::before {
         content: '';
         position: absolute;
-        top: 0; left: 0; right: 0;
+        top: 0;
+        left: 0;
+        right: 0;
         height: 6px;
         background: linear-gradient(90deg, var(--primary-maroon), #be123c);
     }
 
     .checker-icon {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 1.5rem;
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 1.25rem;
         background: #fff1f2;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: var(--primary-maroon);
-        font-size: 2rem;
+        font-size: 1.75rem;
         box-shadow: 0 4px 12px rgba(139, 21, 56, 0.1);
         transition: transform 0.3s ease;
     }
@@ -82,18 +76,20 @@
     .checker-card h1 {
         color: var(--text-dark);
         margin-bottom: 0.5rem;
-        font-size: 1.75rem;
-        font-weight: 800;
-        letter-spacing: -0.02em;
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
     }
 
     .checker-card p {
         color: var(--text-muted);
-        margin-bottom: 2.5rem;
-        font-size: 1rem;
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
     }
 
-    /* --- Input Area --- */
+    /* ============================================
+       INPUT FORM
+    ============================================ */
     .code-input-form {
         max-width: 480px;
         margin: 0 auto 1rem;
@@ -101,23 +97,23 @@
 
     .code-input-wrapper {
         position: relative;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
 
     .code-input-wrapper input {
         width: 100%;
-        padding: 1.25rem;
-        font-size: 1.5rem;
+        padding: 1rem;
+        font-size: 1.1rem;
         font-weight: 700;
         text-align: center;
         background: #f8fafc;
         border: 2px solid var(--border-color);
         border-radius: 12px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        letter-spacing: 4px;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        color: var(--primary-maroon);
+        color: #111827;
     }
 
     .code-input-wrapper input:focus {
@@ -136,162 +132,16 @@
 
     .check-btn {
         width: 100%;
-        padding: 1rem;
-        background: var(--primary-maroon);
-        color: white;
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #8B1538, #6B0F2A);
+        color: #FFFFFF;
         border: none;
-        border-radius: 12px;
-        font-size: 1.1rem;
+        border-radius: 12px;           /* pill like Yes, Logout */
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(139, 21, 56, 0.2);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .check-btn:hover {
-        background: var(--maroon-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(139, 21, 56, 0.3);
-    }
-
-    /* ===== Result Display ===== */
-    .result-section {
-        margin-top: 3rem;
-        animation: slideUpFade 0.5s ease-out forwards;
-    }
-
-    @keyframes slideUpFade {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .result-card {
-        border-radius: 16px;
-        overflow: hidden;
-        border: 1px solid transparent;
-    }
-
-    .result-card.success {
-        background: #ffffff;
-        border-color: var(--success-border);
-        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1);
-    }
-
-    .result-card.error {
-        background: #ffffff;
-        border-color: var(--error-border);
-        box-shadow: 0 10px 30px rgba(244, 63, 94, 0.1);
-    }
-
-    /* Result Header */
-    .result-header {
-        padding: 2rem;
-        text-align: center;
-        border-bottom: 1px solid var(--border-color);
-        background: #fafafa;
-    }
-
-    .result-card.success .result-header { background: var(--success-bg); }
-    .result-card.error .result-header { background: var(--error-bg); }
-
-    .result-icon-large {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        display: block;
-    }
-
-    .success .result-icon-large { color: var(--success-text); }
-    .error .result-icon-large { color: var(--error-text); }
-
-    .result-header h2 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: var(--text-dark);
-    }
-
-    .result-header p {
-        color: var(--text-muted);
-        font-size: 1rem;
-        margin: 0;
-    }
-
-    /* Details Grid */
-    .visit-details {
-        padding: 2rem;
-    }
-
-    .detail-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        text-align: left;
-    }
-
-    .detail-item {
-        background: #f8fafc;
-        padding: 1rem;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-    }
-
-    .detail-label {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .detail-value {
-        font-size: 1.05rem;
-        color: var(--text-dark);
-        font-weight: 600;
-        word-break: break-word;
-    }
-
-    /* Status Badges */
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 16px;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-    
-    .status-badge.upcoming { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
-    .status-badge.active { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-    .status-badge.expired { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
-    .status-badge.completed { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
-
-    /* Action Buttons */
-    .action-buttons {
-        padding: 1.5rem 2rem 2rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        border-top: 1px solid var(--border-color);
-    }
-
-    .btn-action {
-        padding: 0.85rem 1.5rem;
-        border: none;
-        border-radius: 10px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -299,55 +149,560 @@
         text-decoration: none;
     }
 
-    .btn-check-in {
-        background: #059669;
-        color: white;
+    .check-btn:hover {
+        background: linear-gradient(135deg, #6B0F2A, #8B1538);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4);
     }
-    .btn-check-in:hover { background: #047857; transform: translateY(-2px); }
 
-    .btn-check-out {
-        background: #d97706;
-        color: white;
+    /* ============================================
+       RESULT SECTION
+    ============================================ */
+    .result-section {
+        margin-top: 3rem;
+        animation: slideUpFade 0.5s ease-out forwards;
     }
-    .btn-check-out:hover { background: #b45309; transform: translateY(-2px); }
 
-    .btn-secondary {
-        background: white;
+    @keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ============================================
+       TICKET CARD DESIGN
+    ============================================ */
+    .result-card {
+        border-radius: 16px;
+        overflow: visible;
+        border: 1px solid transparent;
+        position: relative;
+        background: #ffffff;
+    }
+
+    .result-card::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 20px;
+        right: 20px;
+        height: 20px;
+        background:
+            radial-gradient(circle at 10px 10px, var(--bg-background) 6px, transparent 6px) 0 0/20px 20px repeat-x;
+        z-index: 10;
+    }
+
+    .result-card::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 20px;
+        right: 20px;
+        height: 20px;
+        background:
+            radial-gradient(circle at 10px 10px, var(--bg-background) 6px, transparent 6px) 0 0/20px 20px repeat-x;
+        z-index: 10;
+    }
+
+    .result-card.success {
+        border-color: var(--primary-gold);
+        box-shadow: 0 10px 30px rgba(241, 196, 15, 0.15);
+    }
+
+    .result-card.error {
+        border-color: var(--error-border);
+        box-shadow: 0 10px 30px rgba(244, 63, 94, 0.1);
+    }
+
+    /* ============================================
+       RESULT HEADER
+    ============================================ */
+    .result-header {
+        padding: 2rem 2rem 1.75rem;
+        text-align: center;
+        border-bottom: 2px dashed #cbd5e1;
+        background: #fafafa;
+        position: relative;
+        z-index: 1;
+    }
+
+    .result-card.success .result-header {
+        background: linear-gradient(135deg, #fff9f0 0%, #fff5e1 100%);
+        border-bottom-color: var(--primary-gold);
+    }
+
+    .result-card.error .result-header {
+        background: var(--error-bg);
+        border-bottom-color: var(--error-border);
+    }
+
+    .result-icon-large {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .success .result-icon-large {
+        color: var(--primary-maroon);
+    }
+
+    .error .result-icon-large {
+        color: var(--error-text);
+    }
+
+    .result-header h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
         color: var(--text-dark);
-        border: 1px solid var(--border-color);
     }
-    .btn-secondary:hover { 
-        background: #f8fafc; 
-        border-color: #cbd5e1;
-        color: var(--text-dark);   /* or keep it same as normal state */
+
+    .result-header p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    /* ============================================
+       VISIT DETAILS GRID
+    ============================================ */
+    .visit-details {
+        padding: 2rem;
+        background: #ffffff;
+        position: relative;
+        z-index: 1;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        text-align: left;
+    }
+
+    .detail-item {
+        background: #fafafa;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .detail-item:hover {
+        border-color: var(--primary-gold);
+        box-shadow: 0 4px 12px rgba(241, 196, 15, 0.1);
+        transform: translateY(-2px);
+        background: #ffffff;
+    }
+
+    .detail-label {
+        font-size: 0.65rem;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .detail-label i {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        color: var(--primary-maroon);
+    }
+
+    .detail-value {
+        font-size: 0.95rem;
+        color: #111827;
+        font-weight: 600;
+        word-break: break-word;
+        line-height: 1.4;
+    }
+
+    /* ============================================
+       STATUS BADGES
+    ============================================ */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .status-badge.upcoming {
+        background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+        color: #c2410c;
+        border: 1px solid #fed7aa;
+    }
+
+    .status-badge.active {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        color: #15803d;
+        border: 1px solid #86efac;
+    }
+
+    .status-badge.expired {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+
+    .status-badge.completed {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+    }
+
+    /* ============================================
+       ACTION BUTTONS
+    ============================================ */
+    .action-buttons {
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        border-top: 2px dashed #cbd5e1;
+        background: #fafafa;
+        position: relative;
+        z-index: 1;
+    }
+
+    .result-card.success .action-buttons {
+        border-top-color: var(--primary-gold);
+        background: linear-gradient(135deg, #fff9f0 0%, #fffcf5 100%);
+    }
+
+    .btn-action {
+        padding: 0.85rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        text-decoration: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-action::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: left 0.5s ease;
+    }
+
+    .btn-action:hover::before {
+        left: 100%;
+    }
+
+    /* FINAL COLORS FOR CHECK IN / OUT */
+
+    .btn-action.btn-check-in {
+        background: linear-gradient(135deg, #22C55E, #15803D);
+        color: #ffffff;
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .btn-action.btn-check-in:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.35);
+        background: linear-gradient(135deg, #22C55E, #15803D);
+    }
+
+    .btn-action.btn-check-out {
+        background: linear-gradient(135deg, #FACC15, #D97706);
+        color: #7A162D;
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(250, 204, 21, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .btn-action.btn-check-out:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(250, 204, 21, 0.35);
+        background: linear-gradient(135deg, #FACC15, #D97706);
+    }
+
+    .btn-action.btn-check-in::before,
+    .btn-action.btn-check-out::before {
+        display: none;
+    }
+
+    /* instead of .btn-secondary */
+    .action-buttons .btn-secondary {
+        background: white;
+        color: #374151;
+        border: 2px solid #d1d5db;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    /* instead of .btn-secondary:hover */
+    .action-buttons .btn-secondary:hover {
+        background: #f9fafb;
+        border-color: var(--primary-gold);
+        color: var(--primary-maroon);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(241, 196, 15, 0.15);
     }
 
     .btn-new-check {
-        grid-column: span 2; /* Full width for new check */
-        background: var(--text-dark);
+        grid-column: span 2;
+        background: linear-gradient(135deg, var(--primary-maroon) 0%, var(--maroon-dark) 100%);
         color: white;
     }
 
-    /* Disable hover color ONLY for the Check Another button */
     .btn-new-check:hover {
-        background: var(--text-dark);   /* same as default, no change */
-        color: white;                   /* keep text readable */
-        transform: none;                /* no jumping */
-        box-shadow: none;
+        background: linear-gradient(135deg, var(--maroon-dark) 0%, #5a0c22 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(139, 21, 56, 0.25);
     }
 
-    /* Try Again Button (Single column centered) */
     .btn-try-again {
         grid-column: span 2;
-        background: var(--error-text);
+        background: linear-gradient(135deg, var(--error-text) 0%, #9f1239 100%);
         color: white;
     }
-    .btn-try-again:hover { background: #9f1239; }
 
+    .btn-try-again:hover {
+        background: linear-gradient(135deg, #9f1239 0%, #881337 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(190, 18, 60, 0.3);
+    }
+
+    /* ===========================
+       ANIMATED CHECK / ERROR
+    =========================== */
+    .checkmark-wrapper,
+    .errormark-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .checkmark,
+    .errormark {
+        width: 65px;
+        height: 65px;
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        animation: popIn 0.4s ease-out forwards;
+    }
+
+    .checkmark {
+        stroke: var(--primary-maroon);
+    }
+
+    .errormark {
+        stroke: var(--error-text);
+    }
+
+    .checkmark-circle,
+    .errormark-circle {
+        stroke-dasharray: 144;
+        stroke-dashoffset: 144;
+        animation: strokeAnim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark-check,
+    .errormark-line1,
+    .errormark-line2 {
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: strokeAnim 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
+    }
+
+    @keyframes popIn {
+        from { transform: scale(0.5); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes strokeAnim {
+        to { stroke-dashoffset: 0; }
+    }
+
+    /* ============================================
+    CONFIRMATION MODAL (Logout-style design)
+    ============================================ */
+    .modal {
+        display: none;
+        position: fixed !important;
+        z-index: 9999 !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0,0,0,0.45) !important;
+        backdrop-filter: blur(3px) !important;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal.show {
+        display: flex !important;
+    }
+
+    /* Card styled like the logout modal */
+    .modal-content.logout-card {
+        background: linear-gradient(135deg, #fff8f5, #fff1e5) !important;
+        border-radius: 25px;
+        padding: 35px 30px;
+        width: 90%;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 15px 50px rgba(139,21,56,0.3);
+        transform: translateY(-20px);
+        animation: slideDownModal 0.4s ease forwards;
+    }
+
+    /* Icon wrapper (like logout-icon-wrapper) */
+    .check-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 999px;
+        background: rgba(139,21,56,0.09);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #8B1538;
+        font-size: 26px;
+        margin: 0 auto 18px;
+    }
+
+    /* Title + subtitle styled like logout-title/logout-subtitle */
+    .check-title {
+        color: #8B1538;
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        letter-spacing: 0.5px;
+    }
+
+    .check-subtitle {
+        color: #4b5563;
+        font-size: 15px;
+        margin-bottom: 26px;
+    }
+
+    /* COPY from visitor logout, but scoped to .modal */
+    .modal .btn-secondary {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        padding: 14px 32px !important;
+        background: #FFFFFF !important;
+        color: #666666 !important;
+        border: 2px solid #E0E0E0 !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        text-decoration: none !important;
+    }
+
+    .modal .btn-secondary:hover {
+        border-color: #8B1538 !important;
+        color: #8B1538 !important;
+        transform: translateY(-2px) !important;
+    }
+
+    .modal .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4);
+        background: linear-gradient(135deg, #6B0F2A, #8B1538);
+    }
+
+    /* Match the YES LOGOUT gradient + pill style for the confirm button */
+    .modal .btn-logout-confirm {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+
+        padding: 14px 32px !important;
+        background: linear-gradient(135deg, #8B1538, #6B0F2A) !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        border-radius: 50px !important;
+
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        cursor: pointer !important;
+        text-decoration: none !important;
+
+        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3) !important;
+        transition: all 0.3s ease !important;
+        flex: 1;
+    }
+
+    .modal .btn-logout-confirm:hover {
+        background: linear-gradient(135deg, #6B0F2A, #8B1538) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4) !important;
+    }
+
+
+    @keyframes slideDownModal {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ============================================
+       RESPONSIVE DESIGN
+    ============================================ */
     @media (max-width: 600px) {
-        .detail-grid { grid-template-columns: 1fr; }
-        .action-buttons { grid-template-columns: 1fr; }
-        .btn-new-check, .btn-try-again { grid-column: span 1; }
+        .checker-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-new-check,
+        .btn-try-again {
+            grid-column: span 1;
+        }
     }
 </style>
 {% endblock %}
@@ -377,7 +732,7 @@
                 >
             </div>
             <button type="submit" class="check-btn">
-                <i class="fas fa-search"></i> Verify Code
+                <i class="fas fa-search"></i> Check Code
             </button>
         </form>
 
@@ -387,11 +742,22 @@
                 
                 <div class="result-header">
                     {% if code_check_result.status == 'success' %}
-                        <i class="fas fa-check-circle result-icon-large"></i>
+                        <div class="checkmark-wrapper">
+                            <svg class="checkmark" viewBox="0 0 52 52">
+                                <circle class="checkmark-circle" cx="26" cy="26" r="23" fill="none" />
+                                <path class="checkmark-check" fill="none" d="M14 27 l7 7 l17 -17"/>
+                            </svg>
+                        </div>
                         <h2>Valid Visit Code</h2>
                         <p>Code found in the system.</p>
                     {% else %}
-                        <i class="fas fa-times-circle result-icon-large"></i>
+                        <div class="errormark-wrapper">
+                            <svg class="errormark" viewBox="0 0 52 52">
+                                <circle class="errormark-circle" cx="26" cy="26" r="23" fill="none" />
+                                <path class="errormark-line1" d="M16 16 L36 36" fill="none"/>
+                                <path class="errormark-line2" d="M36 16 L16 36" fill="none"/>
+                            </svg>
+                        </div>
                         <h2>Invalid Code</h2>
                         <p>{{ code_check_result.message }}</p>
                     {% endif %}
@@ -402,7 +768,7 @@
                     <div class="detail-grid">
                         <div class="detail-item">
                             <div class="detail-label"><i class="fas fa-barcode"></i> Visit Code</div>
-                            <div class="detail-value" style="font-family: monospace; letter-spacing: 1px;">
+                            <div class="detail-value" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 0.5px;">
                                 {{ code_check_result.visit.code }}
                             </div>
                         </div>
@@ -441,7 +807,12 @@
                         <form method="POST" action="{% url 'dashboard_app:check_in_visitor' %}" style="display: contents;">
                             {% csrf_token %}
                             <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
-                            <button type="submit" class="btn-action btn-check-in">
+                            <button 
+                                type="button" 
+                                class="btn-action btn-check-in js-open-check-modal"
+                                data-mode="checkin"
+                                data-visitor="{{ code_check_result.visit.user_email }}"
+                                data-code="{{ code_check_result.visit.code }}">
                                 <i class="fas fa-sign-in-alt"></i> Check In
                             </button>
                         </form>
@@ -449,7 +820,12 @@
                         <form method="POST" action="{% url 'dashboard_app:check_out_visitor' %}" style="display: contents;">
                             {% csrf_token %}
                             <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
-                            <button type="submit" class="btn-action btn-check-out">
+                            <button 
+                                type="button" 
+                                class="btn-action btn-check-out js-open-check-modal"
+                                data-mode="checkout"
+                                data-visitor="{{ code_check_result.visit.user_email }}"
+                                data-code="{{ code_check_result.visit.code }}">
                                 <i class="fas fa-sign-out-alt"></i> Check Out
                             </button>
                         </form>
@@ -475,28 +851,54 @@
         {% endif %}
     </div>
 </div>
+
+{# ==== CONFIRMATION MODAL (same as Logout) ==== #}
+<div id="checkConfirmModal" class="modal">
+    <div class="modal-content logout-card">
+        <div class="logout-icon-wrapper">
+            <!-- Icon changes via JS depending on Check In / Check Out -->
+            <i class="fas fa-sign-in-alt" id="checkModalIcon"></i>
+        </div>
+
+        <h2 class="logout-title" id="checkModalTitle">Confirm Check Out</h2>
+        <p class="logout-subtitle" id="checkModalSubtitle">
+            This will mark the visit as completed (checked out).
+        </p>
+
+        <div class="modal-buttons">
+            <button
+                type="button"
+                class="btn-secondary btn-logout-cancel"
+                id="cancelCheckAction">
+                Cancel
+            </button>
+            <button
+                type="button"
+                class="btn-primary btn-logout-confirm"
+                id="confirmCheckAction">
+                Yes, Proceed
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    // ===== PREFIX HANDLING FOR CODE INPUT =====
     const codeInput = document.getElementById('visitCodeInput');
     const PREFIX = 'CIT-';
-    // Django boolean: true if there *is* a result, false if fresh / after refresh
     const HAS_RESULT = "{{ code_check_result|yesno:'true,false' }}" === "true";
 
     if (codeInput) {
-        // 🔹 If there is NO result (fresh load or after F5), hard-reset to PREFIX only
         if (!HAS_RESULT) {
             codeInput.value = PREFIX;
         } else {
-            // 🔹 If there IS a result, keep whatever was rendered,
-            // but still enforce the prefix in case something broke it
             if (!codeInput.value || !codeInput.value.startsWith(PREFIX)) {
                 codeInput.value = PREFIX;
             }
         }
 
-        // Keep cursor after prefix on focus/click
         function ensureCursorAfterPrefix() {
             const minPos = PREFIX.length;
             if (codeInput.selectionStart < minPos) {
@@ -507,7 +909,6 @@
         codeInput.addEventListener('focus', ensureCursorAfterPrefix);
         codeInput.addEventListener('click', ensureCursorAfterPrefix);
 
-        // Prevent deleting the prefix
         codeInput.addEventListener('keydown', function (e) {
             const pos = codeInput.selectionStart;
 
@@ -518,7 +919,6 @@
             }
         });
 
-        // Force uppercase & keep prefix
         codeInput.addEventListener('input', function () {
             let value = codeInput.value.toUpperCase();
 
@@ -530,6 +930,78 @@
             const cursorPos = Math.max(codeInput.selectionStart, PREFIX.length);
             codeInput.value = value;
             codeInput.setSelectionRange(cursorPos, cursorPos);
+        });
+    }
+
+    const modal = document.getElementById('checkConfirmModal');
+    const modalTitle = document.getElementById('checkModalTitle');
+    const modalSubtitle = document.getElementById('checkModalSubtitle');
+    const modalIcon = document.getElementById('checkModalIcon');
+    const confirmBtn = document.getElementById('confirmCheckAction');
+    const cancelBtn = document.getElementById('cancelCheckAction');
+
+    let pendingForm = null;
+
+    function openCheckModal(mode, visitor, code, form) {
+        pendingForm = form;
+
+        if (mode === 'checkin') {
+            // Icon like "enter"
+            if (modalIcon) {
+                modalIcon.className = 'fas fa-sign-in-alt';
+            }
+            modalTitle.textContent = 'Confirm Check In';
+            modalSubtitle.textContent =
+                `This will mark the visit for ${visitor} (CODE: ${code}) as checked in.`;
+        } else {
+            // Icon like "exit"
+            if (modalIcon) {
+                modalIcon.className = 'fas fa-sign-out-alt';
+            }
+            modalTitle.textContent = 'Confirm Check Out';
+            modalSubtitle.textContent =
+                `This will mark the visit for ${visitor} (CODE: ${code}) as completed (checked out).`;
+        }
+
+        modal.classList.add('show');
+    }
+
+    function closeCheckModal() {
+        modal.classList.remove('show');
+        pendingForm = null;
+    }
+
+    // Attach click listeners to buttons
+    document.querySelectorAll('.js-open-check-modal').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const mode = this.dataset.mode;
+            const visitor = this.dataset.visitor || 'this visitor';
+            const code = this.dataset.code || '';
+            const form = this.closest('form');
+            openCheckModal(mode, visitor, code, form);
+        });
+    });
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function () {
+            closeCheckModal();
+        });
+    }
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function () {
+            if (pendingForm) {
+                pendingForm.submit();
+            }
+        });
+    }
+
+    // close modal when clicking background
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                closeCheckModal();
+            }
         });
     }
 </script>

@@ -330,21 +330,18 @@ def staff_dashboard_view(request):
     staff_username = request.session['staff_username']
     staff_first_name = request.session.get('staff_first_name', 'Staff')
 
-    # Use Philippines timezone and get today's date
     now_ph = django_now().astimezone(PHILIPPINES_TZ)
     today = now_ph.date()
 
     try:
-        # ✅ Use the date object directly for visit_date
-        today_visits = Visit.objects.filter(visit_date=today)
+        # ✅ Use pk instead of id (always exists), and don't slice
+        today_visits_qs = Visit.objects.filter(visit_date=today).order_by('start_time', 'pk')
 
         # ----- Update status for today's visits -----
-        for visit in today_visits:
-            # Do not touch completed visits
+        for visit in today_visits_qs:
             if visit.status == 'Completed':
                 continue
 
-            # Build datetime range for the visit (PH time)
             if visit.start_time:
                 visit_start = datetime.combine(
                     visit.visit_date,
@@ -357,15 +354,12 @@ def staff_dashboard_view(request):
                         visit.end_time
                     ).replace(tzinfo=PHILIPPINES_TZ)
                 else:
-                    # No end_time yet → assume end of day for status logic
                     visit_end = datetime.combine(
                         visit.visit_date,
                         datetime.max.time()
                     ).replace(tzinfo=PHILIPPINES_TZ)
 
-                # Status logic
                 if visit.end_time is None and visit.status == 'Active':
-                    # Already active and no explicit end → keep as Active
                     new_status = 'Active'
                 elif visit_start <= now_ph <= visit_end:
                     new_status = 'Active'
@@ -374,7 +368,6 @@ def staff_dashboard_view(request):
                 else:
                     new_status = 'Upcoming'
             else:
-                # No start_time yet → treated as upcoming
                 new_status = 'Upcoming'
 
             if visit.status != new_status:
@@ -382,11 +375,11 @@ def staff_dashboard_view(request):
                 visit.save()
 
         # ----- Dashboard stats -----
-        today_visits_count = today_visits.count()
-        active_visits_count = today_visits.filter(status='Active').count()
-        checked_in_count = today_visits.filter(status__in=['Active', 'Completed']).count()
+        today_visits_count = today_visits_qs.count()
+        active_visits_count = today_visits_qs.filter(status='Active').count()
+        checked_in_count = today_visits_qs.filter(status__in=['Active', 'Completed']).count()
 
-                # ===== 🔁 LIVE FEED: show most recent check-ins/check-outs (no date filter) =====
+        # ===== 🔁 LIVE FEED =====
         recent_checkins = SystemLog.objects.filter(
             action_type__in=[
                 "Visitor Check-In",
@@ -403,10 +396,8 @@ def staff_dashboard_view(request):
             except Exception:
                 checkin.display_time = str(checkin.created_at)
 
-        # ----- Code checker result (from session, set by check_code) -----
-        code_check_result = None
-        if 'code_check_result' in request.session:
-            code_check_result = request.session.pop('code_check_result')
+        # ----- Code checker result (from session) -----
+        code_check_result = request.session.pop('code_check_result', None)
 
         context = {
             'staff_username': staff_username,
@@ -415,8 +406,8 @@ def staff_dashboard_view(request):
             'today_visits_count': today_visits_count,
             'active_visits_count': active_visits_count,
             'checked_in_count': checked_in_count,
-            'today_visits': list(today_visits[:10]),  # Show first 10
-            'recent_checkins': recent_checkins,       # ✅ only today's logs (PH time)
+            'today_visits': list(today_visits_qs),   # ✅ full list, no 10-limit
+            'recent_checkins': recent_checkins,
             'code_check_result': code_check_result,
         }
 
@@ -435,6 +426,7 @@ def staff_dashboard_view(request):
             'today_visits': [],
             'recent_checkins': [],
         })
+
 
 
 @staff_required
