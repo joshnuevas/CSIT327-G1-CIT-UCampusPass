@@ -1,73 +1,83 @@
 {% extends "dashboard_app/admin_dashboard_base.html" %}
 {% load static %}
-{% block visit_records_active %}active{% endblock %}
+
+{% block records_active %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'manage_visit_records_app/css/visit_records.css' %}?v={{ now|date:'U' }}">
+<link rel="stylesheet" href="{% static 'manage_visit_records_app/css/visit_records.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="content-header">
-  <h1>Visit Records</h1>
 
-  <div class="filter-bar">
-    <div class="status-dropdown">
-      <label for="statusFilter">Status:</label>
-      <select id="statusFilter">
-        <option value="All">All</option>
-        <option value="Upcoming">Upcoming</option>
-        <option value="Ongoing">Ongoing</option>
-        <option value="Completed">Completed</option>
-        <option value="Cancelled">Cancelled</option>
-      </select>
+<div class="page-header">
+    <div class="header-title">
+        <h1>Visit Records</h1>
+        <p>Monitor visitor history, statuses, and logs.</p>
     </div>
 
-    <div class="filter-date">
-      <label for="registerDateFilter">Register Date:</label>
-      <input type="date" id="registerDateFilter" />
+    <div class="header-actions">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search visitor, code...">
+        </div>
+
+        <div class="action-menu">
+            <button class="status-filter-btn" id="statusFilterToggle">
+                <span id="statusFilterText">All Status</span> <i class="fas fa-chevron-down" style="margin-left: 8px;"></i>
+            </button>
+            <div class="action-dropdown" id="statusFilterDropdown">
+                <button class="action-item" data-value="All">All Status</button>
+                <button class="action-item" data-value="Upcoming">Upcoming</button>
+                <button class="action-item" data-value="Active">Active</button>
+                <button class="action-item" data-value="Completed">Completed</button>
+                <button class="action-item" data-value="Expired">Expired</button>
+            </div>
+        </div>
+
+        <input type="date" id="registerDateFilter" class="filter-control" />
+
+        <div class="action-menu">
+            <button class="export-btn-trigger action-toggle" id="exportToggle">
+                <i class="fas fa-file-export"></i> Export
+            </button>
+            <div class="action-dropdown" id="exportDropdown">
+                <button id="exportCSV" class="action-item"><i class="fas fa-file-csv" style="color:#059669;"></i> Export as CSV</button>
+                <button id="exportPDF" class="action-item"><i class="fas fa-file-pdf" style="color:#dc2626;"></i> Export as PDF</button>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="export-dropdown">
-      <button class="export-btn" aria-haspopup="true" aria-expanded="false">Export ⏷</button>
-      <ul class="export-menu">
-        <li><button id="exportCSV">CSV</button></li>
-        <li><button id="exportPDF">PDF</button></li>
-      </ul>
+<div class="card-container">
+    <div class="table-responsive">
+        <table id="visitsTable">
+            <thead>
+                <tr>
+                    <th style="width: 12%">Visitor / Code</th>
+                    <th style="width: 16%">Purpose</th>
+                    <th style="width: 19%">Department</th>
+                    <th style="width: 19%">Date</th>
+                    <th style="width: 5%">Start Time</th>
+                    <th style="width: 5%">End Time</th>
+                    <th style="width: 10%; text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="visitsTbody">
+                </tbody>
+        </table>
     </div>
-  </div>
+    
+    <div id="pagination" class="pagination-wrapper">
+        </div>
 </div>
 
-<div class="table-container">
-  <table id="visitsTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Register Date</th>
-        <th>Code</th>
-        <th>Visitor</th>
-        <th>Purpose</th>
-        <th>Department</th>
-        <th>Start - End</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="visitsTbody">
-      <!-- JS will populate here -->
-    </tbody>
-  </table>
-</div>
-
-<div id="pagination" class="pagination"></div>
-
-<!-- Visit Detail Modal -->
-<div id="visitModal" class="modal">
-  <div class="modal-content" id="visitModalContent"></div>
-</div>
-
-<!-- JSON data for JS -->
 <script id="visits-data" type="application/json">
-  {{ visits|safe }}
+    {{ visits|safe }}
 </script>
+<script>
+    window.EXPORT_URL = "{% url 'visit_records_app:export_visits' %}";
+</script>
+
 {% endblock %}
 
 {% block extra_js %}

@@ -1,240 +1,440 @@
-(() => {
-  // === READ JSON DATA ===
-  let visits = [];
-  try {
-    const el = document.getElementById('visits-data');
-    visits = JSON.parse(el.textContent || '[]');
-  } catch (e) {
-    console.error('Failed to parse visits data', e);
-  }
-
-  // === SORT BY ID DESCENDING ===
-  visits.sort((a, b) => (b.visit_id || 0) - (a.visit_id || 0));
-
-  const state = {
-    status: 'All',
-    registerDate: null,
-    page: 1,
-    perPage: 25
-  };
-
-  const tbody = document.getElementById('visitsTbody');
-  const paginationContainer = document.getElementById('pagination');
-
-  // ===== HELPERS =====
-  function formatDate(dStr) {
-    if (!dStr) return '-';
-    const d = new Date(dStr);
-    if (isNaN(d)) return dStr;
-    return d.toLocaleDateString('en-CA'); // YYYY-MM-DD
-  }
-
-  function formatTime(tStr) {
-    if (!tStr) return '';
-    return tStr.slice(0, 5);
-  }
-
-  function matchesFilters(v) {
-    if (state.status !== 'All' && (v.status || '').toLowerCase() !== state.status.toLowerCase()) {
-      return false;
+document.addEventListener('DOMContentLoaded', () => {
+    // === 1. DATA INITIALIZATION ===
+    let visits = [];
+    try {
+        const el = document.getElementById('visits-data');
+        visits = JSON.parse(el.textContent || '[]');
+    } catch (e) {
+        console.error('Failed to parse visits data', e);
     }
 
-    if (state.registerDate) {
-      const visitDate = new Date(v.visit_date).toLocaleDateString('en-CA');
-      if (visitDate !== state.registerDate) return false;
+    // Sort by ID Descending (Newest first)
+    visits.sort((a, b) => (b.visit_id || 0) - (a.visit_id || 0));
+
+    // === 2. STATE MANAGEMENT ===
+    const state = {
+        search: '',
+        status: 'All',
+        registerDate: null,
+        page: 1,
+        perPage: 10 // Show 10 for better spacing
+    };
+
+    const tbody = document.getElementById('visitsTbody');
+    const paginationContainer = document.getElementById('pagination');
+
+    // === 3. FORMATTERS ===
+    function formatDate(dStr) {
+        if (!dStr) return '-';
+        const d = new Date(dStr);
+        if (isNaN(d)) return dStr;
+        return d.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: '2-digit'
+        });
     }
 
-    return true;
-  }
-
-  // ===== PAGINATION =====
-  function getFilteredPaginatedVisits() {
-    const filtered = visits.filter(matchesFilters);
-    const start = (state.page - 1) * state.perPage;
-    const end = start + state.perPage;
-    const paginated = filtered.slice(start, end);
-    return { filtered, paginated };
-  }
-
-  function renderPagination(totalItems) {
-    paginationContainer.innerHTML = '';
-
-    const totalPages = Math.ceil(totalItems / state.perPage);
-    if (totalPages <= 1) return;
-
-    const prevBtn = document.createElement('button');
-    prevBtn.textContent = 'Prev';
-    prevBtn.classList.add('prev');
-    prevBtn.disabled = state.page === 1;
-
-    const nextBtn = document.createElement('button');
-    nextBtn.textContent = 'Next';
-    nextBtn.classList.add('next');
-    nextBtn.disabled = state.page === totalPages;
-
-    const pageInfo = document.createElement('span');
-    pageInfo.textContent = `Page ${state.page} of ${totalPages}`;
-
-    prevBtn.addEventListener('click', () => {
-      if (state.page > 1) { state.page--; render(); }
-    });
-    nextBtn.addEventListener('click', () => {
-      if (state.page < totalPages) { state.page++; render(); }
-    });
-
-    paginationContainer.appendChild(prevBtn);
-    paginationContainer.appendChild(pageInfo);
-    paginationContainer.appendChild(nextBtn);
-  }
-
-  // ===== RENDER TABLE =====
-  function render() {
-    tbody.innerHTML = '';
-
-    const { filtered, paginated } = getFilteredPaginatedVisits();
-
-    if (paginated.length === 0) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="8" style="text-align:center;">No visit records found.</td>`;
-      tbody.appendChild(tr);
-      paginationContainer.innerHTML = '';
-      return;
+    function formatTime(tStr) {
+        if (!tStr) return '-';
+        const timePart = tStr.slice(0, 5); // HH:MM
+        return timePart; // Return as-is (24-hour format)
     }
 
-    paginated.forEach(v => {
-      const tr = document.createElement('tr');
-      tr.dataset.status = v.status || '';
-      tr.innerHTML = `
-        <td>${v.visit_id || ''}</td>
-        <td>${formatDate(v.visit_date)}</td>
-        <td>${v.code || ''}</td>
-        <td>${v.user_email || ''}</td>
-        <td>${v.purpose || ''}</td>
-        <td>${v.department || ''}</td>
-        <td>${formatTime(v.start_time)} - ${formatTime(v.end_time)}</td>
-        <td><span class="status ${v.status?.toLowerCase() || ''}">${v.status || ''}</span></td>
-      `;
-      tbody.appendChild(tr);
-    });
+    // === 4. FILTER LOGIC ===
+    function matchesFilters(v) {
+        // Search
+        if (state.search) {
+            const query = state.search.toLowerCase();
+            const text = `
+                ${v.user_email || ''} 
+                ${v.code || ''} 
+                ${v.purpose || ''} 
+                ${v.department || ''} 
+                ${v.visitor_name || ''}
+            `.toLowerCase();
+            if (!text.includes(query)) return false;
+        }
 
-    renderPagination(filtered.length);
-  }
+        // Status
+        if (state.status !== 'All') {
+            const statusValue = v.status || '';
+            const filterValue = state.status;
+            // Filter values match database values directly
+            if (statusValue !== filterValue) {
+                return false;
+            }
+        }
 
-  // ===== EXPORT HELPERS =====
-  function getFilterDescription() {
-    const desc = [];
-    if (state.status && state.status !== 'All') desc.push(`Status: ${state.status}`);
-    if (state.registerDate) desc.push(`Register Date: ${state.registerDate}`);
-    return desc.length ? "Filters applied: " + desc.join(', ') : "No filters applied; exporting all visits.";
-  }
+        // Date
+        if (state.registerDate) {
+            // Compare YYYY-MM-DD
+            const visitDate = new Date(v.visit_date).toISOString().split('T')[0];
+            if (visitDate !== state.registerDate) return false;
+        }
 
-  function exportCSV() {
-    const filtered = visits.filter(matchesFilters);
-    if (!filtered.length) return alert("No data to export!");
+        return true;
+    }
 
-    let csv = `"${getFilterDescription()}"\n\nID,Register Date,Code,Visitor,Purpose,Department,Start-End,Status\n`;
-    filtered.forEach(v => {
-      const row = [
-        v.visit_id || '',
-        formatDate(v.visit_date),
-        v.code || '',
-        v.user_email || '',
-        v.purpose || '',
-        v.department || '',
-        `${formatTime(v.start_time)} - ${formatTime(v.end_time)}`,
-        v.status || ''
-      ].map(x => `"${x}"`).join(',');
-      csv += row + '\n';
-    });
+    function getFilteredData() {
+        return visits.filter(matchesFilters);
+    }
 
-    const blob = new Blob([csv], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "visit_records.csv";
-    link.click();
-  }
+    // === 5. PAGINATION UI ===
+    function renderPagination(totalItems) {
+        paginationContainer.innerHTML = '';
+        const totalPages = Math.ceil(totalItems / state.perPage) || 1;
+        const startEntry = totalItems === 0 ? 0 : (state.page - 1) * state.perPage + 1;
+        const endEntry = Math.min(state.page * state.perPage, totalItems);
 
-  function exportPDF() {
-    const filtered = visits.filter(matchesFilters);
-    if (!filtered.length) return alert("No data to export!");
+        // A. Left Side: Information
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'pagination-info';
+        infoDiv.textContent = `Showing ${startEntry} - ${endEntry} of ${totalItems} entries`;
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+        // B. Right Side: Controls
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'pagination-controls';
+
+        // Prev Button
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'page-btn';
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.disabled = state.page === 1;
+        prevBtn.onclick = () => {
+            if (state.page > 1) { state.page--; render(); }
+        };
+
+        // Input Group: "Page [ 1 ] of 10"
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'page-input-container';
+        
+        const lblPage = document.createElement('span');
+        lblPage.textContent = 'Page';
+
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'page-input';
+        input.value = state.page;
+        input.min = 1;
+        input.max = totalPages;
+        
+        // Input Logic
+        input.onchange = (e) => {
+            let val = parseInt(e.target.value);
+            if (val >= 1 && val <= totalPages) {
+                state.page = val;
+                render();
+            } else {
+                e.target.value = state.page; // Revert if invalid
+            }
+        };
+
+        const lblTotal = document.createElement('span');
+        lblTotal.textContent = `of ${totalPages}`;
+
+        inputContainer.appendChild(lblPage);
+        inputContainer.appendChild(input);
+        inputContainer.appendChild(lblTotal);
+
+        // Next Button
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'page-btn';
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.disabled = state.page === totalPages;
+        nextBtn.onclick = () => {
+            if (state.page < totalPages) { state.page++; render(); }
+        };
+
+        controlsDiv.appendChild(prevBtn);
+        controlsDiv.appendChild(inputContainer);
+        controlsDiv.appendChild(nextBtn);
+
+        paginationContainer.appendChild(infoDiv);
+        paginationContainer.appendChild(controlsDiv);
+    }
+
+    // === 6. RENDER TABLE ===
+    function render() {
+        tbody.innerHTML = '';
+        
+        const filtered = getFilteredData();
+        const start = (state.page - 1) * state.perPage;
+        const end = start + state.perPage;
+        const paginated = filtered.slice(start, end);
+
+        if (paginated.length === 0) {
+            const msg = filtered.length === 0 && state.search ? 'No matches found.' : 'No visit records found.';
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 40px; color: #64748b;">${msg}</td></tr>`;
+            renderPagination(0);
+            return;
+        }
+
+        paginated.forEach(v => {
+            const tr = document.createElement('tr');
+            let statusLower = (v.status || 'Upcoming').toLowerCase();
+
+            // Visitor Name/Email + Code in one column
+            const visitorName = v.visitor_name || v.user_email || 'Unknown';
+
+            // Status display matches database values
+            let displayStatus = v.status || 'Upcoming';
+            // Set CSS class based on status
+            if (displayStatus === 'Active') {
+                statusLower = 'ongoing'; // Green color
+            } else if (displayStatus === 'Expired') {
+                statusLower = 'cancelled'; // Gray color
+            } else if (displayStatus === 'Upcoming') {
+                statusLower = 'upcoming'; // Orange color
+            } else if (displayStatus === 'Completed') {
+                statusLower = 'completed'; // Blue color
+            }
+
+            tr.innerHTML = `
+                <td>
+                    <span class="col-primary">${visitorName}</span>
+                    <span class="col-sub">${v.code || '-'}</span>
+                </td>
+                <td>${v.purpose || '-'}</td>
+                <td>${v.department || '-'}</td>
+                <td>${formatDate(v.visit_date)}</td>
+                <td>${formatTime(v.start_time)}</td>
+                <td>${formatTime(v.end_time)}</td>
+                <td style="text-align: center;">
+                    <span class="status-badge status-${statusLower}">${displayStatus}</span>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        renderPagination(filtered.length);
+    }
+
+    // === 7. EVENT LISTENERS & UI LOGIC ===
     
-    doc.setFontSize(12);
-    doc.text(getFilterDescription(), 14, 10);
-
-    const columns = ["ID", "Register Date", "Code", "Visitor", "Purpose", "Department", "Start-End", "Status"];
-    const rows = filtered.map(v => [
-      v.visit_id || '',
-      formatDate(v.visit_date),
-      v.code || '',
-      v.user_email || '',
-      v.purpose || '',
-      v.department || '',
-      `${formatTime(v.start_time)} - ${formatTime(v.end_time)}`,
-      v.status || ''
-    ]);
-
-    doc.autoTable({
-      head: [columns],
-      body: rows,
-      startY: 20,
-      styles: { fontSize: 10 }
-    });
-
-    doc.save("visit_records.pdf");
-  }
-
-  // ===== EVENT BINDINGS =====
-  document.addEventListener('DOMContentLoaded', () => {
-    const statusFilter = document.getElementById('statusFilter');
-    const registerDateFilter = document.getElementById('registerDateFilter');
-    const exportBtn = document.querySelector('.export-btn');
-    const exportMenu = document.querySelector('.export-menu');
-
-    if (statusFilter) {
-      statusFilter.addEventListener('change', e => {
-        state.status = e.target.value;
+    // Search & Filters
+    document.getElementById('searchInput').addEventListener('input', e => {
+        state.search = e.target.value.trim();
         state.page = 1;
         render();
-      });
+    });
+
+    // Status Filter Dropdown Logic
+    const statusToggle = document.getElementById('statusFilterToggle');
+    const statusDropdown = document.getElementById('statusFilterDropdown');
+    const statusText = document.getElementById('statusFilterText');
+
+    if (statusToggle && statusDropdown) {
+        statusToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = statusDropdown.classList.contains('active');
+
+            // Close others
+            document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
+
+            if (!isActive) {
+                statusDropdown.classList.add('active');
+
+                // Position logic (absolute relative to .action-menu)
+                const rect = statusToggle.getBoundingClientRect();
+                const dropRect = statusDropdown.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+
+                // Default: Below button, aligned right
+                let top = rect.height + 5;
+                let left = rect.width - dropRect.width;
+
+                // Check if enough space below
+                if (viewportHeight - rect.bottom < dropRect.height + 10) {
+                    top = -dropRect.height - 5; // Above
+                }
+
+                statusDropdown.style.top = `${top}px`;
+                statusDropdown.style.left = `${left}px`;
+            }
+        });
+
+        // Handle item clicks
+        statusDropdown.querySelectorAll('.action-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const value = item.dataset.value;
+                state.status = value;
+                statusText.textContent = item.textContent;
+                state.page = 1;
+                render();
+                statusDropdown.classList.remove('active');
+            });
+        });
     }
 
-    if (registerDateFilter) {
-      registerDateFilter.addEventListener('change', e => {
+    document.getElementById('registerDateFilter').addEventListener('change', e => {
         state.registerDate = e.target.value || null;
         state.page = 1;
         render();
-      });
+    });
+
+    // Dropdown Logic (Smart Positioning)
+    const toggle = document.getElementById('exportToggle');
+    const dropdown = document.getElementById('exportDropdown');
+
+    if (toggle && dropdown) {
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = dropdown.classList.contains('active');
+
+            // Close others
+            document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
+
+            if (!isActive) {
+                dropdown.classList.add('active');
+
+                // Position logic (absolute relative to .action-menu)
+                const rect = toggle.getBoundingClientRect();
+                const dropRect = dropdown.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+
+                // Default: Below button, aligned right
+                let top = rect.height + 5;
+                let left = rect.width - dropRect.width;
+
+                // Check if enough space below
+                if (viewportHeight - rect.bottom < dropRect.height + 10) {
+                    top = -dropRect.height - 5; // Above
+                }
+
+                dropdown.style.top = `${top}px`;
+                dropdown.style.left = `${left}px`;
+            }
+        });
     }
 
-    if (exportBtn && exportMenu) {
-      exportBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        exportMenu.classList.toggle('show');
-        exportBtn.setAttribute('aria-expanded', exportMenu.classList.contains('show'));
-      });
+    // Close dropdowns on click outside, scroll, or resize
+    const closeAllDropdowns = () => {
+        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
+    };
 
-      exportMenu.addEventListener('click', e => e.stopPropagation());
-      document.addEventListener('click', () => {
-        exportMenu.classList.remove('show');
-        exportBtn.setAttribute('aria-expanded', false);
-      });
+    document.addEventListener('click', closeAllDropdowns);
+    window.addEventListener('scroll', closeAllDropdowns, true);
+    window.addEventListener('resize', closeAllDropdowns);
 
-      document.getElementById('exportCSV').addEventListener('click', () => {
-        exportMenu.classList.remove('show');
-        exportBtn.setAttribute('aria-expanded', false);
-        exportCSV();
-      });
-
-      document.getElementById('exportPDF').addEventListener('click', () => {
-        exportMenu.classList.remove('show');
-        exportBtn.setAttribute('aria-expanded', false);
-        exportPDF();
-      });
+    // === 8. EXPORT FUNCTIONS ===
+    function getFilterText() {
+        const parts = [];
+        if (state.search) parts.push(`Search: ${state.search}`);
+        if (state.status !== 'All') parts.push(`Status: ${state.status}`);
+        if (state.registerDate) parts.push(`Date: ${state.registerDate}`);
+        return parts.length ? `Filters: ${parts.join(', ')}` : 'All Records';
     }
 
+    document.getElementById('exportCSV').addEventListener('click', async () => {
+        try {
+            // Fetch data from server with current filters
+            const params = new URLSearchParams({
+                search: state.search,
+                status: state.status,
+                register_date: state.registerDate || ''
+            });
+
+            const response = await fetch(`${window.EXPORT_URL}?${params}`);
+            if (!response.ok) throw new Error('Failed to fetch data');
+
+            const data = await response.json();
+            const filtered = data.visits;
+
+            if (!filtered.length) return alert('No data to export.');
+
+            let csv = `"${getFilterText()}"\n\nVisitor,Code,Purpose,Department,Date,Start Time,End Time,Status\n`;
+
+            filtered.forEach(v => {
+                // Status display matches database values
+                let displayStatus = v.status || 'Upcoming';
+
+                const row = [
+                    v.visitor_name || v.user_email || '',
+                    v.code || '',
+                    v.purpose || '',
+                    v.department || '',
+                    formatDate(v.visit_date),
+                    formatTime(v.start_time),
+                    formatTime(v.end_time),
+                    displayStatus
+                ].map(f => `"${String(f).replace(/"/g, '""')}"`).join(',');
+                csv += row + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `visit_records_${Date.now()}.csv`;
+            a.click();
+        } catch (error) {
+            console.error('Export error:', error);
+            alert('Failed to export data. Please try again.');
+        }
+    });
+
+    document.getElementById('exportPDF').addEventListener('click', async () => {
+        try {
+            // Fetch data from server with current filters
+            const params = new URLSearchParams({
+                search: state.search,
+                status: state.status,
+                register_date: state.registerDate || ''
+            });
+
+            const response = await fetch(`${window.EXPORT_URL}?${params}`);
+            if (!response.ok) throw new Error('Failed to fetch data');
+
+            const data = await response.json();
+            const filtered = data.visits;
+
+            if (!filtered.length) return alert('No data to export.');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(16);
+            doc.setTextColor(139, 21, 56);
+            doc.text("Visit Records Report", 14, 15);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text(getFilterText(), 14, 22);
+
+            const headers = [['Visitor', 'Code', 'Purpose', 'Dept', 'Date', 'Start Time', 'End Time', 'Status']];
+            const tableData = filtered.map(v => {
+                // Status display matches database values
+                let displayStatus = v.status || 'Upcoming';
+
+                return [
+                    v.visitor_name || v.user_email || '',
+                    v.code || '',
+                    v.purpose || '',
+                    v.department || '',
+                    formatDate(v.visit_date),
+                    formatTime(v.start_time),
+                    formatTime(v.end_time),
+                    displayStatus
+                ];
+            });
+
+            doc.autoTable({
+                head: headers,
+                body: tableData,
+                startY: 28,
+                theme: 'grid',
+                headStyles: { fillColor: [139, 21, 56] },
+                styles: { fontSize: 8 }
+            });
+
+            doc.save(`visit_records_${Date.now()}.pdf`);
+        } catch (error) {
+            console.error('Export error:', error);
+            alert('Failed to export data. Please try again.');
+        }
+    });
+
+    // Init
     render();
-  });
-})();
+});
