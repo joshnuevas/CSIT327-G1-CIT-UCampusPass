@@ -10,7 +10,7 @@ from django.utils import timezone
 
 import random
 import string
-from datetime import datetime
+from datetime import datetime, time as dtime
 import pytz
 import logging
 import re
@@ -42,6 +42,7 @@ def walk_in_registration(request):
     - Creates a Visit row
     - Immediately marks status as 'Active' with current time as start_time.
     - Enforces:
+        * Walk-in registration allowed only from 7:30 AM to 9:00 PM (PH time)
         * If email belongs to an existing User, other fields must match.
         * If visitor already has an Active pass, block new walk-in registration.
     """
@@ -67,6 +68,26 @@ def walk_in_registration(request):
                 'department': department,
                 'purpose': purpose,
             }
+
+            # ----- Time-based restriction: 7:30 AM–9:00 PM (PH time) -----
+            now_aware = timezone.now().astimezone(PHILIPPINES_TZ)
+            current_t = now_aware.time()
+
+            start_allowed = dtime(7, 30)   # 7:30 AM
+            end_allowed = dtime(21, 0)     # 9:00 PM
+
+            if not (start_allowed <= current_t < end_allowed):
+                messages.error(
+                    request,
+                    "⏰ Walk-in registration is only allowed from 7:30 AM to 9:00 PM. "
+                    "Please advise the visitor to return during operating hours."
+                )
+                context = {
+                    'staff_first_name': staff_first_name,
+                    'form_data': form_data,
+                    'success': False,
+                }
+                return render(request, 'walk_in_app/walk_in_registration.html', context)
 
             # ----- Basic required field validation -----
             if not all([first_name, last_name, email, phone, department, purpose]):
@@ -182,7 +203,7 @@ def walk_in_registration(request):
                 return render(request, 'walk_in_app/walk_in_registration.html', context)
 
             # ----- Set visit times - walk-ins are checked in immediately -----
-            now_aware = timezone.now().astimezone(PHILIPPINES_TZ)
+            # now_aware already computed above for time restriction
             visit_date = now_aware.date()
             start_time = now_aware.time()
 
