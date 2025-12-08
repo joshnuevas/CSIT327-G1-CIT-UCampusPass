@@ -141,15 +141,24 @@ def visitor_search(request):
             # OPTIONAL: show last completed visit instead of None
             next_visit = max(visit_list, key=lambda x: x["visit_date"])
 
-        # Determine final display status
-        if next_visit["status"] == "Active":
+        # Determine final display status (status wins over date)
+        status = next_visit["status"]
+
+        if status == "Active":
             display_status = "Active"
-        elif next_visit["visit_date"] > today:
-            display_status = "Upcoming"
-        elif next_visit["visit_date"] == today:
-            display_status = "Upcoming" if next_visit["status"] != "Active" else "Active"
-        else:
+        elif status == "Completed":
             display_status = "Completed"
+        elif status in ["Cancelled", "Expired"]:
+            display_status = status  # or map to your own label
+        else:
+            # Only fall back to date logic if it's not a terminal state
+            if next_visit["visit_date"] > today:
+                display_status = "Upcoming"
+            elif next_visit["visit_date"] == today:
+                # could be "Upcoming" or "Active" based on your rules
+                display_status = "Upcoming"
+            else:
+                display_status = status or "Completed"
 
         results.append({
             "user_email": email,

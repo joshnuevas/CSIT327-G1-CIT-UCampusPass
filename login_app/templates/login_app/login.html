@@ -15,7 +15,6 @@
 </head>
 <body>
     <div class="login-wrapper">
-        <!-- Left Panel: Branding & Features -->
         <div class="left-panel">
             <div class="brand-section">
                 <div class="brand-logo">
@@ -64,9 +63,9 @@
             </div>
         </div>
 
-        <!-- Right Panel: Login Form -->
         <div class="right-panel">
             <div class="login-container">
+                
                 <div class="login-header">
                     {% if show_change_password %}
                         <h1>Set a New Password</h1>
@@ -91,7 +90,6 @@
                         <input type="hidden" name="temp_username" value="{{ temp_username }}">
                         <input type="hidden" name="temp_role" value="{{ temp_role }}">
 
-                        <!-- New Password Field -->
                         <div class="form-group">
                             <label for="new_password">New Password</label>
                             <div class="input-wrapper password-toggle">
@@ -105,7 +103,6 @@
                             </div>
                         </div>
 
-                        <!-- Confirm Password Field -->
                         <div class="form-group">
                             <label for="confirm_password">Confirm Password</label>
                             <div class="input-wrapper password-toggle">
@@ -125,7 +122,6 @@
                     <form method="POST" action="{% url 'login_app:login' %}">
                         {% csrf_token %}
 
-                        <!-- Email/Username Field -->
                         <div class="form-group">
                             <label for="identifier">Email Address</label>
                             <div class="input-wrapper">
@@ -138,7 +134,6 @@
                             </div>
                         </div>
 
-                        <!-- Password Field -->
                         <div class="form-group">
                             <label for="password">Password</label>
                             <div class="input-wrapper password-toggle">
@@ -174,10 +169,11 @@
                     Don't have an account? <a href="{% url 'register_app:register' %}">Sign up</a>
                 </div>
 
-                <div class="footer-text">
-                    © 2025 Campus Pass. All rights reserved.
+                <div class="footer-text" style="line-height: 1.6;">
+                    <span>© 2025 Campus Pass. All rights reserved.</span><br>
+                    <span><i class="fas fa-graduation-cap"></i> CSIT327 Student Project — Educational Purpose Only</span>
                 </div>
-            </div>
+                </div>
         </div>
     </div>
 
