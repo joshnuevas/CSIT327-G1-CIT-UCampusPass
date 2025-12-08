@@ -130,9 +130,10 @@
 
     .search-input {
         width: 100%;
-        padding: 18px 64px 18px 28px;
+        /* Increased padding-right to 100px to fit both X and Search buttons */
+        padding: 18px 100px 18px 28px;
         background-color: var(--bg-input);
-        border: 2px solid transparent; /* Prepare for border transition */
+        border: 2px solid transparent; 
         border-radius: var(--radius-pill);
         font-size: 1.15rem;
         color: var(--text-main);
@@ -143,8 +144,27 @@
     .search-input:focus {
         outline: none;
         background: #ffffff;
-        border-color: #8B1538; /* same as booking */
-        box-shadow: 0 0 0 4px rgba(139, 21, 56, 0.08); /* identical soft red glow */
+        border-color: #8B1538; 
+        box-shadow: 0 0 0 4px rgba(139, 21, 56, 0.08);
+    }
+
+    /* --- New Clear Button Style --- */
+    .clear-btn {
+        position: absolute;
+        right: 65px; /* Positioned to the left of the search button */
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 8px;
+        font-size: 1rem;
+        transition: color 0.2s;
+        display: none; /* Hidden by default */
+        z-index: 5;
+    }
+
+    .clear-btn:hover {
+        color: #8B1538;
     }
 
     .search-btn {
@@ -160,12 +180,13 @@
         border: none;
         border-radius: 50%;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy transition */
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 18px;
         box-shadow: 0 4px 12px rgba(139, 21, 56, 0.3);
+        z-index: 6;
     }
 
     .search-btn:hover {
@@ -349,14 +370,9 @@
         background: #fff1f2;
         padding: 4px 8px;
         border-radius: 6px;
-        
-        /* --- CHANGE STARTS HERE --- */
         display: inline-block; 
         border: 1px dashed #fda4af;
-        
-        /* Add this line to stop it from stretching: */
         width: fit-content; 
-        /* --- CHANGE ENDS HERE --- */
     }
 
     .card-actions {
@@ -476,11 +492,17 @@
                 <input 
                     type="text" 
                     name="query" 
+                    id="visitorSearchInput"
                     class="search-input" 
                     placeholder="Enter keywords..."
                     value="{{ query }}"
                     autocomplete="off"
                 >
+                
+                <span class="clear-btn" id="clearSearchBtn">
+                    <i class="fas fa-times"></i>
+                </span>
+
                 <button type="submit" class="search-btn">
                     <i class="fas fa-arrow-right"></i>
                 </button>
@@ -590,11 +612,34 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const input = document.querySelector('.search-input');
+    const input = document.getElementById('visitorSearchInput');
+    const clearBtn = document.getElementById('clearSearchBtn');
     const form = input ? input.closest('form') : null;
 
-    // Allow Enter to submit via JS (optional – Django already handles GET)
-    if (input && form) {
+    // Function to toggle Clear Button Visibility
+    function toggleClearBtn() {
+        if (input.value.length > 0) {
+            clearBtn.style.display = 'block';
+        } else {
+            clearBtn.style.display = 'none';
+        }
+    }
+
+    if (input && clearBtn) {
+        // Initialize state on page load
+        toggleClearBtn();
+
+        // Check on every keystroke
+        input.addEventListener('input', toggleClearBtn);
+
+        // Click X to Clear
+        clearBtn.addEventListener('click', function() {
+            input.value = '';
+            toggleClearBtn();
+            input.focus(); // Keep focus on input for quick re-typing
+        });
+
+        // Allow Enter to submit
         input.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -603,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Strip ?query=... from URL after first render
+    // Strip ?query=... from URL after first render (Cleaner URL)
     const url = new URL(window.location.href);
     if (url.searchParams.has('query')) {
         url.search = '';
