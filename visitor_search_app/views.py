@@ -226,15 +226,22 @@ def visitor_detail(request):
                 'created_at': visit.created_at
             })
         
-        # Sort visits by date descending
+        # Sort visits by date descending (latest first)
         visits_list.sort(key=lambda x: x.get('visit_date', ''), reverse=True)
-        
+
         # Calculate statistics
         total_visits = len(visits_list)
         completed_visits = len([v for v in visits_list if v.get('status') == 'Completed'])
         current_visit = next((v for v in visits_list if v.get('status') in ['Active', 'Upcoming']), None)
         last_visit_date = visits_list[0].get('visit_date') if visits_list else None
-        
+
+        # EARLIEST visit for "Member Since"
+        member_since = None
+        if visits_list:
+            dates_only = [v['visit_date'] for v in visits_list if v.get('visit_date')]
+            if dates_only:
+                member_since = min(dates_only)
+
         context = {
             'staff_first_name': staff_first_name,
             'visitor_email': visitor_email,
@@ -245,6 +252,7 @@ def visitor_detail(request):
             'completed_visits': completed_visits,
             'current_visit': current_visit,
             'last_visit_date': last_visit_date,
+            'member_since': member_since,          # ✅ new
             'visit_history': visits_list,
         }
         

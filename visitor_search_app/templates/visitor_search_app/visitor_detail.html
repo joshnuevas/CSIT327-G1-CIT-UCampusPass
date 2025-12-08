@@ -20,7 +20,7 @@
         padding: 0 1rem;
     }
 
-    /* --- Back Button --- */
+    /* --- Back Button (Static, No Animation) --- */
     .back-nav { 
         margin-bottom: 2rem; 
         margin-top: 1rem;
@@ -44,9 +44,8 @@
         border-color: var(--primary-maroon);
         color: var(--primary-maroon);
         box-shadow: 0 4px 12px rgba(139, 21, 56, 0.1);
-        transform: translateY(-1px);
+        /* No transform/movement here */
     }
-    .back-link:hover i { transform: translateX(-4px); }
 
     /* --- Red Card Profile Header --- */
     .profile-header {
@@ -190,20 +189,18 @@
         align-items: center;
     }
 
-    /* --- RESTORED FONT SETTINGS --- */
+    /* Code Fonts */
     .visit-code {
-        /* Restored original font */
         font-family: 'Courier New', monospace;
         font-weight: 700;
         color: var(--text-dark);
         font-size: 1.1rem;
         display: flex;
-        align-items: baseline; /* CHANGED: aligns text on the same reading line */
+        align-items: baseline; 
         gap: 8px;
     }
     
     .code-value {
-        /* Restored original font stack */
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         font-weight: 700;
         letter-spacing: 0.5px;
@@ -211,13 +208,11 @@
     }
     
     .history-code {
-        /* Restored original font stack */
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         font-weight: 700;
         color: var(--text-dark);
         letter-spacing: 0.5px;
     }
-    /* ------------------------------ */
 
     .code-label { font-size: 0.85rem; color: var(--text-label); font-weight: 500; font-family: sans-serif; }
     
@@ -298,14 +293,78 @@
         border-radius: 8px;
         border: 1px dashed var(--border-color);
     }
+
+    /* --- HISTORY SEARCH BAR CSS --- */
+    .history-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .history-header-container .section-title {
+        margin-bottom: 0; /* Override default margin inside flex container */
+    }
+
+    .search-wrapper {
+        position: relative;
+        width: 250px;
+    }
+
+    .history-search-input {
+        width: 100%;
+        padding: 8px 12px 8px 34px; /* Left padding for icon */
+        border: 1px solid var(--border-color);
+        border-radius: 20px; /* Pill shape */
+        font-size: 0.85rem;
+        color: var(--text-dark);
+        background-color: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    .history-search-input:focus {
+        outline: none;
+        border-color: var(--primary-maroon);
+        box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+    }
+
+    .search-icon-small {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-label);
+        font-size: 0.8rem;
+        pointer-events: none;
+    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Animate Titles
         const sections = document.querySelectorAll('.section-title');
         sections.forEach(section => {
             setTimeout(() => { section.classList.add('animated'); }, 100);
         });
+
+        // --- History Search Functionality ---
+        const searchInput = document.getElementById('historySearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const query = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.history-table tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if(text.includes(query)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
     });
 </script>
 {% endblock %}
@@ -314,7 +373,7 @@
 <div class="detail-container">
     
     <div class="back-nav">
-        <a href="{% url 'visitor_search_app:search' %}?query={{ visitor_email }}" class="back-link">
+        <a href="{% url 'visitor_search_app:search' %}" class="back-link">
             <i class="fas fa-arrow-left"></i> Back to Search
         </a>
     </div>
@@ -351,8 +410,8 @@
             <div class="detail-item">
                 <label>Member Since</label>
                 <p>
-                    {% if visit_history %}
-                        {{ visit_history.0.visit_date }}
+                    {% if member_since %}
+                        {{ member_since }}
                     {% else %}
                         New Visitor
                     {% endif %}
@@ -393,7 +452,23 @@
         </div>
     {% endif %}
 
-    <div class="section-title" style="margin-top: 2rem;">Visit History</div>
+    <div class="history-header-container">
+        <div class="section-title">Visit History</div>
+        
+        {% if visit_history %}
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon-small"></i>
+            <input 
+                type="text" 
+                id="historySearchInput" 
+                class="history-search-input" 
+                placeholder="Filter history..."
+                autocomplete="off"
+            >
+        </div>
+        {% endif %}
+    </div>
+
     {% if visit_history %}
         <table class="history-table">
             <thead>
