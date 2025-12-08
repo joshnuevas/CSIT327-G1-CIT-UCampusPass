@@ -11,7 +11,7 @@
         display: grid;
         grid-template-columns: 1.2fr 0.8fr;
         gap: 25px;
-        align-items: stretch;     /* stretch both columns to same row height */
+        align-items: stretch;       /* both columns share the same row height */
         margin-top: 20px;
     }
 
@@ -19,37 +19,53 @@
         display: flex;
         flex-direction: column;
         gap: 25px;
+        height: 100%;
+        min-height: 0;              /* IMPORTANT for scroll to behave */
+    }
+
+    /* Make ONLY the Live Check-in Feed card fill remaining height in left column */
+    .left-column > .card:last-child {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    /* SHARED scroll container base */
+    .custom-scroll.live-feed-scroll,
+    .custom-scroll.schedule-scroll {
+        overflow-y: auto;
+        padding: 0 20px 20px 20px;
+        min-height: 0;
     }
 
     /* Live Check-in Feed – keep it shorter */
     .custom-scroll.live-feed-scroll {
-        max-height: 380px;          /* keep as-is */
-        overflow-y: auto;
+        max-height: 380px;      /* or 340px / 360px – whatever you had before */
+        overflow-y: auto;       /* scrolls only when content exceeds max-height */
         padding: 0 20px 20px 20px;
     }
 
     /* RIGHT: Today's Schedule – taller but still bounded */
     .custom-scroll.schedule-scroll {
-        max-height: 520px;          /* 🔧 make this bigger/smaller as you like */
-        overflow-y: auto;
+        max-height: 520px;      /* schedule can show more items before scrolling */
+        overflow-y: auto;       /* scrolls only inside the widget */
         padding: 0 20px 20px 20px;
     }
-    /* ===== Code Checker Widget (Updated) ===== */
-/* This section replaces the original Code Checker Widget CSS block */
 
-.scanner-card {
-    /* Refined deep burgundy/crimson background */
-    background: linear-gradient(135deg, #7C0A2A 0%, #59081E 100%);
-    color: white;
-    border: none;
-    position: relative;
-    overflow: hidden;
-    /* Deeper, more noticeable shadow for professionalism */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35), 
-                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-    border-radius: 16px; /* Slightly more rounded corners for a modern feel */
-    padding: 25px; /* Add slight padding for content to breathe */
-}
+    .scanner-card {
+        /* Refined deep burgundy/crimson background */
+        background: linear-gradient(135deg, #7C0A2A 0%, #59081E 100%);
+        color: white;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        /* Deeper, more noticeable shadow for professionalism */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35), 
+                    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        border-radius: 16px; /* Slightly more rounded corners for a modern feel */
+        padding: 25px; /* Add slight padding for content to breathe */
+    }
 
     /* Updated accent bubble with a more subtle, metallic gold gleam */
     .scanner-card::before {
