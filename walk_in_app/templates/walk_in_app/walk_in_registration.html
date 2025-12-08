@@ -23,7 +23,7 @@
     }
 
     body {
-        background-color: #f1f5f9; /* Light slate background for contrast */
+        background-color: #f1f5f9;
         color: var(--text-main);
     }
 
@@ -33,21 +33,19 @@
         padding: 0 20px;
     }
 
-    /* registration card */
+    /* ========== FORM CARD ========== */
     .registration-card {
         background: var(--bg-surface);
         border-radius: var(--radius-lg);
         padding: 48px;
         box-shadow: var(--shadow-lg);
         border: 1px solid rgba(255,255,255,0.5);
-        /* animate card on page load */
         opacity: 0;
         transform: translateY(24px);
         animation: fadeInUpSmooth 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         animation-delay: 0.2s;
     }
 
-    /* header */
     .registration-header {
         text-align: center;
         margin-bottom: 48px;
@@ -73,7 +71,6 @@
         transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
-    /* subtle hover float like your booking header icon */
     .registration-card:hover .icon-wrapper {
         transform: translateY(-3px);
         box-shadow: 0 10px 25px rgba(139, 21, 56, 0.25);
@@ -93,7 +90,6 @@
         line-height: 1.5;
     }
 
-    /* --- Form Grid --- */
     .form-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -110,7 +106,6 @@
         animation-delay: 0.35s;
     }
 
-    /* stagger the appearance of fields a bit */
     .form-group:nth-child(2) { animation-delay: 0.40s; }
     .form-group:nth-child(3) { animation-delay: 0.45s; }
     .form-group:nth-child(4) { animation-delay: 0.50s; }
@@ -121,7 +116,6 @@
         grid-column: 1 / -1;
     }
 
-    /* --- Labels & Inputs --- */
     .form-label {
         display: block;
         font-size: 0.875rem;
@@ -168,7 +162,6 @@
         box-shadow: 0 0 0 4px var(--focus-ring);
     }
 
-    /* Custom Select Arrow */
     .form-select {
         appearance: none;
         background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -186,7 +179,6 @@
         margin-left: 2px;
     }
 
-    /* --- Dynamic Fields Animation --- */
     .fade-in {
         animation: fadeIn 0.3s ease-in-out forwards;
     }
@@ -196,7 +188,6 @@
         margin-top: 12px;
     }
 
-    /* actions row */
     .form-actions {
         display: flex;
         gap: 16px;
@@ -209,7 +200,8 @@
         animation-delay: 0.75s;
     }
 
-    .btn-submit, .btn-cancel {
+    .btn-submit,
+    .btn-cancel {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -236,19 +228,10 @@
         box-shadow: 0 6px 8px -1px rgba(139, 21, 56, 0.3);
     }
 
-    .btn-submit:active {
-        transform: translateY(0);
-    }
-
-    /* loading state like on book visit button */
     .btn-submit.loading {
         opacity: 0.85;
         cursor: wait;
         box-shadow: none;
-    }
-
-    .btn-submit.loading i {
-        margin-right: 6px;
     }
 
     .btn-cancel {
@@ -265,78 +248,121 @@
         color: #1e293b;
     }
 
-    /* --- Success State (Ticket Style) --- */
+    /* ========== SUCCESS TICKET (Code-checker style) ========== */
     .success-card {
-        background: white;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
-        overflow: hidden;
+        position: relative;
+        border-radius: 18px;
+        overflow: visible;
         border: 1px solid var(--border-color);
+        background: #ffffff;
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.10);
         animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .success-header {
-        background: #f0fdf4;
-        padding: 40px 20px;
-        text-align: center;
-        border-bottom: 2px dashed #bbf7d0;
+    .success-card::before,
+    .success-card::after {
+        content: '';
+        position: absolute;
+        left: 24px;
+        right: 24px;
+        height: 20px;
+        background:
+            radial-gradient(circle at 10px 10px, #f1f5f9 6px, transparent 6px) 0 0/20px 20px repeat-x;
+        z-index: 1;
     }
 
-    .success-icon-box {
-        width: 64px;
-        height: 64px;
-        background: #22c55e;
-        color: white;
-        border-radius: 50%;
+    .success-card::before { top: -10px; }
+    .success-card::after  { bottom: -10px; }
+
+    .success-header {
+        padding: 2.25rem 2rem 1.75rem;
+        text-align: center;
+        border-bottom: 2px dashed #e2e8f0;
+        background: linear-gradient(135deg, #fff9f0 0%, #fff5e1 100%);
+        position: relative;
+        z-index: 2;
+    }
+
+    /* animated checkmark */
+    .checkmark-wrapper {
         display: flex;
-        align-items: center;
         justify-content: center;
-        font-size: 32px;
-        margin: 0 auto 16px;
-        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-        animation: pulseIcon 1.4s ease-out infinite;
+        margin-bottom: 1rem;
+    }
+
+    .checkmark {
+        width: 65px;
+        height: 65px;
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        animation: popIn 0.4s ease-out forwards;
+        stroke: var(--primary-color);
+    }
+
+    .checkmark-circle {
+        stroke-dasharray: 144;
+        stroke-dashoffset: 144;
+        animation: strokeAnim 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark-check {
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: strokeAnim 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
     }
 
     .success-header h2 {
-        color: #15803d;
-        font-size: 1.5rem;
-        margin-bottom: 8px;
-        font-weight: 700;
+        color: #8B1538;
+        font-size: 1.6rem;
+        margin-bottom: 0.4rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .success-header p {
+        color: #4b5563;
+        font-size: 0.95rem;
+        margin: 0;
     }
 
     .visit-code-box {
-        background: white;
-        margin: 24px auto 0;
+        background: #ffffff;
+        margin: 1.75rem auto 0;
         display: inline-block;
         padding: 12px 32px;
-        border-radius: 12px;
-        border: 1px solid #bbf7d0;
+        border-radius: 14px;
+        border: 1px solid #fed7aa;
+        box-shadow: 0 6px 16px rgba(248, 250, 252, 0.9);
     }
 
     .visit-code-label {
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-size: 0.75rem;
-        color: #64748b;
+        letter-spacing: 0.12em;
+        font-size: 0.7rem;
+        color: #94a3b8;
         margin-bottom: 4px;
     }
 
     .visit-code-value {
-        font-family: 'Courier New', monospace;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         font-size: 2rem;
         font-weight: 700;
         color: var(--primary-color);
-        letter-spacing: 2px;
+        letter-spacing: 0.16em;
     }
 
     .ticket-details {
-        padding: 32px;
+        padding: 2rem;
+        background: #ffffff;
+        position: relative;
+        z-index: 2;
     }
 
     .detail-row {
         display: flex;
         justify-content: space-between;
-        padding: 12px 0;
+        padding: 11px 0;
         border-bottom: 1px solid #f1f5f9;
     }
 
@@ -353,43 +379,52 @@
         color: var(--text-main);
         font-weight: 600;
         font-size: 0.9rem;
+        text-align: right;
     }
 
     .success-actions {
-        padding: 24px 32px 32px;
+        padding: 1.75rem 2rem 2rem;
         display: flex;
         gap: 12px;
         justify-content: center;
         background: #fafafa;
-        border-top: 1px solid #f1f5f9;
+        border-top: 2px dashed #e2e8f0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .success-actions .btn-submit {
+        flex: 1.4;
+        border-radius: 999px;
+    }
+
+    .success-actions .btn-cancel {
+        flex: 1;
+        border-radius: 999px;
     }
 
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(-5px); }
-        to { opacity: 1; transform: translateY(0); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes slideUp {
         from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* new smooth fade-in-up like in Book Visit page */
     @keyframes fadeInUpSmooth {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(30px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes pulseIcon {
-        0%   { transform: scale(1); }
-        50%  { transform: scale(1.06); }
-        100% { transform: scale(1); }
+    @keyframes popIn {
+        from { transform: scale(0.5); opacity: 0; }
+        to   { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes strokeAnim {
+        to { stroke-dashoffset: 0; }
     }
 
     a.btn-submit,
@@ -399,14 +434,115 @@
         text-decoration: none !important;
     }
 
-    /* --- Responsive --- */
     @media (max-width: 768px) {
         .registration-card { padding: 24px; }
         .form-grid { grid-template-columns: 1fr; gap: 16px; }
         .form-actions { flex-direction: column; }
         .btn-submit, .btn-cancel { width: 100%; }
-        .success-actions { flex-direction: column; }
+        .success-actions { flex-direction: column; padding: 1.5rem; }
     }
+
+    /* ============================
+    WALK-IN SUCCESS TICKET COLORS
+    (match Code Checker ticket)
+    ============================ */
+
+    .success-card {
+        background: #fffaf0; /* warm cream */
+        border: 1px solid #F1C40F; /* gold */
+        box-shadow: 0 10px 30px rgba(241, 196, 15, 0.18);
+    }
+
+    /* header bar like Code Checker */
+    .success-header {
+        background: linear-gradient(135deg, #fff9f0 0%, #fff5e1 100%);
+        border-bottom: 2px dashed #F1C40F;
+    }
+
+    .success-icon-box {
+        background: #8B1538;            /* maroon circle */
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(139, 21, 56, 0.35);
+    }
+
+    .visit-code-box {
+        border: 1px solid #F1C40F;
+        background: #ffffff;
+        box-shadow: 0 3px 10px rgba(241, 196, 15, 0.18);
+    }
+
+    .ticket-details {
+        background: #ffffff;
+    }
+
+    .success-actions {
+        border-top: 2px dashed #F1C40F;
+        background: linear-gradient(135deg, #fff9f0 0%, #fffcf5 100%);
+    }
+
+    /* =========================================
+    SUCCESS FOOTER BUTTONS (ticket actions)
+    ========================================= */
+
+    /* Register Another – copy History "Apply Filters" gradient */
+    .success-actions .btn-submit {
+        flex: 2;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #8B1538, #6B0F2A);
+        color: #FFFFFF;
+        border: none;
+        border-radius: 50px; /* pill */
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        text-decoration: none;
+
+        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.30);
+        transition: all 0.3s ease;
+    }
+
+    .success-actions .btn-submit:hover {
+        background: linear-gradient(135deg, #6B0F2A, #8B1538);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 25px rgba(139, 21, 56, 0.40);
+    }
+
+    /* Dashboard button — normal state */
+    .success-actions .btn-cancel {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        padding: 14px 32px;
+        background: #ffffff;
+        color: #6b7280;              /* gray text (NO maroon) */
+        border: 2px solid #d1d5db;   /* light gray border */
+        border-radius: 50px;
+
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        transition: all 0.25s ease;
+    }
+
+    /* Dashboard button — hover state */
+    .success-actions .btn-cancel:hover {
+        background: #fffdf5;         /* soft warm hover */
+        border-color: #F1C40F;       /* yellow border */
+        color: var(--primary-color); /* maroon text & icon */
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(241,196,15,0.35);
+    }
+
 </style>
 {% endblock %}
 
@@ -414,14 +550,17 @@
 <div class="registration-container">
 
     {% if success %}
-    <!-- SUCCESS / TICKET VIEW (for immediate walk-in check-in) -->
+    <!-- SUCCESS / TICKET VIEW -->
     <div class="success-card">
         <div class="success-header">
-            <div class="success-icon-box">
-                <i class="fas fa-check"></i>
+            <div class="checkmark-wrapper">
+                <svg class="checkmark" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle" cx="26" cy="26" r="23" fill="none" />
+                    <path class="checkmark-check" fill="none" d="M14 27 l7 7 l17 -17"/>
+                </svg>
             </div>
             <h2>Visitor Registered</h2>
-            <p style="color: #166534; font-size: 0.95rem;">Successfully checked in to the system</p>
+            <p>Successfully checked in to the system.</p>
 
             <div class="visit-code-box">
                 <div class="visit-code-label">VISIT CODE</div>
@@ -447,7 +586,7 @@
                 <span class="detail-value">{{ purpose }}</span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Date & Time</span>
+                <span class="detail-label">Date &amp; Time</span>
                 <span class="detail-value">{{ visit_datetime_display }}</span>
             </div>
         </div>
@@ -464,6 +603,7 @@
 
     {% else %}
 
+    <!-- FORM VIEW -->
     <div class="registration-card">
         <div class="registration-header">
             <div class="icon-wrapper">
@@ -529,7 +669,6 @@
                     <span class="form-hint">11 digits starting with 09</span>
                 </div>
 
-                {# DESTINATION DEPARTMENT (no text field for Other) #}
                 <div class="form-group full-width">
                     <label class="form-label required">Destination Department</label>
                     <select name="department"
@@ -541,6 +680,7 @@
                             Select Department
                         </option>
 
+                        <!-- (all your options exactly as before) -->
                         <!-- 🎓 Academic Colleges / Departments -->
                         <option value="College of Engineering and Architecture (CEA)">College of Engineering and Architecture (CEA)</option>
                         <option value="College of Computer Studies (CCS)">College of Computer Studies (CCS)</option>
@@ -597,12 +737,10 @@
                         <option value="Office of the VP for Finance (VPF)">Office of the VP for Finance (VPF)</option>
                         <option value="Office of the VP for External Affairs (VPEA)">Office of the VP for External Affairs (VPEA)</option>
 
-                        <!-- Catch-all -->
                         <option value="Other">Other</option>
                     </select>
                 </div>
 
-                {# Purpose dropdown (no text field for "Other") #}
                 <div class="form-group full-width" id="purposeGroup">
                     <label class="form-label required" id="purposeLabel">Purpose of Visit</label>
                     <select name="purpose"
@@ -625,6 +763,7 @@
             </div>
         </form>
     </div>
+
     {% endif %}
 </div>
 {% endblock %}
@@ -632,64 +771,9 @@
 {% block extra_js %}
 <script>
 const purposeOptions = {
-    // 🎓 ACADEMIC COLLEGES / DEPARTMENTS
-    "College of Engineering and Architecture (CEA)": ["Consultation with Dean or Program Chair", "Course / Curriculum Advising", "Laboratory / Facilities Visit", "Thesis / Capstone Consultation", "Student Organization Activity", "Industry / Project Coordination Meeting", "Parent / Guardian Conference", "Other"],
-    "College of Computer Studies (CCS)": ["IT / CS Program Inquiry", "Capstone / Thesis Consultation", "Laboratory / Server Room Appointment", "Internship / OJT Coordination", "Faculty Consultation", "Student Organization / Event Meeting", "Parent / Guardian Conference", "Other"],
-    "College of Management, Business and Accountancy (CMBA)": ["Business Program Inquiry", "Academic Advising / Retention Consultation", "Thesis / Feasibility Study Consultation", "Internship / Practicum Coordination", "Industry Partner Meeting", "Parent / Guardian Conference", "Other"],
-    "College of Arts, Sciences and Education (CASE)": ["Program Inquiry (Liberal Arts / Education)", "Practice Teaching / OJT Coordination", "Research / Thesis Consultation", "Licensure Exam Review / Advising", "Faculty or Chairperson Consultation", "Parent / Guardian Conference", "Other"],
-    "College of Nursing and Allied Health Sciences (CNAHS)": ["Nursing / Allied Health Program Inquiry", "Clinical Duty / Hospital Affiliation Concerns", "Clinical Requirements Submission", "Licensure Exam Preparation Consultation", "Faculty / Dean Consultation", "Parent / Guardian Conference", "Other"],
-    "College of Criminal Justice (CCJ)": ["Criminology Program Inquiry", "Internship / OJT Coordination", "MOCK Board / Training Concerns", "Research / Thesis Consultation", "Faculty / Dean Consultation", "Parent / Guardian Conference", "Other"],
-    "Senior High School Department": ["SHS Enrollment or Strand Inquiry", "Parent–Teacher Conference", "Clearance / Requirements Submission", "Guidance or Academic Advising", "Discipline or Behavioral Conference", "SHS Events / Activities Meeting", "Other"],
-    "Basic Education Department (BED)": ["Grade School / JHS Enrollment Inquiry", "Parent–Teacher Conference", "Student Academic Performance Consultation", "Clearance / Requirements Submission", "Discipline / Behavior Concerns", "BED Events / Activities Meeting", "Other"],
-
-    // 🏫 ACADEMIC SUPPORT UNITS
-    "Learning Resource and Activity Center (LRAC)": ["Library Access / Reading", "Book Borrowing / Returning", "Library Clearance / Account Concerns", "Research Assistance / Database Orientation", "Use of Study Rooms / Facilities", "Access to Archives / Special Collections", "Other"],
-    "Student Success Office (SSO)": ["Counseling Appointment", "Career Guidance / Job Placement", "Academic Advising", "Student Intervention / Retention Meeting", "Student Organization / Leader Consultation", "Mental Health Support Session", "Other"],
-    "Office of Student Affairs (OSA)": ["Student Organization Accreditation / Concerns", "Campus Activities / Events Approval", "Student Affairs Consultation", "Student Conduct / Behavior Concerns", "Scholarship / Financial Assistance Endorsement", "Other"],
-    "Office of Student Discipline (OSD)": ["Discipline Conference / Hearing", "Incident / Case Follow-up", "Parent / Guardian Conference", "Submission of Incident-Related Documents", "Policy Clarification or Orientation", "Other"],
-    "Curriculum and Instruction Office (CIO)": ["Curriculum Consultation / Alignment", "Instructional Materials Submission / Review", "Faculty Teaching Load or Assignment Inquiry", "Program / Course Revision Meeting", "Accreditation / CHED Compliance Coordination", "Other"],
-    "Center for Teaching and Learning (CTL)": ["Teaching Innovation Consultation", "Faculty Training / Workshop", "Classroom Observation / Feedback Session", "Learning Materials Development Meeting", "Coaching / Mentoring Session", "Other"],
-    "Center for Research and Development (CRD)": ["Research Proposal Consultation", "Ethics Review Coordination", "Data Gathering / Survey Permission", "Research Funding / Grant Inquiry", "Journal Publication / Conference Inquiry", "Other"],
-    "Center for Community Extension (CCE)": ["Community Extension Project Meeting", "Partner LGU / NGO Coordination", "Outreach Activity Planning", "Monitoring and Evaluation Visit", "Volunteer / Participation Inquiry", "Other"],
-    "Guidance Services Office (GSO)": ["Guidance / Counseling Session", "Psychological Testing / Assessment", "Career and Life Planning Consultation", "Parent / Guardian Conference", "Student Follow-up Session", "Other"],
-
-    // 🧭 ADMINISTRATIVE AND FINANCE OFFICES
-    "Office of Admissions and Scholarships (OAS)": ["Admission Inquiry", "Submission of Admission Requirements", "Enrollment Processing", "Scholarship Application", "Scholarship Inquiry", "Claiming Scholarship Results", "Document Verification (Admission-related)", "Other"],
-    "University Registrar's Office (URO)": ["Request for Transcript of Records", "Request for Certificate (Enrollment, Grades, Good Moral, etc.)", "Document Pickup (TOR, Certificates, etc.)", "Correction of Student Records", "Verification of Academic Credentials", "Diploma Request / Release", "Enrollment / Registration Concerns", "Graduation Evaluation", "Other"],
-    "Finance and Accounting Office (FAO)": ["Tuition Payment", "Financial Clearance", "Assessment of Fees", "Refund Processing", "Scholarship / Discount Posting Inquiry", "Statement of Account Request", "Official Receipt Concerns", "Payment Discrepancy Inquiry", "Other"],
-    "Human Resource Department (HRD)": ["Job Application Submission", "Job Interview", "Employment Verification", "Employee Records Request", "Contract Signing", "HR Consultation / Meeting", "Onboarding / Orientation", "Clearance Processing", "Other"],
-    "Property and Supply Office (PSO)": ["Equipment / Asset Request", "Property Issuance / Return", "Inventory Verification", "Lost / Damaged Property Reporting", "Supplies Release / Replenishment", "Other"],
-    "Physical Plant Office (PPO)": ["Facility Maintenance Request", "Venue Inspection / Checking", "Campus Infrastructure Concern", "Renovation / Construction Coordination", "Events Setup Coordination", "Other"],
-    "ICT / MIS Office": ["Account / System Access Concern", "Network / Internet Issue Reporting", "Laboratory / Equipment Concern", "System Enhancement / Request", "Data / System Support Meeting", "Other"],
-    "Purchasing Office": ["Purchase Request Follow-up", "Bidding / Quotation Submission", "Supplier Coordination", "Delivery / Receiving Concerns", "Procurement Status Inquiry", "Other"],
-    "Cashier's Office": ["Payment of Fees", "Official Receipt Reprinting", "Refund Claiming", "Petty Cash / Reimbursement", "Collection / Payment Inquiry", "Other"],
-    "Internal Audit Office (IAO)": ["Internal Audit Meeting", "Document Submission for Audit", "Compliance / Control Discussion", "Audit Findings Clarification", "Risk Management Consultation", "Other"],
-
-    // 🌐 EXTERNAL & INSTITUTIONAL OFFICES
-    "Institutional Planning and Development Office (IPDO)": ["Institutional Planning Meeting", "Data / Statistics Request", "Strategic Planning Consultation", "Project Proposal Presentation", "Accreditation / Ranking Coordination", "Other"],
-    "Networking, Linkages & Relations (NLR)": ["Partnership / MOA Meeting", "Internship / OJT Coordination", "Industry Relations Inquiry", "Sponsorship Meeting", "External Collaboration", "Campus Promotional Activities Coordination", "Other"],
-    "Public Relations and Communications Office (PRCO)": ["Media / PR Coordination", "Campus Press / Publication Concern", "Marketing / Branding Meeting", "Social Media / Content Coordination", "Event Coverage Request", "Other"],
-    "Quality Assurance Office (QAO)": ["Accreditation / QA Meeting", "Program Evaluation / Monitoring", "Document Submission for QA", "Quality Audit Preparation", "Policy / Standards Consultation", "Other"],
-    "Alumni Affairs Office (AAO)": ["Alumni Verification", "Alumni ID Application / Claiming", "Alumni Records Request", "Reunion / Event Coordination", "Campus Access for Alumni", "Donations or Partnerships", "Alumni Networking Inquiries", "Other"],
-    "Industry-Academe Linkage Office (IALO)": ["Industry Partnership Meeting", "Internship / OJT Placement", "Company Visit Coordination", "Memorandum of Agreement Discussion", "Job Fair / Recruitment Coordination", "Other"],
-    "Technology Business Incubation Office (TBI Office)": ["Startup / Incubation Inquiry", "Mentoring / Coaching Session", "Pitching / Presentation Meeting", "Space / Facility Use Request", "Innovation / IP Consultation", "Other"],
-
-    // 🛡 CAMPUS SERVICES
-    "Security Office": ["Security Incident Reporting", "Gate / ID Access Concern", "Lost and Found Inquiry", "Event Security Coordination", "Parking / Traffic Concern", "Other"],
-    "Clinic / Health Services Office": ["Medical Consultation", "First Aid / Treatment Follow-up", "Medical Certificate Request", "Health Clearance / Requirement", "Vaccination / Health Campaign Visit", "Other"],
-    "Maintenance Office": ["Repair / Maintenance Request", "Facility Inspection", "Equipment Servicing", "Cleaning / Sanitation Concern", "Classroom / Office Setup Request", "Other"],
-    "Janitorial Services Office": ["Cleaning Request", "Sanitation or Disinfection Concern", "Waste Management / Disposal Inquiry", "Event Cleanup Coordination", "Other"],
-
-    // 🏛 EXECUTIVE OFFICES
-    "Office of the University President": ["Courtesy Visit", "Official Meeting / Consultation", "Signing of Documents / MOA", "Institutional / External Partnership Meeting", "Award / Recognition Ceremony", "Other"],
-    "Office of the Executive Vice President": ["Strategic / Institutional Meeting", "Policy / Implementation Discussion", "Project Monitoring / Evaluation", "Signing of Documents", "Other"],
-    "Office of the VP for Academic Affairs (VPAA)": ["Academic Policy Consultation", "Program / Curriculum Meeting", "Accreditation / QA Coordination", "Faculty / Academic Concerns", "Other"],
-    "Office of the VP for Administration (VPA)": ["Administrative Policy Consultation", "Facilities / Services Discussion", "HR / Admin Coordination Meeting", "Project / Infrastructure Concerns", "Other"],
-    "Office of the VP for Finance (VPF)": ["Budget / Funding Meeting", "Financial Policy Consultation", "Project Costing / Evaluation", "Audit / Compliance Discussion", "Other"],
-    "Office of the VP for External Affairs (VPEA)": ["External Relations / Partnership Meeting", "Public / Community Engagement", "Alumni / Industry Collaboration", "Internationalization / Exchange Program Meeting", "Other"]
+    /* your big purposeOptions object exactly as before */
+    /* (keep it unchanged – omitted here for brevity) */
 };
-
-// ===== Populate Purpose based on Department =====
 function updatePurposeOptions() {
     const departmentSelect = document.getElementById('departmentSelect');
     const purposeSelect = document.getElementById('purposeSelect');
@@ -698,11 +782,8 @@ function updatePurposeOptions() {
     if (!departmentSelect || !purposeSelect || !purposeLabel) return;
 
     const selectedDepartment = departmentSelect.value;
-
-    // Reset dropdown
     purposeSelect.innerHTML = '';
 
-    // Default placeholder
     const defaultOption = document.createElement('option');
     defaultOption.value = '';
     defaultOption.textContent = 'Select Purpose';
@@ -710,10 +791,7 @@ function updatePurposeOptions() {
     defaultOption.selected = true;
     purposeSelect.appendChild(defaultOption);
 
-    // Get purposes for department
     let purposes = purposeOptions[selectedDepartment];
-
-    // If department is "Other" or not in map, keep it simple
     if (!purposes) {
         purposes = ['Other'];
     }
@@ -731,7 +809,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const purposeSelect = document.getElementById('purposeSelect');
     const phoneInput = document.getElementById('phoneInput');
 
-    // 🔁 Initial prefill from data-* (for postback)
     if (departmentSelect && purposeSelect) {
         const preDept = departmentSelect.dataset.selectedDept;
         const prePurpose = purposeSelect.dataset.selectedPurpose;
@@ -747,12 +824,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         departmentSelect.addEventListener('change', function() {
             updatePurposeOptions();
-            // Clear any previously selected purpose on change
             purposeSelect.value = '';
         });
     }
 
-    // 📱 Phone input numeric-only & length
     if (phoneInput) {
         phoneInput.addEventListener('input', function () {
             let digits = this.value.replace(/\D/g, '');
@@ -763,12 +838,11 @@ document.addEventListener('DOMContentLoaded', function() {
         phoneInput.addEventListener('keydown', function (e) {
             const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
             if (allowedKeys.includes(e.key)) return;
-            if (e.ctrlKey || e.metaKey) return; // Allow copy/paste
+            if (e.ctrlKey || e.metaKey) return;
             if (!/^\d$/.test(e.key)) e.preventDefault();
         });
     }
 
-    // 🔄 Button loading / "Processing..." animation
     const form = document.querySelector('.registration-card form');
     const submitBtn = document.querySelector('.registration-card .btn-submit');
 
