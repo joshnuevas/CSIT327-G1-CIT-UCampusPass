@@ -1,6 +1,7 @@
 {% extends "dashboard_app/admin_dashboard_base.html" %}
 {% load static %}
 
+{% block title %}Analytics Dashboard - CIT-U Campus Pass{% endblock %}
 {% block reports_active %}active{% endblock %}
 
 {% block extra_css %}
@@ -8,79 +9,138 @@
 {% endblock %}
 
 {% block content %}
-<div class="content-header">
-  <h1>Reports Overview</h1>
-  <div class="filter-bar">
-    <div class="filter-group">
-      <label for="statusFilter">Status:</label>
-      <select id="statusFilter">
-        <option value="All">All</option>
-        <option value="Upcoming">Upcoming</option>
-        <option value="Ongoing">Ongoing</option>
-        <option value="Completed">Completed</option>
-        <option value="Cancelled">Cancelled</option>
-      </select>
+<div class="reports-header animate-entry">
+    <div class="header-title">
+        <h1>Analytics Dashboard</h1>
+        <p>Operational insights, traffic patterns, and visitor data</p>
     </div>
+    
+    <div class="control-toolbar">
+        <div class="toolbar-group">
+            <span class="toolbar-label">Quick Range</span>
+            <div class="preset-buttons">
+                <button class="btn-preset" data-range="7days">Last 7 Days</button>
+                <button class="btn-preset" data-range="30days">Last 30 Days</button>
+                <button class="btn-preset active" data-range="month">This Month</button>
+            </div>
+        </div>
 
-    <div class="filter-date">
-      <label for="startDate">From:</label>
-      <input type="date" id="startDate" />
-      <label for="endDate">To:</label>
-      <input type="date" id="endDate" />
-    </div>
+        <div class="toolbar-divider"></div>
 
-    <div class="export-dropdown">
-      <button class="export-btn" aria-haspopup="true" aria-expanded="false">
-        Export ⏷
-      </button>
-      <ul class="export-menu">
-        <li><button id="exportCSV">CSV</button></li>
-        <li><button id="exportPDF">PDF</button></li>
-      </ul>
+        <div class="toolbar-group inputs-group">
+            <div class="date-range-wrapper">
+                <input type="date" id="startDate" class="form-input">
+                <span class="range-sep">to</span>
+                <input type="date" id="endDate" class="form-input">
+            </div>
+            
+            <select id="statusFilter" class="form-select">
+                <option value="All">All Statuses</option>
+                <option value="Upcoming">Upcoming</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+
+            <div class="toolbar-divider"></div>
+
+            <div class="export-dropdown">
+                <button class="btn-export" id="exportBtn"><i class="fas fa-download"></i> Export</button>
+                <div class="dropdown-menu" id="exportMenu">
+                    <button id="exportCSV">Save as CSV</button>
+                    <button id="exportPDF">Save as PDF</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<div class="summary-cards">
-  <div class="card" id="totalVisitorsCard">
-    <h3>Total Visitors</h3>
-    <p id="totalVisitors">0</p>
-  </div>
-  <div class="card" id="totalVisitsCard">
-    <h3>Total Visits</h3>
-    <p id="totalVisits">0</p>
-  </div>
-  <div class="card" id="upcomingVisitsCard">
-    <h3>Upcoming Visits</h3>
-    <p id="upcomingVisits">0</p>
-  </div>
-  <div class="card" id="ongoingVisitsCard">
-    <h3>Ongoing Visits</h3>
-    <p id="ongoingVisits">0</p>
-  </div>
-  <div class="card" id="completedVisitsCard">
-    <h3>Completed Visits</h3>
-    <p id="completedVisits">0</p>
-  </div>
+<div class="kpi-grid animate-entry" style="animation-delay: 0.1s;">
+    <div class="stat-card">
+        <div class="stat-icon-wrapper icon-maroon">
+            <i class="fas fa-user-friends"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value" id="totalVisits">0</div>
+            <div class="stat-label">Total Visits</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-wrapper icon-gold">
+            <i class="fas fa-walking"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value" id="ongoingVisits">0</div>
+            <div class="stat-label">Currently On Campus</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-wrapper icon-blue">
+            <i class="fas fa-calendar-week"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value" id="peakDay">-</div>
+            <div class="stat-label">Busiest Day of Week</div>
+        </div>
+    </div>
 </div>
 
-<div class="chart-section">
-  <h2>Visit Trends</h2>
-  <canvas id="visitTrendsChart"></canvas>
-</div>
+<div class="charts-grid animate-entry" style="animation-delay: 0.2s;">
+    
+    <div class="card full-width-card">
+        <div class="card-header with-controls">
+            <div class="header-left">
+                <h3 class="card-title"><i class="fas fa-chart-area"></i> Visit Traffic Trends</h3>
+            </div>
+            <div class="header-controls">
+                <div class="toggle-group">
+                    <button class="btn-toggle active" data-scale="day">Day</button>
+                    <button class="btn-toggle" data-scale="week">Week</button>
+                    <button class="btn-toggle" data-scale="month">Month</button>
+                </div>
+            </div>
+        </div>
+        <div class="card-content chart-lg">
+            <canvas id="visitTrendsChart"></canvas>
+        </div>
+    </div>
 
-<div class="chart-section">
-  <h2>Visits by Purpose</h2>
-  <canvas id="purposeChart"></canvas>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Peak Hourly Traffic (Avg)</h3>
+        </div>
+        <div class="card-content chart-md">
+            <canvas id="hourlyChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Top Departments</h3>
+        </div>
+        <div class="card-content chart-md">
+            <canvas id="deptChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card full-width-card">
+        <div class="card-header">
+            <h3 class="card-title">Top Reasons for Visiting</h3>
+        </div>
+        <div class="card-content scrollable-list">
+            <div id="purposeList" class="leaderboard-container">
+                </div>
+        </div>
+    </div>
+
 </div>
 
 <script id="visits-data" type="application/json">
-  {{ visits_json|safe }}
+    {{ visits_json|safe }}
 </script>
-<script id="users-data" type="application/json">
-  {{ users_json|safe }}
-</script>
-{% endblock %} 
+{% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
