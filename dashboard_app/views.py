@@ -442,16 +442,16 @@ def code_checker(request):
     """Dedicated code checker page (if you ever navigate to it directly)"""
     staff_first_name = request.session.get('staff_first_name', 'Staff')
 
-    code_check_result = None
-    if 'code_check_result' in request.session:
-        code_check_result = request.session.pop('code_check_result')
+    # 🔹 One-time read: remove from session as soon as we use them
+    code_check_result = request.session.pop('code_check_result', None)
+    entered_code = request.session.pop('entered_code', None)
 
     context = {
         'staff_first_name': staff_first_name,
         'code_check_result': code_check_result,
+        'entered_code': entered_code,   # may be None → template default will kick in
     }
     return render(request, 'dashboard_app/code_checker.html', context)
-
 
 @staff_required
 @require_POST
@@ -463,11 +463,13 @@ def check_code(request):
         messages.error(request, "Please enter a visit code.")
         return redirect('dashboard_app:code_checker')
 
+    # 🔹 SAVE the entered code so the next GET can prefill it
+    request.session['entered_code'] = visit_code
+
     try:
         try:
             visit = Visit.objects.get(code=visit_code)
 
-            # ✅ Store everything the template expects, including user_email
             request.session['code_check_result'] = {
                 'status': 'success',
                 'message': 'Visit code found and verified!',
@@ -499,7 +501,6 @@ def check_code(request):
         logger.error(f"Error checking code: {str(e)}")
         messages.error(request, "An error occurred while checking the code.")
         return redirect('dashboard_app:code_checker')
-
 
 @staff_required
 @require_POST

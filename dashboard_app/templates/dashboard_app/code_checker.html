@@ -5,308 +5,350 @@
 
 {% block extra_css %}
 <style>
-.checker-container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.checker-card {
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.checker-icon {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto 30px;
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 48px;
-}
-
-.checker-card h1 {
-    color: #8B1538;
-    margin-bottom: 12px;
-    font-size: 2rem;
-}
-
-.checker-card p {
-    color: #666;
-    margin-bottom: 40px;
-    font-size: 1.1rem;
-}
-
-.code-input-form {
-    max-width: 500px;
-    margin: 0 auto 30px;
-}
-
-.code-input-wrapper {
-    position: relative;
-    margin-bottom: 20px;
-}
-
-.code-input-wrapper input {
-    width: 100%;
-    padding: 20px 24px;
-    font-size: 1.3rem;
-    font-weight: 600;
-    text-align: center;
-    border: 3px solid #E0E0E0;
-    border-radius: 16px;
-    transition: all 0.3s ease;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-family: 'Courier New', monospace;
-}
-
-.code-input-wrapper input:focus {
-    outline: none;
-    border-color: #8B1538;
-    box-shadow: 0 0 0 4px rgba(139, 21, 56, 0.1);
-}
-
-.code-input-wrapper input::placeholder {
-    color: #bbb;
-    font-weight: 400;
-    letter-spacing: 1px;
-}
-
-.check-btn {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 24px rgba(139, 21, 56, 0.3);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.check-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 32px rgba(139, 21, 56, 0.4);
-}
-
-.check-btn:active {
-    transform: translateY(-1px);
-}
-
-/* ===== Result Display ===== */
-.result-card {
-    margin-top: 40px;
-    padding: 30px;
-    border-radius: 20px;
-    animation: slideIn 0.4s ease;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+    :root {
+        /* Brand Colors */
+        --primary-maroon: #8B1538;
+        --maroon-dark: #6d102b;
+        --primary-gold: #F1C40F;
+        
+        /* UI Colors */
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        --bg-surface: #ffffff;
+        --bg-background: #f8fafc;
+        --border-color: #e2e8f0;
+        
+        /* State Colors */
+        --success-bg: #ecfdf5;
+        --success-text: #047857;
+        --success-border: #a7f3d0;
+        
+        --error-bg: #fff1f2;
+        --error-text: #be123c;
+        --error-border: #fecdd3;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    body {
+        background-color: var(--bg-background);
+        color: var(--text-dark);
     }
-}
 
-.result-card.success {
-    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
-    border: 3px solid #4CAF50;
-}
+    .checker-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
 
-.result-card.error {
-    background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
-    border: 3px solid #F44336;
-}
-
-.result-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.result-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-}
-
-.result-card.success .result-icon {
-    background: #4CAF50;
-    color: white;
-}
-
-.result-card.error .result-icon {
-    background: #F44336;
-    color: white;
-}
-
-.result-header h2 {
-    font-size: 1.8rem;
-    margin-bottom: 10px;
-}
-
-.result-card.success .result-header h2 {
-    color: #2E7D32;
-}
-
-.result-card.error .result-header h2 {
-    color: #C62828;
-}
-
-.result-header p {
-    color: #666;
-    font-size: 1.1rem;
-}
-
-.visit-details {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 24px;
-}
-
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.detail-item {
-    padding: 16px;
-    background: #F5F5F5;
-    border-radius: 12px;
-}
-
-.detail-label {
-    font-size: 0.85rem;
-    color: #666;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-}
-
-.detail-value {
-    font-size: 1.1rem;
-    color: #333;
-    font-weight: 600;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 8px 20px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1rem;
-}
-
-.status-badge.upcoming {
-    background: #FFF8E1;
-    color: #F57F17;
-}
-
-.status-badge.active {
-    background: #E8F5E9;
-    color: #2E7D32;
-}
-
-.status-badge.expired {
-    background: #F5F5F5;
-    color: #999;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 16px;
-    margin-top: 24px;
-}
-
-.action-buttons button,
-.action-buttons a {
-    flex: 1;
-    padding: 14px 20px;
-    border: none;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.btn-check-in {
-    background: #4CAF50;
-    color: white;
-    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
-}
-
-.btn-check-in:hover {
-    background: #45a049;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-}
-
-.btn-check-out {
-    background: #FF9800;
-    color: white;
-    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
-}
-
-.btn-check-out:hover {
-    background: #FB8C00;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
-}
-
-.btn-new-check {
-    background: #2196F3;
-    color: white;
-    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
-}
-
-.btn-new-check:hover {
-    background: #1976D2;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
-}
-
-@media (max-width: 768px) {
+    /* --- Main Checker Card --- */
     .checker-card {
-        padding: 24px;
+        background: var(--bg-surface);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        text-align: center;
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Decorative top bar */
+    .checker-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-maroon), #be123c);
+    }
+
+    .checker-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: #fff1f2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-maroon);
+        font-size: 2rem;
+        box-shadow: 0 4px 12px rgba(139, 21, 56, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .checker-card:hover .checker-icon {
+        transform: scale(1.05) rotate(-5deg);
+    }
+
+    .checker-card h1 {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .checker-card p {
+        color: var(--text-muted);
+        margin-bottom: 2.5rem;
+        font-size: 1rem;
+    }
+
+    /* --- Input Area --- */
+    .code-input-form {
+        max-width: 480px;
+        margin: 0 auto 1rem;
+    }
+
+    .code-input-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .code-input-wrapper input {
+        width: 100%;
+        padding: 1.25rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+        background: #f8fafc;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        color: var(--primary-maroon);
+    }
+
+    .code-input-wrapper input:focus {
+        outline: none;
+        background: white;
+        border-color: var(--primary-maroon);
+        box-shadow: 0 0 0 4px rgba(139, 21, 56, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .code-input-wrapper input::placeholder {
+        color: #cbd5e1;
+        letter-spacing: 1px;
+        font-weight: 500;
+    }
+
+    .check-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary-maroon);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(139, 21, 56, 0.2);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .check-btn:hover {
+        background: var(--maroon-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(139, 21, 56, 0.3);
+    }
+
+    /* ===== Result Display ===== */
+    .result-section {
+        margin-top: 3rem;
+        animation: slideUpFade 0.5s ease-out forwards;
+    }
+
+    @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-card {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid transparent;
+    }
+
+    .result-card.success {
+        background: #ffffff;
+        border-color: var(--success-border);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1);
+    }
+
+    .result-card.error {
+        background: #ffffff;
+        border-color: var(--error-border);
+        box-shadow: 0 10px 30px rgba(244, 63, 94, 0.1);
+    }
+
+    /* Result Header */
+    .result-header {
+        padding: 2rem;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+        background: #fafafa;
+    }
+
+    .result-card.success .result-header { background: var(--success-bg); }
+    .result-card.error .result-header { background: var(--error-bg); }
+
+    .result-icon-large {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .success .result-icon-large { color: var(--success-text); }
+    .error .result-icon-large { color: var(--error-text); }
+
+    .result-header h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+
+    .result-header p {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    /* Details Grid */
+    .visit-details {
+        padding: 2rem;
     }
 
     .detail-grid {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        text-align: left;
     }
 
-    .action-buttons {
-        flex-direction: column;
+    .detail-item {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
     }
-}
+
+    .detail-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .detail-value {
+        font-size: 1.05rem;
+        color: var(--text-dark);
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    
+    .status-badge.upcoming { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+    .status-badge.active { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .status-badge.expired { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+    .status-badge.completed { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+
+    /* Action Buttons */
+    .action-buttons {
+        padding: 1.5rem 2rem 2rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-action {
+        padding: 0.85rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-check-in {
+        background: #059669;
+        color: white;
+    }
+    .btn-check-in:hover { background: #047857; transform: translateY(-2px); }
+
+    .btn-check-out {
+        background: #d97706;
+        color: white;
+    }
+    .btn-check-out:hover { background: #b45309; transform: translateY(-2px); }
+
+    .btn-secondary {
+        background: white;
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+    }
+    .btn-secondary:hover { 
+        background: #f8fafc; 
+        border-color: #cbd5e1;
+        color: var(--text-dark);   /* or keep it same as normal state */
+    }
+
+    .btn-new-check {
+        grid-column: span 2; /* Full width for new check */
+        background: var(--text-dark);
+        color: white;
+    }
+
+    /* Disable hover color ONLY for the Check Another button */
+    .btn-new-check:hover {
+        background: var(--text-dark);   /* same as default, no change */
+        color: white;                   /* keep text readable */
+        transform: none;                /* no jumping */
+        box-shadow: none;
+    }
+
+    /* Try Again Button (Single column centered) */
+    .btn-try-again {
+        grid-column: span 2;
+        background: var(--error-text);
+        color: white;
+    }
+    .btn-try-again:hover { background: #9f1239; }
+
+    @media (max-width: 600px) {
+        .detail-grid { grid-template-columns: 1fr; }
+        .action-buttons { grid-template-columns: 1fr; }
+        .btn-new-check, .btn-try-again { grid-column: span 1; }
+    }
 </style>
 {% endblock %}
 
@@ -318,7 +360,7 @@
         </div>
 
         <h1>Visit Code Checker</h1>
-        <p>Enter a visit code to verify and manage visitor check-in/check-out</p>
+        <p>Enter a unique visit code to verify status or process check-in/out.</p>
 
         <form method="POST" action="{% url 'dashboard_app:check_code' %}" class="code-input-form">
             {% csrf_token %}
@@ -328,104 +370,107 @@
                     name="visit_code" 
                     id="visitCodeInput" 
                     placeholder="CIT-XXX-XXXXX" 
+                    value="{{ entered_code|default:'CIT-' }}" 
                     required
-                    pattern="[A-Z0-9-]+"
+                    autocomplete="off"
                     autofocus
                 >
             </div>
             <button type="submit" class="check-btn">
-                <i class="fas fa-search"></i> Check Code
+                <i class="fas fa-search"></i> Verify Code
             </button>
         </form>
 
         {% if code_check_result %}
-        <div class="result-card {{ code_check_result.status }}">
-            <div class="result-header">
-                <div class="result-icon">
+        <div class="result-section">
+            <div class="result-card {{ code_check_result.status }}">
+                
+                <div class="result-header">
                     {% if code_check_result.status == 'success' %}
-                        <i class="fas fa-check-circle"></i>
+                        <i class="fas fa-check-circle result-icon-large"></i>
+                        <h2>Valid Visit Code</h2>
+                        <p>Code found in the system.</p>
                     {% else %}
-                        <i class="fas fa-times-circle"></i>
+                        <i class="fas fa-times-circle result-icon-large"></i>
+                        <h2>Invalid Code</h2>
+                        <p>{{ code_check_result.message }}</p>
                     {% endif %}
                 </div>
-                <h2>
-                    {% if code_check_result.status == 'success' %}
-                        Valid Visit Code
-                    {% else %}
-                        Invalid Visit Code
-                    {% endif %}
-                </h2>
-                <p>{{ code_check_result.message }}</p>
-            </div>
 
-            {% if code_check_result.status == 'success' %}
-            <div class="visit-details">
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Visit Code</div>
-                        <div class="detail-value">{{ code_check_result.visit.code }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Visitor Email</div>
-                        <div class="detail-value">{{ code_check_result.visit.user_email }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Purpose</div>
-                        <div class="detail-value">{{ code_check_result.visit.purpose }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Department</div>
-                        <div class="detail-value">{{ code_check_result.visit.department }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Visit Date</div>
-                        <div class="detail-value">{{ code_check_result.visit.visit_date }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Time Slot</div>
-                        <div class="detail-value">{{ code_check_result.visit.start_time|slice:":5" }} - {{ code_check_result.visit.end_time|slice:":5" }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Status</div>
-                        <div class="detail-value">
-                            <span class="status-badge {{ code_check_result.visit.status|lower }}">
-                                {{ code_check_result.visit.status }}
-                            </span>
+                {% if code_check_result.status == 'success' %}
+                <div class="visit-details">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label"><i class="fas fa-barcode"></i> Visit Code</div>
+                            <div class="detail-value" style="font-family: monospace; letter-spacing: 1px;">
+                                {{ code_check_result.visit.code }}
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label"><i class="fas fa-user"></i> Visitor Email</div>
+                            <div class="detail-value">{{ code_check_result.visit.user_email }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label"><i class="fas fa-building"></i> Department</div>
+                            <div class="detail-value">{{ code_check_result.visit.department }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label"><i class="fas fa-calendar"></i> Date</div>
+                            <div class="detail-value">{{ code_check_result.visit.visit_date }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label"><i class="fas fa-info-circle"></i> Purpose</div>
+                            <div class="detail-value">{{ code_check_result.visit.purpose }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label"><i class="fas fa-clock"></i> Status</div>
+                            <div class="detail-value">
+                                <span class="status-badge {{ code_check_result.visit.status|lower }}">
+                                    {% if code_check_result.visit.status == 'Active' %}
+                                        <i class="fas fa-circle" style="font-size: 8px;"></i>
+                                    {% endif %}
+                                    {{ code_check_result.visit.status }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="action-buttons">
-                {% if code_check_result.visit.status == 'Upcoming' %}
-                <form method="POST" action="{% url 'dashboard_app:check_in_visitor' %}" style="flex: 1;">
-                    {% csrf_token %}
-                    <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
-                    <button type="submit" class="btn-check-in">
-                        <i class="fas fa-sign-in-alt"></i> Check In Visitor
-                    </button>
-                </form>
-                {% elif code_check_result.visit.status == 'Active' %}
-                <form method="POST" action="{% url 'dashboard_app:check_out_visitor' %}" style="flex: 1;">
-                    {% csrf_token %}
-                    <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
-                    <button type="submit" class="btn-check-out">
-                        <i class="fas fa-sign-out-alt"></i> Check Out Visitor
-                    </button>
-                </form>
+                <div class="action-buttons">
+                    {% if code_check_result.visit.status == 'Upcoming' %}
+                        <form method="POST" action="{% url 'dashboard_app:check_in_visitor' %}" style="display: contents;">
+                            {% csrf_token %}
+                            <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
+                            <button type="submit" class="btn-action btn-check-in">
+                                <i class="fas fa-sign-in-alt"></i> Check In
+                            </button>
+                        </form>
+                    {% elif code_check_result.visit.status == 'Active' %}
+                        <form method="POST" action="{% url 'dashboard_app:check_out_visitor' %}" style="display: contents;">
+                            {% csrf_token %}
+                            <input type="hidden" name="visit_code" value="{{ code_check_result.visit.code }}">
+                            <button type="submit" class="btn-action btn-check-out">
+                                <i class="fas fa-sign-out-alt"></i> Check Out
+                            </button>
+                        </form>
+                    {% else %}
+                        <div style="display:none;"></div> 
+                    {% endif %}
+                    
+                    <a href="{% url 'dashboard_app:code_checker' %}" class="btn-action btn-secondary {% if code_check_result.visit.status != 'Upcoming' and code_check_result.visit.status != 'Active' %}btn-new-check{% endif %}">
+                        <i class="fas fa-search"></i> Check Another
+                    </a>
+                </div>
+
+                {% else %}
+                <div class="action-buttons">
+                    <a href="{% url 'dashboard_app:code_checker' %}" class="btn-action btn-try-again">
+                        <i class="fas fa-redo"></i> Try Again
+                    </a>
+                </div>
                 {% endif %}
-                
-                <a href="{% url 'dashboard_app:code_checker' %}" class="btn-new-check">
-                    <i class="fas fa-plus-circle"></i> Check Another Code
-                </a>
+
             </div>
-            {% else %}
-            <div class="action-buttons">
-                <a href="{% url 'dashboard_app:code_checker' %}" class="btn-new-check">
-                    <i class="fas fa-redo"></i> Try Again
-                </a>
-            </div>
-            {% endif %}
         </div>
         {% endif %}
     </div>
@@ -434,9 +479,58 @@
 
 {% block extra_js %}
 <script>
-    // Auto-uppercase visit code input
-    document.getElementById('visitCodeInput').addEventListener('input', function(e) {
-        e.target.value = e.target.value.toUpperCase();
-    });
+    const codeInput = document.getElementById('visitCodeInput');
+    const PREFIX = 'CIT-';
+    // Django boolean: true if there *is* a result, false if fresh / after refresh
+    const HAS_RESULT = "{{ code_check_result|yesno:'true,false' }}" === "true";
+
+    if (codeInput) {
+        // 🔹 If there is NO result (fresh load or after F5), hard-reset to PREFIX only
+        if (!HAS_RESULT) {
+            codeInput.value = PREFIX;
+        } else {
+            // 🔹 If there IS a result, keep whatever was rendered,
+            // but still enforce the prefix in case something broke it
+            if (!codeInput.value || !codeInput.value.startsWith(PREFIX)) {
+                codeInput.value = PREFIX;
+            }
+        }
+
+        // Keep cursor after prefix on focus/click
+        function ensureCursorAfterPrefix() {
+            const minPos = PREFIX.length;
+            if (codeInput.selectionStart < minPos) {
+                codeInput.setSelectionRange(minPos, minPos);
+            }
+        }
+
+        codeInput.addEventListener('focus', ensureCursorAfterPrefix);
+        codeInput.addEventListener('click', ensureCursorAfterPrefix);
+
+        // Prevent deleting the prefix
+        codeInput.addEventListener('keydown', function (e) {
+            const pos = codeInput.selectionStart;
+
+            if ((e.key === 'Backspace' && pos <= PREFIX.length) ||
+                (e.key === 'Delete' && pos < PREFIX.length)) {
+                e.preventDefault();
+                ensureCursorAfterPrefix();
+            }
+        });
+
+        // Force uppercase & keep prefix
+        codeInput.addEventListener('input', function () {
+            let value = codeInput.value.toUpperCase();
+
+            if (!value.startsWith(PREFIX)) {
+                const suffix = value.replace(/^CIT-*/i, '');
+                value = PREFIX + suffix;
+            }
+
+            const cursorPos = Math.max(codeInput.selectionStart, PREFIX.length);
+            codeInput.value = value;
+            codeInput.setSelectionRange(cursorPos, cursorPos);
+        });
+    }
 </script>
 {% endblock %}
