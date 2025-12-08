@@ -1,123 +1,317 @@
 {% extends "dashboard_app/admin_dashboard_base.html" %}
 {% load static %}
+
 {% block visitor_active %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'manage_visitor_app/css/visitor_list.css' %}">
+<link rel="stylesheet" href="{% static 'manage_visitor_app/css/visitor_list.css' %}" />
 {% endblock %}
 
 {% block content %}
-<div class="content-header">
-  <h1>Registered Visitors</h1>
+
+<div class="page-header">
+    <div class="header-title">
+        <h1>Visitor Management</h1>
+        <p>Manage registered visitor accounts and access records.</p>
+    </div>
+
+    <div class="header-actions">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search-input" class="search-input" placeholder="Search visitors...">
+        </div>
+
+        <div class="filter-wrapper">
+            <button type="button" id="visitor-type-filter-btn" class="filter-btn">
+                <span id="filter-text">All Visitor Types</span>
+                <i class="fas fa-chevron-down" style="margin-left: 8px; font-size: 12px;"></i>
+            </button>
+            
+            <div id="filter-dropdown" class="filter-dropdown-menu">
+                <div class="filter-option active" data-value="all">All Visitor Types</div>
+                <div class="filter-option" data-value="student">Student</div>
+                <div class="filter-option" data-value="parent">Parent/Guardian</div>
+                <div class="filter-option" data-value="staff">Staff</div>
+                <div class="filter-option" data-value="alumni">Alumni</div>
+                <div class="filter-option" data-value="guest">Guest</div>
+                <div class="filter-option" data-value="visitor">Visitor</div>
+                <div class="filter-option" data-value="other">Other</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% if messages %}
-  {% for message in messages %}
+<div class="message-container">
+    {% for message in messages %}
     <div class="message {% if message.tags %}message-{{ message.tags }}{% endif %}">
-      {{ message }}
+        <span>{{ message }}</span>
+        <button onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; opacity:0.6;"><i class="fas fa-times"></i></button>
     </div>
-  {% endfor %}
+    {% endfor %}
+</div>
 {% endif %}
 
-<div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Full Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Visitor Type</th>
-        <th>Register Date</th>
-        <th style="text-align:center;">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for v in visitors %}
-      <tr>
-        <td>{{ v.user_id }}</td>
-        <td>{{ v.first_name }} {{ v.last_name }}</td>
-        <td>{{ v.email }}</td>
-        <td>{{ v.phone }}</td>
-        <td>{{ v.visitor_type|default:"N/A" }}</td>
-        <td>
-            {% if v.created_at %}
-                {{ v.created_at|slice:":10" }}
-            {% else %}
-                N/A
-            {% endif %}
-        </td>
-        <td style="text-align:center;">
-          <a href="{% url 'manage_visitor_app:visitor_deactivate' v.user_id %}" 
-             class="action-item open-modal" 
-             data-action="delete" 
-             data-username="{{ v.first_name }} {{ v.last_name }}"
-             data-email="{{ v.email }}">
-            <i class="fas fa-trash-alt"></i> Remove
-          </a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="7" style="text-align:center; color:#777;">No visitors found.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card-container">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 8%">ID</th>
+                    <th style="width: 20%">Full Name</th>
+                    <th style="width: 25%">Email</th>
+                    <th style="width: 15%">Phone</th>
+                    <th style="width: 12%">Visitor Type</th>
+                    <th style="width: 12%">Register Date</th>
+                    <th style="width: 8%; text-align: center;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in visitors %}
+                <tr>
+                    <td>{{ v.user_id }}</td>
+                    <td>{{ v.first_name }} {{ v.last_name }}</td>
+                    <td style="color: var(--text-muted);">{{ v.email }}</td>
+                    <td>{{ v.phone }}</td>
+                    <td>{{ v.visitor_type|default:"N/A" }}</td>
+                    <td>
+                        {% if v.created_at %}
+                            {{ v.created_at|date:"M d, Y" }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td style="text-align:center;">
+                        <div class="action-menu">
+                            <button class="action-toggle"><i class="fas fa-ellipsis-v"></i></button>
+                            <div class="action-dropdown">
+                                <a href="{% url 'manage_visitor_app:visitor_deactivate' v.user_id %}" 
+                                   class="action-item open-modal"
+                                   data-action="delete"
+                                   data-username="{{ v.first_name }} {{ v.last_name }}"
+                                   data-email="{{ v.email }}">
+                                    <i class="fas fa-trash-alt"></i> Remove Visitor
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="empty-row">
+                    <td colspan="7" style="text-align:center; padding: 40px; color: var(--text-muted);">
+                        <div style="background: #f8fafc; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                            <i class="fas fa-users" style="font-size: 24px; color: #cbd5e1;"></i>
+                        </div>
+                        <span style="font-weight: 500;">No visitors found.</span>
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr class="no-matches" style="display: none;">
+                    <td colspan="7" style="text-align:center; padding: 40px; color: var(--text-muted);">
+                        <div style="background: #f8fafc; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                            <i class="fas fa-search" style="font-size: 24px; color: #cbd5e1;"></i>
+                        </div>
+                        <span style="font-weight: 500;">No matches found.</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- Remove Visitor Confirmation Modal -->
-<div id="removeVisitorModal" class="modal">
+<div id="confirmModal" class="modal">
     <div class="modal-content">
-        <h2 id="removeVisitorText">Are you sure you want to remove this visitor?</h2>
+        <div class="modal-icon">
+            <i class="fas fa-exclamation"></i>
+        </div>
+        <h2 id="modalTitle">Confirm Action</h2>
+        <p id="confirmMessage">Are you sure you want to proceed?</p>
         <div class="modal-buttons">
-            <button id="confirmRemoveVisitor" class="btn-primary">Remove</button>
-            <button id="cancelRemoveVisitor" class="btn-secondary">Cancel</button>
+            <button id="confirmCancel" class="btn-modal-secondary">Cancel</button>
+            <button id="confirmYes" class="btn-modal-primary">Confirm</button>
         </div>
     </div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const removeModal = document.getElementById("removeVisitorModal");
-    const removeText = document.getElementById("removeVisitorText");
-    const confirmRemoveBtn = document.getElementById("confirmRemoveVisitor");
-    const cancelRemoveBtn = document.getElementById("cancelRemoveVisitor");
+(function() {
+    // ===== DROPDOWN LOGIC FOR TABLE ACTIONS (SMART POSITIONING) =====
+    // Note: We keep this logic for table actions because tables often have overflow issues.
+    const closeAll = () => {
+        document.querySelectorAll('.action-dropdown').forEach(dd => {
+            dd.classList.remove('active');
+            dd.classList.remove('drop-up');
+        });
+        // Also close the filter dropdown
+        const filterDropdown = document.getElementById('filter-dropdown');
+        const filterBtn = document.getElementById('visitor-type-filter-btn');
+        if(filterDropdown) filterDropdown.classList.remove('show');
+        if(filterBtn) filterBtn.classList.remove('active');
+    };
 
-    let removeUrl = "";
+    document.querySelectorAll('.action-toggle').forEach(btn => {
+        const dropdown = btn.nextElementSibling;
+        document.body.appendChild(dropdown); // Keep table actions attached to body
 
-    // Open modal on click
-    document.querySelectorAll(".open-modal[data-action='delete']").forEach(btn => {
-        btn.addEventListener("click", function(e) {
-            e.preventDefault();
-            const username = this.dataset.username;
-            const email = this.dataset.email;
-            removeUrl = this.href;
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const isActive = dropdown.classList.contains('active');
+            closeAll();
 
-            removeText.textContent = `Are you sure you want to remove ${username} (${email})?`;
-            removeModal.style.display = "block";
+            if (!isActive) {
+                dropdown.classList.add('active');
+                const rect = btn.getBoundingClientRect();
+                const dropRect = dropdown.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                const spaceBelow = viewportHeight - rect.bottom;
+                const spaceNeeded = dropRect.height + 10;
+                let top, left;
+
+                left = rect.left + window.scrollX - dropRect.width + rect.width;
+
+                if (spaceBelow < spaceNeeded) {
+                    dropdown.classList.add('drop-up');
+                    top = rect.top + window.scrollY - dropRect.height - 5;
+                } else {
+                    dropdown.classList.remove('drop-up');
+                    top = rect.bottom + window.scrollY + 5;
+                }
+                dropdown.style.top = `${top}px`;
+                dropdown.style.left = `${left}px`;
+            }
         });
     });
 
-    // Confirm removal
-    confirmRemoveBtn.addEventListener("click", function() {
-        if (removeUrl) {
-            window.location.href = removeUrl;
+    document.addEventListener('click', closeAll);
+    window.addEventListener('scroll', closeAll, true);
+    window.addEventListener('resize', closeAll);
+
+    // ===== AUTO FADE MESSAGES =====
+    setTimeout(() => {
+        const msgs = document.querySelectorAll('.message');
+        msgs.forEach(m => m.classList.add('fade-out'));
+        setTimeout(() => msgs.forEach(m => m.remove()), 500);
+    }, 4000);
+
+    // ===== MODAL LOGIC =====
+    const modal = document.getElementById('confirmModal');
+    const msg = document.getElementById('confirmMessage');
+    const title = document.getElementById('modalTitle');
+    let targetUrl = '';
+
+    document.querySelectorAll('.open-modal').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            closeAll();
+
+            const username = link.dataset.username;
+            const email = link.dataset.email;
+            const action = link.dataset.action;
+
+            if (action === 'delete') {
+                title.textContent = 'Remove Visitor';
+                msg.textContent = `Are you sure you want to remove ${username} (${email})? This action cannot be undone.`;
+            }
+            targetUrl = link.href;
+            modal.style.display = 'flex';
+        });
+    });
+
+    document.getElementById('confirmCancel').addEventListener('click', () => modal.style.display = 'none');
+    document.getElementById('confirmYes').addEventListener('click', () => window.location.href = targetUrl);
+    window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+
+    // ===== REAL-TIME SEARCH & FILTER =====
+    const searchInput = document.getElementById('search-input');
+    const filterBtn = document.getElementById('visitor-type-filter-btn');
+    const filterText = document.getElementById('filter-text');
+    const filterDropdown = document.getElementById('filter-dropdown');
+    const tbody = document.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr:not(.no-matches):not(.empty-row)');
+    const noMatchesRow = tbody.querySelector('.no-matches');
+    const emptyRow = tbody.querySelector('.empty-row');
+
+    let currentFilterValue = 'all';
+
+    function applyFilters() {
+        const query = searchInput.value.toLowerCase().trim();
+        let hasVisible = false;
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const visitorTypeCell = row.querySelector('td:nth-child(5)');
+            const visitorType = visitorTypeCell ? visitorTypeCell.textContent.toLowerCase().trim() : '';
+
+            const matchesSearch = !query || text.includes(query);
+            const matchesFilter = currentFilterValue === 'all' ||
+                                (currentFilterValue === 'other' && (visitorType === 'n/a' || visitorType === '')) ||
+                                (currentFilterValue === 'parent' && (visitorType.includes('parent') || visitorType.includes('guardian'))) ||
+                                visitorType.includes(currentFilterValue);
+
+            const visible = matchesSearch && matchesFilter;
+            row.style.display = visible ? '' : 'none';
+            if (visible) hasVisible = true;
+        });
+
+        if ((query || currentFilterValue !== 'all') && !hasVisible) {
+            noMatchesRow.style.display = '';
+            if (emptyRow) emptyRow.style.display = 'none';
+        } else {
+            noMatchesRow.style.display = 'none';
+            if (emptyRow && rows.length === 0) {
+                emptyRow.style.display = '';
+            }
+        }
+    }
+
+    // === FIX FOR FILTER DROPDOWN: REMOVED COMPLEX POSITIONING ===
+    filterBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Just toggle the class. CSS handles the position (Absolute to wrapper)
+        if (filterDropdown.classList.contains('show')) {
+            filterDropdown.classList.remove('show');
+            filterBtn.classList.remove('active');
+        } else {
+            // Close other dropdowns first
+            document.querySelectorAll('.action-dropdown').forEach(dd => dd.classList.remove('active'));
+            
+            filterDropdown.classList.add('show');
+            filterBtn.classList.add('active');
         }
     });
 
-    // Cancel removal
-    cancelRemoveBtn.addEventListener("click", function() {
-        removeModal.style.display = "none";
+    // Filter option selection
+    document.querySelectorAll('.filter-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation(); // Stop propagation
+            const value = this.dataset.value;
+            const text = this.textContent;
+
+            currentFilterValue = value;
+            filterText.textContent = text;
+
+            document.querySelectorAll('.filter-option').forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+
+            // Close dropdown
+            filterDropdown.classList.remove('show');
+            filterBtn.classList.remove('active');
+
+            applyFilters();
+        });
     });
 
-    // Close modal when clicking outside
-    window.addEventListener("click", function(e) {
-        if (e.target === removeModal) {
-            removeModal.style.display = "none";
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        // We added closeAll to the top level click listener
+        if (!filterBtn.contains(e.target) && !filterDropdown.contains(e.target)) {
+            filterDropdown.classList.remove('show');
+            filterBtn.classList.remove('active');
         }
     });
-});
+
+    searchInput.addEventListener('input', applyFilters);
+})();
 </script>
-
 {% endblock %}

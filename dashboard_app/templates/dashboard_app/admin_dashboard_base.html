@@ -24,6 +24,21 @@
         position: relative;
       }
 
+      /* Hide Scrollbar */
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* Firefox */
+      * {
+        scrollbar-width: none;
+      }
+
+      /* IE and Edge */
+      * {
+        -ms-overflow-style: none;
+      }
+
       /* ===== MENU TOGGLE ===== */
       .menu-toggle {
         display: none;
@@ -35,6 +50,46 @@
         margin-right: 10px;
         z-index: 1201;
         position: relative;
+      }
+
+      /* ===== NAV VISIBILITY TOGGLE (DESKTOP) ===== */
+      .nav-visibility-toggle {
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        color: #8b1538;
+        cursor: pointer;
+        margin-right: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Hide it on mobile; mobile already uses the hamburger + overlay */
+      @media (max-width: 768px) {
+        .nav-visibility-toggle {
+          display: none;
+        }
+      }
+
+      /* ===== SIDEBAR TRANSITIONS ===== */
+      .sidebar {
+        transform: translateX(0);
+        transition: transform 0.3s ease;
+      }
+
+      /* ===== MAIN CONTENT TRANSITIONS ===== */
+      .main-content {
+        transition: margin-left 0.3s ease;
+      }
+
+      /* ===== HIDE SIDEBAR (DESKTOP) ===== */
+      .nav-hidden .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .nav-hidden .main-content {
+        margin-left: 0 !important;
       }
 
       /* ===== MOBILE SIDEBAR ===== */
@@ -319,7 +374,7 @@
       .nav-item i.fas.fa-file-alt {
         margin-left: 3px;
       }
-
+      
       /* ===== MODALS ===== */
       .modal {
         display: none;
@@ -552,12 +607,7 @@
           href="{% url 'manage_admin_app:admin_list' %}"
           class="nav-item {% block admin_active %}{% endblock %}"
         >
-          <svg fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
-            />
-            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-          </svg>
+          <i class="fas fa-user-shield" style="font-size: 16px;"></i>
           Admin Management
         </a>
 
@@ -567,7 +617,7 @@
         >
           <svg fill="currentColor" viewBox="0 0 20 20">
             <path
-              d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+              d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
             />
           </svg>
           Staff Management
@@ -579,7 +629,7 @@
         >
           <svg fill="currentColor" viewBox="0 0 20 20">
             <path
-              d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
+              d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
             />
           </svg>
           Visitor Management
@@ -630,36 +680,14 @@
 
     <!-- Main Content -->
     <div class="main-content">
-      <!-- Messages Display Section -->
-      {% if messages %}
-      <div class="messages-container">
-        {% for message in messages %}
-        <div
-          class="alert alert-{{ message.tags }} {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}"
-        >
-          <div class="alert-content">
-            <span class="alert-icon">
-              {% if message.tags == 'success' %} ✅ {% elif message.tags ==
-              'error' or message.tags == 'danger' %} ❌ {% elif message.tags ==
-              'warning' %} ⚠️ {% else %} ℹ️ {% endif %}
-            </span>
-            <span class="alert-text">{{ message }}</span>
-            <button
-              class="alert-close"
-              onclick="this.parentElement.parentElement.remove()"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-      <!-- End Messages Display -->
-
       <div class="top-bar">
         <button class="menu-toggle" id="menuToggle">
           <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Desktop hide/show sidebar toggle -->
+        <button class="nav-visibility-toggle" id="navToggle" title="Hide sidebar">
+          <i class="fas fa-angle-double-left"></i>
         </button>
 
         <div class="user-info">
@@ -717,18 +745,49 @@
     </div>
 
     <script>
-      // Auto-dismiss messages after 5 seconds
+      // Init navbar preference
       document.addEventListener("DOMContentLoaded", function () {
-        const alerts = document.querySelectorAll(".alert");
-        alerts.forEach(function (alert) {
-          setTimeout(function () {
-            alert.style.opacity = "0";
-            alert.style.transform = "translateX(400px)";
-            setTimeout(function () {
-              alert.remove();
-            }, 500);
-          }, 5000);
-        });
+        // ===== DESKTOP NAVBAR HIDE/SHOW =====
+        const navToggle = document.getElementById('navToggle');
+
+        function updateNavToggleIcon(isHidden) {
+          if (!navToggle) return;
+          const icon = navToggle.querySelector('i');
+          if (!icon) return;
+
+          if (isHidden) {
+            icon.classList.remove('fa-angle-double-left');
+            icon.classList.add('fa-angle-double-right');
+            navToggle.title = 'Show sidebar';
+          } else {
+            icon.classList.remove('fa-angle-double-right');
+            icon.classList.add('fa-angle-double-left');
+            navToggle.title = 'Hide sidebar';
+          }
+        }
+
+        function applySavedNavPreference() {
+          const saved = localStorage.getItem('adminNavHidden');
+          const shouldHide = saved === '1';
+          if (shouldHide) {
+            document.body.classList.add('nav-hidden');
+          } else {
+            document.body.classList.remove('nav-hidden');
+          }
+          updateNavToggleIcon(shouldHide);
+        }
+
+        if (navToggle) {
+          // Apply saved state on load
+          applySavedNavPreference();
+
+          // Toggle on click
+          navToggle.addEventListener('click', function () {
+            const isHiddenNow = document.body.classList.toggle('nav-hidden');
+            localStorage.setItem('adminNavHidden', isHiddenNow ? '1' : '0');
+            updateNavToggleIcon(isHiddenNow);
+          });
+        }
       });
 
       // ===== SIDEBAR TOGGLE =====

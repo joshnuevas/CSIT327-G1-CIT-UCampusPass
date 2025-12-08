@@ -5,7 +5,7 @@ from datetime import datetime
 # Import Django models
 from dashboard_app.models import SystemLog, Visit
 from register_app.models import User
-from login_app.models import FrontDeskStaff
+from login_app.models import Administrator, FrontDeskStaff
 
 # ==============================
 # LOGS SERVICES
@@ -15,6 +15,54 @@ def list_logs(limit=1000):
     from django.utils import timezone
     try:
         logs = SystemLog.objects.all().order_by('-log_id')[:limit]
+
+        # Collect unique actors by role for bulk queries
+        admin_usernames = set()
+        staff_usernames = set()
+        visitor_emails = set()
+
+        for log in logs:
+            if log.actor_role == 'Admin':
+                # Extract username from "first_name (username)"
+                if '(' in log.actor and log.actor.endswith(')'):
+                    username = log.actor.split('(')[-1].rstrip(')')
+                else:
+                    username = log.actor
+                admin_usernames.add(username)
+            elif log.actor_role == 'Staff':
+                # Extract username from "first_name (username)"
+                if '(' in log.actor and log.actor.endswith(')'):
+                    username = log.actor.split('(')[-1].rstrip(')')
+                else:
+                    username = log.actor
+                staff_usernames.add(username)
+            elif log.actor_role == 'Visitor':
+                # Extract email from "first_name last_name (email)"
+                if '(' in log.actor and log.actor.endswith(')'):
+                    email = log.actor.split('(')[-1].rstrip(')')
+                else:
+                    email = log.actor
+                visitor_emails.add(email)
+
+        # Bulk fetch actor details
+        admin_dict = {}
+        if admin_usernames:
+            admins = Administrator.objects.filter(username__in=admin_usernames).values('username', 'first_name', 'last_name')
+            for admin in admins:
+                admin_dict[admin['username']] = f"{admin['first_name']} {admin['last_name']}".strip()
+
+        staff_dict = {}
+        if staff_usernames:
+            staffs = FrontDeskStaff.objects.filter(username__in=staff_usernames).values('username', 'first_name', 'last_name')
+            for staff in staffs:
+                staff_dict[staff['username']] = f"{staff['first_name']} {staff['last_name']}".strip()
+
+        visitor_dict = {}
+        if visitor_emails:
+            visitors = User.objects.filter(email__in=visitor_emails).values('email', 'first_name', 'last_name')
+            for visitor in visitors:
+                visitor_dict[visitor['email']] = f"{visitor['first_name']} {visitor['last_name']}".strip()
+
         # Convert to list of dictionaries for JSON serialization
         result = []
         for log in logs:
@@ -24,9 +72,39 @@ def list_logs(limit=1000):
             if created_at.tzinfo is None:
                 created_at = created_at.replace(tzinfo=timezone.utc)
             created_at_str = created_at.isoformat()
+
+            # Get actor name from bulk fetched data
+            if log.actor_role == 'Admin':
+                # Extract username
+                if '(' in log.actor and log.actor.endswith(')'):
+                    username = log.actor.split('(')[-1].rstrip(')')
+                else:
+                    username = log.actor
+                actor_name = admin_dict.get(username, log.actor.split(' (')[0] if ' (' in log.actor else log.actor)
+                actor_sub = username
+            elif log.actor_role == 'Staff':
+                # Extract username
+                if '(' in log.actor and log.actor.endswith(')'):
+                    username = log.actor.split('(')[-1].rstrip(')')
+                else:
+                    username = log.actor
+                actor_name = staff_dict.get(username, log.actor.split(' (')[0] if ' (' in log.actor else log.actor)
+                actor_sub = username
+            elif log.actor_role == 'Visitor':
+                # Extract email
+                if '(' in log.actor and log.actor.endswith(')'):
+                    email = log.actor.split('(')[-1].rstrip(')')
+                else:
+                    email = log.actor
+                actor_name = visitor_dict.get(email, log.actor.split(' (')[0] if ' (' in log.actor else log.actor)
+                actor_sub = email
+            else:
+                actor_name = log.actor
+                actor_sub = log.actor
+
             result.append({
-                'log_id': log.log_id,
-                'actor': log.actor,
+                'actor': actor_name,
+                'actor_email': actor_sub,
                 'action_type': log.action_type,
                 'description': log.description,
                 'actor_role': log.actor_role,
