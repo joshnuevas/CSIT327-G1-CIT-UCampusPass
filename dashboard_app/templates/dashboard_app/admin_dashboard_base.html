@@ -38,7 +38,7 @@
       }
 
       /* ===== MOBILE SIDEBAR ===== */
-      @media (max-width: 1100px) {
+      @media (max-width: 768px) {
         .sidebar {
           transform: translateX(-100%);
           transition: transform 0.3s ease;
@@ -92,35 +92,6 @@
         flex-wrap: nowrap;
       }
 
-      /* .search-bar {
-          flex: 1;
-          min-width: 220px;
-          max-width: 500px;
-          transition: max-width 0.3s ease;
-        }
-
-        .search-bar input {
-          width: 100%;
-          background: #fff;
-          border: 2px solid #e0e0e0;
-          border-radius: 30px;
-          padding: 12px 18px;
-          transition: 0.3s;
-        }
-
-        .search-bar input:focus {
-          border-color: #8b1538;
-          box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
-          outline: none;
-        } */
-
-      @media (max-width: 768px) {
-        /* .search-bar {
-            max-width: 300px;
-            margin-top: 8px;
-          } */
-      }
-
       /* ===== ICON AREA ===== */
       .user-info {
         position: relative;
@@ -163,10 +134,10 @@
         width: 42px;
         height: 42px;
         background-color: #ffffff; /* White Background */
-        color: #8B1538;            /* Maroon Icon */
-        border-radius: 50%;        /* Circle Shape */
-        border: 2px solid #D4AF37; /* Gold Border */
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        color: #8b1538; /* Maroon Icon */
+        border-radius: 50%; /* Circle Shape */
+        border: 2px solid #d4af37; /* Gold Border */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s;
       }
 
@@ -178,7 +149,7 @@
       .notification-icon svg {
         width: 20px;
         height: 20px;
-        fill: #8B1538;
+        fill: #8b1538;
       }
 
       /* ===== DROPDOWNS ===== */
@@ -209,7 +180,7 @@
       }
 
       .dropdown-item {
-        padding: 14px 22px;
+        padding: 16px 24px;
         font-size: 15px;
         color: #333;
         cursor: pointer;
@@ -249,6 +220,39 @@
         width: 20px;
       }
 
+      .dropdown-item .activity-icon {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+      }
+
+      .dropdown-item .activity-content {
+        flex: 1;
+      }
+
+      .dropdown-item .activity-content h4 {
+        margin: 0 0 2px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .dropdown-item .activity-content p {
+        margin: 0;
+        font-size: 13px;
+        color: #666;
+      }
+
+      .dropdown-item .activity-content small {
+        font-size: 12px;
+        color: #999;
+        font-weight: 500;
+      }
+
       .dropdown-empty {
         padding: 20px;
         text-align: center;
@@ -275,9 +279,9 @@
 
       #notifDropdown {
         right: 80px;
-        max-height: 380px;
+        max-height: 420px;
         overflow-y: auto;
-        width: 320px;
+        width: 350px;
         scrollbar-width: thin;
         scrollbar-color: #8b1538 #f5f5f5;
       }
@@ -310,6 +314,10 @@
         width: 20px;
         margin-right: 14px;
         font-size: 18px;
+      }
+
+      .nav-item i.fas.fa-file-alt {
+        margin-left: 3px;
       }
 
       /* ===== MODALS ===== */
@@ -421,6 +429,86 @@
           opacity: 1;
           transform: translateY(0);
         }
+      }
+      .logout-card {
+        background: linear-gradient(135deg, #fff8f5, #fff1e5) !important;
+        border-radius: 25px;
+        padding: 35px 30px;
+        width: 90%;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 15px 50px rgba(139, 21, 56, 0.3);
+        transform: translateY(-20px);
+        animation: slideDownModal 0.4s ease forwards;
+      }
+
+      .logout-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #8b1538, #6b0f2a);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
+      }
+
+      .logout-icon-wrapper i {
+        font-size: 24px;
+        color: #ffffff;
+      }
+
+      .logout-title {
+        color: #8b1538 !important;
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        margin-bottom: 15px !important;
+        letter-spacing: 0.5px !important;
+      }
+
+      .logout-subtitle {
+        color: #666666 !important;
+        font-size: 16px !important;
+        margin-bottom: 30px !important;
+        line-height: 1.5 !important;
+      }
+
+      .btn-logout-cancel {
+        background: #ffffff !important;
+        color: #666666 !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        text-decoration: none !important;
+      }
+
+      .btn-logout-cancel:hover {
+        border-color: #8b1538 !important;
+        color: #8b1538 !important;
+        transform: translateY(-2px) !important;
+      }
+
+      .btn-logout-confirm {
+        background: linear-gradient(135deg, #8b1538, #6b0f2a) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3) !important;
+        text-decoration: none !important;
+      }
+
+      .btn-logout-confirm:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4) !important;
+        background: linear-gradient(135deg, #6b0f2a, #8b1538) !important;
       }
     </style>
 
@@ -574,10 +662,6 @@
           <i class="fas fa-bars"></i>
         </button>
 
-        <!-- <div class="search-bar">
-                  <input type="text" placeholder="Search admin data, staff, visitors..." />
-              </div> -->
-
         <div class="user-info">
           <div class="notification-icon" id="notifBtn">
             <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
@@ -615,11 +699,19 @@
 
     <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
-      <div class="modal-content">
-        <h2>Are you sure you want to logout?</h2>
+      <div class="modal-content logout-card">
+        <div class="logout-icon-wrapper">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+
+        <h2 class="logout-title">Are you sure you want to logout?</h2>
         <div class="modal-buttons">
-          <button id="confirmLogout" class="btn-primary">Logout</button>
-          <button id="cancelLogout" class="btn-secondary">Cancel</button>
+          <button id="cancelLogout" class="btn-secondary btn-logout-cancel">
+            Cancel
+          </button>
+          <button id="confirmLogout" class="btn-primary btn-logout-confirm">
+            Logout
+          </button>
         </div>
       </div>
     </div>
@@ -669,6 +761,9 @@
           e.stopPropagation();
           notifDropdown.classList.toggle("active");
           profileDropdown.classList.remove("active");
+          // Hide badge when dropdown is opened
+          const notifBadge = document.querySelector(".notification-badge");
+          if (notifBadge) notifBadge.style.display = "none";
         });
       }
 

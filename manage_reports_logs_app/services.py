@@ -12,29 +12,44 @@ from login_app.models import FrontDeskStaff
 # ==============================
 def list_logs(limit=1000):
     """Fetch all system logs."""
+    from django.utils import timezone
     try:
-        logs = SystemLog.objects.all().order_by('-created_at')[:limit]
+        logs = SystemLog.objects.all().order_by('-log_id')[:limit]
         # Convert to list of dictionaries for JSON serialization
-        return [{
-            'log_id': log.log_id,
-            'actor': log.actor,
-            'action_type': log.action_type,
-            'description': log.description,
-            'actor_role': log.actor_role,
-            'created_at': log.created_at
-        } for log in logs]
+        result = []
+        for log in logs:
+            created_at = log.created_at
+            if not created_at:
+                created_at = timezone.now()
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+            created_at_str = created_at.isoformat()
+            result.append({
+                'log_id': log.log_id,
+                'actor': log.actor,
+                'action_type': log.action_type,
+                'description': log.description,
+                'actor_role': log.actor_role,
+                'created_at': created_at_str
+            })
+        return result
     except Exception as e:
         print("Error fetching logs:", e)
         return []
 
 def create_log(actor, action_type, description, actor_role=""):
     """Create a new system log entry."""
+    from datetime import datetime
+    import pytz
     try:
+        philippines_tz = pytz.timezone("Asia/Manila")
+        current_time = datetime.now(philippines_tz)
         log = SystemLog(
             actor=actor,
             action_type=action_type,
             description=description,
             actor_role=actor_role,
+            created_at=current_time,
         )
         log.save()
     except Exception as e:
