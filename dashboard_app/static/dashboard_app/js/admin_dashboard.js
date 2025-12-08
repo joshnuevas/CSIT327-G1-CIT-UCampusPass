@@ -21,6 +21,62 @@
     return `${month} ${day}, ${year}`;
   }
 
+  // === Fetch recent activities from API ===
+  async function fetchRecentActivities() {
+    try {
+      const response = await fetch("/api/admin-recent-activities/");
+      if (!response.ok) throw new Error("Failed to fetch activities");
+      const data = await response.json();
+      const activities = data.activities || [];
+
+      // Find the Recent Activities card content (more specific selector)
+      const recentActivitiesCard = document.querySelector('.left-column .card:first-child .card-content');
+      if (recentActivitiesCard) {
+        // Clear existing content
+        recentActivitiesCard.innerHTML = '';
+
+        if (activities.length === 0) {
+          // Show empty state
+          recentActivitiesCard.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="far fa-clipboard"></i>
+              </div>
+              <h3>No Recent Activities</h3>
+              <p>Activity logs will appear here as actions are performed.</p>
+            </div>
+          `;
+        } else {
+          // Add activities
+          activities.forEach(activity => {
+            const item = document.createElement("div");
+            item.classList.add("activity-item");
+
+            item.innerHTML = `
+              <div class="activity-content">
+                <h4>${activity.action_type}</h4>
+                <p>${activity.description}</p>
+                <small>
+                  <i class="far fa-user"></i> ${activity.actor}
+                </small>
+              </div>
+            `;
+
+            recentActivitiesCard.appendChild(item);
+          });
+        }
+
+        // Update the badge count
+        const badge = document.querySelector('.card-title .badge-count');
+        if (badge) {
+          badge.textContent = activities.length;
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching recent activities:", err);
+    }
+  }
+
   // === Fetch notifications from API ===
   async function fetchNotifications() {
     try {
@@ -196,7 +252,10 @@
 
   // === Polling controls ===
   function startPolling() {
-    if (!pollInterval) pollInterval = setInterval(fetchNotifications, POLL_DELAY);
+    if (!pollInterval) pollInterval = setInterval(() => {
+      fetchNotifications();
+      fetchRecentActivities(); // Also poll activities
+    }, POLL_DELAY);
   }
   function stopPolling() {
     if (pollInterval) {
@@ -226,5 +285,6 @@
 
   // === Init ===
   fetchNotifications();
+  fetchRecentActivities(); // Initial load of activities
   startPolling();
 })();

@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/admin-notifications/', views.admin_notifications_api, name='admin_notifications_api'),
     path('api/admin-notifications/delete/', views.delete_notification_api, name='delete_notification_api'),
     path('api/admin-notifications/clear/', views.clear_notifications_api, name='clear_notifications_api'),
+    path('api/admin-recent-activities/', views.admin_recent_activities_api, name='admin_recent_activities_api'),
     path('staff/', views.staff_dashboard_view, name='staff_dashboard'),
     path('staff/checker/', views.code_checker, name='code_checker'),
     path('staff/check-code/', views.check_code, name='check_code'),

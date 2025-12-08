@@ -18,6 +18,9 @@ from .models import Visit, SystemLog, AdminDismissedNotification
 from login_app.models import Administrator, FrontDeskStaff
 from register_app.models import User
 
+# Import logs service
+from manage_reports_logs_app.services import list_logs
+
 # Setup logging
 logger = logging.getLogger(__name__)
 
@@ -138,13 +141,20 @@ def admin_dashboard_view(request):
 
     # === Fetch Logs ===
     try:
-        logs = SystemLog.objects.all().order_by('-created_at')[:50]
-        for log in logs:
-            if not log.created_at:
-                log.created_at = django_now()
-            if log.created_at.tzinfo is None:
-                log.created_at = log.created_at.replace(tzinfo=timezone.utc)
-            log.display_time = format_ph_time(log.created_at)
+        all_logs = list_logs(limit=50)
+        # Convert to objects with display_time for template compatibility
+        logs = []
+        for log_data in all_logs:
+            # Create a simple object-like structure
+            class LogObj:
+                def __init__(self, data):
+                    self.action_type = data['action_type']
+                    self.description = data['description']
+                    self.actor = data['actor']
+                    self.actor_role = data['actor_role']
+                    self.display_time = format_ph_time(data['created_at'])
+                    self.log_id = data.get('log_id')
+            logs.append(LogObj(log_data))
     except Exception as e:
         print("Error fetching logs:", e)
         logs = []
@@ -248,6 +258,71 @@ def admin_notifications_api(request):
                 })
 
     return JsonResponse({"notifications": notifications[:10]})
+
+
+# ========== RECENT ACTIVITIES API ==========
+def admin_recent_activities_api(request):
+    if "admin_username" not in request.session:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
+    try:
+        # Fetch recent logs by ID (most recent first)
+        logs = SystemLog.objects.all().order_by('-log_id')[:5]
+
+        # Hydrate actor names for display
+        admin_users = set()
+        staff_users = set()
+        visitor_emails = set()
+
+        for log in logs:
+            identifier = _extract_identifier(log.actor)
+            if log.actor_role == 'Admin':
+                admin_users.add(identifier)
+            elif log.actor_role == 'Staff':
+                staff_users.add(identifier)
+            elif log.actor_role == 'Visitor':
+                visitor_emails.add(identifier)
+
+        # Bulk fetch actor real names
+        admin_map = {
+            a['username']: f"{a['first_name']} {a['last_name']}".strip()
+            for a in Administrator.objects.filter(username__in=admin_users).values('username', 'first_name', 'last_name')
+        }
+
+        staff_map = {
+            s['username']: f"{s['first_name']} {s['last_name']}".strip()
+            for s in FrontDeskStaff.objects.filter(username__in=staff_users).values('username', 'first_name', 'last_name')
+        }
+
+        visitor_map = {
+            v['email']: f"{v['first_name']} {v['last_name']}".strip()
+            for v in User.objects.filter(email__in=visitor_emails).values('email', 'first_name', 'last_name')
+        }
+
+        # Format logs for JSON response
+        activities = []
+        for log in logs:
+            identifier = _extract_identifier(log.actor)
+            display_name = log.actor  # Default fallback
+
+            # Get proper display name
+            if log.actor_role == 'Admin':
+                display_name = admin_map.get(identifier, log.actor.split(' (')[0])
+            elif log.actor_role == 'Staff':
+                display_name = staff_map.get(identifier, log.actor.split(' (')[0])
+            elif log.actor_role == 'Visitor':
+                display_name = visitor_map.get(identifier, log.actor.split(' (')[0])
+
+            activities.append({
+                'action_type': log.action_type,
+                'description': log.description,
+                'actor': display_name,
+                'log_id': log.log_id
+            })
+
+        return JsonResponse({"activities": activities})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 # ========== DELETE NOTIFICATIONS  ==========
