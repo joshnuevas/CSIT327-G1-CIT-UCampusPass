@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 import os, json
 from dotenv import load_dotenv
-from datetime import datetime, date, timezone, timedelta
+from datetime import datetime, date, timezone, timedelta, time as dtime
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -337,7 +337,7 @@ def staff_dashboard_view(request):
         # ✅ Use pk instead of id (always exists), and don't slice
         today_visits_qs = Visit.objects.filter(visit_date=today).order_by('start_time', 'pk')
 
-        # ----- Update status for today's visits -----
+        # ----- Update status for today's visits ----- (unchanged)
         for visit in today_visits_qs:
             if visit.status == 'Completed':
                 continue
@@ -374,18 +374,19 @@ def staff_dashboard_view(request):
                 visit.status = new_status
                 visit.save()
 
-        # ----- Dashboard stats -----
+        # ----- Dashboard stats ----- (unchanged)
         today_visits_count = today_visits_qs.count()
         active_visits_count = today_visits_qs.filter(status='Active').count()
         checked_in_count = today_visits_qs.filter(status__in=['Active', 'Completed']).count()
 
-        # ===== 🔁 LIVE FEED =====
+        # ===== 🔁 LIVE FEED – *only today's entries* =====
         recent_checkins = SystemLog.objects.filter(
             action_type__in=[
                 "Visitor Check-In",
                 "Visitor Check-Out",
                 "Walk-In Registration",
-            ]
+            ],
+            created_at__date=today,        # 👈 this line makes it reset daily
         ).order_by("-created_at")[:15]
 
         for checkin in recent_checkins:
@@ -396,7 +397,7 @@ def staff_dashboard_view(request):
             except Exception:
                 checkin.display_time = str(checkin.created_at)
 
-        # ----- Code checker result (from session) -----
+        # ----- Code checker result (from session) ----- (unchanged)
         code_check_result = request.session.pop('code_check_result', None)
 
         context = {
@@ -406,7 +407,7 @@ def staff_dashboard_view(request):
             'today_visits_count': today_visits_count,
             'active_visits_count': active_visits_count,
             'checked_in_count': checked_in_count,
-            'today_visits': list(today_visits_qs),   # ✅ full list, no 10-limit
+            'today_visits': list(today_visits_qs),
             'recent_checkins': recent_checkins,
             'code_check_result': code_check_result,
         }
@@ -426,8 +427,6 @@ def staff_dashboard_view(request):
             'today_visits': [],
             'recent_checkins': [],
         })
-
-
 
 @staff_required
 def code_checker(request):
@@ -517,9 +516,24 @@ def check_in_visitor(request):
             messages.warning(request, f'Visit is already {visit.status}. Cannot check in.')
             return redirect('dashboard_app:code_checker')
 
-        # Use PH time
-        current_time = django_now().astimezone(PHILIPPINES_TZ)
-        checkin_time = current_time.time()
+        # 🔒 TIME-BASED RESTRICTION (PH time)
+        current_dt = django_now().astimezone(PHILIPPINES_TZ)
+        current_t = current_dt.time()
+
+        # Allowed window: 7:30 AM <= time < 9:00 PM
+        start_allowed = dtime(7, 30)   # 7:30 AM
+        end_allowed = dtime(21, 0)     # 9:00 PM
+
+        if not (start_allowed <= current_t < end_allowed):
+            messages.error(
+                request,
+                "⏰ Check-in is only allowed from 7:30 AM to 9:00 PM. "
+                "Please advise the visitor to return during operating hours."
+            )
+            return redirect('dashboard_app:code_checker')
+
+        # ✅ Proceed with normal check-in
+        checkin_time = current_dt.time()
 
         visit.status = "Active"
         visit.start_time = checkin_time
@@ -531,7 +545,7 @@ def check_in_visitor(request):
             action_type="Visitor Check-In",
             description=f"Checked in visitor with code {visit_code} for {visit.purpose} at {visit.department}",
             actor_role="Staff",
-            created_at=current_time,
+            created_at=current_dt,
         )
 
         messages.success(request, f'✅ Visitor checked in successfully! Code: {visit_code}')
@@ -542,7 +556,6 @@ def check_in_visitor(request):
         messages.error(request, "An error occurred during check-in.")
 
     return redirect('dashboard_app:staff_dashboard')
-
 
 @staff_required
 @require_POST
