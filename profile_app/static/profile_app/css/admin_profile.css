@@ -1,256 +1,677 @@
-/* ===== ADMIN PROFILE PAGE (Visitor-Inspired Enhancements) ===== */
+/* =========================================
+    GLOBAL RESET
+ ========================================= */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f5f5f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #F5F5F5;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
 }
 
-/* ===== PAGE WRAPPER ===== */
-.content-wrapper {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 40px 35px;
+/* =========================================
+    MAIN CONTENT WRAPPER
+    (Sidebar & top bar are handled in base)
+ ========================================= */
+
+.main-content {
+    flex: 1;
+    margin-left: 260px; /* matches sidebar width from base */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
-/* ===== PAGE HEADING ===== */
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 35px;
+    background: #F5F5F5;
+}
+
+.content-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+    background: #8B1538;
+    border-radius: 4px;
+}
+
+/* =========================================
+    WELCOME SECTION
+ ========================================= */
+
+.welcome-section {
+    margin-bottom: 30px;
+    text-align: left;
+    display: block;
+}
+
 .welcome-section h1 {
-  color: #8b1538;
-  font-size: 34px;
-  font-weight: 700;
-  margin-bottom: 25px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    color: #8B1538;
+    font-size: 32px;
+    margin-bottom: 6px;
+    font-weight: 700;
 }
 
 .welcome-section p {
-  color: #555;
-  font-size: 16px;
+    color: #555555;
+    font-size: 15px;
 }
 
-/* ===== SETTINGS GRID ===== */
+/* =========================================
+    SETTINGS GRID
+ ========================================= */
+
 .settings-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* single column for vertical stacking */
-  gap: 30px; /* space between cards */
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
-/* Optional: maintain vertical stacking on smaller screens */
-@media (max-width: 1024px) {
-  .settings-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ===== CARD STYLE ===== */
+/* Generic card */
 .settings-card {
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 28px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  border: 2px solid #f0f0f0;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+    border: 1px solid #F0F0F0;
 }
 
-.settings-card:hover {
-  box-shadow: 0 6px 28px rgba(139,21,56,0.12);
-  border-color: #e5e5e5;
-  transform: translateY(-3px);
+/* =========================================
+    PERSONAL PROFILE CARD
+ ========================================= */
+
+.profile-card {
+    padding: 26px 28px;
 }
 
-/* ===== CARD HEADER ===== */
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #f5f5f5;
-  padding-bottom: 18px;
-  margin-bottom: 25px;
+/* Card header row */
+.card-header-clean {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #F0F0F0;
 }
 
-.card-title-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.card-header-clean h3 {
+    font-size: 20px;
+    color: #8B1538;
+    font-weight: 700;
 }
 
-.card-title-section i {
-  color: #8b1538;
-  font-size: 20px;
+/* Edit button */
+.btn-edit-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid #D4AF37;
+    color: #8B1538;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.card-title-section h3 {
-  color: #8b1538;
-  font-size: 20px;
-  font-weight: 600;
+.btn-edit-outline svg {
+    width: 14px;
+    height: 14px;
 }
 
-/* ===== EDIT BUTTON ===== */
-.btn-edit,
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #8b1538, #6b0f2a);
-  color: #fff;
-  border: none;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(139,21,56,0.3);
+.btn-edit-outline:hover {
+    background: #FFF9F0;
+    transform: translateY(-1px);
 }
 
-.btn-edit:hover,
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(139,21,56,0.4);
-  background: linear-gradient(135deg, #6b0f2a, #8b1538);
+/* Profile view (display mode) */
+.profile-view-wrapper {
+    animation: fadeIn 0.3s ease;
 }
 
-.btn-edit svg,
-.btn-primary svg {
-  transition: transform 0.3s ease;
+.profile-hero {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 26px;
 }
 
-.btn-edit:hover svg,
-.btn-primary:hover svg {
-  transform: rotate(10deg) scale(1.1);
+.profile-avatar-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8B1538, #5c0a0a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #D4AF37;
+    font-size: 26px;
+    font-weight: 700;
+    border: 3px solid #FFFFFF;
+    outline: 2px solid #D4AF37;
 }
 
-/* ===== VIEW MODE ===== */
-.profile-view-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 20px;
+.profile-identity h2 {
+    font-size: 22px;
+    color: #1F2933;
+    margin-bottom: 4px;
+    font-weight: 700;
 }
 
-.profile-view-field label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.badge-role {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: #F3F4F6;
+    color: #4B5563;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
-.profile-view-field .value {
-  font-size: 15px;
-  color: #333;
-  padding: 13px 18px;
-  background: #f8f9fa;
-  border-radius: 10px;
-  border: 2px solid #e9ecef;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-  transition: all 0.3s ease;
+/* Profile details box */
+.profile-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+    padding: 20px 18px;
+    border-radius: 12px;
+    background: #FAFAFA;
+    border: 1px solid #F0F0F0;
 }
 
-.profile-view-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-@media (max-width: 768px) {
-  .profile-view-row {
-    grid-template-columns: 1fr;
-  }
+.detail-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #718096;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
 }
 
-/* ===== FORM STYLING ===== */
+.detail-label svg {
+    width: 14px;
+    height: 14px;
+}
+
+.detail-value {
+    font-size: 14px;
+    color: #1A202C;
+    font-weight: 500;
+}
+
+/* =========================================
+    EDIT FORM
+ ========================================= */
+
 .settings-form {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
+    margin-top: 6px;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px;
+.form-grid-modern {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
 }
 
-@media (max-width: 768px) {
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.full-width {
+    grid-column: 1 / -1;
 }
 
 .form-group label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4A5568;
+    margin-bottom: 6px;
 }
 
-.form-group input,
-select {
-  padding: 14px 18px;
-  border: 2px solid #d0d0d0;
-  border-radius: 10px;
-  font-size: 15px;
-  background: #fff;
-  color: #333;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.form-group input:focus,
-select:focus {
-  outline: none;
-  border-color: #8b1538;
-  box-shadow: 0 0 0 3px rgba(139,21,56,0.1), 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* ===== FORM ACTIONS ===== */
-.form-actions {
-  display: flex;
-  gap: 14px;
-  margin-top: 15px;
-}
-
-/* ===== BUTTONS ===== */
-.btn-cancel {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 26px;
-  background: #fff;
-  color: #555;
-  border: 2px solid #e0e0e0;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-cancel:hover {
-  color: #8b1538;
-  border-color: #8b1538;
-  transform: translateY(-2px);
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 560px) {
-  .welcome-section h1 {
-    font-size: 26px;
-  }
-  .form-actions {
-    flex-direction: column;
-  }
-  .btn-primary,
-  .btn-cancel {
+.input-modern,
+.select-wrapper select {
     width: 100%;
-  }
+    padding: 11px 14px;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+    font-size: 14px;
+    color: #1A202C;
+    background: #FFFFFF;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    font-family: inherit;
+}
+
+.input-modern:focus,
+.select-wrapper select:focus {
+    outline: none;
+    border-color: #8B1538;
+    box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.12);
+    background: #FFFFFF;
+}
+
+/* Select wrapper */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 34px;
+}
+
+.select-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B1538' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+
+/* Form actions */
+.form-actions-clean {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #F0F0F0;
+}
+
+.btn-save-clean,
+.btn-cancel-clean {
+    padding: 9px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-save-clean {
+    background: #8B1538;
+    color: #FFFFFF;
+}
+
+.btn-save-clean:hover {
+    background: #6B0F2A;
+    transform: translateY(-1px);
+}
+
+.btn-cancel-clean {
+    background: #FFFFFF;
+    color: #4A5568;
+    border: 1px solid #E2E8F0;
+}
+
+.btn-cancel-clean:hover {
+    background: #F7FAFC;
+}
+
+/* =========================================
+    ACTION ROW CARDS (Password & Delete)
+ ========================================= */
+
+.action-row-card {
+    padding: 0;
+    border-left: 4px solid #8B1538;
+    overflow: hidden;
+}
+
+.row-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 24px 26px;
+}
+
+.row-icon-box {
+    flex-shrink: 0;
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+}
+
+/* Secure / Password card icon */
+.icon-secure {
+    background: #FFF5F7;
+    color: #8B1538;
+    border-color: rgba(139, 21, 56, 0.2);
+}
+
+/* Delete / Danger card icon */
+.icon-danger {
+    background: #FFF5F5;
+    color: #dc3545;
+    border-color: rgba(220, 53, 69, 0.2);
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Row text */
+.row-info {
+    flex: 1;
+}
+
+.row-info h3 {
+    font-size: 17px;
+    color: #1F2933;
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.row-desc {
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    max-width: 90%;
+}
+
+/* Email badge */
+.email-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #F7FAFC;
+    border: 1px solid #E2E8F0;
+    font-size: 12px;
+    font-family: "Consolas", "Menlo", monospace;
+    color: #4A5568;
+}
+
+.email-badge svg {
+    width: 12px;
+    height: 12px;
+}
+
+/* Row actions */
+.row-action {
+    flex-shrink: 0;
+}
+
+/* Generic primary button for actions */
+.btn-primary.btn-action {
+    padding: 11px 22px;
+    background: linear-gradient(135deg, #8B1538, #6B0F2A);
+    color: #FFFFFF;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(139, 21, 56, 0.2);
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-primary.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(139, 21, 56, 0.3);
+    background: linear-gradient(135deg, #6B0F2A, #8B1538);
+}
+
+/* Danger-themed card */
+.danger-theme {
+    border-left-color: #dc3545;
+}
+
+/* Delete button (outline style) */
+.btn-danger-outline {
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 2px solid #dc3545;
+    background: transparent;
+    color: #dc3545;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-danger-outline:hover {
+    background: #dc3545;
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+}
+
+/* Solid danger button (used inside modal) */
+.btn-danger-solid {
+    padding: 12px 26px;
+    border-radius: 999px;
+    border: none;
+    background: #dc3545;
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-danger-solid:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
+
+/* Reusable secondary button (also used in modal) */
+.btn-secondary {
+    padding: 12px 26px;
+    border-radius: 999px;
+    border: 1px solid #E0E0E0;
+    background: #FFFFFF;
+    color: #555555;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-secondary:hover {
+    border-color: #8B1538;
+    color: #8B1538;
+    transform: translateY(-1px);
+}
+
+/* =========================================
+    MODAL (Delete Account)
+ ========================================= */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.3s ease forwards;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #fff5f5, #ffe5e5);
+    margin: 0 auto;
+    padding: 30px 28px;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    transform: translateY(0);
+    animation: slideDown 0.4s ease forwards;
+}
+
+.modal-content h2 {
+    color: #dc3545;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.modal-content p {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Extra spacing between password input and modal buttons */
+#deleteModal .form-group {
+    margin-bottom: 18px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+/* =========================================
+    ANIMATIONS
+ ========================================= */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* =========================================
+    PAGE LOAD ANIMATIONS
+    ========================================= */
+
+/* 1. Define the smooth slide-up motion */
+@keyframes fadeUpEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 2. Welcome Header (First) */
+.welcome-section {
+    opacity: 0; /* Hidden initially */
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* 3. Settings Cards (Staggered Entry) */
+.settings-card {
+    opacity: 0;
+    animation: fadeUpEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Stagger delays based on the order inside .settings-grid
+    1st = Profile Card
+    2nd = Password Card
+    3rd = Delete Card
+*/
+.settings-grid .settings-card:nth-child(1) { animation-delay: 0.15s; }
+.settings-grid .settings-card:nth-child(2) { animation-delay: 0.3s; }
+.settings-grid .settings-card:nth-child(3) { animation-delay: 0.45s; }
+
+/* Optional: Smooth fade-in for the edit form when toggled */
+#editMode {
+    animation: fadeUpEntrance 0.4s ease-out forwards;
+}
+/* =========================================
+    RESPONSIVE
+ ========================================= */
+
+@media (max-width: 1024px) {
+    .form-grid-modern {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+
+    .content-area {
+        padding: 24px 18px;
+    }
+
+    .profile-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .row-content-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .row-action,
+    .btn-primary.btn-action,
+    .btn-danger-outline {
+        width: 100%;
+        text-align: center;
+    }
+
+    .modal-content {
+        padding: 26px 22px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+
+    .modal-buttons .btn-danger-solid,
+    .modal-buttons .btn-secondary {
+        width: 100%;
+    }
 }

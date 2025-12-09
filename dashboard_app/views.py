@@ -179,7 +179,7 @@ def admin_dashboard_view(request):
                     "id": log.log_id,
                     "title": "Staff Update",
                     "message": f"{actor} {log.description}",
-                    "time": format_ph_time(log.created_at),
+                    "time": log.display_time,
                 })
             # Visitor-related (add/remove/edit)
             elif (
@@ -190,7 +190,7 @@ def admin_dashboard_view(request):
                     "id": log.log_id,
                     "title": "Visitor Update",
                     "message": f"{actor} {log.description}",
-                    "time": format_ph_time(log.created_at),
+                    "time": log.display_time,
                 })
 
     context = {
