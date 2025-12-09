@@ -602,15 +602,15 @@
           </svg>
           Dashboard
         </a>
-
-        <a
-          href="{% url 'manage_admin_app:admin_list' %}"
-          class="nav-item {% block admin_active %}{% endblock %}"
-        >
-          <i class="fas fa-user-shield" style="font-size: 16px;"></i>
-          Admin Management
-        </a>
-
+        {% if request.session.is_superadmin %}
+            <a
+              href="{% url 'manage_admin_app:admin_list' %}"
+              class="nav-item {% block admin_active %}{% endblock %}"
+            >
+              <i class="fas fa-user-shield" style="font-size: 16px;"></i>
+              Admin Management
+            </a>
+        {% endif %}
         <a
           href="{% url 'manage_staff_app:staff_list' %}"
           class="nav-item {% block staff_active %}{% endblock %}"

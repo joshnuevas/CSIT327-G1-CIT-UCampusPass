@@ -210,6 +210,20 @@ def admin_dashboard_view(request):
     if "admin_username" not in request.session:
         return redirect("login_app:login")
 
+    current_admin = request.session["admin_username"]
+
+    # Fetch current admin's superadmin status
+    try:
+        admin_obj = Administrator.objects.get(username=current_admin)
+        is_superadmin = admin_obj.is_superadmin
+        
+        # SAVE TO SESSION SO OTHER PAGES CAN USE IT
+        request.session['is_superadmin'] = is_superadmin 
+        
+    except Administrator.DoesNotExist:
+        is_superadmin = False
+        request.session['is_superadmin'] = False
+
     # === Totals ===
     admins_count = Administrator.objects.count()
     staff_count = FrontDeskStaff.objects.count()
@@ -234,8 +248,6 @@ def admin_dashboard_view(request):
     except Exception as e:
         print("Error fetching logs:", e)
         logs = []
-
-    current_admin = request.session["admin_username"]
 
     # === Format logs and filter for notifications ===
     notifications = []
@@ -272,6 +284,7 @@ def admin_dashboard_view(request):
     context = {
         "admin_username": request.session["admin_username"],
         "admin_first_name": request.session.get("admin_first_name"),
+        "is_superadmin": is_superadmin,
         "total_admins": admins_count,
         "total_staff": staff_count,
         "total_visitors": visitors_count,

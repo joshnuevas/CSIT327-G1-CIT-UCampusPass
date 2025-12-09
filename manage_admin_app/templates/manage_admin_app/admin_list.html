@@ -28,7 +28,7 @@
     .page-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-end; /* Aligns bottom of text with buttons */
+        align-items: flex-end; 
         margin-bottom: 24px;
         padding: 0 4px;
         opacity: 0;
@@ -38,7 +38,7 @@
     }
 
     .header-title h1 {
-        font-size: 28px; /* INCREASED FONT SIZE */
+        font-size: 28px;
         font-weight: 800;
         color: #2d3748;
         margin: 0;
@@ -64,7 +64,7 @@
     }
 
     .search-input {
-        padding: 10px 16px 10px 40px; /* Left padding for icon */
+        padding: 10px 16px 10px 40px; 
         border-radius: 50px;
         border: 1px solid var(--border-color);
         background: white;
@@ -79,7 +79,7 @@
     .search-input:focus {
         border-color: var(--primary-color);
         box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
-        width: 260px; /* Subtle expand effect */
+        width: 260px; 
     }
 
     .search-icon {
@@ -96,7 +96,7 @@
         background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
         color: var(--white);
         border: none;
-        padding: 11px 24px; /* Matched height with search */
+        padding: 11px 24px; 
         border-radius: 50px;
         font-size: 14px;
         font-weight: 600;
@@ -154,6 +154,7 @@
     tr { transition: background-color 0.2s ease; }
     tr:hover td { background-color: rgba(139, 21, 56, 0.03); }
     .user-name-text { font-weight: 600; color: var(--primary-color); }
+    .user-name-text.superadmin { color: #059669; }
 
     /* ===== STATUS BADGES ===== */
     .status-badge {
@@ -181,7 +182,7 @@
 
     .action-dropdown {
         display: none;
-        position: fixed; /* Fixed to calculate viewport accurately */
+        position: fixed; 
         background: white;
         border: 1px solid var(--border-color);
         box-shadow: 0 10px 30px rgba(0,0,0,0.12);
@@ -189,7 +190,6 @@
         z-index: 9999;
         min-width: 190px;
         padding: 6px;
-        /* Animation defaults */
         transform-origin: top right;
         animation: scaleIn 0.2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
     }
@@ -212,7 +212,8 @@
     .message-error { background: #fef2f2; color: #991b1b; border-left: 4px solid #991b1b; }
     .fade-out { opacity: 0; transition: opacity 0.5s ease; }
 
-    #confirmModal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
+    /* Fix z-index to be extremely high so it sits over dropdowns */
+    #confirmModal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(30, 30, 30, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
     #confirmModal .modal-content { background: white; padding: 32px; border-radius: 16px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideUp 0.3s ease; border: 1px solid rgba(255,255,255,0.1); }
     #confirmModal .modal-icon { width: 64px; height: 64px; background: #fff1f2; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px auto; box-shadow: 0 4px 6px rgba(139, 21, 56, 0.1); }
     #confirmModal .modal-content h2 { margin-bottom: 10px; font-size: 20px; font-weight: 700; color: var(--text-dark); }
@@ -286,7 +287,7 @@
                 {% for admin in admin_list %}
                 <tr>
                     <td>
-                        <div class="user-name-text">{{ admin.username }}</div>
+                        <div class="user-name-text{% if admin.is_superadmin %} superadmin{% endif %}">{{ admin.username }}</div>
                     </td>
                     <td>{{ admin.first_name }} {{ admin.last_name }}</td>
                     <td style="color: var(--text-muted);">{{ admin.email }}</td>
@@ -298,50 +299,78 @@
                             <span class="status-badge status-inactive">Inactive</span>
                         {% endif %}
                     </td>
+                    
                     <td style="text-align:center;">
-                        <div class="action-menu">
-                            <button class="action-toggle"><i class="fas fa-ellipsis-v"></i></button>
-                            <div class="action-dropdown">
-                                <a href="{% url 'manage_admin_app:admin_edit' admin.username %}" class="action-item">
-                                    <i class="fas fa-edit"></i> Edit Details
-                                </a>
-                                <a href="{% url 'manage_admin_app:admin_reset_password' admin.username %}"
-                                   class="action-item open-modal"
-                                   data-action="reset"
-                                   data-username="{{ admin.username }}">
-                                    <i class="fas fa-key"></i> Reset Password
-                                </a>
-                                <div style="border-top: 1px solid #f1f5f9; margin: 4px 0;"></div>
-                                <a href="{% url 'manage_admin_app:admin_toggle_active' admin.username %}"
-                                   class="action-item open-modal"
-                                   data-action="toggle"
-                                   data-username="{{ admin.username }}">
-                                    {% if admin.is_active %}
-                                        <i class="fas fa-ban" style="color: #ef4444;"></i> <span style="color: #ef4444;">Deactivate</span>
-                                    {% else %}
-                                        <i class="fas fa-check-circle" style="color: #059669;"></i> <span style="color: #059669;">Activate</span>
+                        {# Logic: Show button if (Not Logged In User) OR (User is cit_admin01) #}
+                        {% if admin.username != logged_in_username or admin.username == "cit_admin01" %}
+                            <div class="action-menu">
+                                <button class="action-toggle"><i class="fas fa-ellipsis-v"></i></button>
+                                <div class="action-dropdown">
+                                    <a href="{% url 'manage_admin_app:admin_edit' admin.username %}" class="action-item">
+                                        <i class="fas fa-edit"></i> Edit Details
+                                    </a>
+                                    <a href="{% url 'manage_admin_app:admin_reset_password' admin.username %}"
+                                    class="action-item open-modal"
+                                    data-action="reset"
+                                    data-username="{{ admin.username }}">
+                                        <i class="fas fa-key"></i> Reset Password
+                                    </a>
+
+                                    {# Hide Deactivate for cit_admin01 to prevent lockout #}
+                                    {% if admin.username != "cit_admin01" %}
+                                        <a href="{% url 'manage_admin_app:admin_toggle_active' admin.username %}"
+                                        class="action-item open-modal"
+                                        data-action="toggle"
+                                        data-username="{{ admin.username }}">
+                                            {% if admin.is_active %}
+                                                <i class="fas fa-ban"></i> <span>Deactivate</span>
+                                            {% else %}
+                                                <i class="fas fa-check-circle" style="color: #059669;"></i> <span style="color: #059669;">Activate</span>
+                                            {% endif %}
+                                        </a>
+                                        <div style="border-top: 1px solid #f1f5f9; margin: 4px 0;"></div>
+                                    
+                                        {# Superadmin toggle logic #}
+                                        {# Only show if: 1. You are NOT editing yourself. 2. You are NOT cit_admin01 (optional safeguard). #}
+                                        {% if admin.username != logged_in_username %}
+                                            <a href="{% url 'manage_admin_app:admin_toggle_superadmin' admin.username %}"
+                                            class="action-item open-modal"
+                                            data-action="superadmin"
+                                            data-username="{{ admin.username }}">
+                                                {% if admin.is_superadmin %}
+                                                    <i class="fas fa-user-shield" style="color: #f59e0b;"></i> <span style="color: #f59e0b;">Revoke Superadmin</span>
+                                                {% else %}
+                                                    <i class="fas fa-crown" style="color: #f59e0b;"></i> <span style="color: #f59e0b;">Make Superadmin</span>
+                                                {% endif %}
+                                            </a>
+                                        {% endif %}
+                                    
+                                        
+                                        <a href="{% url 'manage_admin_app:admin_delete' admin.username %}"
+                                        class="action-item open-modal"
+                                        data-action="delete"
+                                        data-username="{{ admin.username }}">
+                                            <i class="fas fa-trash" style="color: #dc2626;"></i> <span style="color: #dc2626;">Delete Account</span>
+                                        </a>
                                     {% endif %}
-                                </a>
+                                </div>
                             </div>
-                        </div>
+                        {% else %}
+                            {# Optional: Show a subtle text indicating it is the current user #}
+                            <span style="color: #cbd5e1; font-size: 12px; font-style: italic;">(You)</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr class="empty-row">
                     <td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted);">
-                        <div style="background: #f8fafc; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
-                            <i class="fas fa-users-slash" style="font-size: 24px; color: #cbd5e1;"></i>
-                        </div>
-                        <span style="font-weight: 500;">No admin records found.</span>
+                        No administrators found.
                     </td>
                 </tr>
                 {% endfor %}
                 <tr class="no-matches" style="display: none;">
                     <td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted);">
-                        <div style="background: #f8fafc; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
-                            <i class="fas fa-search" style="font-size: 24px; color: #cbd5e1;"></i>
-                        </div>
-                        <span style="font-weight: 500;">No matches found.</span>
+                        No matching results found.
                     </td>
                 </tr>
             </tbody>
@@ -373,9 +402,7 @@
     
     document.querySelectorAll('.action-toggle').forEach(btn => {
         const dropdown = btn.nextElementSibling;
-        
-        // Move dropdown to body to avoid overflow issues (common in tables)
-        document.body.appendChild(dropdown);
+        document.body.appendChild(dropdown); // Move to body to prevent overflow clipping
         
         btn.addEventListener('click', e => {
             e.stopPropagation();
@@ -383,36 +410,26 @@
             closeAll(); // Close others
             
             if (!isActive) {
-                // 1. Make it active but invisible first to calculate dimensions if needed
-                // In this simple case, we just add active to let it render
                 dropdown.classList.add('active');
                 
-                // 2. Get Coordinates
+                // Smart Positioning Logic
                 const rect = btn.getBoundingClientRect();
                 const dropRect = dropdown.getBoundingClientRect();
                 const viewportHeight = window.innerHeight;
-                
-                // 3. Check space below the button
                 const spaceBelow = viewportHeight - rect.bottom;
-                const spaceNeeded = dropRect.height + 10; // 10px buffer
+                const spaceNeeded = dropRect.height + 10;
                 
                 let top, left;
-
-                // Horizontal Alignment (Align Right Edge)
                 left = rect.left + window.scrollX - dropRect.width + rect.width;
 
-                // Vertical Alignment (Up or Down logic)
                 if (spaceBelow < spaceNeeded) {
-                    // Not enough space below? GO UP
-                    dropdown.classList.add('drop-up'); // Change animation origin
-                    top = rect.top + window.scrollY - dropRect.height - 5; // 5px gap
+                    dropdown.classList.add('drop-up');
+                    top = rect.top + window.scrollY - dropRect.height - 5;
                 } else {
-                    // Enough space? GO DOWN (Default)
                     dropdown.classList.remove('drop-up');
-                    top = rect.bottom + window.scrollY + 5; // 5px gap
+                    top = rect.bottom + window.scrollY + 5;
                 }
 
-                // Apply styles
                 dropdown.style.top = `${top}px`;
                 dropdown.style.left = `${left}px`;
             }
@@ -430,10 +447,11 @@
         setTimeout(() => msgs.forEach(m => m.remove()), 500);
     }, 4000);
 
-    // ===== MODAL LOGIC =====
+    // ===== MODAL LOGIC (FIXED) =====
     const modal = document.getElementById('confirmModal');
     const msg = document.getElementById('confirmMessage');
     const title = document.getElementById('modalTitle');
+    const confirmBtn = document.getElementById('confirmYes');
     let targetUrl = '';
 
     document.querySelectorAll('.open-modal').forEach(link => {
@@ -443,16 +461,37 @@
             
             const username = link.dataset.username;
             const action = link.dataset.action;
+            const linkText = link.textContent; // Used to check "Revoke" vs "Make", etc.
             
+            // Default Button Style (Maroon)
+            confirmBtn.style.background = ''; 
+            confirmBtn.style.color = '';
+
+            // --- CONTEXT SWITCHING ---
             if (action === 'reset') {
                 title.textContent = 'Reset Password';
-                msg.textContent = `Are you sure you want to reset password for ${username}?`;
-            } else {
-                const isDeactivate = link.textContent.includes('Deactivate');
+                msg.textContent = `Are you sure you want to reset the password for ${username}? A temporary password will be generated.`;
+            } 
+            else if (action === 'toggle') {
+                const isDeactivate = linkText.includes('Deactivate');
                 title.textContent = isDeactivate ? 'Deactivate Account' : 'Activate Account';
                 msg.textContent = isDeactivate 
                     ? `Are you sure you want to deactivate ${username}? They will lose access immediately.` 
-                    : `Restore access for ${username}?`;
+                    : `Are you sure you want to restore access for ${username}?`;
+            }
+            else if (action === 'superadmin') {
+                const isRevoke = linkText.includes('Revoke');
+                title.textContent = isRevoke ? 'Revoke Superadmin' : 'Grant Superadmin';
+                msg.textContent = isRevoke
+                    ? `Are you sure you want to remove Superadmin privileges from ${username}?`
+                    : `Are you sure you want to promote ${username} to Superadmin? They will have full system access.`;
+            }
+            else if (action === 'delete') {
+                title.textContent = 'Delete Account';
+                msg.textContent = `WARNING: Are you sure you want to permanently delete ${username}? This action cannot be undone.`;
+                // Optional: Make button red for delete action
+                confirmBtn.style.background = '#dc2626';
+                confirmBtn.style.color = '#ffffff';
             }
             
             targetUrl = link.href;
@@ -473,25 +512,27 @@
     const noMatchesRow = tbody.querySelector('.no-matches');
     const emptyRow = tbody.querySelector('.empty-row');
 
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase().trim();
-        let hasVisible = false;
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            const visible = text.includes(query);
-            row.style.display = visible ? '' : 'none';
-            if (visible) hasVisible = true;
-        });
-        if (query && !hasVisible) {
-            noMatchesRow.style.display = '';
-            if (emptyRow) emptyRow.style.display = 'none';
-        } else {
-            noMatchesRow.style.display = 'none';
-            if (emptyRow && rows.length === 0) {
-                emptyRow.style.display = '';
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            let hasVisible = false;
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const visible = text.includes(query);
+                row.style.display = visible ? '' : 'none';
+                if (visible) hasVisible = true;
+            });
+            if (query && !hasVisible) {
+                if (noMatchesRow) noMatchesRow.style.display = '';
+                if (emptyRow) emptyRow.style.display = 'none';
+            } else {
+                if (noMatchesRow) noMatchesRow.style.display = 'none';
+                if (emptyRow && rows.length === 0) {
+                    emptyRow.style.display = '';
+                }
             }
-        }
-    });
+        });
+    }
 })();
 </script>
 {% endblock %}

@@ -10,5 +10,7 @@ urlpatterns = [
     path("edit/<str:username>/", views.admin_edit_view, name="admin_edit"),
     path("toggle-active/<str:username>/", views.admin_toggle_active_view, name="admin_toggle_active"),
     path("reset-password/<str:username>/", views.admin_reset_password_view, name="admin_reset_password"),
+    path("toggle-superadmin/<str:username>/", views.admin_toggle_superadmin_view, name="admin_toggle_superadmin"),
+    path("delete/<str:username>/", views.admin_delete_view, name="admin_delete"),
 ]
     

@@ -513,53 +513,6 @@ select:focus {
     color: #8B1538;
 }
 
-/* ===== ACTIVE SWITCH ===== */
-.is-active-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 10px;
-    justify-content: flex-start;
-}
-
-.switch-label {
-    position: relative;
-    width: 56px;
-    height: 30px;
-    background: #ccc;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    flex-shrink: 0;
-}
-
-.switch-label .switch-slider {
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 24px;
-    height: 24px;
-    background: white;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-}
-
-#id_is_active {
-    display: none;
-}
-
-#id_is_active:checked + .switch-label {
-    background: linear-gradient(135deg, #8B1538, #6B0F2A);
-}
-
-#id_is_active:checked + .switch-label .switch-slider {
-    transform: translateX(26px);
-}
-
-.switch-text {
-    font-weight: 600;
-    color: #444;
-}
 
 /* =========================================
     WARNING MODAL
@@ -782,17 +735,6 @@ select:focus {
                 </div>
             </div>
 
-            {% if editing %}
-            <div class="is-active-container">
-                <input type="checkbox" id="id_is_active" name="is_active" {% if form.is_active.value %}checked{% endif %}>
-                <label class="switch-label" for="id_is_active">
-                    <span class="switch-slider"></span>
-                </label>
-                <span class="switch-text">
-                    {% if form.is_active.value %}Active{% else %}Inactive{% endif %}
-                </span>
-            </div>
-            {% endif %}
 
             <div class="form-actions-row">
                 <a href="{% url 'manage_admin_app:admin_list' %}" class="back-link">← Back to Admin List</a>

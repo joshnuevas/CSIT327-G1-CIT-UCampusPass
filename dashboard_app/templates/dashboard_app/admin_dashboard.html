@@ -219,11 +219,16 @@
     font-weight: 500;
   }
 
-  /* ===== Quick Actions (Updated to match Staff 'Filter/Scan' buttons) ===== */
+  /* ===== Quick Actions ===== */
   .quick-actions-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+  }
+
+  /* NEW: Adjust layout for non-superadmin (3 buttons) to fill gaps */
+  .quick-actions-grid.compact-grid .quick-action-btn:last-child {
+    grid-column: span 2;
   }
 
   .quick-action-btn {
@@ -546,7 +551,9 @@
       </div>
 
       <div class="card-content">
-        <div class="quick-actions-grid">
+        <div class="quick-actions-grid {% if not is_superadmin %}compact-grid{% endif %}">
+          
+          {% if is_superadmin %}
           <a
             href="{% url 'manage_admin_app:admin_create' %}"
             class="quick-action-btn primary"
@@ -554,6 +561,8 @@
             <i class="fas fa-user-plus"></i>
             <span>New Admin</span>
           </a>
+          {% endif %}
+          
           <a
             href="{% url 'manage_staff_app:staff_create' %}"
             class="quick-action-btn secondary"
@@ -561,6 +570,7 @@
             <i class="fas fa-user-tie"></i>
             <span>New Staff</span>
           </a>
+          
           <a
             href="{% url 'manage_reports_logs_app:reports_view' %}"
             class="quick-action-btn tertiary"
@@ -568,6 +578,7 @@
             <i class="fas fa-chart-bar"></i>
             <span>View Reports</span>
           </a>
+          
           <a
             href="{% url 'visit_records_app:visit_records' %}"
             class="quick-action-btn quaternary"
@@ -575,6 +586,7 @@
             <i class="fas fa-clipboard-list"></i>
             <span>Visit Records</span>
           </a>
+          
         </div>
       </div>
     </div>
