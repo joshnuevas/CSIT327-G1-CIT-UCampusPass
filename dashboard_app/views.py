@@ -27,6 +27,33 @@ logger = logging.getLogger(__name__)
 # Philippines timezone
 PHILIPPINES_TZ = pytz.timezone('Asia/Manila')
 
+def _extract_identifier(actor_str):
+    """
+    Extract the identifier (username/email) from an actor string.
+
+    Examples:
+        "Lyra Nuevas (admin01)"      -> "admin01"
+        "Juan Dela Cruz (staff01)"   -> "staff01"
+        "visitor@email.com"         -> "visitor@email.com"
+        "" or None                  -> ""
+    """
+    if not actor_str:
+        return ""
+
+    actor_str = str(actor_str).strip()
+
+    # If it has parentheses, assume "Name (identifier)"
+    if "(" in actor_str and ")" in actor_str:
+        try:
+            inside = actor_str.split("(", 1)[1].split(")", 1)[0]
+            return inside.strip()
+        except Exception:
+            # Fallback to original
+            return actor_str
+
+    # Otherwise just return the whole thing (could be an email or username)
+    return actor_str
+
 # ========== Helper: Format timestamp to Philippine Time ==========
 def format_ph_time(timestamp):
     if not timestamp:
@@ -408,12 +435,32 @@ def staff_dashboard_view(request):
     now_ph = django_now().astimezone(PHILIPPINES_TZ)
     today = now_ph.date()
 
+    # 🔁 AUTO-COMPLETE ACTIVE VISITS AFTER 9:00 PM (PH TIME)
+    cutoff_time = dtime(21, 0)  # 9:00 PM
+
+    if now_ph.time() >= cutoff_time:
+        active_visits_to_complete = Visit.objects.filter(
+            visit_date=today,
+            status='Active',
+        )
+        for visit in active_visits_to_complete:
+            # If no recorded end_time yet, set it to exactly 9:00 PM
+            if visit.end_time is None:
+                visit.end_time = cutoff_time
+            visit.status = 'Completed'
+            visit.save()
+        logger.info(
+            f"Auto-completed {active_visits_to_complete.count()} active visits "
+            f"for {today} after cutoff {cutoff_time}."
+        )
+
     try:
         # ✅ Use pk instead of id (always exists), and don't slice
         today_visits_qs = Visit.objects.filter(visit_date=today).order_by('start_time', 'pk')
 
-        # ----- Update status for today's visits ----- (unchanged)
+        # ----- Update status for today's visits ----- (unchanged logic)
         for visit in today_visits_qs:
+            # Skip visits that are already completed (including auto-completed above)
             if visit.status == 'Completed':
                 continue
 
@@ -429,6 +476,7 @@ def staff_dashboard_view(request):
                         visit.end_time
                     ).replace(tzinfo=PHILIPPINES_TZ)
                 else:
+                    # If there is no end_time, treat it as until end of day
                     visit_end = datetime.combine(
                         visit.visit_date,
                         datetime.max.time()
@@ -449,7 +497,7 @@ def staff_dashboard_view(request):
                 visit.status = new_status
                 visit.save()
 
-        # ----- Dashboard stats ----- (unchanged)
+        # ----- Dashboard stats -----
         today_visits_count = today_visits_qs.count()
         active_visits_count = today_visits_qs.filter(status='Active').count()
         checked_in_count = today_visits_qs.filter(status__in=['Active', 'Completed']).count()
@@ -472,7 +520,7 @@ def staff_dashboard_view(request):
             except Exception:
                 checkin.display_time = str(checkin.created_at)
 
-        # ----- Code checker result (from session) ----- (unchanged)
+        # ----- Code checker result (from session) -----
         code_check_result = request.session.pop('code_check_result', None)
 
         context = {
@@ -488,6 +536,20 @@ def staff_dashboard_view(request):
         }
 
         return render(request, 'dashboard_app/staff_dashboard.html', context)
+
+    except Exception as e:
+        logger.error(f"Error loading staff dashboard: {str(e)}")
+        messages.error(request, "An error occurred while loading the dashboard.")
+        return render(request, 'dashboard_app/staff_dashboard.html', {
+            'staff_username': staff_username,
+            'staff_first_name': staff_first_name,
+            'today_date': today.strftime('%B %d, %Y'),
+            'today_visits_count': 0,
+            'active_visits_count': 0,
+            'checked_in_count': 0,
+            'today_visits': [],
+            'recent_checkins': [],
+        })
 
     except Exception as e:
         logger.error(f"Error loading staff dashboard: {str(e)}")

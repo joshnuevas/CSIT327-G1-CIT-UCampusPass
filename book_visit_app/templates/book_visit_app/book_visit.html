@@ -313,34 +313,73 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitBtn = document.getElementById('submitBtn');
 
     if (visitDateInput) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayStr = formatLocalDate(today);
+        const baseToday = new Date();          // actual calendar "today"
+        baseToday.setHours(0, 0, 0, 0);
 
-        const maxDate = new Date(today);
+        // Max date is always 7 days from *today* (not from min)
+        const maxDate = new Date(baseToday);
         maxDate.setDate(maxDate.getDate() + 7);
         const maxStr = formatLocalDate(maxDate);
 
-        visitDateInput.setAttribute('min', todayStr);
+        // Determine min date based on cutoff
+        const now = new Date();
+        const cutoffHour = 21; // 9 PM
+        const minDate = new Date(baseToday);
+        if (now.getHours() >= cutoffHour) {
+            // After 9PM: cannot book for *today* anymore, so min is tomorrow
+            minDate.setDate(minDate.getDate() + 1);
+        }
+        const minStr = formatLocalDate(minDate);
+
+        visitDateInput.setAttribute('min', minStr);
         visitDateInput.setAttribute('max', maxStr);
 
         visitDateInput.addEventListener('input', function () {
             if (!this.value) return;
+
             const selectedDate = new Date(this.value + 'T00:00:00');
             selectedDate.setHours(0, 0, 0, 0);
 
-            if (selectedDate < today) {
-                showWarning('📅 Invalid Date', 'You cannot select a past date.');
+            // Recompute now + cutoff on each change so it's always fresh
+            const nowCheck = new Date();
+            const cutoffHourCheck = 21;
+            const todayAtMidnight = new Date();
+            todayAtMidnight.setHours(0, 0, 0, 0);
+
+            // If they somehow pick today after 9PM
+            if (
+                selectedDate.getTime() === todayAtMidnight.getTime() &&
+                nowCheck.getHours() >= cutoffHourCheck
+            ) {
+                showWarning(
+                    '⏰ Same-day Booking Closed',
+                    'Same-day bookings are closed after 9:00 PM. Please choose another date.'
+                );
                 this.value = '';
                 return;
             }
+
+            // Below min date (past or blocked)
+            if (selectedDate < minDate) {
+                showWarning(
+                    '📅 Invalid Date',
+                    'You cannot select this date. Same-day booking may be closed or the date is in the past.'
+                );
+                this.value = '';
+                return;
+            }
+
             if (selectedDate > maxDate) {
                 showWarning('📅 Too Far Ahead', 'You can only book up to 7 days in advance.');
                 this.value = '';
                 return;
             }
+
             if (selectedDate.getDay() === 0) {
-                showWarning('📅 Sunday Not Available', 'Visits cannot be scheduled on Sundays. Please select a Monday-Saturday date.');
+                showWarning(
+                    '📅 Sunday Not Available',
+                    'Visits cannot be scheduled on Sundays. Please select a Monday–Saturday date.'
+                );
                 this.value = '';
             }
         });

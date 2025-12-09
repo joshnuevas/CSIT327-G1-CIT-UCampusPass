@@ -7,7 +7,7 @@ import logging
 import random
 import string
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time as dtime
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -233,6 +233,18 @@ def book_visit_view(request):
             today = timezone.localdate()
             max_date = today + timedelta(days=7)
 
+            # ✅ Same-day booking cutoff: after 9:00 PM, you cannot book for *today*
+            now_local = timezone.localtime()
+            cutoff_time = dtime(21, 0)  # 9:00 PM
+
+            if visit_date == today and now_local.time() >= cutoff_time:
+                messages.error(
+                    request,
+                    "Same-day bookings are closed after 9:00 PM. "
+                    "Please choose another date for your visit."
+                )
+                return redirect("book_visit_app:book_visit")
+
             # No past dates
             if visit_date < today:
                 messages.error(request, "Past dates are not allowed.")
@@ -385,11 +397,18 @@ def book_visit_view(request):
             today = timezone.localdate()
             max_date = today + timedelta(days=7)
 
-            # Same rules as booking:
+            now_local = timezone.localtime()
+            cutoff_time = dtime(21, 0)
+
+            # Same rules as booking + cutoff:
             # - not past
             # - not more than 7 days ahead
             # - not Sunday
-            if today <= candidate <= max_date and candidate.weekday() != 6:
+            # - after 9PM, don't prefill today anymore
+            if candidate == today and now_local.time() >= cutoff_time:
+                # Same-day booking closed -> don't prefill this
+                pass
+            elif today <= candidate <= max_date and candidate.weekday() != 6:
                 prefill_date = candidate.strftime("%Y-%m-%d")
         except ValueError:
             # ignore invalid format, just don't prefill
