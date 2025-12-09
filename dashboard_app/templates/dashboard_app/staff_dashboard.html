@@ -786,7 +786,7 @@
                             <span class="mt-code">{{ visit.code }}</span>
                             <span class="mt-time">
                                 {% if visit.start_time %}
-                                    {{ visit.start_time|slice:":5" }}
+                                    {{ visit.start_time|time:"g:i a" }}
                                 {% else %}
                                     <span style="color:#D4AF37;">Pending</span>
                                 {% endif %}

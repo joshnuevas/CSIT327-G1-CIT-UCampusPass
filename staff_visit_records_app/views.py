@@ -1,34 +1,30 @@
 # staff_visit_records_app/views.py
-from datetime import datetime
+from datetime import datetime, time as dtime
 
 import pytz
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Case, When, IntegerField
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from dashboard_app.views import staff_required
+from dashboard_app.views import staff_required, apply_nine_pm_cutoff
 from dashboard_app.models import Visit, SystemLog
 
-
 PH_TZ = pytz.timezone("Asia/Manila")
-
 
 @staff_required
 def staff_visit_records_view(request):
     """
     Staff Visit Records
-
-    - Defaults to showing today's visits (PH time)
-    - Supports filtering by:
-        * Date
-        * Search query (code, purpose, dept, email)
-        * Status (all, upcoming, active, completed, expired)
-    - Matches the filtering behavior of the "My Passes" page
+    ...
     """
 
-    today = timezone.now().astimezone(PH_TZ).date()
+    # 🔁 Global 9PM cutoff (persists updates to Supabase)
+    apply_nine_pm_cutoff()
+
+    now_ph = timezone.now().astimezone(PH_TZ)
+    today = now_ph.date()
 
     # GET parameters
     filter_submitted = request.GET.get("filter_submitted")
@@ -80,25 +76,38 @@ def staff_visit_records_view(request):
         qs = qs.filter(status=status_map[status_filter])
 
     # ----------------------
-    # 5. Sorting
+    # 5. Sorting – Active → Upcoming → Completed → Expired
     # ----------------------
-    visits = qs.order_by("start_time", "code")
+    status_priority = Case(
+        When(status="Active", then=0),
+        When(status="Upcoming", then=1),
+        When(status="Completed", then=2),
+        When(status="Expired", then=3),
+        default=4,
+        output_field=IntegerField(),
+    )
+
+    visits = (
+        qs
+        .annotate(status_priority=status_priority)
+        .order_by(
+            "status_priority",   # custom priority order
+            "visit_date",        # then by date
+            "start_time",        # then by time
+            "code",              # stable tie-breaker
+        )
+    )
 
     # ----------------------
     # 6. Summary label (matches My Passes UI)
     # ----------------------
-    # Mode text (for example: "Filtered By Date")
     filter_mode_text = "Selected Date"
 
-    # Show “Today” instead of a long date
     if filter_date == today:
         filter_date_display = "Today"
     else:
-        filter_date_display = filter_date.strftime("%B %d, %Y")  # Example: January 14, 2025
+        filter_date_display = filter_date.strftime("%B %d, %Y")
 
-    # ----------------------
-    # 7. Render
-    # ----------------------
     return render(
         request,
         "staff_visit_records_app/staff_visit_records.html",

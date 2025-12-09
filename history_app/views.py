@@ -1,29 +1,19 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time as dtime
 
 import pytz
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Case, When, IntegerField
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
 from dashboard_app.models import Visit, SystemLog
 from register_app.models import User
-
+from dashboard_app.views import apply_nine_pm_cutoff
 
 def history_view(request):
     """
     Visitor 'My Passes' page.
-
-    Default behavior:
-      - Only show visits from (today - 7 days) up to (today + 7 days).
-
-    Rules:
-      - Auto-expire visits whose date is already past today
-        (Upcoming/Active -> Expired).
-      - Filter by:
-          * Date (any past date, but not beyond today + 7 days)
-          * Search query (code or department)
-          * Status (All / Active / Upcoming / Completed (Completed + Expired))
+    ...
     """
 
     # ---------- AUTH CHECK ----------
@@ -32,18 +22,14 @@ def history_view(request):
 
     user_email = request.session["user_email"]
 
+    # 🔁 Global 9:00 PM cutoff (updates DB for today's visits)
+    apply_nine_pm_cutoff()   # 👈 this will persist changes to Supabase
+
     # ---------- TIME CONTEXT ----------
     philippines_tz = pytz.timezone("Asia/Manila")
     now_ph = datetime.now(philippines_tz)
     today = now_ph.date()
     max_allowed_date = today + timedelta(days=7)  # same as booking limit
-
-    # ---------- AUTO-EXPIRE OLD VISITS ----------
-    Visit.objects.filter(
-        user_email=user_email,
-        visit_date__lt=today,
-        status__in=["Upcoming", "Active"],
-    ).update(status="Expired")
 
     # ---------- DEFAULT WINDOW (LAST 7 DAYS → NEXT 7 DAYS) ----------
     default_start_date = today - timedelta(days=7)
@@ -119,7 +105,32 @@ def history_view(request):
     # else: show all statuses
 
     # ---------- ORDERING ----------
-    visits_qs = visits_qs.order_by("-visit_date", "-start_time")
+    # Priority: Active → Upcoming(today) → Upcoming(future) → Completed → Expired
+    status_priority = Case(
+        When(status="Active", then=0),
+        When(
+            Q(status="Upcoming") & Q(visit_date=today),
+            then=1
+        ),
+        When(
+            Q(status="Upcoming") & Q(visit_date__gt=today),
+            then=2
+        ),
+        When(status="Completed", then=3),
+        When(status="Expired", then=4),
+        default=5,
+        output_field=IntegerField(),
+    )
+
+    visits_qs = (
+        visits_qs
+        .annotate(status_priority=status_priority)
+        .order_by(
+            "status_priority",   # our custom priority
+            "-visit_date",       # newer dates first within each group
+            "-start_time",       # latest times first
+        )
+    )
 
     # ---------- FORMAT DISPLAY FIELDS ----------
     visits = []
@@ -158,7 +169,6 @@ def history_view(request):
     }
 
     return render(request, "history_app/history.html", context)
-
 
 @require_POST
 def cancel_visit(request):

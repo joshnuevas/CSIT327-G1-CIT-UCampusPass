@@ -27,6 +27,55 @@ logger = logging.getLogger(__name__)
 # Philippines timezone
 PHILIPPINES_TZ = pytz.timezone('Asia/Manila')
 
+def apply_nine_pm_cutoff():
+    """
+    Enforce the cutoff for visits:
+
+    - For *today* (after 9:00 PM PH time):
+        Active (today)   -> Completed, end_time = 21:00 if missing/earlier
+        Upcoming (today) -> Expired, start_time/end_time = 21:00 if missing
+
+    - For *past days* (visit_date < today):
+        Any remaining Active/Upcoming are also finalized the same way.
+    """
+    now_ph = django_now().astimezone(PHILIPPINES_TZ)
+    today = now_ph.date()
+    cutoff = dtime(21, 0)
+
+    # ---- 1) Today, only if it's already past 9PM ----
+    if now_ph.time() >= cutoff:
+        today_qs = Visit.objects.filter(
+            visit_date=today,
+            status__in=["Active", "Upcoming"],
+        )
+    else:
+        today_qs = Visit.objects.none()
+
+    # ---- 2) Any past days with wrong statuses ----
+    past_qs = Visit.objects.filter(
+        visit_date__lt=today,
+        status__in=["Active", "Upcoming"],
+    )
+
+    visits_to_fix = today_qs | past_qs
+
+    for visit in visits_to_fix:
+        if visit.status == "Active":
+            # Finalize as completed at 9PM of that day
+            if visit.end_time is None or visit.end_time < cutoff:
+                visit.end_time = cutoff
+            visit.status = "Completed"
+
+        elif visit.status == "Upcoming":
+            # No-show → expired; make sure times are not null
+            if visit.start_time is None:
+                visit.start_time = cutoff
+            if visit.end_time is None:
+                visit.end_time = cutoff
+            visit.status = "Expired"
+
+        visit.save(update_fields=["status", "start_time", "end_time"])
+
 def _extract_identifier(actor_str):
     """
     Extract the identifier (username/email) from an actor string.
@@ -429,39 +478,60 @@ def staff_required(view_func):
 @staff_required
 def staff_dashboard_view(request):
     """Main staff dashboard with stats and quick code checker"""
+    apply_nine_pm_cutoff()
+
     staff_username = request.session['staff_username']
     staff_first_name = request.session.get('staff_first_name', 'Staff')
 
     now_ph = django_now().astimezone(PHILIPPINES_TZ)
     today = now_ph.date()
 
-    # 🔁 AUTO-COMPLETE ACTIVE VISITS AFTER 9:00 PM (PH TIME)
+    # 🔁 AUTO-COMPLETE / AUTO-EXPIRE AT 9:00 PM (PH TIME)
+        # 🔁 AUTO-COMPLETE / AUTO-EXPIRE AT 9:00 PM (PH TIME)
     cutoff_time = dtime(21, 0)  # 9:00 PM
 
     if now_ph.time() >= cutoff_time:
+        # 1) Auto-complete ACTIVE visits for today
         active_visits_to_complete = Visit.objects.filter(
             visit_date=today,
             status='Active',
         )
         for visit in active_visits_to_complete:
-            # If no recorded end_time yet, set it to exactly 9:00 PM
-            if visit.end_time is None:
+            # If no recorded end_time yet OR earlier than 9:00 PM, set it to 9:00 PM
+            if visit.end_time is None or visit.end_time < cutoff_time:
                 visit.end_time = cutoff_time
             visit.status = 'Completed'
             visit.save()
+
+        # 2) Auto-expire UPCOMING visits for today (no-show)
+        upcoming_visits_to_expire = Visit.objects.filter(
+            visit_date=today,
+            status='Upcoming',
+        )
+        for visit in upcoming_visits_to_expire:
+            # Give them non-null "auto-closed" times at 9:00 PM
+            if visit.start_time is None:
+                visit.start_time = cutoff_time
+            if visit.end_time is None:
+                visit.end_time = cutoff_time
+            visit.status = 'Expired'
+            visit.save()
+
         logger.info(
             f"Auto-completed {active_visits_to_complete.count()} active visits "
+            f"and auto-expired {upcoming_visits_to_expire.count()} upcoming visits "
             f"for {today} after cutoff {cutoff_time}."
         )
+
 
     try:
         # ✅ Use pk instead of id (always exists), and don't slice
         today_visits_qs = Visit.objects.filter(visit_date=today).order_by('start_time', 'pk')
 
-        # ----- Update status for today's visits ----- (unchanged logic)
+        # ----- Update status for today's visits -----
         for visit in today_visits_qs:
-            # Skip visits that are already completed (including auto-completed above)
-            if visit.status == 'Completed':
+            # ⛔ Skip visits that are already final (Completed or Expired)
+            if visit.status in ['Completed', 'Expired']:
                 continue
 
             if visit.start_time:
@@ -509,7 +579,7 @@ def staff_dashboard_view(request):
                 "Visitor Check-Out",
                 "Walk-In Registration",
             ],
-            created_at__date=today,        # 👈 this line makes it reset daily
+            created_at__date=today,
         ).order_by("-created_at")[:15]
 
         for checkin in recent_checkins:
@@ -520,7 +590,6 @@ def staff_dashboard_view(request):
             except Exception:
                 checkin.display_time = str(checkin.created_at)
 
-        # ----- Code checker result (from session) -----
         code_check_result = request.session.pop('code_check_result', None)
 
         context = {
@@ -547,21 +616,7 @@ def staff_dashboard_view(request):
             'today_visits_count': 0,
             'active_visits_count': 0,
             'checked_in_count': 0,
-            'today_visits': [],
-            'recent_checkins': [],
-        })
-
-    except Exception as e:
-        logger.error(f"Error loading staff dashboard: {str(e)}")
-        messages.error(request, "An error occurred while loading the dashboard.")
-        return render(request, 'dashboard_app/staff_dashboard.html', {
-            'staff_username': staff_username,
-            'staff_first_name': staff_first_name,
-            'today_date': today.strftime('%B %d, %Y'),
-            'today_visits_count': 0,
-            'active_visits_count': 0,
-            'checked_in_count': 0,
-            'today_visits': [],
+            'today_visits': [], 
             'recent_checkins': [],
         })
 
@@ -598,6 +653,64 @@ def check_code(request):
         try:
             visit = Visit.objects.get(code=visit_code)
 
+                        # 🔁 --- AUTO-REFRESH STATUS (9PM + time window) ---
+            now_ph = django_now().astimezone(PHILIPPINES_TZ)
+            today = now_ph.date()
+            cutoff_time = dtime(21, 0)  # 9:00 PM
+
+            # Only apply special rules for today's visits
+            if visit.visit_date == today:
+                # 1) 9PM rule: Active -> Completed, Upcoming -> Expired
+                if now_ph.time() >= cutoff_time:
+                    if visit.status == "Active":
+                        # Ensure a proper checkout time at 9:00 PM
+                        if visit.end_time is None or visit.end_time < cutoff_time:
+                            visit.end_time = cutoff_time
+                        visit.status = "Completed"
+                        visit.save()
+                    elif visit.status == "Upcoming":
+                        # No-show: give it non-null times at 9:00 PM
+                        if visit.start_time is None:
+                            visit.start_time = cutoff_time
+                        if visit.end_time is None:
+                            visit.end_time = cutoff_time
+                        visit.status = "Expired"
+                        visit.save()
+                else:
+                    # 2) Time-window logic like staff dashboard (before 9 PM)
+                    if visit.start_time:
+                        visit_start = datetime.combine(
+                            visit.visit_date,
+                            visit.start_time
+                        ).replace(tzinfo=PHILIPPINES_TZ)
+
+                        if visit.end_time:
+                            visit_end = datetime.combine(
+                                visit.visit_date,
+                                visit.end_time
+                            ).replace(tzinfo=PHILIPPINES_TZ)
+                        else:
+                            # No end_time yet → treat as until end of day
+                            visit_end = datetime.combine(
+                                visit.visit_date,
+                                datetime.max.time()
+                            ).replace(tzinfo=PHILIPPINES_TZ)
+
+                        if visit_start <= now_ph <= visit_end:
+                            new_status = "Active"
+                        elif now_ph > visit_end:
+                            new_status = "Expired"
+                        else:
+                            new_status = "Upcoming"
+                    else:
+                        new_status = "Upcoming"
+
+                    if visit.status != new_status:
+                        visit.status = new_status
+                        visit.save()
+            # 🔁 --- END AUTO-REFRESH ---
+
+            # ✅ Always read the latest values from DB into session "memory"
             request.session['code_check_result'] = {
                 'status': 'success',
                 'message': 'Visit code found and verified!',
@@ -607,7 +720,7 @@ def check_code(request):
                     'purpose': visit.purpose,
                     'department': visit.department,
                     'visit_date': visit.visit_date.isoformat() if visit.visit_date else None,
-                    'status': visit.status,
+                    'status': visit.status,   # ← updated status
                     'start_time': visit.start_time.isoformat() if visit.start_time else None,
                     'end_time': visit.end_time.isoformat() if visit.end_time else None,
                 }
