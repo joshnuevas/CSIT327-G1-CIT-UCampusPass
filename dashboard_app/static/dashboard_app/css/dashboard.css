@@ -1013,6 +1013,83 @@ body {
 .alert-info .alert-icon { color: #3182CE; }
 
 /* ========================================= 
+   SCROLLBAR CUSTOMIZATION (CIT-U Theme)
+   ========================================= */
+
+/* Firefox Support */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #8B1538 #F5F7FA;
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+    width: 12px;                /* Width of the vertical scrollbar */
+    height: 12px;               /* Height of the horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: #F5F7FA;        /* Matches your dashboard background */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #8B1538;  /* CIT Maroon */
+    border-radius: 20px;        /* Roundness */
+    border: 3px solid #F5F7FA;  /* Creates a 'padding' effect around the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #D4AF37;  /* CIT Gold on hover */
+}
+
+/* ===== USER AVATAR (TECH ORBIT STYLE) ===== */
+.user-avatar {
+    position: relative; /* Needed for the ring positioning */
+    width: 42px;
+    height: 42px;
+    /* Gradient instead of flat maroon */
+    background: linear-gradient(135deg, #8B1538 0%, #5c0a0a 100%);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    z-index: 1; /* Keeps text above the ring */
+}
+
+/* The Gold Ring Pseudo-element */
+.user-avatar::after {
+    content: '';
+    position: absolute;
+    top: -4px; 
+    left: -4px; 
+    right: -4px; 
+    bottom: -4px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: #D4AF37;  /* CIT Gold */
+    border-bottom-color: #D4AF37; /* CIT Gold */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-avatar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(139, 21, 56, 0.3);
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+.user-avatar:hover::after {
+    transform: rotate(180deg) scale(1.1);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4); /* Gold Glow */
+}
+
+/* ========================================= 
    11. ANIMATION KEYFRAMES 
    ========================================= */
 @keyframes slideInToast {

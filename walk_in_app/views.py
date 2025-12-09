@@ -43,7 +43,8 @@ def walk_in_registration(request):
     - Immediately marks status as 'Active' with current time as start_time.
     - Enforces:
         * Walk-in registration allowed only from 7:30 AM to 9:00 PM (PH time)
-        * If email belongs to an existing User, other fields must match.
+        * If email/phone belong to an existing User, other fields must match.
+        * No duplicate phone across different users.
         * If visitor already has an Active pass, block new walk-in registration.
     """
     staff_username = request.session['staff_username']
@@ -113,31 +114,74 @@ def walk_in_registration(request):
                 }
                 return render(request, 'walk_in_app/walk_in_registration.html', context)
 
-            # ----- If email exists in User table, all other fields must match -----
-            existing_user = User.objects.filter(email__iexact=email).first()
+            # =====================================================
+            #  EMAIL + PHONE CONSISTENCY (NO DUPLICATES)
+            # =====================================================
 
+            def norm(s: str) -> str:
+                return (s or "").strip().lower()
+
+            normalized_phone = re.sub(r"\D", "", phone or "")
+
+            # 1) Try match by email
+            user_by_email = User.objects.filter(email__iexact=email).first()
+
+            # 2) Try match by phone (assume stored as 09xxxxxxxxx in DB)
+            users_by_phone = list(User.objects.filter(phone=phone))
+
+            # If same phone is used by multiple users -> hard stop
+            if len(users_by_phone) > 1:
+                messages.error(
+                    request,
+                    (
+                        "This mobile number is associated with multiple registered users. "
+                        "Please verify the visitor’s information with the registrar before "
+                        "proceeding with walk-in registration."
+                    )
+                )
+                context = {
+                    'staff_first_name': staff_first_name,
+                    'form_data': form_data,
+                    'success': False,
+                }
+                return render(request, 'walk_in_app/walk_in_registration.html', context)
+
+            user_by_phone = users_by_phone[0] if users_by_phone else None
+
+            # If email and phone both match but point to different accounts -> hard stop
+            if user_by_email and user_by_phone and user_by_email != user_by_phone:
+                messages.error(
+                    request,
+                    (
+                        "The provided email and mobile number are registered under "
+                        "different user records. Please verify the visitor’s details."
+                    )
+                )
+                context = {
+                    'staff_first_name': staff_first_name,
+                    'form_data': form_data,
+                    'success': False,
+                }
+                return render(request, 'walk_in_app/walk_in_registration.html', context)
+
+            # Use whichever matched (email preferred, then phone)
+            existing_user = user_by_email or user_by_phone
+
+            # If we found a registered user, all fields must match that record
             if existing_user:
                 mismatches = []
 
-                def norm_name(s: str) -> str:
-                    return (s or "").strip().lower()
-
-                db_first = norm_name(existing_user.first_name)
-                db_last = norm_name(existing_user.last_name)
-                in_first = norm_name(first_name)
-                in_last = norm_name(last_name)
-
-                if db_first and in_first and db_first != in_first:
+                if norm(existing_user.first_name) != norm(first_name):
                     mismatches.append("first name")
 
-                if db_last and in_last and db_last != in_last:
+                if norm(existing_user.last_name) != norm(last_name):
                     mismatches.append("last name")
 
-                # Normalize phone numbers to digits only when comparing
-                db_phone = re.sub(r"\D", "", existing_user.phone or "")
-                input_phone = re.sub(r"\D", "", phone or "")
+                if norm(existing_user.email) != norm(email):
+                    mismatches.append("email")
 
-                if db_phone and input_phone and db_phone != input_phone:
+                db_phone_digits = re.sub(r"\D", "", existing_user.phone or "")
+                if db_phone_digits and normalized_phone and db_phone_digits != normalized_phone:
                     mismatches.append("mobile number")
 
                 if mismatches:
@@ -145,7 +189,7 @@ def walk_in_registration(request):
                     messages.error(
                         request,
                         (
-                            "This email is already registered. "
+                            "This visitor is already registered. "
                             f"The {pretty_fields} you entered do not match our records. "
                             "Please verify the information with the visitor."
                         )
@@ -203,7 +247,6 @@ def walk_in_registration(request):
                 return render(request, 'walk_in_app/walk_in_registration.html', context)
 
             # ----- Set visit times - walk-ins are checked in immediately -----
-            # now_aware already computed above for time restriction
             visit_date = now_aware.date()
             start_time = now_aware.time()
 
