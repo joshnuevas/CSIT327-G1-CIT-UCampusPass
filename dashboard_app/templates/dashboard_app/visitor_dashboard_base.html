@@ -326,6 +326,82 @@
           transform: translateY(0);
         }
       }
+      /* ========================================= 
+      WELCOME CURTAIN ANIMATION 
+      ========================================= */
+    .welcome-curtain {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #8B1538 0%, #5c0a0a 100%); /* CIT Maroon */
+        z-index: 99999; /* On top of everything */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1); /* Smooth slide up */
+    }
+
+    /* Class added by JS to hide the curtain */
+    .welcome-curtain.slide-up {
+        transform: translateY(-100%);
+    }
+
+    .curtain-content {
+        text-align: center;
+        color: white;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+    }
+
+    .welcome-curtain.slide-up .curtain-content {
+        opacity: 0;
+    }
+
+    /* Big Logo in Center */
+    .curtain-logo {
+        width: 100px;
+        height: 100px;
+        background: url("https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png") no-repeat center;
+        background-size: contain;
+        background-color: white;
+        border-radius: 50%;
+        border: 4px solid #D4AF37; /* Gold Border */
+        margin: 0 auto 20px;
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+    }
+
+    .curtain-text h1 {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 5px;
+        color: #fff;
+        letter-spacing: 0.5px;
+    }
+
+    .curtain-text p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 25px;
+    }
+
+    .curtain-loader {
+        width: 120px;               /* fixed width - prevents layout shifts */
+        height: 4px;
+        background: #D4AF37;
+        margin: 0 auto;
+        border-radius: 2px;
+        transform-origin: left;     /* grow from left */
+        transform: scaleX(0);       /* start hidden */
+        animation: smoothLoad 1.6s ease forwards;
+    }
+
+    @keyframes smoothLoad {
+        0%   { transform: scaleX(0); opacity: 0.2; }
+        15%  { opacity: 1; }
+        100% { transform: scaleX(1); opacity: 1; }
+    }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -333,6 +409,18 @@
     <link rel="shortcut icon" href="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png">
 </head>
 <body>
+
+    <div id="welcome-curtain" class="welcome-curtain">
+        <div class="curtain-content">
+            <div class="curtain-logo"></div>
+            <div class="curtain-text">
+                <h1>Welcome, {{ user_first_name }}!</h1>
+                <p>Accessing Campus Pass Dashboard...</p>
+            </div>
+            <div class="curtain-loader"></div>
+        </div>
+    </div>
+
     <div class="overlay" id="overlay"></div>
 
     <div class="sidebar" id="sidebar">
@@ -526,6 +614,42 @@
                     localStorage.setItem('visitorNavHidden', isHiddenNow ? '1' : '0');
                     updateNavToggleIcon(isHiddenNow);
                 });
+            }
+
+            // ====== WELCOME ANIMATION LOGIC ======
+            const curtain = document.getElementById('welcome-curtain');
+
+            // Django login URL so we can detect "just logged in"
+            const loginPath = "{% url 'login_app:login' %}";
+            const fromLogin = document.referrer && document.referrer.includes(loginPath);
+
+            // Check flag in this tab
+            let hasSeenIntro = sessionStorage.getItem('seenDashboardIntro');
+
+            // If we came from login, force re-show the intro for this fresh login
+            if (fromLogin) {
+                sessionStorage.removeItem('seenDashboardIntro');
+                hasSeenIntro = null;
+            }
+
+            if (curtain) {
+                if (hasSeenIntro) {
+                    // Already saw intro during this tab session and not coming from login
+                    curtain.style.display = 'none';
+                } else {
+                    // First time in this tab OR just logged in -> play animation
+                    setTimeout(() => {
+                        curtain.classList.add('slide-up');
+
+                        // Mark as seen so internal navigation doesn't replay it
+                        sessionStorage.setItem('seenDashboardIntro', 'true');
+
+                        // Remove from view after transition
+                        setTimeout(() => {
+                            curtain.style.display = 'none';
+                        }, 800);
+                    }, 2000);
+                }
             }
         });
 

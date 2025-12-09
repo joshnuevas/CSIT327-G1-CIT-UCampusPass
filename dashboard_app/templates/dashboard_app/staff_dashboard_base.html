@@ -363,94 +363,108 @@
         visibility: visible;
     }
 
+        /* ===== MODALS ===== */
     .modal {
         display: none;
-        position: fixed;
-        z-index: 2000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.45);
-        backdrop-filter: blur(3px);
-        align-items: center;
+        position: fixed !important;
+        z-index: 9999 !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0,0,0,0.45) !important;
+        backdrop-filter: blur(3px) !important;
         justify-content: center;
-        animation: fadeIn 0.3s;
+        align-items: center;
     }
 
-    .modal.show {
-        display: flex !important;
+    .modal.show { 
+        display: flex !important; 
     }
 
     .modal-content {
-        background: #FFFFFF;
-        border-top: 6px solid #8B1538;
-        border-bottom: 6px solid #D4AF37;
-        padding: 40px 30px;
-        max-width: 400px;
+        background: linear-gradient(135deg, #fff8f5, #fff1e5) !important;
+        border-radius: 25px;
+        padding: 35px 30px;
         width: 90%;
-        border-radius: 20px;
-        box-shadow: 0 25px 50px -12px rgba(139, 21, 56, 0.25);
+        max-width: 450px;
         text-align: center;
+        box-shadow: 0 15px 50px rgba(139,21,56,0.3);
+        transform: translateY(-20px);
+        animation: slideDownModal 0.4s ease forwards;
     }
 
     .modal-content h2 {
-        color: #2D3748;
-        font-size: 22px;
-        font-weight: 800;
-        margin-bottom: 24px;
+        color: #8B1538 !important;
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        margin-bottom: 30px !important;
+        letter-spacing: 0.5px !important;
     }
 
     .modal-buttons {
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-        flex-wrap: wrap;
+        display: flex !important;
+        gap: 12px !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
     }
 
     .btn-primary {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 12px 28px;
-        background: #8B1538;
-        color: #FFFFFF;
-        border: none;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
-        text-decoration: none;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        padding: 14px 32px !important;
+        background: linear-gradient(135deg, #8B1538, #6B0F2A) !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3) !important;
+        text-decoration: none !important;
     }
 
     .btn-primary:hover {
-        background: #6B0F2A;
-        transform: translateY(-2px);
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4) !important;
+        background: linear-gradient(135deg, #6B0F2A, #8B1538) !important;
     }
 
     .btn-secondary {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 12px 28px;
-        background: #F7FAFC;
-        color: #4A5568;
-        border: 1px solid #E2E8F0;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        padding: 14px 32px !important;
+        background: #FFFFFF !important;
+        color: #666666 !important;
+        border: 2px solid #E0E0E0 !important;
+        border-radius: 50px !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        text-decoration: none !important;
     }
 
     .btn-secondary:hover {
-        background: #EDF2F7;
-        color: #2D3748;
+        border-color: #8B1538 !important;
+        color: #8B1538 !important;
+        transform: translateY(-2px) !important;
+    }
+
+    @keyframes slideDownModal {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     /* =========================================
@@ -519,6 +533,83 @@
         }
     }
 
+        /* =========================================
+      11. STAFF WELCOME CURTAIN
+      ========================================= */
+    .welcome-curtain {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #8B1538 0%, #5c0a0a 100%);
+        z-index: 99999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: translateY(0);
+        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    .welcome-curtain.slide-up {
+        transform: translateY(-100%);
+    }
+
+    .curtain-content {
+        text-align: center;
+        color: #ffffff;
+        opacity: 1;
+        transition: opacity 0.4s ease;
+    }
+
+    .welcome-curtain.slide-up .curtain-content {
+        opacity: 0;
+    }
+
+    .curtain-logo {
+        width: 100px;
+        height: 100px;
+        background: url("https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png") no-repeat center;
+        background-size: contain;
+        background-color: #ffffff;
+        border-radius: 50%;
+        border: 4px solid #D4AF37;
+        margin: 0 auto 18px;
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.45);
+        /* 🔒 no animation here so the image never moves/blurs */
+    }
+
+    .curtain-text h1 {
+        font-size: 26px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        letter-spacing: 0.5px;
+    }
+
+    .curtain-text p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin-bottom: 20px;
+    }
+
+    .curtain-loader {
+        width: 140px;
+        height: 4px;
+        background: #D4AF37;
+        margin: 0 auto;
+        border-radius: 999px;
+        transform-origin: left;
+        transform: scaleX(0);
+        opacity: 0.9;
+        animation: staffLoadBar 1.6s ease-out forwards;
+    }
+
+    @keyframes staffLoadBar {
+        0%   { transform: scaleX(0); opacity: 0.2; }
+        15%  { opacity: 1; }
+        100% { transform: scaleX(1); opacity: 1; }
+    }
+
     /* =========================================
       10. ANIMATIONS
       ========================================= */
@@ -538,6 +629,19 @@
     <link rel="shortcut icon" href="https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png">
 </head>
 <body>
+
+    <!-- STAFF WELCOME CURTAIN -->
+    <div id="staff-welcome-curtain" class="welcome-curtain">
+        <div class="curtain-content">
+            <div class="curtain-logo"></div>
+            <div class="curtain-text">
+                <h1>Welcome, {{ request.session.staff_first_name|default:"Staff" }}!</h1>
+                <p>Loading Staff Dashboard&hellip;</p>
+            </div>
+            <div class="curtain-loader"></div>
+        </div>
+    </div>
+
     <!-- ===== OVERLAY ===== -->
     <div class="overlay" id="overlay"></div>
 
@@ -643,13 +747,24 @@
         </div>
     </div>
 
-    <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
-        <div class="modal-content">
-            <h2>Are you sure you want to logout?</h2>
+        <div class="modal-content logout-card">
+            <div class="logout-icon-wrapper">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+
+            <h2 class="logout-title">Signing Out?</h2>
+            <p class="logout-subtitle">
+                You will need to sign in again to access your staff dashboard.
+            </p>
+
             <div class="modal-buttons">
-                <button id="confirmLogout" class="btn-primary">Logout</button>
-                <button id="cancelLogout" class="btn-secondary">Cancel</button>
+                <button id="cancelLogout" class="btn-secondary btn-logout-cancel">
+                    Cancel
+                </button>
+                <button id="confirmLogout" class="btn-primary btn-logout-confirm">
+                    Yes, Logout
+                </button>
             </div>
         </div>
     </div>
@@ -697,6 +812,28 @@
                     document.body.classList.remove('nav-hidden');
                 }
                 updateNavToggleIcon(shouldHide);
+            }
+
+                        // ===== STAFF WELCOME ENTRANCE CURTAIN =====
+            const staffCurtain = document.getElementById('staff-welcome-curtain');
+            const hasSeenStaffIntro = sessionStorage.getItem('seenStaffIntro');
+
+            if (staffCurtain) {
+                if (hasSeenStaffIntro) {
+                    // Already seen this session: hide immediately
+                    staffCurtain.style.display = 'none';
+                } else {
+                    // First time: play animation, then mark as seen
+                    setTimeout(() => {
+                        staffCurtain.classList.add('slide-up');
+                        sessionStorage.setItem('seenStaffIntro', 'true');
+
+                        // Remove from flow after the slide transition
+                        setTimeout(() => {
+                            staffCurtain.style.display = 'none';
+                        }, 800); // matches CSS transition duration
+                    }, 1800); // how long the curtain stays before sliding (1.8s)
+                }
             }
 
             if (navToggle) {
