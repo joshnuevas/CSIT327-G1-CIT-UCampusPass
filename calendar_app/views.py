@@ -1,18 +1,21 @@
 from django.shortcuts import render, redirect
-from django.utils import timezone
+from django.utils.timezone import now as django_now
 from datetime import date, timedelta
 import calendar
 from dashboard_app.models import Visit
+import pytz
+
+PHILIPPINES_TZ = pytz.timezone('Asia/Manila')
 
 def calendar_view(request):
-    # 1. Security Check
     if 'user_email' not in request.session:
         return redirect('login_app:login')
 
     user_email = request.session['user_email']
 
-    today = timezone.now().date()
-    max_booking_date = today + timedelta(days=7)   # 👈 add this
+    now_ph = django_now().astimezone(PHILIPPINES_TZ)
+    today = now_ph.date()
+    max_booking_date = today + timedelta(days=7)
 
     try:
         year = int(request.GET.get('year', today.year))

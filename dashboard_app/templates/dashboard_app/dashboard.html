@@ -11,7 +11,7 @@
         <p>Manage your campus access and view upcoming schedules.</p>
     </div>
     <div class="current-date">
-        {% now "l, F j, Y" %}
+        {{ today|date:"l, F j, Y" }}
     </div>
 </div>
 
