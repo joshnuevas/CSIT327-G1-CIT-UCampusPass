@@ -34,21 +34,34 @@
                 <input type="date" id="endDate" class="form-input">
             </div>
             
-            <select id="statusFilter" class="form-select">
-                <option value="All">All Statuses</option>
-                <option value="Upcoming">Upcoming</option>
-                <option value="Ongoing">Ongoing</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-            </select>
+            <div class="action-menu">
+                <button class="status-filter-btn" id="statusFilterToggle">
+                    <span id="statusFilterText">All Status</span>
+                    <i class="fas fa-chevron-down" style="margin-left: 8px;"></i>
+                </button>
+
+                <div class="action-dropdown" id="statusFilterDropdown">
+                    <button class="action-item" data-value="All">All Status</button>
+                    <button class="action-item" data-value="Upcoming">Upcoming</button>
+                    <button class="action-item" data-value="Active">Active</button>
+                    <button class="action-item" data-value="Completed">Completed</button>
+                    <button class="action-item" data-value="Expired">Expired</button>
+                </div>
+            </div>
 
             <div class="toolbar-divider"></div>
 
-            <div class="export-dropdown">
-                <button class="btn-export" id="exportBtn"><i class="fas fa-download"></i> Export</button>
-                <div class="dropdown-menu" id="exportMenu">
-                    <button id="exportCSV">Save as CSV</button>
-                    <button id="exportPDF">Save as PDF</button>
+            <div class="action-menu">
+                <button class="export-btn-trigger action-toggle" id="exportToggle">
+                    <i class="fas fa-file-export"></i> Export
+                </button>
+                <div class="action-dropdown" id="exportDropdown">
+                    <button id="exportCSV" class="action-item">
+                        <i class="fas fa-file-csv" style="color: #059669"></i> Export as CSV
+                    </button>
+                    <button id="exportPDF" class="action-item">
+                        <i class="fas fa-file-pdf" style="color: #dc2626"></i> Export as PDF
+                    </button>
                 </div>
             </div>
         </div>

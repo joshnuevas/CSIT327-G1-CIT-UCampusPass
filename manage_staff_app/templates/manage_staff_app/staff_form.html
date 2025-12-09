@@ -782,17 +782,7 @@ select:focus {
                 </div>
             </div>
 
-            {% if editing %}
-            <div class="is-active-container">
-                <input type="checkbox" id="id_is_active" name="is_active" {% if form.is_active.value %}checked{% endif %}>
-                <label class="switch-label" for="id_is_active">
-                    <span class="switch-slider"></span>
-                </label>
-                <span class="switch-text">
-                    {% if form.is_active.value %}Active{% else %}Inactive{% endif %}
-                </span>
-            </div>
-            {% endif %}
+
 
             <div class="form-actions-row">
                 <a href="{% url 'manage_staff_app:staff_list' %}" class="back-link">← Back to Staff List</a>

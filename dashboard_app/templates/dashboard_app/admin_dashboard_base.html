@@ -375,196 +375,134 @@
         margin-left: 3px;
       }
       
-      /* ===== MODALS ===== */
+      /* ============================
+        MODAL OVERLAY
+      ============================ */
       .modal {
-        display: none;
-        position: fixed !important;
-        z-index: 9999 !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        background-color: rgba(0, 0, 0, 0.45) !important;
-        backdrop-filter: blur(3px) !important;
-        justify-content: center;
-        align-items: center;
+          display: none;
+          position: fixed !important;
+          inset: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          z-index: 9999 !important;
+          background: rgba(0, 0, 0, 0.45) !important;
+          backdrop-filter: blur(3px) !important;
+          justify-content: center;
+          align-items: center;
       }
+
       .modal.show {
-        display: flex !important;
-      }
-      .modal-content {
-        background: linear-gradient(135deg, #fff8f5, #fff1e5) !important;
-        border-radius: 25px;
-        padding: 35px 30px;
-        width: 90%;
-        max-width: 450px;
-        text-align: center;
-        box-shadow: 0 15px 50px rgba(139, 21, 56, 0.3);
-        transform: translateY(-20px);
-        animation: slideDownModal 0.4s ease forwards;
+          display: flex !important;
       }
 
-      .modal-content h2 {
-        color: #8b1538 !important;
-        font-size: 22px !important;
-        font-weight: 700 !important;
-        margin-bottom: 30px !important;
-        letter-spacing: 0.5px !important;
-      }
-
-      .modal-buttons {
-        display: flex !important;
-        gap: 12px !important;
-        justify-content: center !important;
-        flex-wrap: wrap !important;
-      }
-
-      .btn-primary {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 10px !important;
-        padding: 14px 32px !important;
-        background: linear-gradient(135deg, #8b1538, #6b0f2a) !important;
-        color: #ffffff !important;
-        border: none !important;
-        border-radius: 50px !important;
-        font-weight: 600 !important;
-        font-size: 15px !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3) !important;
-        text-decoration: none !important;
-      }
-
-      .btn-primary:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4) !important;
-        background: linear-gradient(135deg, #6b0f2a, #8b1538) !important;
-      }
-
-      .btn-secondary {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 10px !important;
-        padding: 14px 32px !important;
-        background: #ffffff !important;
-        color: #666666 !important;
-        border: 2px solid #e0e0e0 !important;
-        border-radius: 50px !important;
-        font-weight: 600 !important;
-        font-size: 15px !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        text-decoration: none !important;
-      }
-
-      .btn-secondary:hover {
-        border-color: #8b1538 !important;
-        color: #8b1538 !important;
-        transform: translateY(-2px) !important;
-      }
-
-      @keyframes fadeInModal {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes slideDownModal {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
+      /* ============================
+        MODAL CARD
+      ============================ */
+      .modal-content,
       .logout-card {
-        background: linear-gradient(135deg, #fff8f5, #fff1e5) !important;
-        border-radius: 25px;
-        padding: 35px 30px;
-        width: 90%;
-        max-width: 450px;
-        text-align: center;
-        box-shadow: 0 15px 50px rgba(139, 21, 56, 0.3);
-        transform: translateY(-20px);
-        animation: slideDownModal 0.4s ease forwards;
+          background: linear-gradient(135deg, #fff8f5, #fff1e5) !important;
+          border-radius: 25px;
+          padding: 35px 30px;
+          width: 90%;
+          max-width: 450px;
+          text-align: center;
+          box-shadow: 0 15px 50px rgba(139,21,56,0.3);
+          transform: translateY(-20px);
+          animation: slideDownModal 0.4s ease forwards;
       }
 
-      .logout-icon-wrapper {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #8b1538, #6b0f2a);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 20px;
-        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
+
+      /* ============================
+        TITLES & TEXT
+      ============================ */
+      .logout-title,
+      .modal-content h2 {
+          color: #8B1538 !important;
+          font-size: 22px !important;
+          font-weight: 700 !important;
+          margin-bottom: 30px !important;
+          letter-spacing: 0.5px !important;
       }
 
-      .logout-icon-wrapper i {
-        font-size: 24px;
-        color: #ffffff;
+
+      /* ============================
+        BUTTON WRAPPER
+      ============================ */
+      .modal-buttons {
+          display: flex !important;
+          justify-content: center !important;
+          flex-wrap: wrap !important;
+          gap: 12px !important;
       }
 
-      .logout-title {
-        color: #8b1538 !important;
-        font-size: 22px !important;
-        font-weight: 700 !important;
-        margin-bottom: 15px !important;
-        letter-spacing: 0.5px !important;
-      }
-
-      .logout-subtitle {
-        color: #666666 !important;
-        font-size: 16px !important;
-        margin-bottom: 30px !important;
-        line-height: 1.5 !important;
-      }
-
+      /* ============================
+        SHARED BUTTON STYLES
+      ============================ */
+      .btn-primary,
+      .btn-secondary,
+      .btn-logout-confirm,
       .btn-logout-cancel {
-        background: #ffffff !important;
-        color: #666666 !important;
-        border: 2px solid #e0e0e0 !important;
-        border-radius: 50px !important;
-        font-weight: 600 !important;
-        font-size: 15px !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        text-decoration: none !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          padding: 14px 32px !important;
+          font-size: 15px !important;
+          font-weight: 600 !important;
+          border-radius: 50px !important;
+          cursor: pointer !important;
+          transition: all 0.3s ease !important;
+          text-decoration: none !important;
       }
 
+      /* ============================
+        SECONDARY BUTTON
+      ============================ */
+      .btn-secondary,
+      .btn-logout-cancel {
+          background: #fff !important;
+          color: #666 !important;
+          border: 2px solid #e0e0e0 !important;
+      }
+
+      .btn-secondary:hover,
       .btn-logout-cancel:hover {
-        border-color: #8b1538 !important;
-        color: #8b1538 !important;
-        transform: translateY(-2px) !important;
+          color: #8b1538 !important;
+          border-color: #8b1538 !important;
+          transform: translateY(-2px) !important;
       }
 
+      /* ============================
+        PRIMARY BUTTON
+      ============================ */
+      .btn-primary,
       .btn-logout-confirm {
-        background: linear-gradient(135deg, #8b1538, #6b0f2a) !important;
-        color: #ffffff !important;
-        border: none !important;
-        border-radius: 50px !important;
-        font-weight: 600 !important;
-        font-size: 15px !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3) !important;
-        text-decoration: none !important;
+          background: linear-gradient(135deg, #8b1538, #6b0f2a) !important;
+          color: #fff !important;
+          border: none !important;
+          box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3) !important;
       }
 
+      .btn-primary:hover,
       .btn-logout-confirm:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4) !important;
-        background: linear-gradient(135deg, #6b0f2a, #8b1538) !important;
+          transform: translateY(-3px) !important;
+          box-shadow: 0 6px 25px rgba(139, 21, 56, 0.4) !important;
+          background: linear-gradient(135deg, #6b0f2a, #8b1538) !important;
       }
+
+      /* ============================
+        ANIMATIONS
+      ============================ */
+      @keyframes slideDownModal {
+          from {
+              opacity: 0;
+              transform: translateY(-20px);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -665,6 +603,15 @@
           <i class="fas fa-chart-pie"></i> Reports
         </a>
 
+        <div class="nav-divider"></div>
+
+        <a href="{% url 'profile_app:admin_profile' %}" class="nav-item {% block admin_profile_active %}{% endblock %}">
+          <svg fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+          </svg>
+          Profile Settings
+        </a>
+
         <a href="#" class="nav-item logout-item" id="sidebarLogoutBtn">
           <svg fill="currentColor" viewBox="0 0 20 20">
             <path
@@ -727,22 +674,28 @@
 
     <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
-      <div class="modal-content logout-card">
-        <div class="logout-icon-wrapper">
-          <i class="fas fa-sign-out-alt"></i>
-        </div>
+        <div class="modal-content logout-card">
+            <div class="logout-icon-wrapper">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
 
-        <h2 class="logout-title">Are you sure you want to logout?</h2>
-        <div class="modal-buttons">
-          <button id="cancelLogout" class="btn-secondary btn-logout-cancel">
-            Cancel
-          </button>
-          <button id="confirmLogout" class="btn-primary btn-logout-confirm">
-            Logout
-          </button>
+            <h2 class="logout-title">Signing Out?</h2>
+            <p class="logout-subtitle">
+                You will need to sign in again to access your administrator dashboard.
+            </p>
+
+            <div class="modal-buttons">
+                <button id="cancelLogout" class="btn-secondary btn-logout-cancel">
+                    Cancel
+                </button>
+                <button id="confirmLogout" class="btn-primary btn-logout-confirm">
+                    Yes, Logout
+                </button>
+            </div>
         </div>
-      </div>
     </div>
+
+
 
     <script>
       // Init navbar preference
@@ -875,30 +828,31 @@
       });
 
       // ===== Logout Modal =====
-      const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
-      const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
-      const logoutModal = document.getElementById("logoutModal");
-      const confirmLogout = document.getElementById("confirmLogout");
-      const cancelLogout = document.getElementById("cancelLogout");
+    const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
+    const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
+    const logoutModal = document.getElementById("logoutModal");
+    const confirmLogout = document.getElementById("confirmLogout");
+    const cancelLogout = document.getElementById("cancelLogout");
 
-      if (sidebarLogoutBtn)
-        sidebarLogoutBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          openModal("logoutModal");
+    if (sidebarLogoutBtn)
+        sidebarLogoutBtn.addEventListener("click", e => { 
+            e.preventDefault(); 
+            openModal("logoutModal"); 
         });
-      if (dropdownLogoutBtn)
-        dropdownLogoutBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          profileDropdown.classList.remove("active");
-          openModal("logoutModal");
+
+    if (dropdownLogoutBtn)
+        dropdownLogoutBtn.addEventListener("click", e => { 
+            e.preventDefault(); 
+            profileDropdown.classList.remove("active"); 
+            openModal("logoutModal"); 
         });
-      if (confirmLogout)
-        confirmLogout.addEventListener(
-          "click",
-          () => (window.location.href = "{% url 'login_app:logout' %}")
-        );
-      if (cancelLogout)
+
+    if (confirmLogout)
+        confirmLogout.addEventListener("click", () => window.location.href="{% url 'login_app:logout' %}");
+
+    if (cancelLogout)
         cancelLogout.addEventListener("click", () => closeModal("logoutModal"));
+
     </script>
 
     <script src="{% static 'dashboard_app/js/admin_dashboard.js' %}"></script>

@@ -124,53 +124,68 @@
     cursor: pointer;
 }
 
-/* Export Button */
-.btn-export {
-    background: #8b1538;
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
+/* Status filter custom dropdown (match system logs roles filter styling) */
+.status-filter-btn {
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    font-size: 14px;
+    color: #2c2c2c;
+    width: 150px;
+    outline: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    text-align: left;
+    position: relative;
 }
+.status-filter-btn i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; }
 
-.btn-export:hover {
-    background: #6b0f2a;
-}
-
-.export-dropdown { position: relative; }
-.dropdown-menu {
+.action-menu { position: relative; display: inline-block; }
+.action-dropdown {
+    display: none;
     position: absolute;
-    right: 0;
-    top: 120%;
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    border-radius: 10px;
+    z-index: 3000;
     min-width: 160px;
-    padding: 5px;
-    display: none;
-    z-index: 1500;
+    padding: 6px;
+    animation: scaleIn 0.15s ease forwards;
 }
-.export-dropdown.show .dropdown-menu { display: block; }
-.dropdown-menu button {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 10px;
-    border: none;
-    background: transparent;
+.action-dropdown.active { display: block; }
+.action-item {
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px;
+    border: none; background: none; text-align: left; cursor: pointer;
+    color: #2c2c2c; font-size: 13px; border-radius: 6px;
+}
+.action-item:hover { background: #fff1f2; color: #8b1538; }
+
+
+/* Export Button - Match logs styling */
+.export-btn-trigger {
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid #8b1538;
+    background: #8b1538;
+    font-size: 14px;
+    color: #ffffff;
+    outline: none;
     cursor: pointer;
-    font-size: 0.85rem;
-    border-radius: 4px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
 }
-.dropdown-menu button:hover { background: #f8fafc; color: #8b1538; }
+
+.export-btn-trigger:hover {
+    background-color: #6b0f2a;
+    border-color: #8b1538;
+}
 
 /* ===== Grid Layouts ===== */
 .kpi-grid {

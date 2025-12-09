@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}Admin Profile - CIT-U Campus Pass{% endblock %}
+{% block admin_profile_active %}active{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'profile_app/css/admin_profile.css' %}?v={{ now|date:'U' }}">

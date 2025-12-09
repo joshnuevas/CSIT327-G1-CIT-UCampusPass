@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (totalElem) totalElem.textContent = data.length.toLocaleString();
 
         const ongoingElem = document.getElementById('ongoingVisits');
-        if (ongoingElem) ongoingElem.textContent = data.filter(v => v.status === 'Ongoing').length;
+        if (ongoingElem) ongoingElem.textContent = data.filter(v => v.status === 'Active').length;
         
         // Busiest Day Logic
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -322,16 +322,54 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. EVENT LISTENERS & EXPORT
     // ============================================
 
-    // Toggle Dropdown
-    const exportBtn = document.getElementById('exportBtn');
-    const dropdown = document.querySelector('.export-dropdown');
+    // Toggle Dropdown - Match logs export dropdown pattern
+    const exportToggle = document.getElementById('exportToggle');
+    const exportDropdown = document.getElementById('exportDropdown');
 
-    if (exportBtn && dropdown) {
-        exportBtn.addEventListener('click', (e) => {
+    if (exportToggle && exportDropdown) {
+        // Move export dropdown to body to prevent clipping by containers
+        if (!exportDropdown.__movedToBody) {
+            document.body.appendChild(exportDropdown);
+            exportDropdown.style.position = 'fixed';
+            exportDropdown.style.zIndex = 30000;
+            exportDropdown.__movedToBody = true;
+        }
+
+        exportToggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            dropdown.classList.toggle('show');
+            const isActive = exportDropdown.classList.contains('active');
+
+            // Close others
+            document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
+
+            if (!isActive) {
+                exportDropdown.classList.add('active');
+
+                // Position as fixed element using viewport coordinates
+                const rect = exportToggle.getBoundingClientRect();
+
+                // Temporarily move offscreen to measure size
+                exportDropdown.style.left = '-9999px';
+                exportDropdown.style.top = '-9999px';
+                const dropRect = exportDropdown.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+
+                // Default: below button, align right
+                let top = rect.bottom + 5;
+                let left = rect.right - dropRect.width;
+
+                // If not enough space below, place above
+                if (viewportHeight - rect.bottom < dropRect.height + 10) {
+                    top = rect.top - dropRect.height - 5;
+                }
+
+                // Clamp horizontally
+                left = Math.max(6, Math.min(left, window.innerWidth - dropRect.width - 6));
+
+                exportDropdown.style.top = `${Math.round(top)}px`;
+                exportDropdown.style.left = `${Math.round(left)}px`;
+            }
         });
-        document.addEventListener('click', () => dropdown.classList.remove('show'));
     }
 
     // Preset Buttons Logic
@@ -377,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Manual Inputs
-    ['startDate', 'endDate', 'statusFilter'].forEach(id => {
+    ['startDate', 'endDate'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('change', (e) => {
@@ -388,6 +426,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateDashboard();
             });
         }
+    });
+
+    // Custom Status Dropdown (replaces native select)
+    const statusToggle = document.getElementById('statusFilterToggle');
+    const statusDropdown = document.getElementById('statusFilterDropdown');
+    const statusText = document.getElementById('statusFilterText');
+
+    if (statusToggle && statusDropdown) {
+        statusToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = statusDropdown.classList.contains('active');
+            // Close others
+            document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
+            if (!isActive) {
+                statusDropdown.classList.add('active');
+                // position below toggle (absolute inside .action-menu)
+                statusDropdown.style.top = (statusToggle.offsetHeight + 6) + 'px';
+                statusDropdown.style.left = '0px';
+            }
+        });
+
+        statusDropdown.querySelectorAll('.action-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const value = item.dataset.value;
+                state.status = value;
+                statusText.textContent = item.textContent;
+                updateDashboard();
+                statusDropdown.classList.remove('active');
+            });
+        });
+    }
+
+    // Close custom dropdowns on outside click
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
+    });
+
+    // Close dropdowns on scroll and resize
+    window.addEventListener('scroll', () => {
+        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
+    }, true);
+    window.addEventListener('resize', () => {
+        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
     });
 
     // Export PDF

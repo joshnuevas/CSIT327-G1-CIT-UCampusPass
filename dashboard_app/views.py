@@ -288,7 +288,7 @@ def admin_dashboard_view(request):
         "total_admins": admins_count,
         "total_staff": staff_count,
         "total_visitors": visitors_count,
-        "recent_activities": logs[:5],
+        "recent_activities": logs[:10],
         "notifications": notifications[:5],
     }
 
@@ -303,28 +303,26 @@ def admin_notifications_api(request):
     current_admin = request.session["admin_username"]
 
     try:
-        # fetch logs
-        logs = SystemLog.objects.all().order_by('-created_at')[:50]
-
-        # fetch dismissed log_ids for this admin
-        dismissed_ids = set(AdminDismissedNotification.objects.filter(
-            admin_username=current_admin
-        ).values_list('log_id', flat=True))
-
+        # Use the same list_logs function as the initial page load for consistency
+        all_logs = list_logs(limit=50)
+        
+        # Convert to dict format for easier processing
+        logs_data = all_logs
+        
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
     notifications = []
-    for log in logs:
-        log_id = log.log_id
-        if log_id in dismissed_ids:
-            continue  # skip logs this admin already dismissed
+    for log_data in logs_data:
+        actor = log_data.get('actor') or ""
+        action_type = (log_data.get('action_type') or "").strip()
+        description = (log_data.get('description') or "").lower()
+        log_id = log_data.get('log_id')
+        actor_role = log_data.get('actor_role', "")
 
-        actor = log.actor or ""
-        action_type = (log.action_type or "").strip()
-        description = (log.description or "").lower()
-
-        if log.actor_role == "Admin" and current_admin not in actor:
+        # Only show notifications from *other* admins
+        if actor_role == "Admin" and current_admin not in actor:
+            # Staff-related (create/edit/deactivate/password reset)
             if (
                 action_type in ["Staff Management", "Security"]
                 or any(keyword in description for keyword in ["staff", "password"])
@@ -332,9 +330,10 @@ def admin_notifications_api(request):
                 notifications.append({
                     "id": log_id,
                     "title": "Staff Update",
-                    "message": f"{actor} {log.description}",
-                    "time": format_ph_time(log.created_at),
+                    "message": f"{actor} {log_data.get('description')}",
+                    "time": log_data.get('created_at'),
                 })
+            # Visitor-related (add/remove/edit)
             elif (
                 action_type in ["Account", "Visitor Management"]
                 or "visitor" in description
@@ -342,71 +341,29 @@ def admin_notifications_api(request):
                 notifications.append({
                     "id": log_id,
                     "title": "Visitor Update",
-                    "message": f"{actor} {log.description}",
-                    "time": format_ph_time(log.created_at),
+                    "message": f"{actor} {log_data.get('description')}",
+                    "time": log_data.get('created_at'),
                 })
 
-    return JsonResponse({"notifications": notifications[:10]})
+    return JsonResponse({"notifications": notifications[:5]})
 
 
-# ========== RECENT ACTIVITIES API ==========
 def admin_recent_activities_api(request):
     if "admin_username" not in request.session:
         return JsonResponse({"error": "Unauthorized"}, status=403)
 
     try:
-        # Fetch recent logs by ID (most recent first)
-        logs = SystemLog.objects.all().order_by('-log_id')[:5]
-
-        # Hydrate actor names for display
-        admin_users = set()
-        staff_users = set()
-        visitor_emails = set()
-
-        for log in logs:
-            identifier = _extract_identifier(log.actor)
-            if log.actor_role == 'Admin':
-                admin_users.add(identifier)
-            elif log.actor_role == 'Staff':
-                staff_users.add(identifier)
-            elif log.actor_role == 'Visitor':
-                visitor_emails.add(identifier)
-
-        # Bulk fetch actor real names
-        admin_map = {
-            a['username']: f"{a['first_name']} {a['last_name']}".strip()
-            for a in Administrator.objects.filter(username__in=admin_users).values('username', 'first_name', 'last_name')
-        }
-
-        staff_map = {
-            s['username']: f"{s['first_name']} {s['last_name']}".strip()
-            for s in FrontDeskStaff.objects.filter(username__in=staff_users).values('username', 'first_name', 'last_name')
-        }
-
-        visitor_map = {
-            v['email']: f"{v['first_name']} {v['last_name']}".strip()
-            for v in User.objects.filter(email__in=visitor_emails).values('email', 'first_name', 'last_name')
-        }
-
-        # Format logs for JSON response
+        # Use the same list_logs function as the initial page load for consistency
+        all_logs = list_logs(limit=50)
+        
+        # Format logs for JSON response - take first 10 to match dashboard view
         activities = []
-        for log in logs:
-            identifier = _extract_identifier(log.actor)
-            display_name = log.actor  # Default fallback
-
-            # Get proper display name
-            if log.actor_role == 'Admin':
-                display_name = admin_map.get(identifier, log.actor.split(' (')[0])
-            elif log.actor_role == 'Staff':
-                display_name = staff_map.get(identifier, log.actor.split(' (')[0])
-            elif log.actor_role == 'Visitor':
-                display_name = visitor_map.get(identifier, log.actor.split(' (')[0])
-
+        for log_data in all_logs[:10]:
             activities.append({
-                'action_type': log.action_type,
-                'description': log.description,
-                'actor': display_name,
-                'log_id': log.log_id
+                'action_type': log_data.get('action_type'),
+                'description': log_data.get('description'),
+                'actor': log_data.get('actor'),
+                'log_id': log_data.get('log_id')
             })
 
         return JsonResponse({"activities": activities})
