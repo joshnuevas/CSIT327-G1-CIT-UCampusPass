@@ -170,11 +170,7 @@ def book_visit_view(request):
     if request.method == "POST":
         try:
             # ----- Read form data (respecting 'Other' fields) -----
-            raw_department = (
-                request.POST.get("department_other")
-                or request.POST.get("department")
-                or ""
-            ).strip()
+            raw_department = (request.POST.get("department") or "").strip()
 
             raw_purpose = (
                 request.POST.get("purpose_other")

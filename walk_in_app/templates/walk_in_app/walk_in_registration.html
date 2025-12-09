@@ -1248,6 +1248,9 @@ function updatePurposeOptions() {
         purposeSelect.style.display = 'block';
         purposeSelect.required = true;
 
+        // Reset
+        purposeSelect.innerHTML = '';
+
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = 'Select Purpose';
@@ -1255,6 +1258,13 @@ function updatePurposeOptions() {
         defaultOption.disabled = true;
         purposeSelect.appendChild(defaultOption);
 
+        // ⭐ New purpose: General Inquiry
+        const generalOption = document.createElement('option');
+        generalOption.value = 'General Inquiry';
+        generalOption.textContent = 'General Inquiry';
+        purposeSelect.appendChild(generalOption);
+
+        // Existing option: Other
         const otherOption = document.createElement('option');
         otherOption.value = 'Other';
         otherOption.textContent = 'Other';
@@ -1262,6 +1272,7 @@ function updatePurposeOptions() {
 
         return;
     }
+
 
     // If the department has predefined purposes
     if (selectedDepartment && purposeOptions[selectedDepartment]) {

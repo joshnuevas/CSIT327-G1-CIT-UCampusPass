@@ -42,7 +42,7 @@
                 <div class="form-group">
                     <label for="department" class="required-label">Target Department / Office</label>
                     <div class="select-wrapper">
-                        <select name="department" id="department" onchange="updatePurposeOptions(); toggleOther('department')" required>
+                        <select name="department" id="department" onchange="updatePurposeOptions()" required>
                             <option value="" selected disabled>Select Department</option>
                             <option value="Alumni Affairs Office (AAO)">Alumni Affairs Office (AAO)</option>
                             <option value="Basic Education Department (BED)">Basic Education Department (BED)</option>
@@ -91,7 +91,6 @@
                             <option value="Other">Other</option>
                         </select>
                     </div>
-                    <input type="text" name="department_other" id="department_other" placeholder="Please specify department name" class="input-modern" style="display:none; margin-top: 10px;">
                 </div>
 
                 <div class="form-group">
@@ -227,7 +226,7 @@ function updatePurposeOptions() {
     // Clear existing options
     purposeSelect.innerHTML = '';
 
-    // If department is "Other", just give a simple dropdown with "Other"
+    // If department is "Other", give General Inquiry + Other
     if (selectedDepartment === 'Other') {
         purposeSelect.style.display = 'block';
         purposeSelect.required = true;
@@ -238,6 +237,11 @@ function updatePurposeOptions() {
         defaultOption.selected = true;
         defaultOption.disabled = true;
         purposeSelect.appendChild(defaultOption);
+
+        const generalOption = document.createElement('option');
+        generalOption.value = 'General Inquiry';
+        generalOption.textContent = 'General Inquiry';
+        purposeSelect.appendChild(generalOption);
 
         const otherOption = document.createElement('option');
         otherOption.value = 'Other';
@@ -276,25 +280,6 @@ function updatePurposeOptions() {
         defaultOption.selected = true;
         defaultOption.disabled = true;
         purposeSelect.appendChild(defaultOption);
-    }
-}
-
-function toggleOther(field) {
-    // We only use this for department now
-    if (field !== 'department') return;
-
-    const selectEl = document.getElementById(field);
-    const otherInput = document.getElementById(field + '_other');
-
-    if (!selectEl || !otherInput) return;
-
-    if (selectEl.value === 'Other') {
-        otherInput.style.display = 'block';
-        otherInput.required = true;
-    } else {
-        otherInput.style.display = 'none';
-        otherInput.required = false;
-        otherInput.value = '';
     }
 }
 
