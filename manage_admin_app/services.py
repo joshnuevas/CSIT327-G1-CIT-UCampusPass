@@ -69,21 +69,33 @@ def create_admin(data: dict):
 def update_admin(username: str, updates: dict):
     try:
         admin = Administrator.objects.get(username=username)
-        allowed_fields = ["first_name", "last_name", "email", "contact_number",
-                         "password", "is_temp_password", "is_active"]
+
+        allowed_fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "contact_number",
+            "password",
+            "is_temp_password",
+            "is_active",
+            "is_superadmin"   # ← FIXED
+        ]
+
         clean_updates = {k: v for k, v in updates.items() if k in allowed_fields}
         
         for key, value in clean_updates.items():
             setattr(admin, key, value)
+
         admin.save()
         
-        # Return the updated admin data
         return get_admin_by_username(username)
+
     except Administrator.DoesNotExist:
         return type('obj', (object,), {'data': []})()
     except Exception as e:
         print(f"Error updating admin: {e}")
         return type('obj', (object,), {'data': []})()
+
 
 def deactivate_admin(username: str):
     try:
@@ -120,4 +132,15 @@ def reset_admin_password(username: str, temp_password: str):
         return type('obj', (object,), {'data': []})()
     except Exception as e:
         print(f"Error resetting admin password: {e}")
+        return type('obj', (object,), {'data': []})()
+
+def delete_admin(username: str):
+    try:
+        admin = Administrator.objects.get(username=username)
+        admin.delete()
+        return type('obj', (object,), {'data': []})()  # Return empty data on success
+    except Administrator.DoesNotExist:
+        return type('obj', (object,), {'data': []})()
+    except Exception as e:
+        print(f"Error deleting admin: {e}")
         return type('obj', (object,), {'data': []})()
