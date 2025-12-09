@@ -84,6 +84,8 @@ def staff_edit_view(request, username):
         form = StaffEditForm(request.POST)
         if form.is_valid():
             updates = form.cleaned_data
+            # Preserve the current is_active state (don't allow changes via this form)
+            updates["is_active"] = staff.get("is_active", True)
             resp = services.update_staff(username, updates)
             if getattr(resp, "status_code", None) == 200 or getattr(resp, "data", None):
                 messages.success(request, f"Staff '{username}' updated successfully.")
@@ -105,8 +107,7 @@ def staff_edit_view(request, username):
             "first_name": staff.get("first_name"),
             "last_name": staff.get("last_name"),
             "email": staff.get("email"),
-            "contact_number": staff.get("contact_number"),
-            "is_active": staff.get("is_active", True)
+            "contact_number": staff.get("contact_number")
         }
         form = StaffEditForm(initial=initial)
 
@@ -166,5 +167,39 @@ def staff_reset_password_view(request, username):
 
     else:
         messages.error(request, f"Failed to reset password for '{username}'.")
+
+    return redirect("manage_staff_app:staff_list")
+
+
+@admin_required
+def staff_delete_view(request, username):
+    get_resp = services.get_staff_by_username(username)
+    staff_data = getattr(get_resp, "data", [])
+    if not staff_data:
+        messages.error(request, "Staff not found.")
+        return redirect("manage_staff_app:staff_list")
+
+    # Prevent self-deletion by the currently logged-in admin
+    if username == request.session.get('admin_username'):
+        messages.error(request, "You cannot delete your own account.")
+        return redirect("manage_staff_app:staff_list")
+
+    resp = services.delete_staff(username)
+
+    success = getattr(resp, "status_code", None) in (200, 201) or bool(getattr(resp, "data", None))
+
+    if success:
+        messages.success(request, f"Staff '{username}' has been deleted.")
+
+        # Log deletion
+        actor = f"{request.session.get('admin_first_name', 'Unknown')} ({request.session.get('admin_username', '-')})"
+        logs_services.create_log(
+            actor,
+            "Staff Management",
+            f"Deleted staff account '{username}'.",
+            actor_role="Admin"
+        )
+    else:
+        messages.error(request, f"Failed to delete staff '{username}'.")
 
     return redirect("manage_staff_app:staff_list")

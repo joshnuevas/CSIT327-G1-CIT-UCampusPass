@@ -117,6 +117,7 @@
             </tbody>
         </table>
     </div>
+            <div id="pagination" class="pagination-wrapper"></div>
 </div>
 
 <div id="confirmModal" class="modal">
@@ -221,23 +222,61 @@
     document.getElementById('confirmYes').addEventListener('click', () => window.location.href = targetUrl);
     window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
 
-    // ===== REAL-TIME SEARCH & FILTER =====
+    // ===== REAL-TIME SEARCH, FILTER & PAGINATION =====
     const searchInput = document.getElementById('search-input');
     const filterBtn = document.getElementById('visitor-type-filter-btn');
     const filterText = document.getElementById('filter-text');
     const filterDropdown = document.getElementById('filter-dropdown');
     const tbody = document.querySelector('tbody');
-    const rows = tbody.querySelectorAll('tr:not(.no-matches):not(.empty-row)');
+    const allRows = Array.from(tbody.querySelectorAll('tr:not(.no-matches):not(.empty-row)'));
     const noMatchesRow = tbody.querySelector('.no-matches');
     const emptyRow = tbody.querySelector('.empty-row');
+    const paginationContainer = document.getElementById('pagination');
 
     let currentFilterValue = 'all';
+    let page = 1;
+    const perPage = 10;
+
+    function renderPagination(totalItems) {
+        paginationContainer.innerHTML = '';
+        const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
+        const startEntry = totalItems === 0 ? 0 : (page - 1) * perPage + 1;
+        const endEntry = Math.min(page * perPage, totalItems);
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'pagination-info';
+        infoDiv.textContent = `Showing ${startEntry} - ${endEntry} of ${totalItems} entries`;
+
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'pagination-controls';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'page-btn';
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.disabled = page === 1;
+        prevBtn.onclick = () => { if (page > 1) { page--; applyFilters(); } };
+
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'page-input-container';
+        const lblPage = document.createElement('span'); lblPage.textContent = 'Page';
+        const input = document.createElement('input'); input.type = 'number'; input.className = 'page-input'; input.value = page; input.min = 1; input.max = totalPages;
+        input.onchange = (e) => { let val = parseInt(e.target.value); if (val >= 1 && val <= totalPages) { page = val; applyFilters(); } else { e.target.value = page; } };
+        const lblTotal = document.createElement('span'); lblTotal.textContent = `of ${totalPages}`;
+        inputContainer.appendChild(lblPage); inputContainer.appendChild(input); inputContainer.appendChild(lblTotal);
+
+        const nextBtn = document.createElement('button'); nextBtn.className = 'page-btn'; nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.disabled = page === totalPages;
+        nextBtn.onclick = () => { if (page < totalPages) { page++; applyFilters(); } };
+
+        controlsDiv.appendChild(prevBtn); controlsDiv.appendChild(inputContainer); controlsDiv.appendChild(nextBtn);
+        paginationContainer.appendChild(infoDiv); paginationContainer.appendChild(controlsDiv);
+    }
 
     function applyFilters() {
         const query = searchInput.value.toLowerCase().trim();
-        let hasVisible = false;
+        const matched = [];
 
-        rows.forEach(row => {
+        allRows.forEach(row => {
             const text = row.textContent.toLowerCase();
             const visitorTypeCell = row.querySelector('td:nth-child(5)');
             const visitorType = visitorTypeCell ? visitorTypeCell.textContent.toLowerCase().trim() : '';
@@ -249,19 +288,33 @@
                                 visitorType.includes(currentFilterValue);
 
             const visible = matchesSearch && matchesFilter;
-            row.style.display = visible ? '' : 'none';
-            if (visible) hasVisible = true;
+            if (visible) matched.push(row);
+            // hide all initially
+            row.style.display = 'none';
         });
 
-        if ((query || currentFilterValue !== 'all') && !hasVisible) {
+        const total = matched.length;
+        if ((query || currentFilterValue !== 'all') && total === 0) {
             noMatchesRow.style.display = '';
             if (emptyRow) emptyRow.style.display = 'none';
+            paginationContainer.innerHTML = '';
+            return;
         } else {
             noMatchesRow.style.display = 'none';
-            if (emptyRow && rows.length === 0) {
-                emptyRow.style.display = '';
-            }
+            if (emptyRow && allRows.length === 0) emptyRow.style.display = '';
         }
+
+        // clamp page
+        const totalPages = Math.max(1, Math.ceil(total / perPage));
+        if (page > totalPages) page = totalPages;
+
+        const start = (page - 1) * perPage;
+        const end = start + perPage;
+        matched.forEach((row, idx) => {
+            row.style.display = (idx >= start && idx < end) ? '' : 'none';
+        });
+
+        renderPagination(total);
     }
 
     // === FIX FOR FILTER DROPDOWN: REMOVED COMPLEX POSITIONING ===
@@ -298,6 +351,7 @@
             filterDropdown.classList.remove('show');
             filterBtn.classList.remove('active');
 
+            page = 1; // reset to first page when filter changes
             applyFilters();
         });
     });
@@ -311,7 +365,10 @@
         }
     });
 
-    searchInput.addEventListener('input', applyFilters);
+    searchInput.addEventListener('input', () => { page = 1; applyFilters(); });
+
+    // Initial render
+    applyFilters();
 })();
 </script>
 {% endblock %}

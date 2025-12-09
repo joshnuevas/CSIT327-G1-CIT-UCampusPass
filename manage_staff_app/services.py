@@ -86,3 +86,14 @@ def deactivate_staff(username):
     except Exception as e:
         print(f"Error deactivating staff: {e}")
         return type('obj', (object,), {'data': [], 'status_code': 500})()
+
+def delete_staff(username):
+    try:
+        staff_member = FrontDeskStaff.objects.get(username=username)
+        staff_member.delete()
+        return type('obj', (object,), {'data': [{'deleted': True}], 'status_code': 200})()
+    except FrontDeskStaff.DoesNotExist:
+        return type('obj', (object,), {'data': [], 'status_code': 404})()
+    except Exception as e:
+        print(f"Error deleting staff: {e}")
+        return type('obj', (object,), {'data': [], 'status_code': 500})()

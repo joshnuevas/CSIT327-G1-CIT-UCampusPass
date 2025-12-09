@@ -121,6 +121,19 @@ def admin_edit_view(request, username):
         form = AdminEditForm(request.POST)
         if form.is_valid():
             updates = form.cleaned_data
+
+            # Preserve is_active if the edit form did not include the field in POST
+            # (some templates render a simplified edit form and omit the checkbox)
+            if 'is_active' not in request.POST:
+                raw_val = admin.get('is_active')
+                if raw_val is None:
+                    current_active = True
+                elif isinstance(raw_val, bool):
+                    current_active = raw_val
+                else:
+                    current_active = str(raw_val).lower() in ('true', '1', 't')
+                updates['is_active'] = current_active
+
             resp = services.update_admin(username, updates)
             success = is_success(resp)
 

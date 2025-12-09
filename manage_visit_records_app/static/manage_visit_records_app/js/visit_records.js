@@ -225,6 +225,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusText = document.getElementById('statusFilterText');
 
     if (statusToggle && statusDropdown) {
+        // Ensure dropdown is appended to body to avoid being clipped by overflowed containers
+        if (!statusDropdown.__movedToBody) {
+            document.body.appendChild(statusDropdown);
+            statusDropdown.style.position = 'fixed';
+            statusDropdown.style.zIndex = 30000;
+            statusDropdown.__movedToBody = true;
+        }
+
         statusToggle.addEventListener('click', (e) => {
             e.stopPropagation();
             const isActive = statusDropdown.classList.contains('active');
@@ -235,22 +243,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isActive) {
                 statusDropdown.classList.add('active');
 
-                // Position logic (absolute relative to .action-menu)
+                // Position as a fixed element using viewport coordinates
                 const rect = statusToggle.getBoundingClientRect();
+
+                // Temporarily move offscreen to measure size accurately
+                statusDropdown.style.left = '-9999px';
+                statusDropdown.style.top = '-9999px';
                 const dropRect = statusDropdown.getBoundingClientRect();
                 const viewportHeight = window.innerHeight;
 
-                // Default: Below button, aligned right
-                let top = rect.height + 5;
-                let left = rect.width - dropRect.width;
+                // Default: place below button, align right edge of dropdown with button's right edge
+                let top = rect.bottom + 5;
+                let left = rect.right - dropRect.width;
 
-                // Check if enough space below
+                // If not enough space below, place above
                 if (viewportHeight - rect.bottom < dropRect.height + 10) {
-                    top = -dropRect.height - 5; // Above
+                    top = rect.top - dropRect.height - 5;
                 }
 
-                statusDropdown.style.top = `${top}px`;
-                statusDropdown.style.left = `${left}px`;
+                // Clamp within viewport horizontally
+                left = Math.max(6, Math.min(left, window.innerWidth - dropRect.width - 6));
+
+                statusDropdown.style.top = `${Math.round(top)}px`;
+                statusDropdown.style.left = `${Math.round(left)}px`;
             }
         });
 
@@ -278,6 +293,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropdown = document.getElementById('exportDropdown');
 
     if (toggle && dropdown) {
+        // Ensure export dropdown is appended to body to avoid clipping
+        if (!dropdown.__movedToBody) {
+            document.body.appendChild(dropdown);
+            dropdown.style.position = 'fixed';
+            dropdown.style.zIndex = 30000;
+            dropdown.__movedToBody = true;
+        }
+
         toggle.addEventListener('click', (e) => {
             e.stopPropagation();
             const isActive = dropdown.classList.contains('active');
@@ -288,22 +311,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isActive) {
                 dropdown.classList.add('active');
 
-                // Position logic (absolute relative to .action-menu)
                 const rect = toggle.getBoundingClientRect();
+
+                // Temporarily offscreen to measure
+                dropdown.style.left = '-9999px';
+                dropdown.style.top = '-9999px';
                 const dropRect = dropdown.getBoundingClientRect();
                 const viewportHeight = window.innerHeight;
 
-                // Default: Below button, aligned right
-                let top = rect.height + 5;
-                let left = rect.width - dropRect.width;
-
-                // Check if enough space below
+                let top = rect.bottom + 5;
+                let left = rect.right - dropRect.width;
                 if (viewportHeight - rect.bottom < dropRect.height + 10) {
-                    top = -dropRect.height - 5; // Above
+                    top = rect.top - dropRect.height - 5;
                 }
+                left = Math.max(6, Math.min(left, window.innerWidth - dropRect.width - 6));
 
-                dropdown.style.top = `${top}px`;
-                dropdown.style.left = `${left}px`;
+                dropdown.style.top = `${Math.round(top)}px`;
+                dropdown.style.left = `${Math.round(left)}px`;
             }
         });
     }
