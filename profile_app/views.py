@@ -124,7 +124,7 @@ def profile_view(request):
             if not user.check_password(password):
                 messages.error(request, "Password incorrect. Cannot delete account.")
                 return redirect('profile_app:profile')
-            
+
             user.delete()
             request.session.flush()
             messages.success(request, "Account deleted permanently.")
@@ -157,17 +157,17 @@ def admin_profile_view(request):
         if action == "update_info":
             first_name = request.POST["first_name"]
             last_name = request.POST["last_name"]
-            email = request.POST["email"]
+            contact_number = request.POST["contact_number"]
 
             # Capture old values for logging
             old_first = admin.first_name
             old_last = admin.last_name
-            old_email = getattr(admin, 'email', '')
+            old_contact = getattr(admin, 'contact_number', '')
 
             # Update using Django ORM
             admin.first_name = first_name
             admin.last_name = last_name
-            admin.email = email
+            admin.contact_number = contact_number
             admin.save()
 
             # Update session for header initials
@@ -178,37 +178,29 @@ def admin_profile_view(request):
             description = (
                 f"Updated profile: first_name '{old_first}' → '{first_name}', "
                 f"last_name '{old_last}' → '{last_name}', "
-                f"email '{old_email}' → '{email}'"
+                f"contact_number '{old_contact}' → '{contact_number}'"
             )
             logs_services.create_log(actor, "Account", description, actor_role="Admin")
 
             messages.success(request, "Profile updated successfully!")
             return redirect("profile_app:admin_profile")
 
-        # ----- Change Password -----
-        elif action == "change_password":
-            current_password = request.POST.get("current_password")
-            new_password = request.POST.get("new_password")
-            confirm_password = request.POST.get("confirm_password")
-
-            if not admin.check_password(current_password):
-                messages.error(request, "Current password is incorrect.")
+        # ----- Delete Account -----
+        elif action == "delete_account":
+            password = request.POST.get("delete_password")
+            if not admin.check_password(password):
+                messages.error(request, "Password incorrect. Cannot delete account.")
                 return redirect("profile_app:admin_profile")
 
-            if new_password != confirm_password:
-                messages.error(request, "New passwords do not match.")
-                return redirect("profile_app:admin_profile")
+            # Log the deletion before deleting
+            actor = f"{admin.first_name} ({username})"
+            description = f"Deleted admin account: {admin.first_name} {admin.last_name} ({admin.username})"
+            logs_services.create_log(actor, "Account", description, actor_role="Admin")
 
-            # Update password using model method
-            admin.set_password(new_password)
-            admin.save()
-
-            # Log password change
-            actor = f"{request.session.get('admin_first_name', 'Unknown')} ({username})"
-            logs_services.create_log(actor, "Security", "Changed password", actor_role="Admin")
-
-            messages.success(request, "Password changed successfully!")
-            return redirect("profile_app:admin_profile")
+            admin.delete()
+            request.session.flush()
+            messages.success(request, "Account deleted permanently.")
+            return redirect("login_app:login")
 
     context = {"admin": admin}
     return render(request, "profile_app/admin_profile.html", context)
