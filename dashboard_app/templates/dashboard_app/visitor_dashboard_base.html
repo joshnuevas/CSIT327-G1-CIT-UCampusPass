@@ -29,14 +29,12 @@
         justify-content: center;
       }
 
-      /* Hide it on mobile; mobile already uses the hamburger + overlay */
       @media (max-width: 768px) {
         .nav-visibility-toggle {
           display: none;
         }
       }
 
-      /* ===== HIDE SIDEBAR (DESKTOP) ===== */
       .nav-hidden .sidebar {
         transform: translateX(-100%);
       }
@@ -58,7 +56,6 @@
         position: relative;
       }
 
-      /* ===== MOBILE SIDEBAR ===== */
       @media (max-width: 768px) {
         .sidebar {
           transform: translateX(-100%);
@@ -126,16 +123,16 @@
       .user-avatar {
         width: 42px;
         height: 42px;
-        background-color: #8B1538; /* Maroon Background */
-        color: #ffffff;            /* White Text */
-        border-radius: 50%;        /* Circle Shape */
+        background-color: #8B1538;
+        color: #ffffff;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
         font-size: 15px;
         letter-spacing: 0.5px;
-        border: 2px solid #D4AF37; /* Gold Border */
+        border: 2px solid #D4AF37;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         cursor: pointer;
         transition: transform 0.2s;
@@ -143,6 +140,45 @@
 
       .user-avatar:hover {
         transform: scale(1.05);
+      }
+
+      /* ===== NOTIFICATION ICON ===== */
+      .notification-icon {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        background-color: #ffffff;
+        color: #8b1538;
+        border-radius: 50%;
+        border: 2px solid #d4af37;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .notification-icon:hover {
+        transform: scale(1.05);
+        background-color: #f8f8f8;
+      }
+
+      .notification-icon svg {
+        width: 20px;
+        height: 20px;
+        fill: #8b1538;
+      }
+
+      .notification-badge {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #d4af37;
+        display: none;
       }
 
       /* ===== DROPDOWNS ===== */
@@ -170,17 +206,29 @@
         font-size: 15px;
         color: #8b1538;
         border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .dropdown-clear {
+        border: none;
+        background: none;
+        color: #8b1538;
+        font-size: 12px;
+        cursor: pointer;
+        padding: 0;
       }
 
       .dropdown-item {
         padding: 14px 22px;
-        font-size: 15px;
+        font-size: 14px;
         color: #333;
         cursor: pointer;
         border-bottom: 1px solid #f2f2f2;
         display: flex;
-        align-items: center;
-        gap: 10px;
+        flex-direction: column;
+        gap: 3px;
         text-decoration: none;
         position: relative;
         padding-right: 25px;
@@ -191,9 +239,19 @@
         background: #fafafa;
       }
 
-      .dropdown-item i {
-        color: #8b1538;
-        width: 20px;
+      .dropdown-item-title {
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+
+      .dropdown-item-message {
+        font-size: 13px;
+        color: #555;
+      }
+
+      .dropdown-item-time {
+        font-size: 12px;
+        color: #888;
       }
 
       .dropdown-empty {
@@ -205,7 +263,16 @@
 
       @keyframes fadeIn {
         from { opacity: 0; transform: translateY(-8px); }
-        to { opacity: 1; transform: translateY(0); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      #notifDropdown {
+        right: 80px;
+        max-height: 380px;
+        overflow-y: auto;
+        width: 320px;
+        scrollbar-width: thin;
+        scrollbar-color: #8b1538 #f5f5f5;
       }
 
       #profileDropdown {
@@ -321,7 +388,7 @@
 
       @keyframes slideDownModal {
         from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
+        to   { opacity: 1; transform: translateY(0); }
       }
     </style>
 
@@ -396,7 +463,19 @@
             <button class="nav-visibility-toggle" id="navToggle" title="Hide sidebar"><i class="fas fa-angle-double-left"></i></button>
 
             <div class="user-info">
-                <!-- NO MORE NOTIF ICON HERE -->
+                <!-- 🔔 Notification Icon Back -->
+                <div class="notification-icon" id="notifBtn">
+                    <svg width="20" height="20" viewBox="0 0 20 20">
+                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                    </svg>
+                    <span class="notification-badge"
+                          {% if notifications and notifications|length > 0 %}
+                          style="display:block"
+                          {% else %}
+                          style="display:none"
+                          {% endif %}></span>
+                </div>
+
                 <div class="user-avatar" id="profileBtn">
                     {% with first=request.session.user_first_name last=request.session.user_last_name %}
                         {% if first and last %}
@@ -416,7 +495,28 @@
         </div>
     </div>
 
-    <!-- ONLY PROFILE DROPDOWN NOW -->
+    <!-- 🔔 Notification Dropdown -->
+    <div class="dropdown" id="notifDropdown">
+        <div class="dropdown-header">
+            <span>Notifications</span>
+            <button class="dropdown-clear" id="clearNotifBtn">Clear all</button>
+        </div>
+        <div id="notifList">
+            {% if notifications and notifications|length > 0 %}
+                {% for n in notifications %}
+                    <div class="dropdown-item">
+                        <div class="dropdown-item-title">{{ n.title }}</div>
+                        <div class="dropdown-item-message">{{ n.message }}</div>
+                        <div class="dropdown-item-time">{{ n.time }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="dropdown-empty">No new notifications</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- PROFILE DROPDOWN -->
     <div class="dropdown" id="profileDropdown">
         <div class="dropdown-header">Visitor</div>
         <a href="{% url 'profile_app:profile' %}" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
@@ -499,20 +599,111 @@
             });
         }
 
-        // ===== PROFILE DROPDOWN =====
+        // ===== DROPDOWNS: NOTIF + PROFILE =====
+        const notifBtn = document.getElementById("notifBtn");
+        const notifDropdown = document.getElementById("notifDropdown");
+        const notifList = document.getElementById("notifList");
+        const notifBadge = document.querySelector(".notification-badge");
+        const clearNotifBtn = document.getElementById("clearNotifBtn");
+
         const profileBtn = document.getElementById("profileBtn");
         const profileDropdown = document.getElementById("profileDropdown");
+
+        function renderNotifications(data) {
+            if (!notifList) return;
+            notifList.innerHTML = "";
+
+            if (!data || !data.notifications || data.notifications.length === 0) {
+                const emptyDiv = document.createElement("div");
+                emptyDiv.className = "dropdown-empty";
+                emptyDiv.textContent = "No new notifications";
+                notifList.appendChild(emptyDiv);
+                if (notifBadge) notifBadge.style.display = "none";
+                return;
+            }
+
+            data.notifications.forEach(n => {
+                const item = document.createElement("div");
+                item.className = "dropdown-item";
+
+                const title = document.createElement("div");
+                title.className = "dropdown-item-title";
+                title.textContent = n.title || "Notification";
+
+                const msg = document.createElement("div");
+                msg.className = "dropdown-item-message";
+                msg.textContent = n.message || "";
+
+                const time = document.createElement("div");
+                time.className = "dropdown-item-time";
+                time.textContent = n.time || "";
+
+                item.appendChild(title);
+                item.appendChild(msg);
+                item.appendChild(time);
+                notifList.appendChild(item);
+            });
+
+            // hide badge once user has opened the dropdown
+            if (notifBadge) notifBadge.style.display = "none";
+        }
+
+        function fetchNotifications() {
+            fetch("{% url 'dashboard_app:visitor_notifications_api' %}")
+              .then(resp => resp.json())
+              .then(data => renderNotifications(data))
+              .catch(err => console.error("Error loading notifications:", err));
+        }
+
+        if (notifBtn && notifDropdown) {
+            notifBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const isOpening = !notifDropdown.classList.contains("active");
+
+                // Close profile dropdown if open
+                if (profileDropdown) profileDropdown.classList.remove("active");
+
+                notifDropdown.classList.toggle("active");
+
+                if (isOpening) {
+                    fetchNotifications();
+                }
+            });
+        }
+
+        if (clearNotifBtn) {
+            clearNotifBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                fetch("{% url 'dashboard_app:clear_visitor_notifications_api' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({})
+                }).then(resp => resp.json())
+                  .then(data => {
+                      renderNotifications({notifications: []});
+                  })
+                  .catch(err => console.error("Error clearing notifications:", err));
+            });
+        }
 
         if (profileBtn) {
             profileBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 profileDropdown.classList.toggle("active");
+                if (notifDropdown) notifDropdown.classList.remove("active");
             });
         }
 
         document.addEventListener("click", (e) => {
-            if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
+            if (notifDropdown && notifBtn && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target)) {
+                notifDropdown.classList.remove("active");
+            }
+            if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
                 profileDropdown.classList.remove("active");
+            }
         });
 
         // ===== MODAL HANDLING =====

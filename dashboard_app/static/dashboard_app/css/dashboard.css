@@ -356,12 +356,13 @@ body {
 }
 
 /* ========================================= 
-   7. 3D FLIP TICKET STYLING 
+   7. 3D FLIP TICKET STYLING (FIXED ALIGNMENT)
    ========================================= */
 .visits-list-container {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
+    padding-bottom: 20px;
 }
 
 .ticket-wrapper {
@@ -369,17 +370,15 @@ body {
     background: transparent;
     perspective: 1000px;
     cursor: pointer;
-    height: 140px;
+    height: 150px;
     margin-bottom: 10px;
     opacity: 0;
     animation: fadeUpEntrance 0.6s ease-out forwards;
 }
 
-/* Stagger animations */
-.ticket-wrapper:nth-child(1) { animation-delay: 0.5s; }
-.ticket-wrapper:nth-child(2) { animation-delay: 0.6s; }
-.ticket-wrapper:nth-child(3) { animation-delay: 0.7s; }
-.ticket-wrapper:nth-child(n+4) { animation-delay: 0.8s; }
+.ticket-wrapper:nth-child(1) { animation-delay: 0.1s; }
+.ticket-wrapper:nth-child(2) { animation-delay: 0.2s; }
+.ticket-wrapper:nth-child(3) { animation-delay: 0.3s; }
 
 .ticket-inner {
     position: relative;
@@ -389,12 +388,14 @@ body {
     transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
     transform-style: preserve-3d;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    border: 1px solid rgba(0,0,0,0.08);
 }
 
 .ticket-wrapper:hover .ticket-inner {
-    box-shadow: 0 10px 15px rgba(0,0,0,0.08);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-color: rgba(0,0,0,0.15);
 }
 
 .ticket-wrapper.flipped .ticket-inner {
@@ -410,72 +411,125 @@ body {
     border-radius: 12px;
     top: 0;
     left: 0;
+    overflow: hidden; 
 }
 
 /* --- FRONT FACE --- */
 .ticket-front {
     display: flex;
-    background: transparent;
+    background: #fff;
     z-index: 2;
 }
 
+/* STUB (Left Side) - CRITICAL FIX HERE */
 .ticket-stub {
-    width: 100px;
+    width: 110px;
     background-color: #8B1538;
-    background-image: radial-gradient(rgba(255, 255, 255, 0.15) 15%, transparent 16%);
-    background-size: 6px 6px;
     color: #fff;
-    border-radius: 12px 0 0 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 20px 10px;
+    /* 1. Stop centering vertically. Start from top. */
+    justify-content: flex-start;
+    /* 2. Add safe zone padding so nothing hits the hole punch */
+    padding-top: 40px; 
+    padding-bottom: 10px;
     position: relative;
+    background-image: linear-gradient(135deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent);
+    background-size: 10px 10px;
     border-right: 2px dashed rgba(255,255,255,0.4);
-    box-shadow: inset -3px 0 10px rgba(0,0,0,0.1);
     flex-shrink: 0;
 }
 
-.ticket-month {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
+/* Inset Dashed Frame for Stub */
+.ticket-stub::before {
+    content: '';
+    position: absolute;
+    top: 6px; bottom: 6px; left: 6px; right: -2px;
+    border: 2px dashed rgba(255,255,255,0.25);
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Hole Punch - Fixed Position */
+.hole-punch {
+    width: 14px;
+    height: 14px;
+    background: #F5F7FA;
+    border-radius: 50%;
+    position: absolute;
+    top: 12px; /* Fixed distance from top */
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 5;
+}
+
+/* TODAY Badge - Spacing adjustment */
+.today-label-badge {
+    background: #8B1538;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 4px; /* Space between badge and month */
     letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 2;
+    /* Ensure it doesn't get squashed */
+    flex-shrink: 0; 
+}
+
+/* Barcode Strip - Pushes to bottom */
+.barcode-strip {
+    width: 80%;
+    height: 12px;
+    background: #fff;
+    /* Auto margin pushes this element to the very bottom of the flex container */
+    margin-top: auto; 
+    margin-bottom: 5px;
+    opacity: 0.6;
+    background: linear-gradient(90deg, 
+        transparent 0%, #fff 5%, #fff 10%, transparent 10%, transparent 15%, 
+        #fff 15%, #fff 20%, transparent 20%, #fff 22%, #fff 35%, 
+        transparent 35%, transparent 40%, #fff 40%, #fff 50%, 
+        transparent 50%, transparent 55%, #fff 55%, #fff 70%, 
+        transparent 70%, #fff 75%, #fff 85%, transparent 85%, transparent 90%, 
+        #fff 90%, #fff 100%
+    );
+}
+
+.ticket-month {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
     opacity: 0.9;
+    margin-top: 5px; /* Small gap if no badge, or gap after badge */
+    line-height: 1.2;
 }
 
 .ticket-day {
-    font-size: 32px;
+    font-size: 34px;
     font-weight: 800;
-    line-height: 1.1;
-    margin: 4px 0;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    line-height: 1;
+    margin: 2px 0;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
 }
 
 .ticket-year {
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 500;
     opacity: 0.8;
 }
 
-.notch {
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    background-color: #F5F7FA;
-    border-radius: 50%;
-    right: -12px;
-    z-index: 10;
-    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.05);
-}
-
-.notch-top { top: -12px; }
-.notch-bottom { bottom: -12px; }
-
+/* TICKET BODY (Right Side) */
 .ticket-body {
     flex: 1;
     background: #FFFFFF;
-    border-radius: 0 12px 12px 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -483,10 +537,36 @@ body {
     position: relative;
 }
 
+.ticket-body::before {
+    content: '';
+    position: absolute;
+    top: 6px; bottom: 6px; right: 6px; left: -2px;
+    border: 2px dashed #E2E8F0;
+    border-radius: 0 8px 8px 0;
+    border-left: none;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.notch {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #F5F7FA; 
+    border-radius: 50%;
+    left: -10px;
+    z-index: 10;
+    box-shadow: inset -1px -1px 2px rgba(0,0,0,0.05);
+}
+
+.notch-top { top: -10px; }
+.notch-bottom { bottom: -10px; }
+
 .ticket-main-info {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    z-index: 1;
 }
 
 .ticket-purpose {
@@ -499,22 +579,24 @@ body {
 .ticket-meta-row {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
 .meta-item {
+    font-size: 13px;
+    color: #718096;
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 14px;
-    color: #718096;
-    font-weight: 500;
+    background: #F7FAFC;
+    padding: 4px 10px;
+    border-radius: 6px;
 }
 
 .ticket-status-badge {
-    padding: 5px 12px;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -529,8 +611,9 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    padding-left: 24px;
+    padding-left: 20px;
     border-left: 1px solid #EDF2F7;
+    z-index: 1;
 }
 
 .code-label {
@@ -546,7 +629,7 @@ body {
     font-size: 16px;
     font-weight: 700;
     color: #2D3748;
-    background: #EDF2F7;
+    background: #EDF2F7; 
     padding: 8px 14px;
     border-radius: 6px;
     border: 1px solid #E2E8F0;
@@ -575,15 +658,52 @@ body {
     transform: translateY(0);
 }
 
-/* --- BACK FACE --- */
+/* --- BACK FACE (UPGRADED) --- */
 .ticket-back {
-    background-color: #fff;
     transform: rotateX(180deg);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #E2E8F0;
-    border-left: 6px solid #8B1538;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+
+    /* Soft gradient background so it's not flat white */
+    background: radial-gradient(circle at 0% 0%, #fff5f5 0, #ffffff 45%, #edf2f7 100%);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+}
+
+/* Left “ticket spine” like a premium pass */
+.ticket-back::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 14px;
+    background: linear-gradient(180deg, #8B1538 0%, #5c0a0a 100%);
+    box-shadow: 4px 0 12px rgba(15, 23, 42, 0.2);
+}
+
+/* Inset dashed frame to mirror the front ticket body */
+.ticket-back::before {
+    content: '';
+    position: absolute;
+    inset: 10px 18px;
+    border-radius: 16px;
+    border: 2px dashed #E2E8F0;
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+/* Color tweak when TODAY + ACTIVE (green spine) */
+.ticket-wrapper.is-today[data-status="active"] .ticket-back::after {
+    background: linear-gradient(180deg, #48BB78 0%, #2F855A 100%);
+}
+
+/* Color tweak when TODAY + UPCOMING (gold spine) */
+.ticket-wrapper.is-today[data-status="upcoming"] .ticket-back::after {
+    background: linear-gradient(180deg, #D4AF37 0%, #B7791F 100%);
 }
 
 .back-content {
@@ -643,42 +763,25 @@ body {
 .btn-back-return:hover { background: #E2E8F0; }
 
 /* ========================================= 
-   8. TODAY'S TICKET HIGHLIGHT (GOLD VS GREEN LOGIC)
+   8. TODAY'S TICKET HIGHLIGHT
    ========================================= */
 
-/* --- BASE: Today Pulse Animation --- */
-.ticket-wrapper.is-today {
-    animation: fadeUpEntrance 0.6s ease-out forwards, float-pulse 3s ease-in-out infinite;
-}
-
-/* --- CASE A: Today but NOT Active (Upcoming/Warning) = GOLD --- */
-.ticket-wrapper.is-today:not([data-status="active"]) .ticket-inner {
-    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
-    border: 1px solid rgba(212, 175, 55, 0.5);
-}
-
+/* Gold Stub for Today (Non-Active) */
 .ticket-wrapper.is-today:not([data-status="active"]) .ticket-stub {
-    background: linear-gradient(135deg, #D4AF37 0%, #C5A028 100%);
-    color: #8B1538;
+    background-color: #D4AF37;
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+    color: #5c0a0a;
     border-right: 2px dashed rgba(139, 21, 56, 0.3);
 }
 
-.ticket-wrapper.is-today:not([data-status="active"]) .ticket-day {
-    text-shadow: none;
-    color: #5c0a0a;
-}
-
-.ticket-wrapper.is-today:not([data-status="active"]) .ticket-month,
-.ticket-wrapper.is-today:not([data-status="active"]) .ticket-year {
+.ticket-wrapper.is-today:not([data-status="active"]) .ticket-code {
+    border-color: #D4AF37;
     color: #8B1538;
-    opacity: 1;
 }
 
-/* --- FIXED BADGE STYLE HERE --- */
 .ticket-wrapper.is-today:not([data-status="active"]) .today-label-badge {
     background: #8B1538;
     color: #ffffff;
-    /* Added missing layout properties below: */
     font-size: 10px;
     font-weight: 800;
     padding: 3px 8px;
@@ -688,23 +791,15 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* --- CASE B: Today AND Active (Checked In/Go) = GREEN --- */
-.ticket-wrapper.is-today[data-status="active"] .ticket-inner {
-    box-shadow: 0 10px 25px rgba(72, 187, 120, 0.4); /* Green Aura */
-    border: 1px solid rgba(72, 187, 120, 0.6);       /* Green Border */
-}
-
+/* Green Stub for Active (Check-in) */
 .ticket-wrapper.is-today[data-status="active"] .ticket-stub {
-    background: linear-gradient(135deg, #48BB78 0%, #2F855A 100%); /* Green Gradient */
-    border-right: 2px dashed rgba(255, 255, 255, 0.4);
-    color: #ffffff;
+    background-color: #48BB78;
+    border-right: 2px dashed rgba(255,255,255,0.5);
 }
 
-.ticket-wrapper.is-today[data-status="active"] .ticket-day,
-.ticket-wrapper.is-today[data-status="active"] .ticket-month,
-.ticket-wrapper.is-today[data-status="active"] .ticket-year {
-    color: #ffffff;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+.ticket-wrapper.is-today[data-status="active"] .ticket-code {
+    border-color: #48BB78;
+    color: #2F855A;
 }
 
 .ticket-wrapper.is-today[data-status="active"] .today-label-badge {
@@ -1154,9 +1249,14 @@ body {
         border-right: none;
         border-bottom: 2px dashed rgba(255,255,255,0.4);
         flex-direction: row;
+        justify-content: space-between;
         gap: 10px;
-        padding: 15px;
+        padding: 15px 20px;
     }
+
+    /* Hide decoration on mobile for cleaner look */
+    .hole-punch, .barcode-strip { display: none; }
+    .ticket-month, .ticket-year { margin: 0; }
     
     .ticket-body {
         border-radius: 0 0 12px 12px;

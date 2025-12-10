@@ -80,23 +80,24 @@
                 <span><strong>Note:</strong> Tap ticket to manage</span>
             </div>
             {% endif %}
+            
             {% for visit in visits %}
                 <div class="ticket-wrapper {% if visit.visit_date == today %}is-today{% endif %}"
                     data-status="{{ visit.status|lower }}">
                     <div class="ticket-inner">
                         <div class="ticket-front">
                             <div class="ticket-stub">
+                                <div class="hole-punch"></div>
+
                                 {% if visit.visit_date == today %}
                                     <span class="today-label-badge">TODAY</span>
                                 {% endif %}
 
-                                <div class="stub-texture"></div>
                                 <span class="ticket-month">{{ visit.visit_date|date:"M"|upper }}</span>
                                 <span class="ticket-day">{{ visit.visit_date|date:"d" }}</span>
                                 <span class="ticket-year">{{ visit.visit_date|date:"Y" }}</span>
 
-                                <div class="notch notch-top"></div>
-                                <div class="notch notch-bottom"></div>
+                                <div class="barcode-strip"></div>
                             </div>
 
                             <div class="ticket-body">
@@ -134,6 +135,9 @@
                                     </svg>
                                     Tap to manage
                                 </div>
+                                
+                                <div class="notch notch-top"></div>
+                                <div class="notch notch-bottom"></div>
                             </div>
                         </div>
 
@@ -142,7 +146,7 @@
                                 <h3>Manage Visit</h3>
 
                                 {% if visit.status == "Upcoming" %}
-                                    <p>Do you want to cancel this scheduled visit?</p>
+                                    <p>Do you want to cancel scheduled visit <strong>{{ visit.code }}</strong>?</p>
                                     <div class="back-actions">
                                         <form action="{% url 'history_app:cancel_visit' %}"
                                             method="POST"
@@ -176,10 +180,9 @@
                                         </button>
                                     </div>
                                 {% endif %}
+                                <div class="notch notch-top"></div>
+                                <div class="notch notch-bottom"></div>
                             </div>
-
-                            <div class="notch notch-top" style="left: -12px; background:#F5F7FA;"></div>
-                            <div class="notch notch-bottom" style="left: -12px; background:#F5F7FA;"></div>
                         </div>
                     </div>
                 </div>
@@ -240,16 +243,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // ====== 1) CARD FLIP BEHAVIOR ======
     document.querySelectorAll('.ticket-wrapper').forEach(wrapper => {
         const status = (wrapper.dataset.status || '').toLowerCase();
-
         // Allow flipping for Upcoming + Active only
         const canFlip = (status === 'upcoming' || status === 'active');
 
         if (!canFlip) {
-            return; // don’t attach click handler for completed/expired/cancelled
+            return; 
         }
 
         wrapper.addEventListener('click', function (e) {
-            // Ignore clicks coming from buttons/forms inside the back
             if (e.target.closest('form') ||
                 e.target.closest('.btn-back-return') ||
                 e.target.closest('.cancel-visit-btn')) {
@@ -259,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Close buttons should just unflip the card
+    // Close buttons unflip
     document.querySelectorAll('.btn-back-return').forEach(btn => {
         btn.addEventListener('click', function (e) {
             e.stopPropagation();

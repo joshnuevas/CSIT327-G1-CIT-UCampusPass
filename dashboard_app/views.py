@@ -588,7 +588,18 @@ def check_code(request):
             today = now_ph.date()
             cutoff_time = dtime(21, 0)
 
-            if visit.visit_date == today:
+            # 🔒 HARD RULE: only allow staff to check codes for TODAY
+            if visit.visit_date != today:
+                scheduled_str = visit.visit_date.strftime("%b %d, %Y") if visit.visit_date else "an unknown date"
+                request.session['code_check_result'] = {
+                    "status": "error",
+                    "message": (
+                        f'Visit code "{visit_code}" is scheduled for {scheduled_str}, '
+                        f'not today. Staff can only process visit codes for today\'s date.'
+                    ),
+                }
+            else:
+                # ✅ Only for TODAY: apply your status logic
                 if now_ph.time() >= cutoff_time:
                     if visit.status == "Active":
                         if visit.end_time is None or visit.end_time < cutoff_time:
@@ -604,15 +615,21 @@ def check_code(request):
                         visit.save()
                 else:
                     if visit.start_time:
-                        visit_start = datetime.combine(visit.visit_date, visit.start_time).replace(tzinfo=PHILIPPINES_TZ)
-                        if visit.end_time:
-                            visit_end = datetime.combine(visit.visit_date, visit.end_time).replace(tzinfo=PHILIPPINES_TZ)
-                        else:
-                            visit_end = datetime.combine(visit.visit_date, datetime.max.time()).replace(tzinfo=PHILIPPINES_TZ)
+                        visit_start = datetime.combine(
+                            visit.visit_date, visit.start_time
+                        ).replace(tzinfo=PHILIPPINES_TZ)
 
-                        # ================= BUG FIX APPLIED HERE =================
-                        # Sticky Active Status: Prevent reversion to Upcoming
-                        if visit.status == 'Active':
+                        if visit.end_time:
+                            visit_end = datetime.combine(
+                                visit.visit_date, visit.end_time
+                            ).replace(tzinfo=PHILIPPINES_TZ)
+                        else:
+                            visit_end = datetime.combine(
+                                visit.visit_date, datetime.max.time()
+                            ).replace(tzinfo=PHILIPPINES_TZ)
+
+                        # Sticky Active status
+                        if visit.status == "Active":
                             if now_ph > visit_end:
                                 new_status = "Expired"
                             else:
@@ -623,7 +640,6 @@ def check_code(request):
                             new_status = "Expired"
                         else:
                             new_status = "Upcoming"
-                        # ========================================================
                     else:
                         new_status = "Upcoming"
 
@@ -631,26 +647,30 @@ def check_code(request):
                         visit.status = new_status
                         visit.save()
 
-            request.session['code_check_result'] = {
-                'status': 'success',
-                'message': 'Visit code found and verified!',
-                'visit': {
-                    'code': visit.code,
-                    'user_email': visit.user_email,
-                    'purpose': visit.purpose,
-                    'department': visit.department,
-                    'visit_date': visit.visit_date.isoformat() if visit.visit_date else None,
-                    'status': visit.status,
-                    'start_time': visit.start_time.isoformat() if visit.start_time else None,
-                    'end_time': visit.end_time.isoformat() if visit.end_time else None,
-                }
-            }
+                # Build SUCCESS result only if date is today
+                if visit.visit_date == today:
+                    request.session['code_check_result'] = {
+                        'status': 'success',
+                        'message': 'Visit code found and verified!',
+                        'visit': {
+                            'code': visit.code,
+                            'user_email': visit.user_email,
+                            'purpose': visit.purpose,
+                            'department': visit.department,
+                            'visit_date': visit.visit_date.isoformat() if visit.visit_date else None,
+                            'status': visit.status,
+                            'start_time': visit.start_time.isoformat() if visit.start_time else None,
+                            'end_time': visit.end_time.isoformat() if visit.end_time else None,
+                        }
+                    }
+
         except Visit.DoesNotExist:
             request.session['code_check_result'] = {
                 'status': 'error',
                 'message': f'Visit code "{visit_code}" not found in the system.'
             }
 
+        # Same redirect logic as before
         referer = request.META.get('HTTP_REFERER', '')
         if 'staff_dashboard' in referer or ('staff' in referer and 'dashboard' in referer):
             return redirect('dashboard_app:staff_dashboard')

@@ -415,6 +415,10 @@
         transition: left 0.5s ease;
     }
 
+    .btn-try-again::before {
+        display: none;
+    }
+
     .btn-action:hover::before {
         left: 100%;
     }
@@ -487,15 +491,18 @@
 
     .btn-try-again {
         grid-column: span 2;
-        background: linear-gradient(135deg, var(--error-text) 0%, #9f1239 100%);
-        color: white;
+        background: linear-gradient(135deg, #8B1538, #6B0F2A);  /* same as .check-btn */
+        color: #FFFFFF;
+        border: none;
+        box-shadow: 0 4px 15px rgba(139, 21, 56, 0.3);
     }
 
     .btn-try-again:hover {
-        background: linear-gradient(135deg, #9f1239 0%, #881337 100%);
+        background: linear-gradient(135deg, #6B0F2A, #8B1538);  /* reversed on hover */
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(190, 18, 60, 0.3);
+        box-shadow: 0 8px 25px rgba(139, 21, 56, 0.4);
     }
+
 
     /* ===========================
        ANIMATED CHECK / ERROR
