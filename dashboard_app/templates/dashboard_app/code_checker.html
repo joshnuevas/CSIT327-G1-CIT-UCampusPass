@@ -892,54 +892,158 @@
 
 {% block extra_js %}
 <script>
-    // ===== PREFIX HANDLING FOR CODE INPUT =====
-    const codeInput = document.getElementById('visitCodeInput');
-    const PREFIX = 'CIT-';
-    const HAS_RESULT = "{{ code_check_result|yesno:'true,false' }}" === "true";
+    // ===== PREFIX HANDLING FOR CODE INPUT (locks CIT-, allows long-press delete of suffix) =====
+    (function () {
+        const codeInput = document.getElementById('visitCodeInput');
+        const PREFIX = 'CIT-';
+        const HAS_RESULT = "{{ code_check_result|yesno:'true,false' }}" === "true";
 
-    if (codeInput) {
+        if (!codeInput) return;
+
+        // Initial value logic
         if (!HAS_RESULT) {
-            codeInput.value = PREFIX;
-        } else {
+            // Fresh check page: always start at CIT-
             if (!codeInput.value || !codeInput.value.startsWith(PREFIX)) {
                 codeInput.value = PREFIX;
             }
+        } else {
+            // After a result, keep existing value but still enforce prefix
+            if (!codeInput.value) {
+                codeInput.value = PREFIX;
+            } else if (!codeInput.value.startsWith(PREFIX)) {
+                let raw = codeInput.value.toUpperCase().replace(/cit-?/gi, '');
+                raw = raw.replace(/[^A-Z0-9-]/g, '');
+                codeInput.value = PREFIX + raw;
+            }
         }
 
-        function ensureCursorAfterPrefix() {
+        // Keep cursor from going into the prefix
+        function clampCursor() {
             const minPos = PREFIX.length;
-            if (codeInput.selectionStart < minPos) {
-                codeInput.setSelectionRange(minPos, minPos);
+            const start = codeInput.selectionStart;
+            const end = codeInput.selectionEnd;
+
+            if (start < minPos) {
+                codeInput.setSelectionRange(minPos, Math.max(end, minPos));
             }
         }
 
-        codeInput.addEventListener('focus', ensureCursorAfterPrefix);
-        codeInput.addEventListener('click', ensureCursorAfterPrefix);
+        // Focus: ensure prefix + put cursor at end
+        codeInput.addEventListener('focus', function () {
+            if (!codeInput.value.startsWith(PREFIX)) {
+                codeInput.value = PREFIX;
+            }
+            const len = codeInput.value.length;
+            codeInput.setSelectionRange(len, len);
+        });
 
+        // Click / keyup: never leave selection inside prefix
+        codeInput.addEventListener('click', clampCursor);
+        codeInput.addEventListener('keyup', clampCursor);
+
+        // ✅ Allow long-press + Backspace/Delete on whole text, but never delete CIT-
         codeInput.addEventListener('keydown', function (e) {
-            const pos = codeInput.selectionStart;
+            const start = codeInput.selectionStart;
+            const end = codeInput.selectionEnd;
+            const value = codeInput.value;
 
-            if ((e.key === 'Backspace' && pos <= PREFIX.length) ||
-                (e.key === 'Delete' && pos < PREFIX.length)) {
+            // BACKSPACE logic
+            if (e.key === 'Backspace') {
+                // Selection/caret starts inside prefix
+                if (start < PREFIX.length) {
+                    e.preventDefault();
+
+                    if (end <= PREFIX.length) {
+                        // Selection entirely inside prefix → do nothing, just snap after prefix
+                        codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                    } else {
+                        // Selection spans prefix + suffix: delete only suffix part
+                        const after = value.slice(end); // text after selection
+                        codeInput.value = PREFIX + after;
+                        const newPos = PREFIX.length;
+                        codeInput.setSelectionRange(newPos, newPos);
+                    }
+                    return;
+                }
+
+                // Cursor exactly at prefix boundary with no selection: don't allow backspacing the '-'
+                if (start === PREFIX.length && end === PREFIX.length) {
+                    e.preventDefault();
+                    codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                    return;
+                }
+            }
+
+            // DELETE logic
+            if (e.key === 'Delete') {
+                if (start < PREFIX.length) {
+                    e.preventDefault();
+
+                    if (end <= PREFIX.length) {
+                        // Selection entirely in prefix → block
+                        codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                    } else {
+                        // Selection spans prefix + suffix: remove only suffix part
+                        const after = value.slice(end);
+                        codeInput.value = PREFIX + after;
+                        const newPos = PREFIX.length;
+                        codeInput.setSelectionRange(newPos, newPos);
+                    }
+                    return;
+                }
+            }
+
+            // Prevent ArrowLeft from going into prefix
+            if (e.key === 'ArrowLeft') {
+                if (start <= PREFIX.length) {
+                    e.preventDefault();
+                    codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                    return;
+                }
+            }
+
+            // Prevent Home from jumping before prefix
+            if (e.key === 'Home') {
                 e.preventDefault();
-                ensureCursorAfterPrefix();
+                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                return;
             }
         });
 
+        // Handle paste: keep prefix, clean rest
+        codeInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const clipboardData = (e.clipboardData || window.clipboardData);
+            const pasted = (clipboardData.getData('text') || "").toUpperCase();
+            const clean = pasted.replace(/[^A-Z0-9-]/g, '');
+
+            const existingSuffix = codeInput.value.slice(PREFIX.length);
+            codeInput.value = PREFIX + existingSuffix + clean;
+
+            const len = codeInput.value.length;
+            codeInput.setSelectionRange(len, len);
+        });
+
+        // Normalize on input: enforce prefix + uppercase + allowed chars
         codeInput.addEventListener('input', function () {
-            let value = codeInput.value.toUpperCase();
+            let value = codeInput.value;
 
+            // Restore prefix if somehow modified
             if (!value.startsWith(PREFIX)) {
-                const suffix = value.replace(/^CIT-*/i, '');
-                value = PREFIX + suffix;
+                value = value.replace(/cit-?/gi, '');
+                value = PREFIX + value;
             }
 
-            const cursorPos = Math.max(codeInput.selectionStart, PREFIX.length);
-            codeInput.value = value;
-            codeInput.setSelectionRange(cursorPos, cursorPos);
-        });
-    }
+            let suffix = value.slice(PREFIX.length).toUpperCase();
+            suffix = suffix.replace(/[^A-Z0-9-]/g, '');
 
+            codeInput.value = PREFIX + suffix;
+
+            clampCursor();
+        });
+    })();
+
+    // ===== CONFIRMATION MODAL (Check In / Check Out) =====
     const modal = document.getElementById('checkConfirmModal');
     const modalTitle = document.getElementById('checkModalTitle');
     const modalSubtitle = document.getElementById('checkModalSubtitle');
@@ -953,7 +1057,6 @@
         pendingForm = form;
 
         if (mode === 'checkin') {
-            // Icon like "enter"
             if (modalIcon) {
                 modalIcon.className = 'fas fa-sign-in-alt';
             }
@@ -961,7 +1064,6 @@
             modalSubtitle.textContent =
                 `This will mark the visit for ${visitor} (CODE: ${code}) as checked in.`;
         } else {
-            // Icon like "exit"
             if (modalIcon) {
                 modalIcon.className = 'fas fa-sign-out-alt';
             }
@@ -978,7 +1080,6 @@
         pendingForm = null;
     }
 
-    // Attach click listeners to buttons
     document.querySelectorAll('.js-open-check-modal').forEach(btn => {
         btn.addEventListener('click', function () {
             const mode = this.dataset.mode;
@@ -1003,7 +1104,6 @@
         });
     }
 
-    // close modal when clicking background
     if (modal) {
         modal.addEventListener('click', function (e) {
             if (e.target === modal) {

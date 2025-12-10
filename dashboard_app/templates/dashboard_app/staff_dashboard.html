@@ -822,108 +822,140 @@
     // 1) CODE INPUT: LOCK "CIT-" PREFIX
     // ================================
     function setupCodeInputProtection() {
-        const codeInput = document.getElementById('visitCodeInput');
-        if (!codeInput) return;
+    const codeInput = document.getElementById('visitCodeInput');
+    if (!codeInput) return;
 
-        const PREFIX = "CIT-";
+    const PREFIX = "CIT-";
 
-        // Ensure it always starts with CIT-
-        if (!codeInput.value || !codeInput.value.startsWith(PREFIX)) {
+    // Ensure it always starts with CIT-
+    if (!codeInput.value || !codeInput.value.startsWith(PREFIX)) {
+        codeInput.value = PREFIX;
+    }
+
+    // Helper: keep cursor out of the prefix
+    function clampCursor() {
+        const start = codeInput.selectionStart;
+        const end = codeInput.selectionEnd;
+        if (start < PREFIX.length) {
+            codeInput.setSelectionRange(PREFIX.length, Math.max(end, PREFIX.length));
+        }
+    }
+
+    // On focus, put cursor at the end
+    codeInput.addEventListener('focus', function () {
+        if (!codeInput.value.startsWith(PREFIX)) {
             codeInput.value = PREFIX;
         }
+        const len = codeInput.value.length;
+        codeInput.setSelectionRange(len, len);
+    });
 
-        // Helper: keep cursor after prefix
-        function clampCursor() {
-            if (codeInput.selectionStart < PREFIX.length) {
-                codeInput.setSelectionRange(PREFIX.length, codeInput.selectionEnd);
+    // ✅ Allow long-press + Backspace, but never delete CIT-
+    codeInput.addEventListener('keydown', function (e) {
+        const start = codeInput.selectionStart;
+        const end = codeInput.selectionEnd;
+        const value = codeInput.value;
+
+        // BACKSPACE
+        if (e.key === 'Backspace') {
+            // Case 1: selection starts inside prefix
+            if (start < PREFIX.length) {
+                e.preventDefault();
+
+                // If selection is entirely within prefix → do nothing, just move cursor
+                if (end <= PREFIX.length) {
+                    codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                } else {
+                    // Selection spans prefix + suffix:
+                    // delete only suffix part (everything after prefix)
+                    const after = value.slice(end); // part after selection
+                    codeInput.value = PREFIX + after;
+                    const newPos = PREFIX.length;
+                    codeInput.setSelectionRange(newPos, newPos);
+                }
+                return;
+            }
+
+            // Case 2: cursor exactly at prefix boundary with no selection → prevent deleting '-'
+            if (start === PREFIX.length && end === PREFIX.length) {
+                // backspace would delete last char of prefix -> block
+                e.preventDefault();
+                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                return;
             }
         }
 
-        // On focus, put cursor at the end (after user's text)
-        codeInput.addEventListener('focus', function () {
-            const len = codeInput.value.length;
-            if (len < PREFIX.length) {
-                codeInput.value = PREFIX;
+        // DELETE
+        if (e.key === 'Delete') {
+            if (start < PREFIX.length) {
+                e.preventDefault();
+
+                if (end <= PREFIX.length) {
+                    // selection inside prefix only → block
+                    codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                } else {
+                    // selection spans prefix + suffix → delete only suffix part
+                    const after = value.slice(end);
+                    codeInput.value = PREFIX + after;
+                    const newPos = PREFIX.length;
+                    codeInput.setSelectionRange(newPos, newPos);
+                }
+                return;
             }
-            codeInput.setSelectionRange(len, len);
-        });
+        }
 
-        // Prevent deleting or moving into the prefix
-        codeInput.addEventListener('keydown', function (e) {
-            const start = codeInput.selectionStart;
-            const end = codeInput.selectionEnd;
-
-            // Block Backspace if at/inside prefix
-            if (e.key === 'Backspace' && start <= PREFIX.length) {
+        // Block ArrowLeft into prefix
+        if (e.key === 'ArrowLeft') {
+            if (start <= PREFIX.length) {
                 e.preventDefault();
                 codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
                 return;
             }
+        }
 
-            // Block Delete if starting inside prefix
-            if (e.key === 'Delete' && start < PREFIX.length) {
-                e.preventDefault();
-                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
-                return;
-            }
-
-            // Block ArrowLeft into prefix
-            if (e.key === 'ArrowLeft' && start <= PREFIX.length) {
-                e.preventDefault();
-                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
-                return;
-            }
-
-            // Block Home key from jumping before prefix
-            if (e.key === 'Home') {
-                e.preventDefault();
-                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
-                return;
-            }
-        });
-
-        // Handle paste so prefix is preserved and rest is cleaned
-        codeInput.addEventListener('paste', function (e) {
+        // Block Home from going before prefix
+        if (e.key === 'Home') {
             e.preventDefault();
-            const clipboardData = (e.clipboardData || window.clipboardData);
-            const pasted = clipboardData.getData('text') || "";
+            codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+            return;
+        }
+    });
 
-            const clean = pasted.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-            const current = codeInput.value.substring(PREFIX.length);
-            codeInput.value = PREFIX + current + clean;
+    // Handle paste so prefix is preserved
+    codeInput.addEventListener('paste', function (e) {
+        e.preventDefault();
+        const clipboardData = (e.clipboardData || window.clipboardData);
+        const pasted = (clipboardData.getData('text') || "").toUpperCase();
 
-            // Move cursor to end
-            const len = codeInput.value.length;
-            codeInput.setSelectionRange(len, len);
-        });
+        const clean = pasted.replace(/[^A-Z0-9-]/g, '');
+        const existingSuffix = codeInput.value.slice(PREFIX.length);
+        codeInput.value = PREFIX + existingSuffix + clean;
 
-        // Enforce prefix + uppercase + valid chars
-        codeInput.addEventListener('input', function () {
-            let value = codeInput.value;
+        const len = codeInput.value.length;
+        codeInput.setSelectionRange(len, len);
+    });
 
-            // If somehow prefix got touched, restore it
-            if (!value.startsWith(PREFIX)) {
-                value = value.replace(/cit-?/gi, '');
-                value = PREFIX + value;
-            }
+    // Enforce prefix + uppercase + valid chars
+    codeInput.addEventListener('input', function () {
+        let value = codeInput.value;
 
-            // Everything after prefix: uppercase + restrict charset
-            let suffix = value.substring(PREFIX.length).toUpperCase();
-            suffix = suffix.replace(/[^A-Z0-9-]/g, '');
+        if (!value.startsWith(PREFIX)) {
+            value = value.replace(/cit-?/gi, '');
+            value = PREFIX + value;
+        }
 
-            codeInput.value = PREFIX + suffix;
+        let suffix = value.slice(PREFIX.length).toUpperCase();
+        suffix = suffix.replace(/[^A-Z0-9-]/g, '');
 
-            // Keep cursor at end if it drifted into prefix
-            clampCursor();
-        });
+        codeInput.value = PREFIX + suffix;
 
-        // Enforce cursor position when user clicks or moves
-        codeInput.addEventListener('click', clampCursor);
-        codeInput.addEventListener('keyup', clampCursor);
+        clampCursor();
+    });
 
-        // NOTE: no auto-focus here anymore
-        // (We don't call codeInput.focus() on load.)
-    }
+    // Keep cursor from staying inside prefix on click/move
+    codeInput.addEventListener('click', clampCursor);
+    codeInput.addEventListener('keyup', clampCursor);
+}
 
     // =========================================
     // 2) LIVE FEED WIDGET (TIMELINE FILTERING)
