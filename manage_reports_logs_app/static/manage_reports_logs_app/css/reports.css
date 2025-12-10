@@ -1,3 +1,5 @@
+/* manage_reports_logs_app/css/reports.css */
+
 /* ===== Header & Typography ===== */
 .reports-header {
     margin-bottom: 25px;
@@ -83,10 +85,6 @@
 }
 
 /* Inputs */
-.inputs-group {
-    /* Removed flex-grow to keep export button visible */
-}
-
 .date-range-wrapper {
     display: flex;
     align-items: center;
@@ -113,18 +111,7 @@
     font-weight: 500;
 }
 
-.form-select {
-    padding: 8px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 0.85rem;
-    color: #333;
-    outline: none;
-    cursor: pointer;
-}
-
-/* Status filter custom dropdown (match system logs roles filter styling) */
+/* Status Filter & Dropdowns */
 .status-filter-btn {
     padding: 10px 16px;
     border-radius: 999px;
@@ -163,8 +150,7 @@
 }
 .action-item:hover { background: #fff1f2; color: #8b1538; }
 
-
-/* Export Button - Match logs styling */
+/* Export Button */
 .export-btn-trigger {
     padding: 10px 16px;
     border-radius: 999px;
@@ -202,15 +188,42 @@
     margin-bottom: 40px;
 }
 
+/* CRITICAL FIX: 
+   .card must have min-width: 0 to override default Grid behavior 
+   which prevents shrinking.
+*/
+.card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Prevents grid blowout on resize */
+}
+
 .full-width-card {
     grid-column: 1 / -1;
+    min-width: 0; /* Prevents grid blowout */
 }
 
 /* ===== Chart Cards & Toggles ===== */
+.card-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
 .card-header.with-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
 }
 
 .card-title i { margin-right: 8px; color: #8b1538; }
@@ -240,10 +253,31 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Chart Heights */
-.chart-lg { height: 350px; position: relative; padding: 10px; }
-.chart-md { height: 300px; position: relative; padding: 10px; }
-.chart-sm { height: 250px; position: relative; padding: 10px; }
+/* CRITICAL FIX: 
+   Chart containers must hide overflow and set width to 100% 
+   so the canvas knows its boundaries.
+*/
+.chart-lg { 
+    height: 350px; 
+    position: relative; 
+    width: 100%; 
+    padding: 10px;
+    overflow: hidden; 
+}
+.chart-md { 
+    height: 300px; 
+    position: relative; 
+    width: 100%; 
+    padding: 10px;
+    overflow: hidden; 
+}
+.chart-sm { 
+    height: 250px; 
+    position: relative; 
+    width: 100%; 
+    padding: 10px;
+    overflow: hidden; 
+}
 
 /* ===== Leaderboard / Progress List ===== */
 .scrollable-list {
@@ -260,7 +294,7 @@
 }
 
 .lb-info {
-    width: 150px; /* Fixed width for labels */
+    width: 150px;
     flex-shrink: 0;
     font-size: 0.85rem;
     font-weight: 600;
@@ -285,7 +319,7 @@
     height: 100%;
     background: linear-gradient(90deg, #8b1538 0%, #b91c4b 100%);
     border-radius: 5px;
-    width: 0%; /* JS will animate this */
+    width: 0%;
     transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -304,20 +338,50 @@
     width: 40px;
 }
 
-/* Custom Scrollbar for the list */
-.scrollable-list::-webkit-scrollbar {
-    width: 6px;
+/* Stat Cards */
+.stat-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 0; /* Ensures flexibility */
 }
-.scrollable-list::-webkit-scrollbar-track {
-    background: #f1f5f9; 
+
+.stat-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
 }
-.scrollable-list::-webkit-scrollbar-thumb {
-    background: #cbd5e1; 
-    border-radius: 3px;
+.icon-maroon { background: #fff1f2; color: #8b1538; }
+.icon-gold { background: #fefce8; color: #d4af37; }
+.icon-blue { background: #f0f9ff; color: #2c3e50; }
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+    margin-bottom: 5px;
 }
-.scrollable-list::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8; 
+.stat-label {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
+
+/* Custom Scrollbar */
+.scrollable-list::-webkit-scrollbar { width: 6px; }
+.scrollable-list::-webkit-scrollbar-track { background: #f1f5f9; }
+.scrollable-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.scrollable-list::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(5px); }

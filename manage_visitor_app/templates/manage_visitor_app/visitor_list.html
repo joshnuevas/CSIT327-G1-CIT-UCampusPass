@@ -5,6 +5,23 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'manage_visitor_app/css/visitor_list.css' %}" />
+<style>
+    /* --- NEW: Styles for Clickable Rows --- */
+    tbody tr.clickable-row {
+        cursor: pointer;
+        transition: background-color 0.15s ease-in-out;
+    }
+    
+    tbody tr.clickable-row:hover {
+        background-color: #f1f5f9; /* Light gray hover effect */
+    }
+
+    /* Ensure action buttons/menus stay above the row click layer visually */
+    .action-menu {
+        position: relative;
+        z-index: 10;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -68,7 +85,7 @@
             </thead>
             <tbody>
                 {% for v in visitors %}
-                <tr>
+                <tr class="clickable-row" data-href="{% url 'manage_visitor_app:visitor_detail' v.user_id %}">
                     <td>{{ v.user_id }}</td>
                     <td>{{ v.first_name }} {{ v.last_name }}</td>
                     <td style="color: var(--text-muted);">{{ v.email }}</td>
@@ -117,7 +134,7 @@
             </tbody>
         </table>
     </div>
-            <div id="pagination" class="pagination-wrapper"></div>
+    <div id="pagination" class="pagination-wrapper"></div>
 </div>
 
 <div id="confirmModal" class="modal">
@@ -136,8 +153,22 @@
 
 <script>
 (function() {
+    // ===== NEW: CLICKABLE ROW LOGIC =====
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', function(e) {
+            // Prevent redirect if user clicked the Action Menu or any Button/Link
+            if (e.target.closest('.action-menu') || e.target.closest('button') || e.target.closest('a')) {
+                return;
+            }
+            
+            const url = this.dataset.href;
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+
     // ===== DROPDOWN LOGIC FOR TABLE ACTIONS (SMART POSITIONING) =====
-    // Note: We keep this logic for table actions because tables often have overflow issues.
     const closeAll = () => {
         document.querySelectorAll('.action-dropdown').forEach(dd => {
             dd.classList.remove('active');
@@ -155,7 +186,7 @@
         document.body.appendChild(dropdown); // Keep table actions attached to body
 
         btn.addEventListener('click', e => {
-            e.stopPropagation();
+            e.stopPropagation(); // CRITICAL: Stop click from bubbling to the row
             const isActive = dropdown.classList.contains('active');
             closeAll();
 
@@ -203,6 +234,7 @@
     document.querySelectorAll('.open-modal').forEach(link => {
         link.addEventListener('click', e => {
             e.preventDefault();
+            e.stopPropagation(); // CRITICAL: Stop bubbling to row click
             closeAll();
 
             const username = link.dataset.username;

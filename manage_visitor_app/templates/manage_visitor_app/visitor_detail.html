@@ -1,0 +1,667 @@
+{% extends "dashboard_app/admin_dashboard_base.html" %}
+{% load static %}
+
+{% block visitor_active %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-maroon: #8B1538;
+        --maroon-dark: #6d102b;
+        --text-dark: #1e293b;
+        --text-label: #64748b;
+        --bg-surface: #ffffff;
+        --border-color: #e2e8f0;
+        
+        /* Admin Specific Colors */
+        --danger-bg: #fef2f2;
+        --danger-border: #fecaca;
+        --danger-text: #991b1b;
+        --danger-btn: #ef4444;
+        --danger-btn-hover: #dc2626;
+    }
+
+    .detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1rem 3rem 1rem;
+    }
+
+    /* --- Back Button --- */
+    .back-nav { 
+        margin-bottom: 2rem; 
+        margin-top: 1rem;
+    }
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 1.25rem;
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-dark);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .back-link:hover { 
+        border-color: var(--primary-maroon);
+        color: var(--primary-maroon);
+        box-shadow: 0 4px 12px rgba(139, 21, 56, 0.1);
+    }
+
+    /* --- Profile Header (Animated) --- */
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+        padding: 2.5rem;
+        background: linear-gradient(135deg, var(--primary-maroon) 0%, var(--maroon-dark) 100%);
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(139, 21, 56, 0.25);
+        color: white;
+        position: relative;
+        overflow: hidden;
+        animation: slideInFromLeft 0.6s ease-out;
+    }
+
+    /* Decorative circles */
+    .profile-header::after {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        right: 80px;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    @keyframes slideInFromLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background: #ffffff;
+        color: var(--primary-maroon);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 700;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 2;
+        animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s backwards;
+    }
+
+    @keyframes popIn {
+        from { opacity: 0; transform: scale(0); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .profile-info { z-index: 2; }
+
+    .profile-info h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.8rem;
+        color: #ffffff;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .info-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .info-pill {
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 0.9rem;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 6px 14px;
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* --- Section Title --- */
+    .section-title {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-label);
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary-maroon), transparent);
+        transition: width 0.6s ease;
+    }
+    .section-title.animated::after { width: 100px; }
+
+    /* --- Cards (General) --- */
+    .visit-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease-out 0.3s backwards;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .visit-card:hover {
+        box-shadow: 0 12px 24px rgba(139, 21, 56, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .visit-card-header {
+        background: linear-gradient(to right, #f8fafc, #ffffff);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .visit-card-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-dark); }
+
+    .visit-card-body {
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+    }
+
+    /* Detail Items */
+    .detail-item label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-label);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    .detail-item p {
+        margin: 0;
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 1.05rem;
+    }
+
+    /* --- Visit Codes & Status --- */
+    .visit-code {
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        display: flex; align-items: baseline; gap: 8px;
+    }
+    .code-label { font-size: 0.85rem; color: var(--text-label); font-weight: 500; font-family: sans-serif; }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .status-badge.not-checked-in, .status-badge.upcoming { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+    .status-badge.active { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+    .status-badge.expired { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+    .status-badge.completed { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+
+    /* --- History Table & Search --- */
+    .history-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+    .history-header-container .section-title { margin-bottom: 0; }
+
+    .search-wrapper { position: relative; width: 250px; }
+    .history-search-input {
+        width: 100%;
+        padding: 8px 12px 8px 34px;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        background-color: #ffffff;
+        transition: all 0.2s ease;
+    }
+    .history-search-input:focus { outline: none; border-color: var(--primary-maroon); box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1); }
+    .search-icon-small { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-label); font-size: 0.8rem; pointer-events: none; }
+
+    .history-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.9rem;
+        animation: fadeInUp 0.6s ease-out 0.5s backwards;
+    }
+    .history-table th {
+        text-align: left;
+        padding: 1rem;
+        border-bottom: 2px solid var(--border-color);
+        color: var(--text-label);
+        font-weight: 600;
+    }
+    .history-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-dark);
+        background: white;
+        transition: background 0.2s;
+    }
+    .history-table tr:hover td { background: #fff1f2; }
+    .history-code { font-family: ui-monospace, monospace; font-weight: 700; color: var(--text-dark); letter-spacing: 0.5px; }
+
+    /* --- Admin Zone --- */
+    .admin-zone {
+        border: 1px solid var(--danger-border);
+        background: #fff;
+    }
+    .admin-zone .visit-card-header {
+        background: var(--danger-bg);
+        border-bottom-color: var(--danger-border);
+    }
+    .btn-delete {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--danger-btn); color: white;
+        padding: 10px 20px; border-radius: 8px;
+        text-decoration: none; font-size: 0.9rem; font-weight: 600;
+        transition: background 0.2s;
+        box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+        cursor: pointer;
+    }
+    .btn-delete:hover { background: var(--danger-btn-hover); box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3); }
+
+    .empty-state { padding: 3rem; color: var(--text-label); text-align: center; background: #f8fafc; border-radius: 8px; border: 1px dashed var(--border-color); }
+
+    /* --- MODAL STYLES --- */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 2.5rem;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        animation: modalSlideUp 0.3s ease-out;
+    }
+    @keyframes modalSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-icon {
+        width: 60px;
+        height: 60px;
+        background: #fee2e2;
+        color: #dc2626;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 1.5rem auto;
+    }
+    .modal-content h2 {
+        margin: 0 0 0.75rem 0;
+        color: #1e293b;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    .modal-content p {
+        margin: 0 0 2rem 0;
+        color: #64748b;
+        line-height: 1.5;
+    }
+    .modal-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+    .btn-modal-primary {
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        flex: 1;
+    }
+    .btn-modal-primary:hover { background: #b91c1c; }
+    .btn-modal-secondary {
+        background: #ffffff;
+        color: #64748b;
+        border: 1px solid #cbd5e1;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex: 1;
+    }
+    .btn-modal-secondary:hover { background: #f1f5f9; color: #1e293b; border-color: #94a3b8; }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate Titles
+        const sections = document.querySelectorAll('.section-title');
+        sections.forEach(section => {
+            setTimeout(() => { section.classList.add('animated'); }, 100);
+        });
+
+        // --- History Search Functionality ---
+        const searchInput = document.getElementById('historySearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const query = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.history-table tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if(text.includes(query)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // --- MODAL LOGIC FOR DELETE ---
+        const modal = document.getElementById('confirmModal');
+        const confirmYesBtn = document.getElementById('confirmYes');
+        const confirmCancelBtn = document.getElementById('confirmCancel');
+        
+        // Target the specific delete button
+        const deleteBtn = document.getElementById('deleteUserBtn');
+        let deleteUrl = "";
+
+        if(deleteBtn) {
+            deleteBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Stop instant navigation
+                deleteUrl = this.getAttribute('href'); // Store URL
+                modal.style.display = 'flex'; // Show modal
+            });
+        }
+
+        // Handle Confirmation
+        if(confirmYesBtn) {
+            confirmYesBtn.addEventListener('click', function() {
+                if(deleteUrl) {
+                    window.location.href = deleteUrl;
+                }
+            });
+        }
+
+        // Handle Cancellation
+        if(confirmCancelBtn) {
+            confirmCancelBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+        }
+
+        // Close on Outside Click
+        window.onclick = function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    
+    <div class="back-nav">
+        <a href="{% url 'manage_visitor_app:visitor_list' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Visitor List
+        </a>
+    </div>
+
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {{ visitor.first_name|slice:":2"|upper }}
+        </div>
+        <div class="profile-info">
+            <h1>{{ visitor.first_name }} {{ visitor.last_name }}</h1>
+            <div class="info-badges">
+                <div class="info-pill">
+                    <i class="fas fa-envelope"></i> {{ visitor.email }}
+                </div>
+                <div class="info-pill">
+                    <i class="fas fa-phone"></i> {{ visitor.phone }}
+                </div>
+                <div class="info-pill">
+                    <i class="fas fa-user-tag"></i> {{ visitor.visitor_type|default:"Visitor"|title }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="visit-card" style="margin-bottom: 2rem;">
+        <div class="visit-card-body">
+            <div class="detail-item">
+                <label>Total Visits</label>
+                <p>{{ visit_history|length|default:0 }}</p>
+            </div>
+            <div class="detail-item">
+                <label>Date Registered</label>
+                <p>
+                    {% if visitor.created_at %}
+                        {{ visitor.created_at|date:"M d, Y" }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </p>
+            </div>
+            <div class="detail-item">
+                <label>Account Status</label>
+                <p>
+                    {% if visitor.is_active %}
+                        <span style="color: #166534; font-weight: 700;">Active</span>
+                    {% else %}
+                        <span style="color: #991b1b; font-weight: 700;">Inactive</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% if current_visit %}
+        <div class="section-title">Latest Visit Details</div>
+        
+        <div class="visit-card">
+            <div class="visit-card-header">
+                <div class="visit-code">
+                    <span class="code-label">CODE:</span>
+                    <span class="code-value">{{ current_visit.code }}</span>
+                </div>
+
+                {% if current_visit.status == 'Upcoming' %}
+                    <span class="status-badge not-checked-in">Not Checked In</span>
+                {% elif current_visit.status == 'Active' %}
+                    <span class="status-badge active">Active / On Campus</span>
+                {% else %}
+                    <span class="status-badge {{ current_visit.status|lower }}">{{ current_visit.status }}</span>
+                {% endif %}
+            </div>
+
+            <div class="visit-card-body">
+                <div class="detail-item">
+                    <label>Destination</label>
+                    <p>{{ current_visit.department }}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Purpose of Visit</label>
+                    <p>{{ current_visit.purpose }}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Date</label>
+                    <p>{{ current_visit.visit_date }}</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="history-header-container">
+        <div class="section-title">Visit History</div>
+        
+        {% if visit_history %}
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon-small"></i>
+            <input 
+                type="text" 
+                id="historySearchInput" 
+                class="history-search-input" 
+                placeholder="Filter history..."
+                autocomplete="off"
+            >
+        </div>
+        {% endif %}
+    </div>
+
+    {% if visit_history %}
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Code</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for visit in visit_history %}
+                <tr>
+                    <td>{{ visit.visit_date }}</td>
+                    <td class="history-code">{{ visit.code }}</td>
+                    <td>{{ visit.department }}</td>
+                    <td>
+                        <span style="font-weight:600; font-size: 0.85rem;
+                            {% if visit.status == 'Completed' %}color:#1d4ed8;
+                            {% elif visit.status == 'Active' %}color:#15803d;
+                            {% elif visit.status == 'Expired' %}color:#64748b;
+                            {% elif visit.status == 'Upcoming' %}color:#b45309;
+                            {% else %}color:#64748b;{% endif %}">
+                            
+                           {% if visit.status == 'UPCOMING' %}
+                               NOT CHECKED IN
+                           {% else %}
+                               {{ visit.status }}
+                           {% endif %}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-history" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <p>No visit history recorded.</p>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 3rem;">
+        <div class="visit-card admin-zone">
+            <div class="visit-card-header">
+                <h3>Admin Zone</h3>
+                <i class="fas fa-exclamation-triangle" style="color: var(--danger-text);"></i>
+            </div>
+            <div class="visit-card-body">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h4 style="margin: 0 0 0.5rem 0; color: var(--danger-text);">Remove Visitor Account</h4>
+                        <p style="margin: 0; font-size: 0.9rem; color: var(--text-label);">
+                            This will permanently delete the visitor's account and all associated visit history.
+                        </p>
+                    </div>
+                    <a href="{% url 'manage_visitor_app:visitor_deactivate' visitor.user_id %}" 
+                       class="btn-delete" 
+                       id="deleteUserBtn">
+                        <i class="fas fa-trash-alt"></i> Remove User
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation"></i>
+        </div>
+        <h2>Remove Visitor</h2>
+        <p>
+            Are you sure you want to remove 
+            <strong>{{ visitor.first_name }} {{ visitor.last_name }}</strong> 
+            ({{ visitor.email }})? 
+            <br>This action cannot be undone.
+        </p>
+        <div class="modal-buttons">
+            <button id="confirmCancel" class="btn-modal-secondary">Cancel</button>
+            <button id="confirmYes" class="btn-modal-primary">Confirm</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

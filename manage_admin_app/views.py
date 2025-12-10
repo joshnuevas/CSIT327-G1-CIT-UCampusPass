@@ -5,20 +5,19 @@ from .forms import AdminCreateForm, AdminEditForm
 from .helpers import hash_password, generate_admin_username, generate_temp_password
 from manage_reports_logs_app import services as logs_services
 
+# Import Notification Helper and Models
+from dashboard_app.views import create_notification
+from login_app.models import Administrator
+
 # ===== Helper for Supabase Response Checking =====
 def is_success(resp):
     """
     Checks if a Supabase response was successful.
-    1. Checks if there is a wrapper 'error' attribute.
-    2. Returns True if no error is found.
     """
-    # Check for client-side wrapper error
     if hasattr(resp, 'error') and resp.error:
-        print(f"Supabase Error: {resp.error}") # DEBUG: Print error to console
+        print(f"Supabase Error: {resp.error}") 
         return False
         
-    # Check if the response body contains an error code (PostgREST style)
-    # Sometimes resp.data can be a dict with 'code' and 'message' on failure
     data = getattr(resp, "data", None)
     if isinstance(data, dict) and 'code' in data and 'message' in data:
          print(f"Supabase Data Error: {data}")
@@ -26,10 +25,70 @@ def is_success(resp):
 
     return True
 
+# ===== NOTIFICATION HELPER =====
+def send_admin_notifications(request, action_type, target_username, description):
+    """
+    Handles routing notifications to the correct admins/superadmins.
+    
+    Args:
+        request: The request object.
+        action_type: "create", "update", "status_change", "security", "delete"
+        target_username: The username of the admin being affected.
+        description: A verb phrase describing the action (e.g., "updated the profile for...").
+    """
+    try:
+        current_admin_username = request.session.get('admin_username')
+        actor_name = request.session.get('admin_first_name', current_admin_username)
+        
+        all_admins = Administrator.objects.all()
+        target_admin = next((a for a in all_admins if a.username == target_username), None)
+        
+        # Format the base message: "John Doe [description]"
+        # Example: "John Doe has reset the password for admin123."
+        system_message = f"{actor_name} {description}"
+
+        for admin in all_admins:
+            # 1. Skip the actor (don't notify yourself)
+            if admin.username == current_admin_username:
+                continue
+
+            # 2. Logic for SUPERADMINS (They get a system overview)
+            if admin.is_superadmin:
+                create_notification(
+                    receiver_admin=admin,
+                    title=f"Admin Management: {action_type.replace('_', ' ').title()}",
+                    message=system_message,
+                    type="system_alert"
+                )
+                continue
+
+            # 3. Logic for REGULAR ADMINS
+            # Rule A: The specific admin being modified gets a personal alert
+            if admin.username == target_username:
+                if action_type in ["update", "security", "status_change"]:
+                    create_notification(
+                        receiver_admin=admin,
+                        title="Account Security Update",
+                        message=f"Administrative action by {actor_name}: {description}",
+                        type="personal_alert"
+                    )
+            
+            # Rule B: Other admins get team updates (only for major events like create/delete)
+            else:
+                if action_type in ["create", "delete", "status_change"]:
+                    create_notification(
+                        receiver_admin=admin,
+                        title="Team Roster Update",
+                        message=system_message,
+                        type="system_alert"
+                    )
+
+    except Exception as e:
+        print(f"Error sending notifications: {e}")
+
 # ===== PERMISSION DECORATOR =====
 def superadmin_required(view_func):
     def wrapper(request, *args, **kwargs):
-        # Ensure session value is treated as boolean
         if request.session.get("user_is_superadmin"):
             return view_func(request, *args, **kwargs)
         messages.error(request, "You must be a superadmin to access this page.")
@@ -74,7 +133,7 @@ def admin_create_view(request):
                 "password": hashed_pw,
                 "is_temp_password": True,
                 "is_active": True,
-                "is_superadmin": False # Default to False explicitly
+                "is_superadmin": False 
             }
 
             # Create admin
@@ -91,6 +150,14 @@ def admin_create_view(request):
             )
 
             if success:
+                # NOTIFICATION: New Admin Created
+                send_admin_notifications(
+                    request, 
+                    "create", 
+                    username, 
+                    f"has onboarded a new administrator: {data['first_name']} {data['last_name']} ({username})."
+                )
+
                 messages.success(request, f"Admin '{username}' created with temporary password '{temp_pw}'.")
                 return redirect("manage_admin_app:admin_list")
             else:
@@ -122,8 +189,6 @@ def admin_edit_view(request, username):
         if form.is_valid():
             updates = form.cleaned_data
 
-            # Preserve is_active if the edit form did not include the field in POST
-            # (some templates render a simplified edit form and omit the checkbox)
             if 'is_active' not in request.POST:
                 raw_val = admin.get('is_active')
                 if raw_val is None:
@@ -147,6 +212,14 @@ def admin_edit_view(request, username):
             )
 
             if success:
+                # NOTIFICATION: Admin Details Updated
+                send_admin_notifications(
+                    request, 
+                    "update", 
+                    username, 
+                    f"has updated profile details for administrator {username}."
+                )
+
                 messages.success(request, f"Admin '{username}' updated successfully.")
             else:
                 messages.error(request, f"Failed to update admin. Check database permissions.")
@@ -166,11 +239,7 @@ def admin_edit_view(request, username):
 
 @superadmin_required
 def admin_toggle_superadmin_view(request, username):
-    """
-    Toggles the is_superadmin status.
-    Updated to handle RLS silence and debug database rejection.
-    """
-    # 1. Fetch current status
+    """Toggles the is_superadmin status."""
     get_resp = services.get_admin_by_username(username)
     admin_data = getattr(get_resp, "data", [])
     
@@ -180,32 +249,25 @@ def admin_toggle_superadmin_view(request, username):
 
     admin = admin_data[0]
     
-    # 2. Determine boolean status safely
     raw_status = admin.get("is_superadmin")
     if isinstance(raw_status, bool):
         current_status = raw_status
     else:
-        # Handle string 'true'/'false' or None
         current_status = str(raw_status).lower() in ('true', '1', 't')
 
     new_status = not current_status
-    action = "granted superadmin privileges to" if new_status else "revoked superadmin privileges from"
+    # Professional phrasing for the message
+    action_desc = "granted superadmin privileges to" if new_status else "revoked superadmin privileges from"
     
-    # 3. Perform Update
-    print(f"DEBUG: Attempting to set {username} superadmin to {new_status}")
     resp = services.update_admin(username, {"is_superadmin": new_status})
     
-    # 4. Robust Success Check (Replaced strict len(data) check)
-    # We use is_success() because RLS might update the row but block returning the data.
     if is_success(resp):
-        # Optional: Double verify if the update stuck (Best practice for permissions)
+        # Verify step
         verify_resp = services.get_admin_by_username(username)
         verify_data = getattr(verify_resp, "data", [])
         
-        # Verify the DB actually has the new value
         if verify_data:
             db_val = verify_data[0].get("is_superadmin")
-            # Normalize DB value
             db_bool = db_val if isinstance(db_val, bool) else str(db_val).lower() in ('true', '1', 't')
             
             if db_bool == new_status:
@@ -213,29 +275,28 @@ def admin_toggle_superadmin_view(request, username):
                 logs_services.create_log(
                     actor,
                     "Account",
-                    f"{action.capitalize()} admin account '{username}'. Status: Success",
+                    f"{action_desc.capitalize()} admin account '{username}'. Status: Success",
                     actor_role="Admin"
                 )
-                messages.success(request, f"Superadmin privileges have been {action} '{username}'.")
+
+                # NOTIFICATION: Superadmin Privileges Changed
+                send_admin_notifications(
+                    request, 
+                    "update", 
+                    username, 
+                    f"has {action_desc} {username}."
+                )
+
+                messages.success(request, f"Superadmin privileges have been {action_desc} '{username}'.")
                 return redirect("manage_admin_app:admin_list")
     
-    # Print the type and the full content of 'resp' to see what it actually holds
-    print(f"DEBUG: Type of resp: {type(resp)}")
-    print(f"DEBUG: Full resp object: {resp}")
-
-    # Existing logic (keep this for now until we see the logs)
-    error_msg = getattr(resp, 'error', 'Unknown Database Error')
-    print(f"DEBUG: Update Failed. Response Error: {error_msg}")
-    
-    messages.error(request, f"Update failed. The database rejected the change. Check your server console for Supabase error details.")
+    messages.error(request, f"Update failed. The database rejected the change.")
     return redirect("manage_admin_app:admin_list")
+
 
 @superadmin_required
 def admin_toggle_active_view(request, username):
-    """
-    Toggles the is_active status.
-    Fix: Strictly checks if the update query returned a modified row.
-    """
+    """Toggles the is_active status."""
     get_resp = services.get_admin_by_username(username)
     admin_data = getattr(get_resp, "data", [])
     if not admin_data:
@@ -244,21 +305,21 @@ def admin_toggle_active_view(request, username):
 
     admin = admin_data[0]
     
-    # Handle Boolean/None types safely
     raw_val = admin.get("is_active")
     if raw_val is None:
-        current_status = True # Default from schema
+        current_status = True
     elif isinstance(raw_val, bool):
         current_status = raw_val
     else:
         current_status = str(raw_val).lower() in ('true', '1', 't')
 
     new_status = not current_status
-    action = "activated" if new_status else "deactivated"
+    # Professional phrasing for the message
+    action_desc = "activated the account for" if new_status else "deactivated the account for"
+    simple_action = "activated" if new_status else "deactivated"
 
     resp = services.update_admin(username, {"is_active": new_status})
     
-    # Strict check
     data = getattr(resp, "data", [])
     success = bool(data) and len(data) > 0
 
@@ -266,21 +327,29 @@ def admin_toggle_active_view(request, username):
     logs_services.create_log(
         actor,
         "Account",
-        f"{action.capitalize()} admin account '{username}'. Status: {'Success' if success else 'Failed'}",
+        f"{simple_action.capitalize()} admin account '{username}'. Status: {'Success' if success else 'Failed'}",
         actor_role="Admin"
     )
 
     if success:
-        messages.success(request, f"Admin '{username}' has been {action}.")
+        # NOTIFICATION: Account Activated/Deactivated
+        send_admin_notifications(
+            request, 
+            "status_change", 
+            username, 
+            f"has {action_desc} {username}."
+        )
+
+        messages.success(request, f"Admin '{username}' has been {simple_action}.")
     else:
         messages.error(request, f"Failed to update status for '{username}'.")
 
     return redirect("manage_admin_app:admin_list")
 
+
 @superadmin_required
 def admin_delete_view(request, username):
     """Deletes an admin."""
-    # 1. Fetch to confirm exists
     get_resp = services.get_admin_by_username(username)
     admin_data = getattr(get_resp, "data", [])
     
@@ -288,16 +357,11 @@ def admin_delete_view(request, username):
         messages.error(request, "Admin not found.")
         return redirect("manage_admin_app:admin_list")
 
-    # 2. Prevent self-deletion
     if username == request.session.get('admin_username'):
         messages.error(request, "You cannot delete your own account.")
         return redirect("manage_admin_app:admin_list")
 
-    # 3. Perform Delete
     resp = services.delete_admin(username)
-    
-    # Supabase Delete Success Check
-    # Usually returns the deleted row in 'data'. If 'data' has items, it succeeded.
     success = is_success(resp)
 
     actor = f"{request.session.get('admin_first_name', 'Unknown')} ({request.session.get('admin_username', '-')})"
@@ -309,11 +373,20 @@ def admin_delete_view(request, username):
     )
 
     if success:
+        # NOTIFICATION: Admin Deleted
+        send_admin_notifications(
+            request, 
+            "delete", 
+            username, 
+            f"has permanently deleted the administrator account for {username}."
+        )
+
         messages.success(request, f"Admin '{username}' has been deleted.")
     else:
         messages.error(request, f"Failed to delete admin '{username}'.")
 
     return redirect("manage_admin_app:admin_list")
+
 
 @superadmin_required
 def admin_reset_password_view(request, username):
@@ -332,6 +405,14 @@ def admin_reset_password_view(request, username):
     )
 
     if success:
+        # NOTIFICATION: Password Reset
+        send_admin_notifications(
+            request, 
+            "security", 
+            username, 
+            f"has triggered a security password reset for {username}."
+        )
+
         messages.success(request, f"Password for '{username}' reset to temporary password '{temp_pw}'.")
     else:
         messages.error(request, f"Failed to reset password for '{username}'.")

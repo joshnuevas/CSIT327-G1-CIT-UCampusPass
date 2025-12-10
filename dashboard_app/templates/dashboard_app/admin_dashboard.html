@@ -4,7 +4,7 @@
 {% block dashboard_active %}active{% endblock %}
 {% block content %}
 <style>
-  /* ===== Shared Dashboard Aesthetics (From Staff) ===== */
+  /* ===== Shared Dashboard Aesthetics ===== */
   :root {
     --primary-maroon: #8b1538;
     --primary-gold: #d4af37;
@@ -15,23 +15,17 @@
 
   /* Animation */
   @keyframes slideUpFade {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   /* Layout Grid */
   .main-dashboard-grid {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr; /* Aligned with Staff proportions */
+    grid-template-columns: 1.2fr 0.8fr;
     gap: 25px;
     margin-bottom: 40px;
-    align-items: start; /* Prevents stretching, allows cards to sit at natural height */
+    align-items: start;
   }
 
   .left-column,
@@ -41,7 +35,7 @@
     gap: 25px;
   }
 
-  /* Card Styling (Unified) */
+  /* Card Styling */
   .card {
     background: #ffffff;
     border-radius: 12px;
@@ -51,6 +45,8 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    /* Ensure cards don't shrink below their content */
+    flex-shrink: 0; 
   }
 
   .card:hover {
@@ -65,7 +61,7 @@
     justify-content: space-between;
     align-items: center;
     background: #fff;
-    flex-shrink: 0; /* Prevents header from squishing */
+    flex-shrink: 0;
   }
 
   .card-title {
@@ -81,7 +77,7 @@
   .card-content {
     padding: 10px;
     flex: 1;
-    min-height: 0; /* Important for flex scrolling */
+    min-height: 0;
   }
 
   /* Badge & Buttons */
@@ -111,7 +107,7 @@
     background: #fff5f7;
   }
 
-  /* ===== Stats Grid (Aligned with Staff) ===== */
+  /* ===== Stats Grid ===== */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -146,41 +142,16 @@
     flex-shrink: 0;
   }
 
-  .stat-icon-wrapper svg {
-    width: 24px;
-    height: 24px;
-  }
+  .stat-icon-wrapper svg { width: 24px; height: 24px; }
+  .icon-green { background: rgba(46, 125, 50, 0.1); color: #2e7d32; }
+  .icon-gold { background: rgba(212, 175, 55, 0.1); color: #b7791f; }
+  .icon-blue { background: rgba(33, 150, 243, 0.1); color: #1976d2; }
 
-  .icon-green {
-    background: rgba(46, 125, 50, 0.1);
-    color: #2e7d32;
-  }
-  .icon-gold {
-    background: rgba(212, 175, 55, 0.1);
-    color: #b7791f;
-  }
-  .icon-blue {
-    background: rgba(33, 150, 243, 0.1);
-    color: #1976d2;
-  }
+  .stat-content { display: flex; flex-direction: column; }
+  .stat-value { font-size: 28px; font-weight: 800; color: #2D3748; line-height: 1.2; }
+  .stat-label { font-size: 13px; color: #718096; font-weight: 500; }
 
-  .stat-content {
-    display: flex;
-    flex-direction: column;
-  }
-  .stat-value {
-    font-size: 28px;
-    font-weight: 800;
-    color: #2D3748;
-    line-height: 1.2;
-  }
-  .stat-label {
-    font-size: 13px;
-    color: #718096;
-    font-weight: 500;
-  }
-
-  /* ===== Activity Item (Inspired by Staff Schedule Cards) ===== */
+  /* ===== Activity Item ===== */
   .activity-item {
     padding: 12px 15px 12px 21px;
     margin-bottom: 12px;
@@ -198,25 +169,9 @@
     transform: translateX(3px);
   }
 
-  .activity-content h4 {
-    margin: 0 0 4px 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #8b1538;
-  }
-
-  .activity-content p {
-    margin: 0 0 6px 0;
-    font-size: 0.85rem;
-    color: #666;
-    line-height: 1.4;
-  }
-
-  .activity-content small {
-    font-size: 0.75rem;
-    color: #999;
-    font-weight: 500;
-  }
+  .activity-content h4 { margin: 0 0 4px 0; font-size: 0.95rem; font-weight: 700; color: #8b1538; }
+  .activity-content p { margin: 0 0 6px 0; font-size: 0.85rem; color: #666; line-height: 1.4; }
+  .activity-content small { font-size: 0.75rem; color: #999; font-weight: 500; }
 
   /* ===== Quick Actions ===== */
   .quick-actions-grid {
@@ -224,10 +179,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
-
-  .quick-actions-grid.compact-grid .quick-action-btn:last-child {
-    grid-column: span 2;
-  }
+  .quick-actions-grid.compact-grid .quick-action-btn:last-child { grid-column: span 2; }
 
   .quick-action-btn {
     display: flex;
@@ -241,56 +193,21 @@
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.3s;
     position: relative;
     overflow: hidden;
   }
 
-  .quick-action-btn.primary {
-    background: rgba(139, 21, 56, 0.1);
-    border: 1px solid rgba(139, 21, 56, 0.2);
-    color: #8b1538;
-  }
-  .quick-action-btn.primary:hover {
-    background: rgba(139, 21, 56, 0.15);
-    border-color: #8b1538;
-  }
-  .quick-action-btn.secondary {
-    background: rgba(212, 175, 55, 0.1);
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    color: #b7791f;
-  }
-  .quick-action-btn.secondary:hover {
-    background: rgba(212, 175, 55, 0.15);
-    border-color: #b7791f;
-  }
-  .quick-action-btn.tertiary {
-    background: rgba(33, 150, 243, 0.1);
-    border: 1px solid rgba(33, 150, 243, 0.2);
-    color: #1976d2;
-  }
-  .quick-action-btn.tertiary:hover {
-    background: rgba(33, 150, 243, 0.15);
-    border-color: #1976d2;
-  }
-  .quick-action-btn.quaternary {
-    background: rgba(46, 125, 50, 0.1);
-    border: 1px solid rgba(46, 125, 50, 0.2);
-    color: #2e7d32;
-  }
-  .quick-action-btn.quaternary:hover {
-    background: rgba(46, 125, 50, 0.15);
-    border-color: #2e7d32;
-  }
-
-  .quick-action-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-  }
-  .quick-action-btn i {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-  }
+  .quick-action-btn.primary { background: rgba(139, 21, 56, 0.1); border: 1px solid rgba(139, 21, 56, 0.2); color: #8b1538; }
+  .quick-action-btn.primary:hover { background: rgba(139, 21, 56, 0.15); border-color: #8b1538; }
+  .quick-action-btn.secondary { background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); color: #b7791f; }
+  .quick-action-btn.secondary:hover { background: rgba(212, 175, 55, 0.15); border-color: #b7791f; }
+  .quick-action-btn.tertiary { background: rgba(33, 150, 243, 0.1); border: 1px solid rgba(33, 150, 243, 0.2); color: #1976d2; }
+  .quick-action-btn.tertiary:hover { background: rgba(33, 150, 243, 0.15); border-color: #1976d2; }
+  .quick-action-btn.quaternary { background: rgba(46, 125, 50, 0.1); border: 1px solid rgba(46, 125, 50, 0.2); color: #2e7d32; }
+  .quick-action-btn.quaternary:hover { background: rgba(46, 125, 50, 0.15); border-color: #2e7d32; }
+  .quick-action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1); }
+  .quick-action-btn i { font-size: 1.5rem; margin-bottom: 5px; }
 
   /* ===== Notifications ===== */
   .notification-item {
@@ -305,13 +222,7 @@
     border: 1px solid #f1f5f9;
     transition: all 0.2s ease;
   }
-
-  .notification-item:hover {
-    border-color: var(--primary-gold);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    transform: translateX(3px);
-  }
-
+  .notification-item:hover { border-color: var(--primary-gold); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); transform: translateX(3px); }
   .notification-item .activity-icon {
     flex-shrink: 0;
     width: 36px;
@@ -325,148 +236,91 @@
     font-size: 14px;
     border: 1px solid rgba(139, 21, 56, 0.1);
   }
-
-  .notification-item .activity-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .notification-item .activity-content h4 {
-    margin: 0 0 6px 0;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #333;
-    line-height: 1.3;
-  }
-
-  .notification-item .activity-content p {
-    margin: 0 0 8px 0;
-    font-size: 0.85rem;
-    color: #666;
-    line-height: 1.4;
-  }
-
-  .notification-item .activity-content small {
-    font-size: 0.75rem;
-    color: #999;
-    font-weight: 500;
-    display: block;
-    text-align: right;
-  }
-
+  .notification-item .activity-content { flex: 1; min-width: 0; }
+  .notification-item .activity-content h4 { margin: 0 0 6px 0; font-size: 0.95rem; font-weight: 700; color: #333; line-height: 1.3; }
+  .notification-item .activity-content p { margin: 0 0 8px 0; font-size: 0.85rem; color: #666; line-height: 1.4; }
+  .notification-item .activity-content small { font-size: 0.75rem; color: #999; font-weight: 500; display: block; text-align: right; }
   .notification-item .btn-delete {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    color: #999;
-    cursor: pointer;
-    font-size: 16px;
-    transition: color 0.2s;
+    position: absolute; top: 10px; right: 10px;
+    background: transparent; border: none;
+    color: #999; cursor: pointer; font-size: 14px; transition: color 0.2s;
   }
-
-  .notification-item .btn-delete:hover {
-    color: #d32f2f;
-  }
+  .notification-item .btn-delete:hover { color: #d32f2f; }
 
   /* Empty States */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #94a3b8;
+  .empty-state { text-align: center; padding: 40px 20px; color: #94a3b8; }
+  .empty-icon { font-size: 32px; margin-bottom: 15px; opacity: 0.5; color: var(--primary-maroon); }
+
+  /* ===== CRITICAL FIX: FORCE NOTIFICATION HEIGHT (OVERRIDES JS) ===== */
+  #notification-card-wrapper {
+      height: 330px !important;
+      min-height: 330px !important;
+      max-height: 330px !important;
+      overflow-y: auto;
   }
-  .empty-icon {
-    font-size: 32px;
-    margin-bottom: 15px;
-    opacity: 0.5;
-    color: var(--primary-maroon);
+
+  #notificationsContainer {
+      height: 100% !important;
+      display: flex;
+      flex-direction: column;
   }
+
+  /* Force the empty state to center, even if JS injects it dynamically */
+  #notificationsContainer .empty-state {
+      flex: 1;
+      display: flex !important;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100% !important;
+      min-height: 250px; /* Safety net */
+      padding: 0 !important;
+      margin: 0 !important;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scroll { scrollbar-width: thin; scrollbar-color: #8B1538 #f1f5f9; }
+  .custom-scroll::-webkit-scrollbar { width: 8px; }
+  .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+  .custom-scroll::-webkit-scrollbar-thumb { background-color: #8B1538; border-radius: 10px; border: 2px solid #f1f5f9; }
+  .custom-scroll::-webkit-scrollbar-thumb:hover { background-color: #A51B42; }
 
   /* Responsive */
   @media (max-width: 1024px) {
-    .main-dashboard-grid {
-      grid-template-columns: 1fr;
-    }
-    .quick-actions-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    .main-dashboard-grid { grid-template-columns: 1fr; }
+    .quick-actions-grid { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 600px) {
-    .quick-actions-grid {
-      grid-template-columns: 1fr;
-    }
+    .quick-actions-grid { grid-template-columns: 1fr; }
   }
-
-  /* ===== RED SCROLLBAR (MATCH STAFF TODAY'S SCHEDULE) ===== */
-  .custom-scroll {
-      scrollbar-width: thin;
-      scrollbar-color: #8B1538 #f1f5f9;
-  }
-
-  .custom-scroll::-webkit-scrollbar {
-      width: 8px;
-  }
-
-  .custom-scroll::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 10px;
-  }
-
-  .custom-scroll::-webkit-scrollbar-thumb {
-      background-color: #8B1538;
-      border-radius: 10px;
-      border: 2px solid #f1f5f9;
-  }
-
-  .custom-scroll::-webkit-scrollbar-thumb:hover {
-      background-color: #A51B42;
-  }
-
 </style>
 
-<div
-  class="welcome-section"
-  style="margin-bottom: 30px; animation: slideUpFade 0.6s ease forwards"
->
+<div class="welcome-section" style="margin-bottom: 30px; animation: slideUpFade 0.6s ease forwards">
   <div class="welcome-text">
-    <h1 style="color: #2d3748; font-weight: 800; margin-bottom: 5px">
-      Welcome, Admin!
-    </h1>
-    <p style="color: var(--text-muted); margin: 0">
-      Manage your campus access system efficiently
-    </p>
+    <h1 style="color: #2d3748; font-weight: 800; margin-bottom: 5px">Welcome, Admin!</h1>
+    <p style="color: var(--text-muted); margin: 0">Manage your campus access system efficiently</p>
   </div>
   <div class="current-date">{% now "l, F j, Y" %}</div>
 </div>
 
-<div
-  class="dashboard-overview animate-entry"
-  style="animation: slideUpFade 0.7s ease forwards"
->
+<div class="dashboard-overview animate-entry" style="animation: slideUpFade 0.7s ease forwards">
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-icon-wrapper icon-green">
-        <i class="fas fa-user-shield fa-lg"></i>
-      </div>
+      <div class="stat-icon-wrapper icon-green"><i class="fas fa-user-shield fa-lg"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ total_admins }}</div>
         <div class="stat-label">Total Admins</div>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon-wrapper icon-gold">
-        <i class="fas fa-user-friends fa-lg"></i>
-      </div>
+      <div class="stat-icon-wrapper icon-gold"><i class="fas fa-user-friends fa-lg"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ total_staff }}</div>
         <div class="stat-label">Front Desk Staff</div>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon-wrapper icon-blue">
-        <i class="fas fa-users fa-lg"></i>
-      </div>
+      <div class="stat-icon-wrapper icon-blue"><i class="fas fa-users fa-lg"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ total_visitors }}</div>
         <div class="stat-label">Registered Visitors</div>
@@ -475,10 +329,7 @@
   </div>
 </div>
 
-<div
-  class="main-dashboard-grid animate-entry"
-  style="animation: slideUpFade 0.8s ease forwards"
->
+<div class="main-dashboard-grid animate-entry" style="animation: slideUpFade 0.8s ease forwards">
   <div class="left-column">
     <div class="card">
       <div class="card-header">
@@ -488,137 +339,107 @@
           <span class="badge-count">{{ recent_activities|length }}</span>
         </h3>
         <div class="header-actions">
-          <a
-            href="{% url 'manage_reports_logs_app:logs_view' %}"
-            class="btn-sm btn-outline"
-            >View Logs</a
-          >
+          <a href="{% url 'manage_reports_logs_app:logs_view' %}" class="btn-sm btn-outline">View Logs</a>
         </div>
       </div>
 
       <div class="card-content custom-scroll" style="max-height: 700px; overflow-y: auto;">
-        {% if recent_activities %} {% for activity in recent_activities %}
-        <div class="activity-item">
-          <div class="activity-content">
-            <h4>{{ activity.action_type }}</h4>
-            <p>{{ activity.description }}</p>
-            <small>
-              <i class="far fa-user"></i> {{ activity.actor }}
-              <span style="color: #ddd; margin: 0 5px">|</span>
-              <i class="far fa-calendar"></i> {{ activity.display_time }}
-            </small>
+        {% if recent_activities %} 
+          {% for activity in recent_activities %}
+          <div class="activity-item">
+            <div class="activity-content">
+              <h4>{{ activity.action_type }}</h4>
+              <p>{{ activity.description }}</p>
+              <small>
+                <i class="far fa-user"></i> {{ activity.actor }}
+                <span style="color: #ddd; margin: 0 5px">|</span>
+                <i class="far fa-calendar"></i> {{ activity.display_time }}
+              </small>
+            </div>
           </div>
-        </div>
-        {% endfor %} {% else %}
-        <div class="empty-state">
-          <div class="empty-icon">
-            <i class="far fa-clipboard"></i>
+          {% endfor %} 
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon"><i class="far fa-clipboard"></i></div>
+            <h3>No Recent Activities</h3>
+            <p>Activity logs will appear here as actions are performed.</p>
           </div>
-          <h3>No Recent Activities</h3>
-          <p>Activity logs will appear here as actions are performed.</p>
-        </div>
         {% endif %}
       </div>
     </div>
   </div>
 
   <div class="right-column">
+    
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">Quick Actions</h3>
       </div>
-
       <div class="card-content">
         <div class="quick-actions-grid {% if not is_superadmin %}compact-grid{% endif %}">
-          
           {% if is_superadmin %}
-          <a
-            href="{% url 'manage_admin_app:admin_create' %}"
-            class="quick-action-btn primary"
-          >
-            <i class="fas fa-user-plus"></i>
-            <span>New Admin</span>
+          <a href="{% url 'manage_admin_app:admin_create' %}" class="quick-action-btn primary">
+            <i class="fas fa-user-plus"></i><span>New Admin</span>
           </a>
           {% endif %}
-          
-          <a
-            href="{% url 'manage_staff_app:staff_create' %}"
-            class="quick-action-btn secondary"
-          >
-            <i class="fas fa-user-tie"></i>
-            <span>New Staff</span>
+          <a href="{% url 'manage_staff_app:staff_create' %}" class="quick-action-btn secondary">
+            <i class="fas fa-user-tie"></i><span>New Staff</span>
           </a>
-          
-          <a
-            href="{% url 'manage_reports_logs_app:reports_view' %}"
-            class="quick-action-btn tertiary"
-          >
-            <i class="fas fa-chart-bar"></i>
-            <span>View Reports</span>
+          <a href="{% url 'manage_reports_logs_app:reports_view' %}" class="quick-action-btn tertiary">
+            <i class="fas fa-chart-bar"></i><span>View Reports</span>
           </a>
-          
-          <a
-            href="{% url 'visit_records_app:visit_records' %}"
-            class="quick-action-btn quaternary"
-          >
-            <i class="fas fa-clipboard-list"></i>
-            <span>Visit Records</span>
+          <a href="{% url 'visit_records_app:visit_records' %}" class="quick-action-btn quaternary">
+            <i class="fas fa-clipboard-list"></i><span>Visit Records</span>
           </a>
-          
         </div>
       </div>
     </div>
 
-    <div class="card" style="flex: 1">
+    <div class="card">
       <div class="card-header">
         <h3 class="card-title">
           <i class="fas fa-bell" style="color: var(--primary-maroon)"></i>
           Notifications
         </h3>
         <div class="header-actions">
-          <a
-            href="#"
-            id="clearAllBtn"
-            class="small-clear-btn"
-            style="font-size: 0.8rem; color: var(--primary-maroon); text-decoration: none"
-            >Clear All</a
-          >
+          <a href="#" id="clearAllBtn" class="small-clear-btn" style="font-size: 0.8rem; color: var(--primary-maroon); text-decoration: none">Clear All</a>
         </div>
       </div>
 
-      <div class="card-content custom-scroll" style="max-height: 330px; overflow-y: auto;">
+      <div id="notification-card-wrapper" class="card-content custom-scroll">
         <div id="notificationsContainer">
-          {% if notifications %} {% for notif in notifications %}
-          <div class="notification-item" data-id="{{ notif.id }}">
-            <div class="activity-icon">
-              {% if 'Staff' in notif.title %}
-              <i class="fas fa-user-tie"></i>
-              {% elif 'Visitor' in notif.title %}
-              <i class="fas fa-users"></i>
-              {% else %}
-              <i class="fas fa-bell"></i>
-              {% endif %}
+          {% if notifications %} 
+            {% for notif in notifications %}
+            <div class="notification-item" data-id="{{ notif.id }}">
+              <div class="activity-icon">
+                {% if notif.type == 'personal_alert' %} <i class="fas fa-user-shield"></i>
+                {% elif notif.type == 'system_alert' %} <i class="fas fa-server"></i>
+                {% elif 'Staff' in notif.title %} <i class="fas fa-user-tie"></i>
+                {% elif 'Visitor' in notif.title %} <i class="fas fa-users"></i>
+                {% else %} <i class="fas fa-bell"></i>
+                {% endif %}
+              </div>
+              <div class="activity-content">
+                <h4>{{ notif.title }}</h4>
+                <p>{{ notif.message }}</p>
+                <small>{{ notif.time }}</small>
+              </div>
+              <button class="btn-delete" data-id="{{ notif.id }}">✕</button>
             </div>
-            <div class="activity-content">
-              <h4>{{ notif.title }}</h4>
-              <p>{{ notif.message }}</p>
-              <small>{{ notif.time }}</small>
+            {% endfor %} 
+          {% else %}
+            <div class="empty-state">
+              <div class="empty-icon"><i class="far fa-bell-slash"></i></div>
+              <p>No new notifications.</p>
             </div>
-            <button class="btn-delete" data-id="{{ notif.id }}">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          {% endfor %} {% else %}
-          <div class="empty-state" style="padding: 20px">
-            <p>No new notifications.</p>
-          </div>
           {% endif %}
         </div>
       </div>
     </div>
+
   </div>
 </div>
-
 {% endblock %}
 
-{% block extra_js %}{% endblock %}
+{% block extra_js %}
+{% endblock %}

@@ -16,7 +16,7 @@
         position: relative;
       }
 
-            /* ===== NAV VISIBILITY TOGGLE (DESKTOP) ===== */
+      /* ===== NAV VISIBILITY TOGGLE (DESKTOP) ===== */
       .nav-visibility-toggle {
         background: none;
         border: none;
@@ -122,7 +122,7 @@
         margin-left: auto;
       }
 
-      /* ===== USER AVATAR (ADDED THIS) ===== */
+      /* ===== USER AVATAR ===== */
       .user-avatar {
         width: 42px;
         height: 42px;
@@ -143,6 +143,48 @@
 
       .user-avatar:hover {
         transform: scale(1.05);
+      }
+
+      /* ===== NOTIFICATION ICON (NEW) ===== */
+      .notification-icon {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        background-color: #ffffff;
+        color: #8b1538;
+        border-radius: 50%;
+        border: 2px solid #d4af37;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .notification-icon:hover {
+        transform: scale(1.05);
+        background-color: #f8f8f8;
+      }
+
+      .notification-icon svg {
+        width: 20px;
+        height: 20px;
+        fill: #8b1538;
+      }
+
+      /* ===== NOTIFICATION BADGE (NEW) ===== */
+      .notification-badge {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        background-color: #8b1538; /* Maroon Dot */
+        border: 1px solid #fff;
+        border-radius: 50%;
+        z-index: 1500;
       }
 
       /* ===== DROPDOWNS ===== */
@@ -196,15 +238,48 @@
         width: 20px;
       }
 
+      /* Notification Specifics inside Dropdown */
+      .dropdown-item .activity-icon {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+      }
+      .dropdown-item .activity-content { flex: 1; }
+      .dropdown-item .activity-content h4 { margin: 0 0 2px 0; font-size: 14px; font-weight: 600; color: #333; }
+      .dropdown-item .activity-content p { margin: 0; font-size: 13px; color: #666; }
+      .dropdown-item .activity-content small { font-size: 12px; color: #999; font-weight: 500; }
+      .dropdown-item .btn-delete {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        color: #8b1538;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+        display: none;
+      }
+      .dropdown-item:hover .btn-delete { display: inline-block; }
+      .dropdown-empty { padding: 20px; text-align: center; color: #666; font-size: 14px; }
+
+      /* Notification Dropdown Specific Style */
+      #notifDropdown {
+        right: 80px;
+        max-height: 420px;
+        overflow-y: auto;
+        width: 350px;
+        scrollbar-width: thin;
+        scrollbar-color: #8b1538 #f5f5f5;
+      }
+
       @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
       #profileDropdown {
@@ -212,19 +287,19 @@
       }
 
       .nav-item svg {
-          width: 20px;
-          height: 20px;
-          margin-right: 14px;
+        width: 20px;
+        height: 20px;
+        margin-right: 14px;
       }
 
       .nav-item i {
-          width: 20px;
-          margin-right: 14px;
-          font-size: 18px;
+        width: 20px;
+        margin-right: 14px;
+        font-size: 18px;
       }
 
       .logout-item {
-          margin-top: 20px;
+        margin-top: 20px;
       }
 
       /* ===== MODALS ===== */
@@ -317,91 +392,84 @@
       }
 
       @keyframes slideDownModal {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
       }
+
       /* ========================================= 
       WELCOME CURTAIN ANIMATION 
       ========================================= */
-    .welcome-curtain {
+      .welcome-curtain {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         background: linear-gradient(135deg, #8B1538 0%, #5c0a0a 100%); /* CIT Maroon */
-        z-index: 99999; /* On top of everything */
+        z-index: 99999;
         display: flex;
         justify-content: center;
         align-items: center;
-        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1); /* Smooth slide up */
-    }
+        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+      }
 
-    /* Class added by JS to hide the curtain */
-    .welcome-curtain.slide-up {
+      .welcome-curtain.slide-up {
         transform: translateY(-100%);
-    }
+      }
 
-    .curtain-content {
+      .curtain-content {
         text-align: center;
         color: white;
         opacity: 1;
         transition: opacity 0.5s ease;
-    }
+      }
 
-    .welcome-curtain.slide-up .curtain-content {
+      .welcome-curtain.slide-up .curtain-content {
         opacity: 0;
-    }
+      }
 
-    /* Big Logo in Center */
-    .curtain-logo {
+      .curtain-logo {
         width: 100px;
         height: 100px;
         background: url("https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png") no-repeat center;
         background-size: contain;
         background-color: white;
         border-radius: 50%;
-        border: 4px solid #D4AF37; /* Gold Border */
+        border: 4px solid #D4AF37;
         margin: 0 auto 20px;
         box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
-    }
+      }
 
-    .curtain-text h1 {
+      .curtain-text h1 {
         font-size: 28px;
         font-weight: 800;
         margin-bottom: 5px;
         color: #fff;
         letter-spacing: 0.5px;
-    }
+      }
 
-    .curtain-text p {
+      .curtain-text p {
         font-size: 14px;
         color: rgba(255, 255, 255, 0.8);
         margin-bottom: 25px;
-    }
+      }
 
-    .curtain-loader {
-        width: 120px;               /* fixed width - prevents layout shifts */
+      .curtain-loader {
+        width: 120px;
         height: 4px;
         background: #D4AF37;
         margin: 0 auto;
         border-radius: 2px;
-        transform-origin: left;     /* grow from left */
-        transform: scaleX(0);       /* start hidden */
+        transform-origin: left;
+        transform: scaleX(0);
         animation: smoothLoad 1.6s ease forwards;
-    }
+      }
 
-    @keyframes smoothLoad {
-        0%   { transform: scaleX(0); opacity: 0.2; }
-        15%  { opacity: 1; }
+      @keyframes smoothLoad {
+        0% { transform: scaleX(0); opacity: 0.2; }
+        15% { opacity: 1; }
         100% { transform: scaleX(1); opacity: 1; }
-    }
+      }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -432,53 +500,32 @@
 
         <nav class="nav-menu">
             <a href="{% url 'dashboard_app:dashboard' %}" class="nav-item {% block dashboard_active %}{% endblock %}">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                </svg>
+                <svg fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/></svg>
                 Dashboard
             </a>
-
             <a href="{% url 'book_visit_app:book_visit' %}" class="nav-item {% block book_visit_active %}{% endblock %}">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                </svg>
+                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
                 Book a Visit
             </a>
-
             <a href="{% url 'history_app:visit_history' %}" class="nav-item {% block history_active %}{% endblock %}">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                </svg>
+                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
                 My Passes
             </a>
-            
             <a href="{% url 'calendar_app:calendar' %}" class="nav-item {% block calendar_active %}{% endblock %}">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 7a1 1 0 011-1h1a1 1 0 010 2H7a1 1 0 01-1-1zm4-1a1 1 0 000 2h1a1 1 0 100-2h-1z"/>
-                </svg>
+                <svg fill="currentColor" viewBox="0 0 20 20"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 7a1 1 0 011-1h1a1 1 0 010 2H7a1 1 0 01-1-1zm4-1a1 1 0 000 2h1a1 1 0 100-2h-1z"/></svg>
                 Calendar
             </a>
-
             <div class="nav-divider"></div>
-
             <a href="{% url 'help_app:help_support' %}" class="nav-item {% block help_active %}{% endblock %}">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                </svg>
+                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
                 Help & Support
             </a>
-
             <a href="{% url 'profile_app:profile' %}" class="nav-item {% block profile_active %}{% endblock %}">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-                </svg>
+                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
                 Profile Settings
             </a>
-
             <a href="#" class="nav-item logout-item" id="sidebarLogoutBtn">
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
-                </svg>
+                <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg>
                 Logout
             </a>
         </nav>
@@ -491,15 +538,7 @@
             <div class="alert alert-{{ message.tags }} {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
                 <div class="alert-content">
                     <span class="alert-icon">
-                        {% if message.tags == 'success' %}
-                            ✅
-                        {% elif message.tags == 'error' or message.tags == 'danger' %}
-                            ❌
-                        {% elif message.tags == 'warning' %}
-                            ⚠️
-                        {% else %}
-                            ℹ️
-                        {% endif %}
+                        {% if message.tags == 'success' %}✅{% elif message.tags == 'error' or message.tags == 'danger' %}❌{% elif message.tags == 'warning' %}⚠️{% else %}ℹ️{% endif %}
                     </span>
                     <span class="alert-text">{{ message }}</span>
                     <button class="alert-close" onclick="this.parentElement.parentElement.remove()">×</button>
@@ -508,59 +547,50 @@
             {% endfor %}
         </div>
         {% endif %}
+        
         <div class="top-bar">
-            <button class="menu-toggle" id="menuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-
-            <!-- NEW: Desktop hide/show sidebar toggle -->
-            <button class="nav-visibility-toggle" id="navToggle" title="Hide sidebar">
-                <i class="fas fa-angle-double-left"></i>
-            </button>
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <button class="nav-visibility-toggle" id="navToggle" title="Hide sidebar"><i class="fas fa-angle-double-left"></i></button>
 
             <div class="user-info">
+                <div class="notification-icon" id="notifBtn">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                    </svg>
+                    <span class="notification-badge" style="display: none"></span>
+                </div>
                 <div class="user-avatar" id="profileBtn">{{ user_first_name|default:"JD"|slice:":2"|upper }}</div>
             </div>
         </div>
-
 
         <div class="content-area">
             {% block content %}{% endblock %}
         </div>
     </div>
 
+    <div class="dropdown" id="notifDropdown">
+      <div class="dropdown-header">Notifications</div>
+      <div class="dropdown-empty">No new notifications</div>
+    </div>
     <div class="dropdown" id="profileDropdown">
         <div class="dropdown-header">Visitor</div>
-        <a href="{% url 'profile_app:profile' %}" class="dropdown-item">
-            <i class="fas fa-user"></i> Profile
-        </a>
-        <div class="dropdown-item" id="dropdownLogoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </div>
+        <a href="{% url 'profile_app:profile' %}" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
+        <div class="dropdown-item" id="dropdownLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
 
     <div id="logoutModal" class="modal">
         <div class="modal-content logout-card">
-            <div class="logout-icon-wrapper">
-                <i class="fas fa-sign-out-alt"></i>
-            </div>
-
+            <div class="logout-icon-wrapper"><i class="fas fa-sign-out-alt"></i></div>
             <h2 class="logout-title">Signing Out?</h2>
             <p class="logout-subtitle">You will need to sign in again to access your visitor dashboard.</p>
-
             <div class="modal-buttons">
-                <button id="cancelLogout" class="btn-secondary btn-logout-cancel">
-                    Cancel
-                </button>
-                <button id="confirmLogout" class="btn-primary btn-logout-confirm">
-                    Yes, Logout
-                </button>
+                <button id="cancelLogout" class="btn-secondary btn-logout-cancel">Cancel</button>
+                <button id="confirmLogout" class="btn-primary btn-logout-confirm">Yes, Logout</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Auto-dismiss messages after 5 seconds + init navbar preference
         document.addEventListener('DOMContentLoaded', function() {
             // ===== TOASTS =====
             const alerts = document.querySelectorAll('.alert');
@@ -568,20 +598,16 @@
                 setTimeout(function() {
                     alert.style.opacity = '0';
                     alert.style.transform = 'translateX(400px)';
-                    setTimeout(function() {
-                        alert.remove();
-                    }, 500);
+                    setTimeout(function() { alert.remove(); }, 500);
                 }, 5000);
             });
 
             // ===== NAVBAR HIDE/SHOW (DESKTOP) =====
             const navToggle = document.getElementById('navToggle');
-
             function updateNavToggleIcon(isHidden) {
                 if (!navToggle) return;
                 const icon = navToggle.querySelector('i');
                 if (!icon) return;
-
                 if (isHidden) {
                     icon.classList.remove('fa-angle-double-left');
                     icon.classList.add('fa-angle-double-right');
@@ -592,23 +618,15 @@
                     navToggle.title = 'Hide sidebar';
                 }
             }
-
             function applySavedNavPreference() {
                 const saved = localStorage.getItem('visitorNavHidden');
                 const shouldHide = saved === '1';
-                if (shouldHide) {
-                    document.body.classList.add('nav-hidden');
-                } else {
-                    document.body.classList.remove('nav-hidden');
-                }
+                if (shouldHide) document.body.classList.add('nav-hidden');
+                else document.body.classList.remove('nav-hidden');
                 updateNavToggleIcon(shouldHide);
             }
-
             if (navToggle) {
-                // Apply saved state on load
                 applySavedNavPreference();
-
-                // Toggle on click
                 navToggle.addEventListener('click', function () {
                     const isHiddenNow = document.body.classList.toggle('nav-hidden');
                     localStorage.setItem('visitorNavHidden', isHiddenNow ? '1' : '0');
@@ -618,108 +636,242 @@
 
             // ====== WELCOME ANIMATION LOGIC ======
             const curtain = document.getElementById('welcome-curtain');
-
-            // Django login URL so we can detect "just logged in"
             const loginPath = "{% url 'login_app:login' %}";
             const fromLogin = document.referrer && document.referrer.includes(loginPath);
-
-            // Check flag in this tab
             let hasSeenIntro = sessionStorage.getItem('seenDashboardIntro');
-
-            // If we came from login, force re-show the intro for this fresh login
             if (fromLogin) {
                 sessionStorage.removeItem('seenDashboardIntro');
                 hasSeenIntro = null;
             }
-
             if (curtain) {
                 if (hasSeenIntro) {
-                    // Already saw intro during this tab session and not coming from login
                     curtain.style.display = 'none';
                 } else {
-                    // First time in this tab OR just logged in -> play animation
                     setTimeout(() => {
                         curtain.classList.add('slide-up');
-
-                        // Mark as seen so internal navigation doesn't replay it
                         sessionStorage.setItem('seenDashboardIntro', 'true');
-
-                        // Remove from view after transition
-                        setTimeout(() => {
-                            curtain.style.display = 'none';
-                        }, 800);
+                        setTimeout(() => { curtain.style.display = 'none'; }, 800);
                     }, 2000);
                 }
             }
+
+            // ===== SIDEBAR TOGGLE =====
+            const menuToggle = document.getElementById("menuToggle");
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            if (menuToggle) {
+                menuToggle.addEventListener("click", () => {
+                    sidebar.classList.toggle("active");
+                    overlay.classList.toggle("active");
+                });
+            }
+            if (overlay) {
+                overlay.addEventListener("click", () => {
+                    sidebar.classList.remove("active");
+                    overlay.classList.remove("active");
+                });
+            }
+
+            // ===== DROPDOWNS (PROFILE & NOTIFICATION) =====
+            const notifBtn = document.getElementById("notifBtn");
+            const notifDropdown = document.getElementById("notifDropdown");
+            const profileBtn = document.getElementById("profileBtn");
+            const profileDropdown = document.getElementById("profileDropdown");
+
+            // Notification Toggle
+            if (notifBtn) {
+                notifBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    notifDropdown.classList.toggle("active");
+                    profileDropdown.classList.remove("active");
+                    
+                    // RE-ASSERT BADGE VISIBILITY (Important fix)
+                    const notifBadge = notifBtn.querySelector(".notification-badge");
+                    if (notifBadge && notifBadge.dataset.count > 0) {
+                         notifBadge.style.setProperty("display", "inline-block", "important");
+                    }
+                });
+            }
+
+            // Profile Toggle
+            if (profileBtn) {
+                profileBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    profileDropdown.classList.toggle("active");
+                    notifDropdown.classList.remove("active");
+                });
+            }
+
+            document.addEventListener("click", (e) => {
+                if (notifDropdown && notifBtn && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target))
+                    notifDropdown.classList.remove("active");
+                if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
+                    profileDropdown.classList.remove("active");
+            });
+
+            // ===== MODAL HANDLING =====
+            const modals = document.querySelectorAll('.modal');
+            window.openModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if(modal) modal.classList.add('show');
+            }
+            window.closeModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if(modal) modal.classList.remove('show');
+            }
+            modals.forEach(modal=>{
+                modal.addEventListener('click', e=>{
+                    if(e.target===modal) modal.classList.remove('show');
+                });
+            });
+
+            // ===== LOGOUT LOGIC =====
+            const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
+            const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
+            const confirmLogout = document.getElementById("confirmLogout");
+            const cancelLogout = document.getElementById("cancelLogout");
+            
+            if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); openModal('logoutModal'); });
+            if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); openModal('logoutModal'); });
+            if(confirmLogout) confirmLogout.addEventListener("click", ()=>window.location.href="{% url 'login_app:logout' %}");
+            if(cancelLogout) cancelLogout.addEventListener("click", ()=>closeModal('logoutModal'));
         });
+    </script>
 
-        // ===== SIDEBAR TOGGLE =====
-        const menuToggle = document.getElementById("menuToggle");
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("overlay");
+    <script>
+    (() => {
+      const notifDropdown = document.getElementById("notifDropdown");
+      const notifBadge = document.querySelector(".notification-badge");
+      const notifBtn = document.getElementById("notifBtn");
+      const csrftoken = document.querySelector('meta[name="csrf-token"]')?.content;
 
-        if (menuToggle) {
-            menuToggle.addEventListener("click", () => {
-                sidebar.classList.toggle("active");
-                overlay.classList.toggle("active");
-            });
+      let pollInterval = null;
+      const POLL_DELAY = 10000;
+
+      function formatTime(dateString) { return dateString || "N/A"; }
+
+      function updateBadgeUI(count) {
+        if (!notifBadge) return;
+        
+        // Dot Mode: Empty text content
+        notifBadge.textContent = ""; 
+        
+        // Store count for logic use
+        notifBadge.dataset.count = count; 
+        
+        if (count > 0) {
+            notifBadge.style.setProperty("display", "inline-block", "important");
+        } else {
+            notifBadge.style.display = "none";
         }
+      }
 
-        if (overlay) {
-            overlay.addEventListener("click", () => {
-                sidebar.classList.remove("active");
-                overlay.classList.remove("active");
-            });
+      async function fetchNotifications() {
+        try {
+          // Calling the VISITOR specific API
+          const response = await fetch("/api/visitor-notifications/"); 
+          if (!response.ok) return;
+          const data = await response.json();
+          const notifications = data.notifications || [];
+
+          updateBadgeUI(notifications.length);
+
+          if (notifDropdown) {
+            notifDropdown.innerHTML = "";
+            const headerDiv = document.createElement("div");
+            headerDiv.classList.add("dropdown-header");
+            headerDiv.innerHTML = `Notifications <a href="#" id="dropdownClearBtn" class="small-clear-btn" style="float:right; font-size:0.8rem; color:#8b1538; text-decoration:none;">Clear All</a>`;
+            notifDropdown.appendChild(headerDiv);
+
+            const clearBtn = headerDiv.querySelector("#dropdownClearBtn");
+            if(clearBtn) clearBtn.addEventListener("click", (e) => { e.preventDefault(); clearAllNotifications(); });
+
+            if (notifications.length === 0) {
+              notifDropdown.innerHTML += '<div class="dropdown-empty">No new notifications</div>';
+            } else {
+              notifications.forEach(notif => {
+                const item = document.createElement("div");
+                item.classList.add("dropdown-item");
+                // Highlight new ones visually
+                if(!notif.is_read) item.style.backgroundColor = "#fff5f7"; 
+
+                // Simple icon logic for visitors
+                let iconClass = 'fas fa-bell';
+                if (notif.title.includes('Visit') || notif.type === 'visit_update') iconClass = 'fas fa-calendar-check';
+                if (notif.type === 'personal_alert') iconClass = 'fas fa-user-shield';
+
+                item.innerHTML = `
+                  <div class="activity-icon"><i class="${iconClass}"></i></div>
+                  <div class="activity-content" style="flex: 1;">
+                    <h4 style="margin-bottom:2px;">${notif.title}</h4>
+                    <p style="margin:0;">${notif.message}</p>
+                    <small>${formatTime(notif.time)}</small>
+                  </div>
+                  <button class="btn-delete" data-id="${notif.id}">✕</button>
+                `;
+                notifDropdown.appendChild(item);
+
+                item.querySelector(".btn-delete").addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    deleteNotification(notif.id, item);
+                });
+              });
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching notifications:", err);
         }
+      }
 
-        // ===== DROPDOWNS =====
-        const profileBtn = document.getElementById("profileBtn");
-        const profileDropdown = document.getElementById("profileDropdown");
-
-        if (profileBtn) {
-            profileBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                profileDropdown.classList.toggle("active");
-            });
-        }
-
-        document.addEventListener("click", (e) => {
-            if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
-                profileDropdown.classList.remove("active");
-        });
-
-        // ===== Modal Handling =====
-        const modals = document.querySelectorAll('.modal');
-        const csrftoken = document.querySelector('meta[name="csrf-token"]').content;
-
-        window.openModal = function(modalId) {
-          const modal = document.getElementById(modalId);
-          if(modal) modal.classList.add('show');
-        }
-
-        window.closeModal = function(modalId) {
-          const modal = document.getElementById(modalId);
-          if(modal) modal.classList.remove('show');
-        }
-
-        // Close modal on overlay click
-        modals.forEach(modal=>{
-          modal.addEventListener('click', e=>{
-            if(e.target===modal) modal.classList.remove('show');
+      async function deleteNotification(notifId, element) {
+        try {
+          const res = await fetch("/api/visitor-notifications/delete/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+            body: JSON.stringify({ notif_id: notifId }),
           });
+          const data = await res.json();
+          if (data.success) {
+            if(element) element.remove();
+            fetchNotifications(); 
+          }
+        } catch (err) { console.error(err); }
+      }
+
+      async function clearAllNotifications() {
+        try {
+          const res = await fetch("/api/visitor-notifications/clear/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+            body: JSON.stringify({}) 
+          });
+          const data = await res.json();
+          if (data.success) fetchNotifications(); 
+        } catch (err) { console.error(err); }
+      }
+
+      function init() {
+        fetchNotifications();
+        if (!pollInterval) pollInterval = setInterval(fetchNotifications, POLL_DELAY);
+        
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) clearInterval(pollInterval);
+          else { fetchNotifications(); pollInterval = setInterval(fetchNotifications, POLL_DELAY); }
         });
 
-        // ===== Logout Modal =====
-        const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
-        const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
-        const logoutModal = document.getElementById("logoutModal");
-        const confirmLogout = document.getElementById("confirmLogout");
-        const cancelLogout = document.getElementById("cancelLogout");
+        // Ensure badge doesn't disappear when user clicks the bell to open dropdown
+        if (notifBtn) {
+            notifBtn.addEventListener("click", () => {
+                setTimeout(() => { 
+                    const badge = notifBtn.querySelector(".notification-badge");
+                    if(badge && badge.dataset.count > 0) badge.style.setProperty("display", "inline-block", "important");
+                }, 50);
+            });
+        }
+      }
 
-        if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); openModal('logoutModal'); });
-        if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); openModal('logoutModal'); });
-        if(confirmLogout) confirmLogout.addEventListener("click", ()=>window.location.href="{% url 'login_app:logout' %}");
-        if(cancelLogout) cancelLogout.addEventListener("click", ()=>closeModal('logoutModal'));
+      init();
+    })();
     </script>
 
     {% block extra_js %}{% endblock %}
