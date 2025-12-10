@@ -672,4 +672,7 @@ body {
     .modal-buttons .btn-secondary {
         width: 100%;
     }
+    input[readonly] {
+        opacity: 0.8;
+    }
 }

@@ -33,7 +33,7 @@
         <div id="viewMode" class="profile-view-wrapper">
             <div class="profile-hero">
                 <div class="profile-avatar-circle">
-                    {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                    {{ user.first_name|slice:":2"|upper }}
                 </div>
                 <div class="profile-identity">
                     <h2>{{ user.first_name }} {{ user.last_name }}</h2>
@@ -83,23 +83,21 @@
 
             <div class="form-grid-modern">
                 <div class="form-group">
-                    <label for="firstNameInput">First Name</label>
+                    <label>First Name</label>
                     <input type="text"
-                           name="first_name"
-                           id="firstNameInput"
-                           value="{{ user.first_name }}"
-                           required
-                           class="input-modern">
+                        value="{{ user.first_name }}"
+                        class="input-modern"
+                        readonly
+                        style="background-color: #f1f5f9; cursor: not-allowed;">
                 </div>
 
                 <div class="form-group">
-                    <label for="lastNameInput">Last Name</label>
+                    <label>Last Name</label>
                     <input type="text"
-                           name="last_name"
-                           id="lastNameInput"
-                           value="{{ user.last_name }}"
-                           required
-                           class="input-modern">
+                        value="{{ user.last_name }}"
+                        class="input-modern"
+                        readonly
+                        style="background-color: #f1f5f9; cursor: not-allowed;">
                 </div>
 
                 <div class="form-group full-width">
@@ -132,20 +130,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="visitorTypeSelect">Visitor Type</label>
-                    <div class="select-wrapper">
-                        <select name="visitorType"
-                                id="visitorTypeSelect"
-                                required>
-                            <option value="Student" {% if user.visitor_type == "Student" %}selected{% endif %}>Student</option>
-                            <option value="Parent/Guardian" {% if user.visitor_type == "Parent/Guardian" %}selected{% endif %}>Parent/Guardian</option>
-                            <option value="Staff" {% if user.visitor_type == "Staff" %}selected{% endif %}>Staff</option>
-                            <option value="Alumni" {% if user.visitor_type == "Alumni" %}selected{% endif %}>Alumni</option>
-                            <option value="Guest" {% if user.visitor_type == "Guest" %}selected{% endif %}>Guest</option>
-                            <option value="Visitor" {% if user.visitor_type == "Visitor" %}selected{% endif %}>Visitor</option>
-                            <option value="Other" {% if user.visitor_type == "Other" %}selected{% endif %}>Other</option>
-                        </select>
-                    </div>
+                    <label>Visitor Type</label>
+                    <input type="text"
+                        value="{{ user.visitor_type }}"
+                        class="input-modern"
+                        readonly
+                        style="background-color: #f1f5f9; cursor: not-allowed;">
                 </div>
             </div>
 

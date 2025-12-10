@@ -44,77 +44,73 @@ def notify_admins_about_visitor(action_title, message):
 
 # ---------------- Profile View (Visitor) ----------------
 def profile_view(request):
+    # Require login
     if 'user_email' not in request.session:
         return redirect('login_app:login')
     
     user_email = request.session['user_email']
 
-    # Load current user
+    # Load visitor user
     try:
         user = User.objects.get(email=user_email)
     except User.DoesNotExist:
         messages.error(request, "User not found. Please log in again.")
         return redirect('login_app:login')
 
+    # ===================== POST REQUEST =====================
     if request.method == 'POST':
         action = request.POST.get('action')
 
-        # --------------- Update Personal Info ---------------
+        # ------------------------------------------------------
+        # UPDATE PERSONAL INFO  (email + phone ONLY)
+        # ------------------------------------------------------
         if action == 'update_info':
-            first_name = (request.POST.get('first_name') or '').strip()
-            last_name = (request.POST.get('last_name') or '').strip()
+
+            # Names + visitor type are LOCKED and cannot change
+            first_name = user.first_name
+            last_name = user.last_name
+            visitor_type = user.visitor_type
+
             email = (request.POST.get('email') or '').strip().lower()
             phone = (request.POST.get('phone') or '').strip()
 
-            # Handle visitor type - either from dropdown or "Other" input
-            visitor_type_dropdown = request.POST.get('visitorType')
-            if visitor_type_dropdown == 'Other':
-                visitor_type = (request.POST.get('visitor_type_other') or '').strip()
-                if not visitor_type:
-                    messages.error(request, "Please specify your visitor type.")
-                    return redirect('profile_app:profile')
-            else:
-                visitor_type = visitor_type_dropdown
-
-            # Basic required checks
-            if not first_name or not last_name or not email or not phone:
+            # Required field check
+            if not email or not phone:
                 messages.error(request, "Please complete all required fields.")
                 return redirect('profile_app:profile')
 
-            # Validate phone format
+            # Phone validation: must be 11 digits and start with 09
             if not re.fullmatch(r"09\d{9}$", phone):
                 messages.error(request, "Invalid phone number format. It should be 11 digits and start with 09.")
                 return redirect('profile_app:profile')
 
-            # Validate email format
+            # Email validation
             email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$"
             if not re.fullmatch(email_pattern, email):
                 messages.error(request, "Please enter a valid email address (e.g., name@example.com).")
                 return redirect('profile_app:profile')
 
-            # Check if email or phone already used by another account
+            # Duplicate email check
             if User.objects.filter(email=email).exclude(email=user_email).exists():
                 messages.error(request, "Email already registered.")
                 return redirect('profile_app:profile')
 
+            # Duplicate phone check
             if User.objects.filter(phone=phone).exclude(email=user_email).exists():
                 messages.error(request, "Phone already registered.")
                 return redirect('profile_app:profile')
 
-            # Update user
-            user.first_name = first_name
-            user.last_name = last_name
+            # Save updated fields (email + phone only)
             user.email = email
             user.phone = phone
-            user.visitor_type = visitor_type
             user.save()
 
-            # Update session values
+            # Update session
             request.session['user_email'] = email
             request.session['user_first_name'] = first_name
             request.session['user_last_name'] = last_name
 
-            # ✅ Notify Admins
+            # Notify admins
             notify_admins_about_visitor(
                 "Visitor Profile Updated",
                 f"Visitor {first_name} {last_name} ({email}) updated their profile details."
@@ -123,7 +119,9 @@ def profile_view(request):
             messages.success(request, "Profile updated successfully!")
             return redirect('profile_app:profile')
 
-        # --------------- Change Password ---------------
+        # ------------------------------------------------------
+        # CHANGE PASSWORD
+        # ------------------------------------------------------
         elif action == 'change_password':
             current_password = request.POST.get('current_password')
             new_password = request.POST.get('new_password')
@@ -139,8 +137,7 @@ def profile_view(request):
 
             user.set_password(new_password)
             user.save()
-            
-            # ✅ Notify Admins (Optional but good for security monitoring)
+
             notify_admins_about_visitor(
                 "Visitor Password Changed",
                 f"Visitor {user.first_name} {user.last_name} ({user.email}) changed their password."
@@ -149,20 +146,23 @@ def profile_view(request):
             messages.success(request, "Password changed successfully!")
             return redirect('profile_app:profile')
 
-        # --------------- Delete Account ---------------
+        # ------------------------------------------------------
+        # DELETE ACCOUNT
+        # ------------------------------------------------------
         elif action == 'delete_account':
             password = request.POST.get('delete_password')
+
             if not user.check_password(password):
                 messages.error(request, "Password incorrect. Cannot delete account.")
                 return redirect('profile_app:profile')
 
-            # Capture details before deletion for the notification
+            # Capture user info before deletion
             visitor_details = f"{user.first_name} {user.last_name} ({user.email})"
 
+            # Delete account
             user.delete()
             request.session.flush()
 
-            # ✅ Notify Admins
             notify_admins_about_visitor(
                 "Visitor Account Deleted",
                 f"Visitor {visitor_details} has permanently deleted their account."
@@ -171,7 +171,7 @@ def profile_view(request):
             messages.success(request, "Account deleted permanently.")
             return redirect('login_app:login')
 
-    # GET → render profile page
+    # ===================== GET REQUEST =====================
     return render(request, 'profile_app/profile.html', {
         "user": user,
         "user_first_name": request.session.get("user_first_name"),
