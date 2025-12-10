@@ -647,7 +647,15 @@
             <span class="notification-badge" style="display: none"></span>
           </div>
           <div class="user-avatar" id="profileBtn">
-            {{ request.session.admin_first_name|default:"AD"|slice:":2"|upper }}
+            {% with first=request.session.admin_first_name last=request.session.admin_last_name %}
+              {% if first and last %}
+                {{ first|slice:":1"|upper }}{{ last|slice:":1"|upper }}
+              {% elif first %}
+                {{ first|slice:":2"|upper }}
+              {% else %}
+                AD
+              {% endif %}
+            {% endwith %}
           </div>
         </div>
       </div>

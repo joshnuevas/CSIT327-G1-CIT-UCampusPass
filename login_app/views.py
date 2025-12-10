@@ -150,6 +150,14 @@ def login_view(request):
                 request.session[session_key] = identifier
                 request.session[session_name] = user_obj.first_name
 
+                # 🔹 Store last name per role
+                if role == 'visitor':
+                    request.session['user_last_name'] = getattr(user_obj, 'last_name', "") or ""
+                elif role == 'staff':
+                    request.session['staff_last_name'] = getattr(user_obj, 'last_name', "") or ""
+                elif role == 'admin':
+                    request.session['admin_last_name'] = getattr(user_obj, 'last_name', "") or ""
+
                 # Mark superadmin if admin
                 if role == 'admin':
                     request.session['user_is_superadmin'] = getattr(user_obj, 'is_superadmin', False)

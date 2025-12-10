@@ -397,7 +397,17 @@
 
             <div class="user-info">
                 <!-- NO MORE NOTIF ICON HERE -->
-                <div class="user-avatar" id="profileBtn">{{ user_first_name|default:"JD"|slice:":2"|upper }}</div>
+                <div class="user-avatar" id="profileBtn">
+                    {% with first=request.session.user_first_name last=request.session.user_last_name %}
+                        {% if first and last %}
+                            {{ first|slice:":1"|upper }}{{ last|slice:":1"|upper }}
+                        {% elif first %}
+                            {{ first|slice:":2"|upper }}
+                        {% else %}
+                            VI
+                        {% endif %}
+                    {% endwith %}
+                </div>
             </div>
         </div>
 

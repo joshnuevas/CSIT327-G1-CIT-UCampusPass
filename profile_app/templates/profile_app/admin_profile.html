@@ -33,7 +33,7 @@
         <div id="viewMode" class="profile-view-wrapper">
             <div class="profile-hero">
                 <div class="profile-avatar-circle">
-                    {{ admin.first_name|slice:":2"|upper }}
+                    {{ admin.first_name|slice:":1" }}{{ admin.last_name|slice:":1" }}
                 </div>
                 <div class="profile-identity">
                     <h2>{{ admin.first_name }} {{ admin.last_name }}</h2>

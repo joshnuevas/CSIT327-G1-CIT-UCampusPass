@@ -170,6 +170,7 @@ def dashboard_view(request):
     context = {
         "user_email": user_email,
         "user_first_name": request.session.get("user_first_name"),
+        "user_last_name": request.session.get("user_last_name"),  # 👈 add this
         "visits": display_visits,
         "active_visits": active_visits,
         "upcoming_visits": upcoming_visits,

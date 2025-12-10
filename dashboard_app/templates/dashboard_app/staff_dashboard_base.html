@@ -636,7 +636,15 @@
 
             <div class="user-info">
                 <div class="user-avatar" id="profileBtn">
-                    {{ request.session.staff_first_name|default:"ST"|slice:":2"|upper }}
+                    {% with first=request.session.staff_first_name last=request.session.staff_last_name %}
+                        {% if first and last %}
+                            {{ first|slice:":1"|upper }}{{ last|slice:":1"|upper }}
+                        {% elif first %}
+                            {{ first|slice:":2"|upper }}
+                        {% else %}
+                            ST
+                        {% endif %}
+                    {% endwith %}
                 </div>
             </div>
         </div>
