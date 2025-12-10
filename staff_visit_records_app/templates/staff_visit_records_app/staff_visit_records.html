@@ -280,7 +280,11 @@
                                         {% if visit.status == 'Upcoming' %}
                                             Not checked in
                                         {% elif visit.status == 'Active' %}
-                                            Checked in at {{ visit.start_time|time:"h:i A" }}, not yet checked out
+                                            {% if visit.start_time %}
+                                                Checked in at {{ visit.start_time|time:"h:i A" }}
+                                            {% else %}
+                                                Checked in
+                                            {% endif %}
                                         {% elif visit.status == 'Completed' %}
                                             {{ visit.start_time|time:"h:i A" }} – {{ visit.end_time|time:"h:i A" }}
                                         {% elif visit.status == 'Expired' %}

@@ -522,7 +522,9 @@
                 <div class="card-header-row">
                     <div class="visitor-profile">
                         <div class="profile-initial">
-                            {{ result.visitor_name.split|first|slice:":2"|upper }}
+                            {% with fn=result.first_name|default_if_none:""|first ln=result.last_name|default_if_none:""|first %}
+                                {{ fn }}{{ ln }}
+                            {% endwith %}
                         </div>
                         <div>
                             <div class="visitor-name">{{ result.visitor_name }}</div>

@@ -17,7 +17,7 @@ def register_view(request):
         # ===== Prepare form data =====
         first_name = request.POST.get('firstName', '').strip()
         last_name = request.POST.get('lastName', '').strip()
-        email = request.POST.get('email', '').strip().lower()
+        email = (request.POST.get('email', '') or '').strip().lower()
         phone = request.POST.get('phone', '').strip()
         password = request.POST.get('password', '')
         confirm_password = request.POST.get('confirmPassword', '')
@@ -33,7 +33,12 @@ def register_view(request):
             "visitor_type": visitor_type,
         }
 
-        # ===== Validations =====
+        # ===== BASIC REQUIRED FIELDS CHECK (optional but nice) =====
+        if not first_name or not last_name or not email or not phone:
+            data["error"] = "Please complete all required fields."
+            return render(request, 'register_app/register.html', data)
+
+        # ===== PASSWORD VALIDATIONS =====
         if password != confirm_password:
             data["error"] = "Passwords do not match."
             return render(request, 'register_app/register.html', data)
@@ -45,6 +50,14 @@ def register_view(request):
             )
             return render(request, 'register_app/register.html', data)
 
+        # ===== EMAIL VALIDATION (mirror profile security) =====
+        email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$"
+        if not re.fullmatch(email_pattern, email):
+            data["error"] = "Please enter a valid email address (e.g., name@example.com)."
+            data["email"] = ''
+            return render(request, 'register_app/register.html', data)
+
+        # ===== PHONE VALIDATION =====
         # Phone must be 11 digits, starting with 09
         if not re.fullmatch(r"09\d{9}", phone):
             data["error"] = "Invalid phone number. Must start with 09 and be exactly 11 digits."

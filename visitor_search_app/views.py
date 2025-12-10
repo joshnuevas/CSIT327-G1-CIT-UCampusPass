@@ -70,8 +70,10 @@ def visitor_search(request):
         email = (v.user_email or "").lower()
         name = users_dict.get(email, {}).get("full_name", "").lower()
 
-        # Only match: name OR email
-        if q in email or q in name:
+        # 🔒 EXACT (case-insensitive) MATCH ONLY
+        # - email must exactly match the typed query
+        # - OR full name must exactly match the typed query
+        if email == q or name == q:
             matched.append({
                 "visit_id": v.visit_id,
                 "user_email": v.user_email,
@@ -82,7 +84,7 @@ def visitor_search(request):
                 "start_time": v.start_time,
                 "end_time": v.end_time,
                 "status": v.status,
-                "created_at": v.created_at
+                "created_at": v.created_at,
             })
 
     # --- STEP 2: APPLY FILTERS ---
@@ -226,13 +228,26 @@ def visitor_detail(request):
                 'created_at': visit.created_at
             })
         
-        # Sort visits by date descending (latest first)
+                # Sort visits by date descending (latest first)
         visits_list.sort(key=lambda x: x.get('visit_date', ''), reverse=True)
 
-        # Calculate statistics
+        # Mark which visits belong to the current month
+        today = date.today()
+        for v in visits_list:
+            vd = v.get('visit_date')
+            v['is_current_month'] = (
+                bool(vd)
+                and vd.year == today.year
+                and vd.month == today.month
+            )
+
+        # Calculate statistics (still based on ALL visits)
         total_visits = len(visits_list)
         completed_visits = len([v for v in visits_list if v.get('status') == 'Completed'])
-        current_visit = next((v for v in visits_list if v.get('status') in ['Active', 'Upcoming']), None)
+        current_visit = next(
+            (v for v in visits_list if v.get('status') in ['Active', 'Upcoming']),
+            None
+        )
         last_visit_date = visits_list[0].get('visit_date') if visits_list else None
 
         # EARLIEST visit for "Member Since"

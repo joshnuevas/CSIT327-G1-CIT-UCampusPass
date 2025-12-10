@@ -113,11 +113,14 @@
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <input type="email" 
-                               id="email" 
-                               name="email"
-                               placeholder="your@email.com"
-                               value="{{ email|default:'' }}" 
-                               required>
+                            id="email" 
+                            name="email"
+                            placeholder="your@email.com"
+                            value="{{ email|default:'' }}" 
+                            required
+                            pattern="^[^@]+@[^@]+\.[A-Za-z]{3,}$"
+                            oninvalid="this.setCustomValidity('Please enter a valid email address (e.g., name@example.com).')"
+                            oninput="this.setCustomValidity('')">
                     </div>
 
                     <div class="form-group">
@@ -146,15 +149,6 @@
                             <option value="Visitor">Visitor</option>
                             <option value="Other">Other</option>
                         </select>
-                    </div>
-
-                    <div class="form-group" id="otherTypeGroup" style="display: {% if visitor_type_select == 'Other' %}block{% else %}none{% endif %};">
-                        <label for="otherType">Please specify</label>
-                        <input type="text" 
-                               id="otherType" 
-                               name="visitor_type_other"
-                               placeholder="Enter other visitor type"
-                               value="{{ visitor_type_other|default:'' }}">
                     </div>
 
                     <div class="form-group">
@@ -253,187 +247,160 @@
     </div>
 
     <script>
-        function toggleOtherInput() {
-            const visitorType = document.getElementById("visitorType").value;
-            const otherGroup = document.getElementById("otherTypeGroup");
-            const otherInput = document.getElementById("otherType");
-            
-            if (visitorType === "Other") {
-                otherGroup.style.display = "block";
-                otherInput.required = true;
-            } else {
-                otherGroup.style.display = "none";
-                otherInput.required = false;
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // ===== EMAIL TRIM & LOWERCASE =====
+        const emailInput = document.getElementById('email');
+        if (emailInput) {
+            emailInput.addEventListener('blur', function () {
+                this.value = this.value.trim().toLowerCase();
+            });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Keep previous state if user selected Other
-            toggleOtherInput();
+        // ===== Password toggle =====
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const target = document.getElementById(this.dataset.target);
+                if (target.type === 'password') {
+                    target.type = 'text';
+                    this.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    target.type = 'password';
+                    this.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        });
 
-            // Password toggle functionality
-            const toggleButtons = document.querySelectorAll('.toggle-password');
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const target = document.getElementById(this.dataset.target);
-                    if (target.type === 'password') {
-                        target.type = 'text';
-                        this.classList.replace('fa-eye', 'fa-eye-slash');
-                    } else {
-                        target.type = 'password';
-                        this.classList.replace('fa-eye-slash', 'fa-eye');
-                    }
-                });
+        // ===== Live Password Validation =====
+        const passwordInput = document.getElementById('password');
+        const passwordRequirements = document.getElementById('passwordRequirements');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+
+        if (passwordInput) {
+            passwordInput.addEventListener('focus', function() {
+                passwordRequirements.classList.add('active');
             });
 
-            // Live Password Validation
-            const passwordInput = document.getElementById('password');
-            const passwordRequirements = document.getElementById('passwordRequirements');
-            const strengthBar = document.getElementById('strengthBar');
-            const strengthText = document.getElementById('strengthText');
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let metCount = 0;
 
-            if (passwordInput) {
-                // Show requirements on focus
-                passwordInput.addEventListener('focus', function() {
-                    passwordRequirements.classList.add('active');
-                });
+                // Check length
+                const lengthReq = document.getElementById('req-length');
+                if (password.length >= 8) {
+                    lengthReq.classList.add('met');
+                    lengthReq.classList.remove('not-met');
+                    metCount++;
+                } else {
+                    lengthReq.classList.remove('met');
+                    lengthReq.classList.add('not-met');
+                }
 
-                // Live validation on input
-                passwordInput.addEventListener('input', function() {
-                    const password = this.value;
-                    let metCount = 0;
+                // Uppercase
+                const uppercaseReq = document.getElementById('req-uppercase');
+                if (/[A-Z]/.test(password)) {
+                    uppercaseReq.classList.add('met');
+                    uppercaseReq.classList.remove('not-met');
+                    metCount++;
+                } else {
+                    uppercaseReq.classList.remove('met');
+                    uppercaseReq.classList.add('not-met');
+                }
 
-                    // Check length
-                    const lengthReq = document.getElementById('req-length');
-                    if (password.length >= 8) {
-                        lengthReq.classList.remove('not-met');
-                        lengthReq.classList.add('met');
-                        metCount++;
-                    } else {
-                        lengthReq.classList.remove('met');
-                        lengthReq.classList.add('not-met');
-                    }
+                // Lowercase
+                const lowercaseReq = document.getElementById('req-lowercase');
+                if (/[a-z]/.test(password)) {
+                    lowercaseReq.classList.add('met');
+                    lowercaseReq.classList.remove('not-met');
+                    metCount++;
+                } else {
+                    lowercaseReq.classList.remove('met');
+                    lowercaseReq.classList.add('not-met');
+                }
 
-                    // Check uppercase
-                    const uppercaseReq = document.getElementById('req-uppercase');
-                    if (/[A-Z]/.test(password)) {
-                        uppercaseReq.classList.remove('not-met');
-                        uppercaseReq.classList.add('met');
-                        metCount++;
-                    } else {
-                        uppercaseReq.classList.remove('met');
-                        uppercaseReq.classList.add('not-met');
-                    }
+                // Number
+                const numberReq = document.getElementById('req-number');
+                if (/[0-9]/.test(password)) {
+                    numberReq.classList.add('met');
+                    numberReq.classList.remove('not-met');
+                    metCount++;
+                } else {
+                    numberReq.classList.remove('met');
+                    numberReq.classList.add('not-met');
+                }
 
-                    // Check lowercase
-                    const lowercaseReq = document.getElementById('req-lowercase');
-                    if (/[a-z]/.test(password)) {
-                        lowercaseReq.classList.remove('not-met');
-                        lowercaseReq.classList.add('met');
-                        metCount++;
-                    } else {
-                        lowercaseReq.classList.remove('met');
-                        lowercaseReq.classList.add('not-met');
-                    }
+                // Special character
+                const specialReq = document.getElementById('req-special');
+                if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                    specialReq.classList.add('met');
+                    specialReq.classList.remove('not-met');
+                    metCount++;
+                } else {
+                    specialReq.classList.remove('met');
+                    specialReq.classList.add('not-met');
+                }
 
-                    // Check number
-                    const numberReq = document.getElementById('req-number');
-                    if (/[0-9]/.test(password)) {
-                        numberReq.classList.remove('not-met');
-                        numberReq.classList.add('met');
-                        metCount++;
-                    } else {
-                        numberReq.classList.remove('met');
-                        numberReq.classList.add('not-met');
-                    }
+                // Strength bar update
+                strengthBar.className = 'strength-bar';
+                strengthText.className = 'strength-text';
 
-                    // Check special character
-                    const specialReq = document.getElementById('req-special');
-                    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-                        specialReq.classList.remove('not-met');
-                        specialReq.classList.add('met');
-                        metCount++;
-                    } else {
-                        specialReq.classList.remove('met');
-                        specialReq.classList.add('not-met');
-                    }
+                if (metCount <= 2) {
+                    strengthBar.classList.add('weak');
+                    strengthText.textContent = 'Weak Password';
+                    strengthText.classList.add('weak');
+                } else if (metCount <= 4) {
+                    strengthBar.classList.add('medium');
+                    strengthText.textContent = 'Medium Password';
+                    strengthText.classList.add('medium');
+                } else {
+                    strengthBar.classList.add('strong');
+                    strengthText.textContent = 'Strong Password';
+                    strengthText.classList.add('strong');
+                }
 
-                    // Update strength bar
+                if (password.length === 0) {
                     strengthBar.className = 'strength-bar';
-                    strengthText.className = 'strength-text';
+                    strengthText.textContent = '';
+                }
+            });
 
-                    if (metCount <= 2) {
-                        strengthBar.classList.add('weak');
-                        strengthText.classList.add('weak');
-                        strengthText.textContent = 'Weak Password';
-                    } else if (metCount <= 4) {
-                        strengthBar.classList.add('medium');
-                        strengthText.classList.add('medium');
-                        strengthText.textContent = 'Medium Password';
-                    } else if (metCount === 5) {
-                        strengthBar.classList.add('strong');
-                        strengthText.classList.add('strong');
-                        strengthText.textContent = 'Strong Password';
-                    }
+            ['copy', 'cut'].forEach(evt => {
+                passwordInput.addEventListener(evt, e => e.preventDefault());
+            });
+        }
 
-                    // Hide strength indicator if empty
-                    if (password.length === 0) {
-                        strengthBar.className = 'strength-bar';
-                        strengthText.textContent = '';
-                    }
-                });
+        // ===== Confirm password (no paste) =====
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        if (confirmPasswordInput) {
+            ['paste', 'drop'].forEach(evt => {
+                confirmPasswordInput.addEventListener(evt, e => e.preventDefault());
+            });
 
-                // Prevent copying password
-                ['copy', 'cut'].forEach(evt => {
-                    passwordInput.addEventListener(evt, function (e) {
-                        e.preventDefault();
-                    });
-                });
-            }
+            confirmPasswordInput.addEventListener('keydown', function (e) {
+                if ((e.ctrlKey || e.metaKey) && ['v', 'V'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        }
 
-            // Prevent pasting in confirm password
-            const confirmPasswordInput = document.getElementById('confirmPassword');
-            if (confirmPasswordInput) {
-                ['paste', 'drop'].forEach(evt => {
-                    confirmPasswordInput.addEventListener(evt, function (e) {
-                        e.preventDefault();
-                    });
-                });
+        // ===== PHONE VALIDATION =====
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function () {
+                let digits = this.value.replace(/\D/g, '');
+                if (digits.length > 11) digits = digits.slice(0, 11);
+                this.value = digits;
+            });
 
-                confirmPasswordInput.addEventListener('keydown', function (e) {
-                    if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V')) {
-                        e.preventDefault();
-                    }
-                });
-            }
-
-            // ==== PHONE NUMBER VALIDATION (FRONTEND) ====
-            const phoneInput = document.getElementById('phone');
-            if (phoneInput) {
-                // Strip non-digits and limit to 11
-                phoneInput.addEventListener('input', function () {
-                    let digits = this.value.replace(/\D/g, '');
-                    if (digits.length > 11) {
-                        digits = digits.slice(0, 11);
-                    }
-                    this.value = digits;
-                });
-
-                // Block non-digit keypresses except control keys
-                phoneInput.addEventListener('keydown', function (e) {
-                    const allowedKeys = [
-                        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight',
-                        'Tab', 'Home', 'End'
-                    ];
-
-                    if (allowedKeys.includes(e.key)) return;
-
-                    if (!/^\d$/.test(e.key)) {
-                        e.preventDefault();
-                    }
-                });
-            }
-        });
+            phoneInput.addEventListener('keydown', function (e) {
+                const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+                if (allowed.includes(e.key)) return;
+                if (!/^\d$/.test(e.key)) e.preventDefault();
+            });
+        }
+    });
     </script>
 </body>
 </html>
