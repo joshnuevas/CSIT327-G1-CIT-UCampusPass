@@ -6,4 +6,5 @@ app_name = "manage_visitor_app"
 urlpatterns = [
     path("", views.visitor_list_view, name="visitor_list"),
     path("delete/<int:user_id>/", views.visitor_deactivate_view, name="visitor_deactivate"),
+    path('detail/<str:user_id>/', views.visitor_detail, name='visitor_detail'),
 ]

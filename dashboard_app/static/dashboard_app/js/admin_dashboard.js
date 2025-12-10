@@ -2,207 +2,173 @@
   const notifDropdown = document.getElementById("notifDropdown");
   const notifBadge = document.querySelector(".notification-badge");
   const dashboardContainer = document.getElementById("notificationsContainer");
-  const notifBtn = document.getElementById("notifBtn");
-  const csrftoken = document.querySelector('meta[name="csrf-token"]').content;
+  const notifBtn = document.getElementById("notifBtn"); // We need the button element
+  const csrftoken = document.querySelector('meta[name="csrf-token"]')?.content;
 
   let pollInterval = null;
-  const POLL_DELAY = 30000; // 30 seconds
+  const POLL_DELAY = 10000; 
 
-  // === Helper: Format time in PH timezone ===
-  function formatPHTime(dateString) {
-    if (!dateString) return "N/A";
-    const d = new Date(dateString);
-    if (isNaN(d.getTime())) return "N/A";
-    // Convert to Philippine time
-    const phDate = new Date(d.toLocaleString("en-US", {timeZone: "Asia/Manila"}));
-    const month = phDate.toLocaleString("en-US", {month: "short"});
-    const day = phDate.toLocaleString("en-US", {day: "2-digit"});
-    const year = phDate.toLocaleString("en-US", {year: "numeric"});
-    return `${month} ${day}, ${year}`;
+  // Store count globally to re-apply without fetching
+  let currentNotificationCount = 0;
+
+  function formatTime(dateString) {
+    return dateString || "N/A";
   }
 
-  // === Fetch recent activities from API ===
+  function getIconClass(type, title) {
+    if (type === 'personal_alert') return 'fas fa-user-shield';
+    if (type === 'system_alert') return 'fas fa-server';
+    if (title && title.includes('Staff')) return 'fas fa-user-tie';
+    if (title && title.includes('Visitor')) return 'fas fa-users';
+    return 'fas fa-bell';
+  }
+
+  // === Helper: Force Badge Visibility ===
+  function updateBadgeUI(count) {
+    if (!notifBadge) return;
+    
+    currentNotificationCount = count; // Update global state
+
+    // 1. Clear text (Dot mode)
+    notifBadge.textContent = "";
+
+    if (count > 0) {
+        // 2. FORCE visibility with !important to override framework hiding behavior
+        notifBadge.style.setProperty("display", "inline-block", "important");
+        
+        // 3. Dot Styling
+        notifBadge.style.width = "10px";
+        notifBadge.style.height = "10px";
+        notifBadge.style.padding = "0";
+        notifBadge.style.borderRadius = "50%";
+        notifBadge.style.backgroundColor = "#8b1538";
+        notifBadge.style.border = "1px solid #fff";
+        notifBadge.style.position = "absolute"; // Ensure it stays positioned correctly
+        notifBadge.style.top = "0";
+        notifBadge.style.right = "0";
+    } else {
+        notifBadge.style.display = "none";
+    }
+  }
+
   async function fetchRecentActivities() {
     try {
       const response = await fetch("/api/admin-recent-activities/");
-      if (!response.ok) throw new Error("Failed to fetch activities");
+      if (!response.ok) return;
       const data = await response.json();
       const activities = data.activities || [];
 
-      // Find the Recent Activities card content (more specific selector)
       const recentActivitiesCard = document.querySelector('.left-column .card:first-child .card-content');
+      
       if (recentActivitiesCard) {
-        // Clear existing content
         recentActivitiesCard.innerHTML = '';
-
         if (activities.length === 0) {
-          // Show empty state
           recentActivitiesCard.innerHTML = `
             <div class="empty-state">
-              <div class="empty-icon">
-                <i class="far fa-clipboard"></i>
-              </div>
+              <div class="empty-icon"><i class="far fa-clipboard"></i></div>
               <h3>No Recent Activities</h3>
               <p>Activity logs will appear here as actions are performed.</p>
-            </div>
-          `;
+            </div>`;
         } else {
-          // Add activities
           activities.forEach(activity => {
             const item = document.createElement("div");
             item.classList.add("activity-item");
-
             item.innerHTML = `
               <div class="activity-content">
                 <h4>${activity.action_type}</h4>
                 <p>${activity.description}</p>
                 <small>
-                  <i class="far fa-user"></i> ${activity.actor}
+                  <i class="far fa-user"></i> ${activity.actor} &bull; ${formatTime(activity.time)}
                 </small>
-              </div>
-            `;
-
+              </div>`;
             recentActivitiesCard.appendChild(item);
           });
         }
-
-        // Update the badge count
-        const badge = document.querySelector('.card-title .badge-count');
-        if (badge) {
-          badge.textContent = activities.length;
-        }
       }
     } catch (err) {
-      console.error("Error fetching recent activities:", err);
+      console.error("Error fetching activities:", err);
     }
   }
 
-  // === Fetch notifications from API ===
   async function fetchNotifications() {
     try {
       const response = await fetch("/api/admin-notifications/");
-      if (!response.ok) throw new Error("Failed to fetch notifications");
+      if (!response.ok) return;
       const data = await response.json();
       const notifications = data.notifications || [];
 
-      // === Badge logic ===
-      if (notifBadge) {
-        notifBadge.style.display = notifications.length > 0 ? "inline-block" : "none";
-      }
+      // === UPDATE BADGE ===
+      updateBadgeUI(notifications.length);
 
-      // === Populate dropdown ===
+      // === Update Dropdown ===
       if (notifDropdown) {
         notifDropdown.innerHTML = "";
         const headerDiv = document.createElement("div");
         headerDiv.classList.add("dropdown-header");
-        headerDiv.textContent = "Notifications";
-
-        const clearAllBtn = document.createElement("a");
-        clearAllBtn.textContent = "Clear All";
-        clearAllBtn.href = "#";
-        clearAllBtn.classList.add("small-clear-btn");
-        clearAllBtn.style.cssText = "font-size: 0.8rem; color: #8b1538; float: right; text-decoration: none;";
-        clearAllBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          clearAllNotifications();
-        });
-
-        headerDiv.appendChild(clearAllBtn);
+        headerDiv.innerHTML = `Notifications <a href="#" id="dropdownClearBtn" class="small-clear-btn" style="float:right; font-size:0.8rem; color:#8b1538; text-decoration:none;">Clear All</a>`;
         notifDropdown.appendChild(headerDiv);
+
+        const clearBtn = headerDiv.querySelector("#dropdownClearBtn");
+        if(clearBtn) clearBtn.addEventListener("click", (e) => { e.preventDefault(); clearAllNotifications(); });
 
         if (notifications.length === 0) {
           notifDropdown.innerHTML += '<div class="dropdown-empty">No new notifications</div>';
-          if (notifBadge) notifBadge.style.display = "none";
         } else {
-          notifications.forEach((notif, index) => {
+          notifications.forEach(notif => {
             const item = document.createElement("div");
-            item.classList.add("dropdown-item", "new-notification");
-  
-            let iconClass = 'fas fa-bell';
-            if (notif.title.includes('Staff')) {
-              iconClass = 'fas fa-user-tie';
-            } else if (notif.title.includes('Visitor')) {
-              iconClass = 'fas fa-users';
-            }
-  
+            item.classList.add("dropdown-item");
+            if(!notif.is_read) item.style.backgroundColor = "#fff5f7"; 
+
+            const iconClass = getIconClass(notif.type, notif.title);
+
             item.innerHTML = `
-              <div class="activity-icon" style="margin-right: 10px;">
-                <i class="${iconClass}"></i>
-              </div>
+              <div class="activity-icon"><i class="${iconClass}"></i></div>
               <div class="activity-content" style="flex: 1;">
                 <h4 style="margin-bottom:2px;">${notif.title}</h4>
                 <p style="margin:0;">${notif.message}</p>
-                <small>${formatPHTime(notif.time)}</small>
+                <small>${formatTime(notif.time)}</small>
               </div>
-              <button class="btn-delete" data-id="${notif.id}"
-                      style="position:absolute; top:8px; right:8px; background:none; border:none; color:#8b1538; font-size:13px; cursor:pointer; display:none;">
-                ✕
-              </button>
+              <button class="btn-delete" data-id="${notif.id}" style="border:none; background:none; cursor:pointer; color:#888;">&times;</button>
             `;
             notifDropdown.appendChild(item);
 
-            // Hover behavior for delete button
-            item.addEventListener("mouseenter", () => {
-              item.querySelector(".btn-delete").style.display = "inline-block";
-            });
-            item.addEventListener("mouseleave", () => {
-              item.querySelector(".btn-delete").style.display = "none";
-            });
-
-            item.querySelector(".btn-delete").addEventListener("click", () => {
-              deleteNotification(notif.id, item);
+            item.querySelector(".btn-delete").addEventListener("click", (e) => {
+                e.stopPropagation();
+                deleteNotification(notif.id, item);
             });
           });
         }
       }
 
-      // === Populate dashboard container ===
+      // === Update Dashboard Container ===
       if (dashboardContainer) {
         dashboardContainer.innerHTML = "";
         notifications.forEach((notif) => {
           const item = document.createElement("div");
           item.classList.add("notification-item");
-          item.dataset.id = notif.id;
-
-          let iconClass = 'fas fa-bell';
-          if (notif.title.includes('Staff')) {
-            iconClass = 'fas fa-user-tie';
-          } else if (notif.title.includes('Visitor')) {
-            iconClass = 'fas fa-users';
-          }
-
+          const iconClass = getIconClass(notif.type, notif.title);
+          
           item.innerHTML = `
-            <div class="activity-icon">
-              <i class="${iconClass}"></i>
-            </div>
+            <div class="activity-icon"><i class="${iconClass}"></i></div>
             <div class="activity-content">
               <h4>${notif.title}</h4>
               <p>${notif.message}</p>
-              <small>${formatPHTime(notif.time)}</small>
+              <small>${formatTime(notif.time)}</small>
             </div>
-            <button class="btn-delete" data-id="${notif.id}"
-                    style="background:none; border:none; color:#8b1538; font-size:14px; cursor:pointer; position:absolute; top:8px; right:8px; display:none;">✕</button>
+            <button class="btn-delete" data-id="${notif.id}">✕</button>
           `;
           dashboardContainer.appendChild(item);
-
-          item.addEventListener("mouseenter", () => {
-            item.querySelector(".btn-delete").style.display = "inline-block";
-          });
-          item.addEventListener("mouseleave", () => {
-            item.querySelector(".btn-delete").style.display = "none";
-          });
-
           item.querySelector(".btn-delete").addEventListener("click", () => {
-            deleteNotification(notif.id, item);
+             deleteNotification(notif.id, item);
           });
         });
       }
+
     } catch (err) {
       console.error("Error fetching notifications:", err);
     }
   }
 
-  // === Delete single notification (persist via API) ===
   async function deleteNotification(notifId, element) {
     try {
       const res = await fetch("/api/admin-notifications/delete/", {
@@ -213,78 +179,82 @@
       const data = await res.json();
       if (data.success && element) {
         element.remove();
+        fetchNotifications(); 
       }
     } catch (err) {
       console.error(err);
     }
   }
 
-  // === Clear all notifications (persist via API) ===
   async function clearAllNotifications() {
     try {
-      // collect all visible IDs from dropdown or dashboard
-      let ids = [];
-      const visibleItems = Array.from((notifDropdown || document).querySelectorAll(".dropdown-item, .notification-item"));
-      if (visibleItems.length > 0) {
-        ids = visibleItems.map(it => it.dataset.id || (it.querySelector("[data-id]")?.dataset.id)).filter(Boolean);
-      }
-
       const res = await fetch("/api/admin-notifications/clear/", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-        body: JSON.stringify({ notif_ids: ids })
+        body: JSON.stringify({}) 
       });
       const data = await res.json();
       if (data.success) {
-        if (notifDropdown) {
-          notifDropdown.innerHTML = `
-            <div class="dropdown-header">Notifications</div>
-            <div class="dropdown-empty">No new notifications</div>
-          `;
-        }
-        if (dashboardContainer) dashboardContainer.innerHTML = "";
-        if (notifBadge) notifBadge.style.display = "none";
+        fetchNotifications(); 
       }
     } catch (err) {
       console.error(err);
     }
   }
 
-  // === Polling controls ===
-  function startPolling() {
-    if (!pollInterval) pollInterval = setInterval(() => {
-      fetchNotifications();
-      fetchRecentActivities(); // Also poll activities
-    }, POLL_DELAY);
+  function init() {
+    fetchNotifications();
+    fetchRecentActivities();
+    startPolling();
+    
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopPolling();
+      else { fetchNotifications(); startPolling(); }
+    });
+
+    const clearDashboardBtn = document.getElementById("clearAllBtn");
+    if (clearDashboardBtn) {
+        clearDashboardBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            clearAllNotifications();
+        });
+    }
+
+    // === CRITICAL FIX: Persist badge on click ===
+    if (notifBtn) {
+        // 1. When clicked, wait a split second for the framework to try and hide it, 
+        // then force it back if count > 0
+        notifBtn.addEventListener("click", (e) => {
+            setTimeout(() => {
+                updateBadgeUI(currentNotificationCount);
+            }, 50); // 50ms delay to run after Bootstrap/CSS changes
+        });
+
+        // 2. Also listen for the close event if using Bootstrap
+        // (This part uses jQuery syntax often found with Bootstrap, safe to keep if you use jQuery)
+        if (typeof $ !== 'undefined') {
+            $(notifBtn).parent().on('hidden.bs.dropdown', function () {
+                updateBadgeUI(currentNotificationCount);
+            });
+        }
+    }
   }
+
+  function startPolling() {
+    if (!pollInterval) {
+        pollInterval = setInterval(() => {
+            fetchNotifications();
+            fetchRecentActivities();
+        }, POLL_DELAY);
+    }
+  }
+
   function stopPolling() {
     if (pollInterval) {
-      clearInterval(pollInterval);
-      pollInterval = null;
+        clearInterval(pollInterval);
+        pollInterval = null;
     }
   }
 
-  // Pause polling when tab is hidden, resume when active
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      stopPolling();
-    } else {
-      fetchNotifications();
-      startPolling();
-    }
-  });
-
-  // Clear all button on dashboard
-  const clearDashboardBtn = document.getElementById("clearAllBtn");
-  if (clearDashboardBtn) {
-    clearDashboardBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      clearAllNotifications();
-    });
-  }
-
-  // === Init ===
-  fetchNotifications();
-  fetchRecentActivities(); // Initial load of activities
-  startPolling();
+  init();
 })();

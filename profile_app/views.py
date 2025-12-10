@@ -14,7 +14,6 @@ from django.views.decorators.http import require_http_methods
 from profile_app.tokens import simple_token_generator
 from login_app.models import PasswordResetToken
 
-
 from django.conf import settings
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -23,7 +22,27 @@ from sendgrid.helpers.mail import Mail
 from register_app.models import User
 from login_app.models import Administrator
 
-# ---------------- Profile View ----------------
+# ✅ Import Notification Helper
+from dashboard_app.views import create_notification
+
+# ---------------- Notification Helper Function ----------------
+def notify_admins_about_visitor(action_title, message):
+    """
+    Sends a system alert notification to all admins regarding visitor activity.
+    """
+    try:
+        admins = Administrator.objects.all()
+        for admin in admins:
+            create_notification(
+                receiver_admin=admin,
+                title=action_title,
+                message=message,
+                type="system_alert"
+            )
+    except Exception as e:
+        print(f"Error notifying admins: {e}")
+
+# ---------------- Profile View (Visitor) ----------------
 def profile_view(request):
     if 'user_email' not in request.session:
         return redirect('login_app:login')
@@ -62,12 +81,12 @@ def profile_view(request):
                 messages.error(request, "Please complete all required fields.")
                 return redirect('profile_app:profile')
 
-            # ✅ Validate phone format: must be 11 digits starting with 09
+            # Validate phone format
             if not re.fullmatch(r"09\d{9}$", phone):
                 messages.error(request, "Invalid phone number format. It should be 11 digits and start with 09.")
                 return redirect('profile_app:profile')
 
-            # ✅ Validate email format (e.g., name@example.com)
+            # Validate email format
             email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$"
             if not re.fullmatch(email_pattern, email):
                 messages.error(request, "Please enter a valid email address (e.g., name@example.com).")
@@ -90,10 +109,16 @@ def profile_view(request):
             user.visitor_type = visitor_type
             user.save()
 
-            # Update session values so header and profile stay in sync
+            # Update session values
             request.session['user_email'] = email
             request.session['user_first_name'] = first_name
             request.session['user_last_name'] = last_name
+
+            # ✅ Notify Admins
+            notify_admins_about_visitor(
+                "Visitor Profile Updated",
+                f"Visitor {first_name} {last_name} ({email}) updated their profile details."
+            )
 
             messages.success(request, "Profile updated successfully!")
             return redirect('profile_app:profile')
@@ -115,6 +140,12 @@ def profile_view(request):
             user.set_password(new_password)
             user.save()
             
+            # ✅ Notify Admins (Optional but good for security monitoring)
+            notify_admins_about_visitor(
+                "Visitor Password Changed",
+                f"Visitor {user.first_name} {user.last_name} ({user.email}) changed their password."
+            )
+
             messages.success(request, "Password changed successfully!")
             return redirect('profile_app:profile')
 
@@ -125,8 +156,18 @@ def profile_view(request):
                 messages.error(request, "Password incorrect. Cannot delete account.")
                 return redirect('profile_app:profile')
 
+            # Capture details before deletion for the notification
+            visitor_details = f"{user.first_name} {user.last_name} ({user.email})"
+
             user.delete()
             request.session.flush()
+
+            # ✅ Notify Admins
+            notify_admins_about_visitor(
+                "Visitor Account Deleted",
+                f"Visitor {visitor_details} has permanently deleted their account."
+            )
+
             messages.success(request, "Account deleted permanently.")
             return redirect('login_app:login')
 
@@ -137,13 +178,13 @@ def profile_view(request):
         "user_last_name": request.session.get("user_last_name"),
     })
 
+# ---------------- Admin Profile View ----------------
 def admin_profile_view(request):
     if 'admin_username' not in request.session:
         return redirect('login_app:login')
 
     username = request.session['admin_username']
     
-    # Use Django ORM instead of Supabase
     try:
         admin = Administrator.objects.get(username=username)
     except Administrator.DoesNotExist:
@@ -182,6 +223,21 @@ def admin_profile_view(request):
             )
             logs_services.create_log(actor, "Account", description, actor_role="Admin")
 
+            # ✅ NOTIFICATION LOGIC: Notify Superadmins
+            try:
+                # Fetch all superadmins except the current user (even if current is superadmin, don't notify self)
+                superadmins = Administrator.objects.filter(is_superadmin=True).exclude(username=username)
+                
+                for super_admin in superadmins:
+                    create_notification(
+                        receiver_admin=super_admin,
+                        title="Admin Profile Update",
+                        message=f"Admin {first_name} {last_name} ({username}) has updated their profile details.",
+                        type="system_alert"
+                    )
+            except Exception as e:
+                print(f"Error sending profile update notifications: {e}")
+
             messages.success(request, "Profile updated successfully!")
             return redirect("profile_app:admin_profile")
 
@@ -196,6 +252,19 @@ def admin_profile_view(request):
             actor = f"{admin.first_name} ({username})"
             description = f"Deleted admin account: {admin.first_name} {admin.last_name} ({admin.username})"
             logs_services.create_log(actor, "Account", description, actor_role="Admin")
+
+            # ✅ NOTIFICATION LOGIC: Notify Superadmins about deletion
+            try:
+                superadmins = Administrator.objects.filter(is_superadmin=True).exclude(username=username)
+                for super_admin in superadmins:
+                    create_notification(
+                        receiver_admin=super_admin,
+                        title="Admin Account Deleted",
+                        message=f"Admin {admin.first_name} {admin.last_name} ({username}) has permanently deleted their account.",
+                        type="system_alert"
+                    )
+            except Exception as e:
+                print(f"Error sending deletion notifications: {e}")
 
             admin.delete()
             request.session.flush()

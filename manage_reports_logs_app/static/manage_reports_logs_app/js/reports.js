@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         const jsonContent = document.getElementById("visits-data").textContent;
         rawVisits = JSON.parse(jsonContent || "[]");
-        console.log("Visits Loaded:", rawVisits.length, "records"); // Debug log
+        console.log("Visits Loaded:", rawVisits.length, "records"); 
     } catch (e) {
         console.error("Error parsing visit data:", e);
     }
@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
 
     // Helper: Get Local Date String (YYYY-MM-DD)
-    // Fixes timezone issues where "Today" becomes "Yesterday" in UTC
     function getLocalDateStr(dateObj) {
         const offset = dateObj.getTimezoneOffset() * 60000;
         return new Date(dateObj.getTime() - offset).toISOString().split('T')[0];
@@ -78,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
             grouped[key] = (grouped[key] || 0) + 1;
         });
 
-        // Ensure chronological sort for Days, basic sort for others
         const sortedKeys = Object.keys(grouped).sort();
         return {
             labels: sortedKeys,
@@ -93,12 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function getFilteredData() {
         return rawVisits.filter(v => {
             const vDate = new Date(v.visit_date);
-
-            // Parse Filter Dates (Ensure we compare Day vs Day)
             const sDate = state.startDate ? new Date(state.startDate) : null;
             const eDate = state.endDate ? new Date(state.endDate) : null;
 
-            // Include upcoming visits regardless of date filter
             if (v.status === 'Upcoming') {
                 return state.status === "All" || v.status === state.status;
             }
@@ -121,14 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const ongoingElem = document.getElementById('ongoingVisits');
         if (ongoingElem) ongoingElem.textContent = data.filter(v => v.status === 'Active').length;
         
-        // Busiest Day Logic
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const dayCounts = {};
         data.forEach(v => {
             if(v.visit_date) {
-                // Ensure correct day parsing
                 const d = new Date(v.visit_date);
-                // Fix for potential timezone offset reading wrong day
                 const dayName = days[d.getUTCDay()]; 
                 dayCounts[dayName] = (dayCounts[dayName] || 0) + 1;
             }
@@ -145,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 4. CHART CONFIGURATIONS
+    // 4. CHART CONFIGURATIONS (Responsive Fixed)
     // ============================================
 
     function renderTrendChart(data) {
@@ -154,8 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!ctxElem) return;
 
         const ctx = ctxElem.getContext('2d');
-        
-        // Gradient Fill
         const grad = ctx.createLinearGradient(0, 0, 0, 400);
         grad.addColorStop(0, COLORS.maroonFade);
         grad.addColorStop(1, 'rgba(255,255,255,0)');
@@ -177,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: false, /* CRITICAL FIX: Allows chart to resize freely */
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { grid: { display: false } },
@@ -188,23 +178,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderHourlyChart(data) {
-        // Labels for 7am to 6pm
         const labels = ["7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm"];
         const hours = Array(12).fill(0); 
 
         data.forEach(v => {
             let h = null;
-            
-            // Priority 1: Check-in Time (Format "HH:MM:SS")
             if (v.check_in_time) {
                 h = parseInt(v.check_in_time.split(':')[0]); 
-            } 
-            // Priority 2: Created At (Format ISO)
-            else if (v.created_at) {
+            } else if (v.created_at) {
                 h = new Date(v.created_at).getHours();
             }
-
-            // If we found a valid hour, map it
             if (h !== null) {
                 if (h >= 7 && h <= 18) {
                     hours[h - 7]++;
@@ -229,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: false, /* CRITICAL FIX */
                 plugins: { legend: { display: false } },
                 scales: { y: { display: false }, x: { grid: { display: false } } }
             }
@@ -260,35 +243,28 @@ document.addEventListener('DOMContentLoaded', () => {
             options: {
                 indexAxis: 'y',
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: false, /* CRITICAL FIX */
                 plugins: { legend: { display: false } },
                 scales: { x: { display: false } }
             }
         });
     }
 
-    // NEW: Render Leaderboard instead of Chart
     function renderPurposeList(data) {
         const container = document.getElementById('purposeList');
         if (!container) return;
 
-        // 1. Process Data
         const counts = {};
         data.forEach(v => { 
-            // Clean up empty purposes
             const p = v.purpose ? v.purpose.trim() : 'Unspecified';
             counts[p] = (counts[p] || 0) + 1; 
         });
 
-        // 2. Sort High to Low
         const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-        
-        // 3. Calculate Max for relative bar width
         const maxVal = sorted.length > 0 ? sorted[0][1] : 0;
         const totalVisits = data.length;
 
-        // 4. Generate HTML
-        container.innerHTML = ''; // Clear previous
+        container.innerHTML = ''; 
         
         if (sorted.length === 0) {
             container.innerHTML = '<p class="text-muted" style="text-align:center; padding:20px;">No data available</p>';
@@ -301,7 +277,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const item = document.createElement('div');
             item.className = 'leaderboard-item';
-            // Stagger animation delay
             item.style.animationDelay = `${index * 0.05}s`;
 
             item.innerHTML = `
@@ -316,18 +291,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    
-
     // ============================================
     // 5. EVENT LISTENERS & EXPORT
     // ============================================
 
-    // Toggle Dropdown - Match logs export dropdown pattern
     const exportToggle = document.getElementById('exportToggle');
     const exportDropdown = document.getElementById('exportDropdown');
 
     if (exportToggle && exportDropdown) {
-        // Move export dropdown to body to prevent clipping by containers
         if (!exportDropdown.__movedToBody) {
             document.body.appendChild(exportDropdown);
             exportDropdown.style.position = 'fixed';
@@ -338,48 +309,34 @@ document.addEventListener('DOMContentLoaded', () => {
         exportToggle.addEventListener('click', (e) => {
             e.stopPropagation();
             const isActive = exportDropdown.classList.contains('active');
-
-            // Close others
             document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
 
             if (!isActive) {
                 exportDropdown.classList.add('active');
-
-                // Position as fixed element using viewport coordinates
                 const rect = exportToggle.getBoundingClientRect();
-
-                // Temporarily move offscreen to measure size
                 exportDropdown.style.left = '-9999px';
                 exportDropdown.style.top = '-9999px';
                 const dropRect = exportDropdown.getBoundingClientRect();
                 const viewportHeight = window.innerHeight;
 
-                // Default: below button, align right
                 let top = rect.bottom + 5;
                 let left = rect.right - dropRect.width;
 
-                // If not enough space below, place above
                 if (viewportHeight - rect.bottom < dropRect.height + 10) {
                     top = rect.top - dropRect.height - 5;
                 }
-
-                // Clamp horizontally
                 left = Math.max(6, Math.min(left, window.innerWidth - dropRect.width - 6));
-
                 exportDropdown.style.top = `${Math.round(top)}px`;
                 exportDropdown.style.left = `${Math.round(left)}px`;
             }
         });
     }
 
-    // Preset Buttons Logic
     document.querySelectorAll('.btn-preset').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            // UI
             document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
 
-            // Logic
             const range = e.target.dataset.range;
             const end = new Date();
             const start = new Date();
@@ -388,7 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (range === '30days') start.setDate(end.getDate() - 30);
             else if (range === 'month') start.setDate(1);
 
-            // Use Local Date Strings to avoid timezone issues
             const startStr = getLocalDateStr(start);
             const endStr = getLocalDateStr(end);
 
@@ -404,7 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Trend Scale Toggles
     document.querySelectorAll('.btn-toggle').forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.querySelectorAll('.btn-toggle').forEach(b => b.classList.remove('active'));
@@ -414,7 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Manual Inputs
     ['startDate', 'endDate'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -422,13 +376,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(id !== 'statusFilter') document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
                 if(id === 'startDate') state.startDate = e.target.value;
                 if(id === 'endDate') state.endDate = e.target.value;
-                if(id === 'statusFilter') state.status = e.target.value;
                 updateDashboard();
             });
         }
     });
 
-    // Custom Status Dropdown (replaces native select)
     const statusToggle = document.getElementById('statusFilterToggle');
     const statusDropdown = document.getElementById('statusFilterDropdown');
     const statusText = document.getElementById('statusFilterText');
@@ -437,11 +389,9 @@ document.addEventListener('DOMContentLoaded', () => {
         statusToggle.addEventListener('click', (e) => {
             e.stopPropagation();
             const isActive = statusDropdown.classList.contains('active');
-            // Close others
             document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
             if (!isActive) {
                 statusDropdown.classList.add('active');
-                // position below toggle (absolute inside .action-menu)
                 statusDropdown.style.top = (statusToggle.offsetHeight + 6) + 'px';
                 statusDropdown.style.left = '0px';
             }
@@ -458,12 +408,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Close custom dropdowns on outside click
     document.addEventListener('click', () => {
         document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
     });
 
-    // Close dropdowns on scroll and resize
     window.addEventListener('scroll', () => {
         document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
     }, true);
@@ -471,7 +419,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
     });
 
-    // Export PDF
     const pdfBtn = document.getElementById('exportPDF');
     if (pdfBtn) {
         pdfBtn.addEventListener('click', () => {
@@ -479,21 +426,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const doc = new jsPDF('p', 'mm', 'a4');
             const data = getFilteredData();
 
-            // Header
             doc.setFillColor(139, 21, 56);
             doc.rect(0, 0, 210, 20, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(14);
             doc.text("CIT-U Campus Pass - Analytics", 14, 13);
-
-            // Summary text
             doc.setTextColor(50);
             doc.setFontSize(10);
             doc.text(`Generated: ${new Date().toLocaleDateString()} | Records: ${data.length}`, 14, 30);
 
             let yPos = 40;
 
-            // Add Data Table
             if (data.length > 0) {
                 const tableData = data.map(v => [
                     v.visit_date || '-',
@@ -517,7 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 yPos = doc.lastAutoTable.finalY + 10;
             }
 
-            // Capture Charts
             const addChart = (id, title) => {
                 if (yPos > 220) { doc.addPage(); yPos = 20; }
                 const canvas = document.getElementById(id);
@@ -537,7 +479,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // CSV Export
     const csvBtn = document.getElementById('exportCSV');
     if (csvBtn) {
         csvBtn.addEventListener('click', () => {
@@ -554,13 +495,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initialize: Trigger "Last 30 Days" by default so charts aren't empty
-    // We check if the button exists first
     const defaultBtn = document.querySelector('.btn-preset[data-range="30days"]');
     if (defaultBtn) {
         defaultBtn.click();
     } else {
-        // Fallback initialization if button missing
         updateDashboard();
     }
 });

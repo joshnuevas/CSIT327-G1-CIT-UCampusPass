@@ -3,7 +3,75 @@ from django.contrib import messages
 from .forms import StaffCreateForm, StaffEditForm
 from .helpers import generate_staff_username, hash_password
 from . import services
-from manage_reports_logs_app import services as logs_services  # ✅ import logs
+from manage_reports_logs_app import services as logs_services
+
+# Import Notification Helper and Models
+from dashboard_app.views import create_notification
+from login_app.models import Administrator
+
+# ===== Helper for Supabase Response Checking =====
+def is_success(resp):
+    """
+    Checks if a Supabase response was successful.
+    """
+    if hasattr(resp, 'error') and resp.error:
+        print(f"Supabase Error: {resp.error}") 
+        return False
+        
+    data = getattr(resp, "data", None)
+    if isinstance(data, dict) and 'code' in data and 'message' in data:
+         print(f"Supabase Data Error: {data}")
+         return False
+
+    # Check strictly for data presence or success status codes if available
+    if hasattr(resp, 'data') and resp.data:
+        return True
+    if hasattr(resp, 'status_code') and resp.status_code in (200, 201, 204):
+        return True
+        
+    return False
+
+# ===== NOTIFICATION HELPER =====
+def send_staff_notifications(request, action_type, description):
+    """
+    Notify ALL other admins (and superadmins) about staff changes.
+    
+    Args:
+        request: Request object (to identify the actor).
+        action_type: "create", "update", "status_change", "security", "delete"
+        description: The verb phrase (e.g., "has onboarded...").
+    """
+    try:
+        current_admin_username = request.session.get('admin_username')
+        actor_name = request.session.get('admin_first_name', current_admin_username)
+        
+        # Determine Title based on context
+        title = "Staff Management"
+        if action_type == "security":
+            title = "Security Alert"
+        elif action_type in ["create", "delete"]:
+            title = "Staff Roster Update"
+        elif action_type == "status_change":
+            title = "Staff Status Update"
+
+        # Fetch all admins to notify them
+        all_admins = Administrator.objects.all()
+        
+        for admin in all_admins:
+            # 1. Don't notify the one who performed the action
+            if admin.username == current_admin_username:
+                continue
+
+            # 2. Notify everyone else
+            create_notification(
+                receiver_admin=admin,
+                title=title,
+                message=f"{actor_name} {description}",
+                type="system_alert"
+            )
+
+    except Exception as e:
+        print(f"Error sending staff notifications: {e}")
 
 
 # ===== PERMISSION DECORATOR =====
@@ -33,7 +101,7 @@ def staff_create_view(request):
             data = form.cleaned_data
             existing_count = len(getattr(services.list_staff(limit=1000), "data", []) or [])
             username = generate_staff_username(data['first_name'], data['last_name'], existing_count)
-            temp_pw = "123456"
+            temp_pw = "123456" # Default temp password
             hashed = hash_password(temp_pw)
 
             record = {
@@ -49,18 +117,24 @@ def staff_create_view(request):
 
             resp = services.create_staff(record)
 
-            if getattr(resp, "status_code", None) in (200, 201) or getattr(resp, "data", None):
-                messages.success(request, f"Staff created: {username}.")
-
+            if is_success(resp):
                 # ✅ Log creation
                 actor = f"{request.session.get('admin_first_name', 'Unknown')} ({request.session.get('admin_username', '-')})"
                 logs_services.create_log(
                     actor,
                     "Staff Management",
-                    f"Created new staff account '{username}'.",
+                    f"Created new staff account '{username}'. Status: Success",
                     actor_role="Admin"
                 )
 
+                # 🔔 Notify other admins
+                send_staff_notifications(
+                    request,
+                    "create",
+                    f"has onboarded a new staff member: {data['first_name']} {data['last_name']} ({username})."
+                )
+
+                messages.success(request, f"Staff '{username}' created successfully.")
                 return redirect("manage_staff_app:staff_list")
             else:
                 messages.error(request, "Failed to create staff. Check logs.")
@@ -84,21 +158,28 @@ def staff_edit_view(request, username):
         form = StaffEditForm(request.POST)
         if form.is_valid():
             updates = form.cleaned_data
-            # Preserve the current is_active state (don't allow changes via this form)
+            # Preserve the current is_active state
             updates["is_active"] = staff.get("is_active", True)
             resp = services.update_staff(username, updates)
-            if getattr(resp, "status_code", None) == 200 or getattr(resp, "data", None):
-                messages.success(request, f"Staff '{username}' updated successfully.")
-
+            
+            if is_success(resp):
                 # ✅ Log edit
                 actor = f"{request.session.get('admin_first_name', 'Unknown')} ({request.session.get('admin_username', '-')})"
                 logs_services.create_log(
                     actor,
                     "Staff Management",
-                    f"Edited staff details for '{username}'.",
+                    f"Edited staff details for '{username}'. Status: Success",
                     actor_role="Admin"
                 )
 
+                # 🔔 Notify other admins
+                send_staff_notifications(
+                    request,
+                    "update",
+                    f"has updated the profile details for staff member {username}."
+                )
+
+                messages.success(request, f"Staff '{username}' updated successfully.")
                 return redirect("manage_staff_app:staff_list")
             else:
                 messages.error(request, f"Failed to update staff '{username}'.")
@@ -126,21 +207,31 @@ def staff_deactivate_view(request, username):
     staff = staff_data[0]
     current_status = staff.get("is_active", True)
     new_status = not current_status
-    action = "activated" if new_status else "deactivated"
+    
+    # Professional phrasing
+    action_desc = "activated the account for" if new_status else "deactivated the account for"
+    simple_action = "activated" if new_status else "deactivated"
 
     resp = services.update_staff(username, {"is_active": new_status})
 
-    if getattr(resp, "status_code", None) == 200 or getattr(resp, "data", None):
-        messages.success(request, f"Staff '{username}' has been {action}.")
-
+    if is_success(resp):
         # ✅ Log activation/deactivation
         actor = f"{request.session.get('admin_first_name', 'Unknown')} ({request.session.get('admin_username', '-')})"
         logs_services.create_log(
             actor,
             "Staff Management",
-            f"{action.capitalize()} staff account '{username}'.",
+            f"{simple_action.capitalize()} staff account '{username}'. Status: Success",
             actor_role="Admin"
         )
+
+        # 🔔 Notify other admins
+        send_staff_notifications(
+            request,
+            "status_change",
+            f"has {action_desc} staff member {username}."
+        )
+
+        messages.success(request, f"Staff '{username}' has been {simple_action}.")
     else:
         messages.error(request, f"Failed to update status for '{username}'.")
 
@@ -153,18 +244,25 @@ def staff_reset_password_view(request, username):
     temp_pw = "123456"
     hashed = hash_password(temp_pw)
     resp = services.update_staff(username, {"password": hashed, "is_temp_password": True})
-    if getattr(resp, "status_code", None) == 200 or getattr(resp, "data", None):
-        messages.success(request, f"Password reset for '{username}'. Temporary password: {temp_pw}.")
-
+    
+    if is_success(resp):
         # ✅ Log reset
         actor = f"{request.session.get('admin_first_name', 'Unknown')} ({request.session.get('admin_username', '-')})"
         logs_services.create_log(
             actor,
             "Security",
-            f"Reset password for staff '{username}'.",
+            f"Reset password for staff '{username}'. Status: Success",
             actor_role="Admin"
         )
 
+        # 🔔 Notify other admins (Security Alert)
+        send_staff_notifications(
+            request,
+            "security",
+            f"has triggered a security password reset for staff member {username}."
+        )
+
+        messages.success(request, f"Password reset for '{username}'. Temporary password: {temp_pw}.")
     else:
         messages.error(request, f"Failed to reset password for '{username}'.")
 
@@ -179,26 +277,31 @@ def staff_delete_view(request, username):
         messages.error(request, "Staff not found.")
         return redirect("manage_staff_app:staff_list")
 
-    # Prevent self-deletion by the currently logged-in admin
+    # Safety check: Prevent admin from deleting themselves via this view (unlikely, but good practice)
     if username == request.session.get('admin_username'):
         messages.error(request, "You cannot delete your own account.")
         return redirect("manage_staff_app:staff_list")
 
     resp = services.delete_staff(username)
 
-    success = getattr(resp, "status_code", None) in (200, 201) or bool(getattr(resp, "data", None))
-
-    if success:
-        messages.success(request, f"Staff '{username}' has been deleted.")
-
-        # Log deletion
+    if is_success(resp):
+        # ✅ Log deletion
         actor = f"{request.session.get('admin_first_name', 'Unknown')} ({request.session.get('admin_username', '-')})"
         logs_services.create_log(
             actor,
             "Staff Management",
-            f"Deleted staff account '{username}'.",
+            f"Deleted staff account '{username}'. Status: Success",
             actor_role="Admin"
         )
+
+        # 🔔 Notify other admins
+        send_staff_notifications(
+            request,
+            "delete",
+            f"has permanently deleted the staff account for {username}."
+        )
+
+        messages.success(request, f"Staff '{username}' has been deleted.")
     else:
         messages.error(request, f"Failed to delete staff '{username}'.")
 

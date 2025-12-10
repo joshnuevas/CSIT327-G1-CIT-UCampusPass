@@ -16,4 +16,7 @@ urlpatterns = [
     path('staff/check-code/', views.check_code, name='check_code'),
     path('staff/check-in/', views.check_in_visitor, name='check_in_visitor'),
     path('staff/check-out/', views.check_out_visitor, name='check_out_visitor'),
+    path('api/visitor-notifications/', views.visitor_notifications_api, name='visitor_notifications_api'),
+    path('api/visitor-notifications/delete/', views.delete_visitor_notification_api, name='delete_visitor_notification_api'),
+    path('api/visitor-notifications/clear/', views.clear_visitor_notifications_api, name='clear_visitor_notifications_api'),
 ]
