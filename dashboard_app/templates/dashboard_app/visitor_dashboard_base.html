@@ -395,81 +395,6 @@
         from { opacity: 0; transform: translateY(-20px); }
         to { opacity: 1; transform: translateY(0); }
       }
-
-      /* ========================================= 
-      WELCOME CURTAIN ANIMATION 
-      ========================================= */
-      .welcome-curtain {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #8B1538 0%, #5c0a0a 100%); /* CIT Maroon */
-        z-index: 99999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-      }
-
-      .welcome-curtain.slide-up {
-        transform: translateY(-100%);
-      }
-
-      .curtain-content {
-        text-align: center;
-        color: white;
-        opacity: 1;
-        transition: opacity 0.5s ease;
-      }
-
-      .welcome-curtain.slide-up .curtain-content {
-        opacity: 0;
-      }
-
-      .curtain-logo {
-        width: 100px;
-        height: 100px;
-        background: url("https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png") no-repeat center;
-        background-size: contain;
-        background-color: white;
-        border-radius: 50%;
-        border: 4px solid #D4AF37;
-        margin: 0 auto 20px;
-        box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
-      }
-
-      .curtain-text h1 {
-        font-size: 28px;
-        font-weight: 800;
-        margin-bottom: 5px;
-        color: #fff;
-        letter-spacing: 0.5px;
-      }
-
-      .curtain-text p {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 25px;
-      }
-
-      .curtain-loader {
-        width: 120px;
-        height: 4px;
-        background: #D4AF37;
-        margin: 0 auto;
-        border-radius: 2px;
-        transform-origin: left;
-        transform: scaleX(0);
-        animation: smoothLoad 1.6s ease forwards;
-      }
-
-      @keyframes smoothLoad {
-        0% { transform: scaleX(0); opacity: 0.2; }
-        15% { opacity: 1; }
-        100% { transform: scaleX(1); opacity: 1; }
-      }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -478,17 +403,7 @@
 </head>
 <body>
 
-    <div id="welcome-curtain" class="welcome-curtain">
-        <div class="curtain-content">
-            <div class="curtain-logo"></div>
-            <div class="curtain-text">
-                <h1>Welcome, {{ user_first_name }}!</h1>
-                <p>Accessing Campus Pass Dashboard...</p>
-            </div>
-            <div class="curtain-loader"></div>
-        </div>
-    </div>
-
+    <!-- overlay -->
     <div class="overlay" id="overlay"></div>
 
     <div class="sidebar" id="sidebar">
@@ -591,70 +506,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // ===== TOASTS =====
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                setTimeout(function() {
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'translateX(400px)';
-                    setTimeout(function() { alert.remove(); }, 500);
-                }, 5000);
-            });
-
-            // ===== NAVBAR HIDE/SHOW (DESKTOP) =====
-            const navToggle = document.getElementById('navToggle');
-            function updateNavToggleIcon(isHidden) {
-                if (!navToggle) return;
-                const icon = navToggle.querySelector('i');
-                if (!icon) return;
-                if (isHidden) {
-                    icon.classList.remove('fa-angle-double-left');
-                    icon.classList.add('fa-angle-double-right');
-                    navToggle.title = 'Show sidebar';
-                } else {
-                    icon.classList.remove('fa-angle-double-right');
-                    icon.classList.add('fa-angle-double-left');
-                    navToggle.title = 'Hide sidebar';
-                }
-            }
-            function applySavedNavPreference() {
-                const saved = localStorage.getItem('visitorNavHidden');
-                const shouldHide = saved === '1';
-                if (shouldHide) document.body.classList.add('nav-hidden');
-                else document.body.classList.remove('nav-hidden');
-                updateNavToggleIcon(shouldHide);
-            }
-            if (navToggle) {
-                applySavedNavPreference();
-                navToggle.addEventListener('click', function () {
-                    const isHiddenNow = document.body.classList.toggle('nav-hidden');
-                    localStorage.setItem('visitorNavHidden', isHiddenNow ? '1' : '0');
-                    updateNavToggleIcon(isHiddenNow);
-                });
-            }
-
-            // ====== WELCOME ANIMATION LOGIC ======
-            const curtain = document.getElementById('welcome-curtain');
-            const loginPath = "{% url 'login_app:login' %}";
-            const fromLogin = document.referrer && document.referrer.includes(loginPath);
-            let hasSeenIntro = sessionStorage.getItem('seenDashboardIntro');
-            if (fromLogin) {
-                sessionStorage.removeItem('seenDashboardIntro');
-                hasSeenIntro = null;
-            }
-            if (curtain) {
-                if (hasSeenIntro) {
-                    curtain.style.display = 'none';
-                } else {
-                    setTimeout(() => {
-                        curtain.classList.add('slide-up');
-                        sessionStorage.setItem('seenDashboardIntro', 'true');
-                        setTimeout(() => { curtain.style.display = 'none'; }, 800);
-                    }, 2000);
-                }
-            }
-
+        document.addEventListener('DOMContentLoaded', function () {
             // ===== SIDEBAR TOGGLE =====
             const menuToggle = document.getElementById("menuToggle");
             const sidebar = document.getElementById("sidebar");
@@ -752,13 +604,8 @@
 
       function updateBadgeUI(count) {
         if (!notifBadge) return;
-        
-        // Dot Mode: Empty text content
         notifBadge.textContent = ""; 
-        
-        // Store count for logic use
         notifBadge.dataset.count = count; 
-        
         if (count > 0) {
             notifBadge.style.setProperty("display", "inline-block", "important");
         } else {
@@ -768,7 +615,6 @@
 
       async function fetchNotifications() {
         try {
-          // Calling the VISITOR specific API
           const response = await fetch("/api/visitor-notifications/"); 
           if (!response.ok) return;
           const data = await response.json();
@@ -792,10 +638,8 @@
               notifications.forEach(notif => {
                 const item = document.createElement("div");
                 item.classList.add("dropdown-item");
-                // Highlight new ones visually
                 if(!notif.is_read) item.style.backgroundColor = "#fff5f7"; 
 
-                // Simple icon logic for visitors
                 let iconClass = 'fas fa-bell';
                 if (notif.title.includes('Visit') || notif.type === 'visit_update') iconClass = 'fas fa-calendar-check';
                 if (notif.type === 'personal_alert') iconClass = 'fas fa-user-shield';
@@ -859,7 +703,6 @@
           else { fetchNotifications(); pollInterval = setInterval(fetchNotifications, POLL_DELAY); }
         });
 
-        // Ensure badge doesn't disappear when user clicks the bell to open dropdown
         if (notifBtn) {
             notifBtn.addEventListener("click", () => {
                 setTimeout(() => { 
@@ -877,3 +720,134 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const body = document.body;
+
+        // ===== DESKTOP SIDEBAR TOGGLE =====
+        const navToggle = document.getElementById("navToggle");
+
+        function updateNavToggleIcon(isHidden) {
+            if (!navToggle) return;
+            const icon = navToggle.querySelector("i");
+            if (!icon) return;
+
+            if (isHidden) {
+                icon.classList.remove("fa-angle-double-left");
+                icon.classList.add("fa-angle-double-right");
+                navToggle.title = "Show sidebar";
+            } else {
+                icon.classList.remove("fa-angle-double-right");
+                icon.classList.add("fa-angle-double-left");
+                navToggle.title = "Hide sidebar";
+            }
+        }
+
+        function applySavedNavPreference() {
+            const saved = localStorage.getItem("visitorNavHidden");
+            const shouldHide = saved === "1";
+
+            if (shouldHide) {
+                body.classList.add("nav-hidden");
+            } else {
+                body.classList.remove("nav-hidden");
+            }
+            updateNavToggleIcon(shouldHide);
+        }
+
+        if (navToggle) {
+            // apply saved state on load
+            applySavedNavPreference();
+
+            navToggle.addEventListener("click", () => {
+                const isHiddenNow = body.classList.toggle("nav-hidden");
+                localStorage.setItem("visitorNavHidden", isHiddenNow ? "1" : "0");
+                updateNavToggleIcon(isHiddenNow);
+            });
+        }
+
+        // ===== MOBILE SIDEBAR TOGGLE =====
+        const menuToggle = document.getElementById("menuToggle");
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+
+        if (menuToggle) {
+            menuToggle.addEventListener("click", () => {
+                sidebar.classList.toggle("active");
+                overlay.classList.toggle("active");
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener("click", () => {
+                sidebar.classList.remove("active");
+                overlay.classList.remove("active");
+            });
+        }
+
+        // ===== DROPDOWNS (PROFILE & NOTIFICATION) =====
+        const notifBtn = document.getElementById("notifBtn");
+        const notifDropdown = document.getElementById("notifDropdown");
+        const profileBtn = document.getElementById("profileBtn");
+        const profileDropdown = document.getElementById("profileDropdown");
+
+        // Notification Toggle
+        if (notifBtn) {
+            notifBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                notifDropdown.classList.toggle("active");
+                profileDropdown.classList.remove("active");
+                
+                // RE-ASSERT BADGE VISIBILITY (Important fix)
+                const notifBadge = notifBtn.querySelector(".notification-badge");
+                if (notifBadge && notifBadge.dataset.count > 0) {
+                     notifBadge.style.setProperty("display", "inline-block", "important");
+                }
+            });
+        }
+
+        // Profile Toggle
+        if (profileBtn) {
+            profileBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle("active");
+                notifDropdown.classList.remove("active");
+            });
+        }
+
+        document.addEventListener("click", (e) => {
+            if (notifDropdown && notifBtn && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target))
+                notifDropdown.classList.remove("active");
+            if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
+                profileDropdown.classList.remove("active");
+        });
+
+        // ===== MODAL HANDLING =====
+        const modals = document.querySelectorAll('.modal');
+        window.openModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.classList.add('show');
+        }
+        window.closeModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.classList.remove('show');
+        }
+        modals.forEach(modal=>{
+            modal.addEventListener('click', e=>{
+                if(e.target===modal) modal.classList.remove('show');
+            });
+        });
+
+        // ===== LOGOUT LOGIC =====
+        const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
+        const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
+        const confirmLogout = document.getElementById("confirmLogout");
+        const cancelLogout = document.getElementById("cancelLogout");
+        
+        if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); openModal('logoutModal'); });
+        if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); openModal('logoutModal'); });
+        if(confirmLogout) confirmLogout.addEventListener("click", ()=>window.location.href="{% url 'login_app:logout' %}");
+        if(cancelLogout) cancelLogout.addEventListener("click", ()=>closeModal('logoutModal'));
+    });
+</script>

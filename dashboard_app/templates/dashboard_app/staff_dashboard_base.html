@@ -363,7 +363,7 @@
         visibility: visible;
     }
 
-        /* ===== MODALS ===== */
+    /* ===== MODALS ===== */
     .modal {
         display: none;
         position: fixed !important;
@@ -533,83 +533,6 @@
         }
     }
 
-        /* =========================================
-      11. STAFF WELCOME CURTAIN
-      ========================================= */
-    .welcome-curtain {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #8B1538 0%, #5c0a0a 100%);
-        z-index: 99999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transform: translateY(0);
-        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-    }
-
-    .welcome-curtain.slide-up {
-        transform: translateY(-100%);
-    }
-
-    .curtain-content {
-        text-align: center;
-        color: #ffffff;
-        opacity: 1;
-        transition: opacity 0.4s ease;
-    }
-
-    .welcome-curtain.slide-up .curtain-content {
-        opacity: 0;
-    }
-
-    .curtain-logo {
-        width: 100px;
-        height: 100px;
-        background: url("https://upload.wikimedia.org/wikipedia/en/8/8c/Cebu_Institute_of_Technology_University_logo.png") no-repeat center;
-        background-size: contain;
-        background-color: #ffffff;
-        border-radius: 50%;
-        border: 4px solid #D4AF37;
-        margin: 0 auto 18px;
-        box-shadow: 0 0 30px rgba(212, 175, 55, 0.45);
-        /* 🔒 no animation here so the image never moves/blurs */
-    }
-
-    .curtain-text h1 {
-        font-size: 26px;
-        font-weight: 800;
-        margin-bottom: 6px;
-        letter-spacing: 0.5px;
-    }
-
-    .curtain-text p {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.85);
-        margin-bottom: 20px;
-    }
-
-    .curtain-loader {
-        width: 140px;
-        height: 4px;
-        background: #D4AF37;
-        margin: 0 auto;
-        border-radius: 999px;
-        transform-origin: left;
-        transform: scaleX(0);
-        opacity: 0.9;
-        animation: staffLoadBar 1.6s ease-out forwards;
-    }
-
-    @keyframes staffLoadBar {
-        0%   { transform: scaleX(0); opacity: 0.2; }
-        15%  { opacity: 1; }
-        100% { transform: scaleX(1); opacity: 1; }
-    }
-
     /* =========================================
       10. ANIMATIONS
       ========================================= */
@@ -630,17 +553,7 @@
 </head>
 <body>
 
-    <!-- STAFF WELCOME CURTAIN -->
-    <div id="staff-welcome-curtain" class="welcome-curtain">
-        <div class="curtain-content">
-            <div class="curtain-logo"></div>
-            <div class="curtain-text">
-                <h1>Welcome, {{ request.session.staff_first_name|default:"Staff" }}!</h1>
-                <p>Loading Staff Dashboard&hellip;</p>
-            </div>
-            <div class="curtain-loader"></div>
-        </div>
-    </div>
+    <!-- (Curtain removed) -->
 
     <!-- ===== OVERLAY ===== -->
     <div class="overlay" id="overlay"></div>
@@ -814,33 +727,10 @@
                 updateNavToggleIcon(shouldHide);
             }
 
-                        // ===== STAFF WELCOME ENTRANCE CURTAIN =====
-            const staffCurtain = document.getElementById('staff-welcome-curtain');
-            const hasSeenStaffIntro = sessionStorage.getItem('seenStaffIntro');
-
-            if (staffCurtain) {
-                if (hasSeenStaffIntro) {
-                    // Already seen this session: hide immediately
-                    staffCurtain.style.display = 'none';
-                } else {
-                    // First time: play animation, then mark as seen
-                    setTimeout(() => {
-                        staffCurtain.classList.add('slide-up');
-                        sessionStorage.setItem('seenStaffIntro', 'true');
-
-                        // Remove from flow after the slide transition
-                        setTimeout(() => {
-                            staffCurtain.style.display = 'none';
-                        }, 800); // matches CSS transition duration
-                    }, 1800); // how long the curtain stays before sliding (1.8s)
-                }
-            }
-
+            // Apply saved state on load
             if (navToggle) {
-                // Apply saved state on load
                 applySavedNavPreference();
 
-                // Toggle on click
                 navToggle.addEventListener('click', function () {
                     const isHiddenNow = document.body.classList.toggle('nav-hidden');
                     localStorage.setItem('staffNavHidden', isHiddenNow ? '1' : '0');
@@ -869,7 +759,7 @@
         }
 
         // ===== DROPDOWNS =====
-        const notifBtn = document.getElementById("notifBtn");
+        const notifBtn = document.getElementById("notifBtn"); // (if you add it later)
         const notifDropdown = document.getElementById("notifDropdown");
         const profileBtn = document.getElementById("profileBtn");
         const profileDropdown = document.getElementById("profileDropdown");
@@ -921,7 +811,6 @@
         // ===== Logout Modal =====
         const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
         const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
-        const logoutModal = document.getElementById("logoutModal");
         const confirmLogout = document.getElementById("confirmLogout");
         const cancelLogout = document.getElementById("cancelLogout");
 
