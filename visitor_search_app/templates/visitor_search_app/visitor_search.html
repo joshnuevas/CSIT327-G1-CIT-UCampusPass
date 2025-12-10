@@ -522,9 +522,13 @@
                 <div class="card-header-row">
                     <div class="visitor-profile">
                         <div class="profile-initial">
-                            {% with fn=result.first_name|default_if_none:""|first ln=result.last_name|default_if_none:""|first %}
-                                {{ fn }}{{ ln }}
-                            {% endwith %}
+                            {% if result.first_name and result.last_name %}
+                                {{ result.first_name|first|upper }}{{ result.last_name|first|upper }}
+                            {% elif result.first_name %}
+                                {{ result.first_name|first|upper }}
+                            {% else %}
+                                {{ result.visitor_name|slice:":2"|upper }}
+                            {% endif %}
                         </div>
                         <div>
                             <div class="visitor-name">{{ result.visitor_name }}</div>

@@ -380,8 +380,10 @@
 
     <div class="profile-header">
         <div class="profile-avatar">
-            {% if first_name %}
-                {{ first_name|slice:":2"|upper }}
+            {% if first_name and last_name %}
+                {{ first_name|first|upper }}{{ last_name|first|upper }}
+            {% elif first_name %}
+                {{ first_name|first|upper }}
             {% else %}
                 {{ visitor_name|slice:":2"|upper }}
             {% endif %}
