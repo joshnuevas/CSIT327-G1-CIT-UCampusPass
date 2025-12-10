@@ -45,7 +45,7 @@
         margin-left: 0 !important;
       }
 
-      /* ===== MENU TOGGLE ===== */
+      /* ===== MENU TOGGLE (MOBILE) ===== */
       .menu-toggle {
         display: none;
         background: none;
@@ -98,7 +98,7 @@
         visibility: visible;
       }
 
-      /* ===== TOP BAR ADJUSTMENTS ===== */
+      /* ===== TOP BAR ===== */
       .top-bar {
         background: #FFFFFF;
         border-bottom: 2px solid #8b1538;
@@ -143,48 +143,6 @@
 
       .user-avatar:hover {
         transform: scale(1.05);
-      }
-
-      /* ===== NOTIFICATION ICON (NEW) ===== */
-      .notification-icon {
-        position: relative;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 42px;
-        height: 42px;
-        background-color: #ffffff;
-        color: #8b1538;
-        border-radius: 50%;
-        border: 2px solid #d4af37;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s;
-      }
-
-      .notification-icon:hover {
-        transform: scale(1.05);
-        background-color: #f8f8f8;
-      }
-
-      .notification-icon svg {
-        width: 20px;
-        height: 20px;
-        fill: #8b1538;
-      }
-
-      /* ===== NOTIFICATION BADGE (NEW) ===== */
-      .notification-badge {
-        display: none;
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 10px;
-        height: 10px;
-        background-color: #8b1538; /* Maroon Dot */
-        border: 1px solid #fff;
-        border-radius: 50%;
-        z-index: 1500;
       }
 
       /* ===== DROPDOWNS ===== */
@@ -238,43 +196,11 @@
         width: 20px;
       }
 
-      /* Notification Specifics inside Dropdown */
-      .dropdown-item .activity-icon {
-        flex-shrink: 0;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 10px;
-      }
-      .dropdown-item .activity-content { flex: 1; }
-      .dropdown-item .activity-content h4 { margin: 0 0 2px 0; font-size: 14px; font-weight: 600; color: #333; }
-      .dropdown-item .activity-content p { margin: 0; font-size: 13px; color: #666; }
-      .dropdown-item .activity-content small { font-size: 12px; color: #999; font-weight: 500; }
-      .dropdown-item .btn-delete {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: transparent;
-        border: none;
-        color: #8b1538;
-        font-weight: bold;
-        cursor: pointer;
+      .dropdown-empty {
+        padding: 20px;
+        text-align: center;
+        color: #666;
         font-size: 14px;
-        display: none;
-      }
-      .dropdown-item:hover .btn-delete { display: inline-block; }
-      .dropdown-empty { padding: 20px; text-align: center; color: #666; font-size: 14px; }
-
-      /* Notification Dropdown Specific Style */
-      #notifDropdown {
-        right: 80px;
-        max-height: 420px;
-        overflow-y: auto;
-        width: 350px;
-        scrollbar-width: thin;
-        scrollbar-color: #8b1538 #f5f5f5;
       }
 
       @keyframes fadeIn {
@@ -316,7 +242,9 @@
         justify-content: center;
         align-items: center;
       }
+
       .modal.show { display: flex !important; }
+
       .modal-content {
         background: linear-gradient(135deg, #fff8f5, #fff1e5) !important;
         border-radius: 25px;
@@ -468,12 +396,7 @@
             <button class="nav-visibility-toggle" id="navToggle" title="Hide sidebar"><i class="fas fa-angle-double-left"></i></button>
 
             <div class="user-info">
-                <div class="notification-icon" id="notifBtn">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                    </svg>
-                    <span class="notification-badge" style="display: none"></span>
-                </div>
+                <!-- NO MORE NOTIF ICON HERE -->
                 <div class="user-avatar" id="profileBtn">{{ user_first_name|default:"JD"|slice:":2"|upper }}</div>
             </div>
         </div>
@@ -483,10 +406,7 @@
         </div>
     </div>
 
-    <div class="dropdown" id="notifDropdown">
-      <div class="dropdown-header">Notifications</div>
-      <div class="dropdown-empty">No new notifications</div>
-    </div>
+    <!-- ONLY PROFILE DROPDOWN NOW -->
     <div class="dropdown" id="profileDropdown">
         <div class="dropdown-header">Visitor</div>
         <a href="{% url 'profile_app:profile' %}" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
@@ -506,222 +426,6 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // ===== SIDEBAR TOGGLE =====
-            const menuToggle = document.getElementById("menuToggle");
-            const sidebar = document.getElementById("sidebar");
-            const overlay = document.getElementById("overlay");
-            if (menuToggle) {
-                menuToggle.addEventListener("click", () => {
-                    sidebar.classList.toggle("active");
-                    overlay.classList.toggle("active");
-                });
-            }
-            if (overlay) {
-                overlay.addEventListener("click", () => {
-                    sidebar.classList.remove("active");
-                    overlay.classList.remove("active");
-                });
-            }
-
-            // ===== DROPDOWNS (PROFILE & NOTIFICATION) =====
-            const notifBtn = document.getElementById("notifBtn");
-            const notifDropdown = document.getElementById("notifDropdown");
-            const profileBtn = document.getElementById("profileBtn");
-            const profileDropdown = document.getElementById("profileDropdown");
-
-            // Notification Toggle
-            if (notifBtn) {
-                notifBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    notifDropdown.classList.toggle("active");
-                    profileDropdown.classList.remove("active");
-                    
-                    // RE-ASSERT BADGE VISIBILITY (Important fix)
-                    const notifBadge = notifBtn.querySelector(".notification-badge");
-                    if (notifBadge && notifBadge.dataset.count > 0) {
-                         notifBadge.style.setProperty("display", "inline-block", "important");
-                    }
-                });
-            }
-
-            // Profile Toggle
-            if (profileBtn) {
-                profileBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    profileDropdown.classList.toggle("active");
-                    notifDropdown.classList.remove("active");
-                });
-            }
-
-            document.addEventListener("click", (e) => {
-                if (notifDropdown && notifBtn && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target))
-                    notifDropdown.classList.remove("active");
-                if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
-                    profileDropdown.classList.remove("active");
-            });
-
-            // ===== MODAL HANDLING =====
-            const modals = document.querySelectorAll('.modal');
-            window.openModal = function(modalId) {
-                const modal = document.getElementById(modalId);
-                if(modal) modal.classList.add('show');
-            }
-            window.closeModal = function(modalId) {
-                const modal = document.getElementById(modalId);
-                if(modal) modal.classList.remove('show');
-            }
-            modals.forEach(modal=>{
-                modal.addEventListener('click', e=>{
-                    if(e.target===modal) modal.classList.remove('show');
-                });
-            });
-
-            // ===== LOGOUT LOGIC =====
-            const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
-            const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
-            const confirmLogout = document.getElementById("confirmLogout");
-            const cancelLogout = document.getElementById("cancelLogout");
-            
-            if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); openModal('logoutModal'); });
-            if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); openModal('logoutModal'); });
-            if(confirmLogout) confirmLogout.addEventListener("click", ()=>window.location.href="{% url 'login_app:logout' %}");
-            if(cancelLogout) cancelLogout.addEventListener("click", ()=>closeModal('logoutModal'));
-        });
-    </script>
-
-    <script>
-    (() => {
-      const notifDropdown = document.getElementById("notifDropdown");
-      const notifBadge = document.querySelector(".notification-badge");
-      const notifBtn = document.getElementById("notifBtn");
-      const csrftoken = document.querySelector('meta[name="csrf-token"]')?.content;
-
-      let pollInterval = null;
-      const POLL_DELAY = 10000;
-
-      function formatTime(dateString) { return dateString || "N/A"; }
-
-      function updateBadgeUI(count) {
-        if (!notifBadge) return;
-        notifBadge.textContent = ""; 
-        notifBadge.dataset.count = count; 
-        if (count > 0) {
-            notifBadge.style.setProperty("display", "inline-block", "important");
-        } else {
-            notifBadge.style.display = "none";
-        }
-      }
-
-      async function fetchNotifications() {
-        try {
-          const response = await fetch("/api/visitor-notifications/"); 
-          if (!response.ok) return;
-          const data = await response.json();
-          const notifications = data.notifications || [];
-
-          updateBadgeUI(notifications.length);
-
-          if (notifDropdown) {
-            notifDropdown.innerHTML = "";
-            const headerDiv = document.createElement("div");
-            headerDiv.classList.add("dropdown-header");
-            headerDiv.innerHTML = `Notifications <a href="#" id="dropdownClearBtn" class="small-clear-btn" style="float:right; font-size:0.8rem; color:#8b1538; text-decoration:none;">Clear All</a>`;
-            notifDropdown.appendChild(headerDiv);
-
-            const clearBtn = headerDiv.querySelector("#dropdownClearBtn");
-            if(clearBtn) clearBtn.addEventListener("click", (e) => { e.preventDefault(); clearAllNotifications(); });
-
-            if (notifications.length === 0) {
-              notifDropdown.innerHTML += '<div class="dropdown-empty">No new notifications</div>';
-            } else {
-              notifications.forEach(notif => {
-                const item = document.createElement("div");
-                item.classList.add("dropdown-item");
-                if(!notif.is_read) item.style.backgroundColor = "#fff5f7"; 
-
-                let iconClass = 'fas fa-bell';
-                if (notif.title.includes('Visit') || notif.type === 'visit_update') iconClass = 'fas fa-calendar-check';
-                if (notif.type === 'personal_alert') iconClass = 'fas fa-user-shield';
-
-                item.innerHTML = `
-                  <div class="activity-icon"><i class="${iconClass}"></i></div>
-                  <div class="activity-content" style="flex: 1;">
-                    <h4 style="margin-bottom:2px;">${notif.title}</h4>
-                    <p style="margin:0;">${notif.message}</p>
-                    <small>${formatTime(notif.time)}</small>
-                  </div>
-                  <button class="btn-delete" data-id="${notif.id}">✕</button>
-                `;
-                notifDropdown.appendChild(item);
-
-                item.querySelector(".btn-delete").addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    deleteNotification(notif.id, item);
-                });
-              });
-            }
-          }
-        } catch (err) {
-          console.error("Error fetching notifications:", err);
-        }
-      }
-
-      async function deleteNotification(notifId, element) {
-        try {
-          const res = await fetch("/api/visitor-notifications/delete/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-            body: JSON.stringify({ notif_id: notifId }),
-          });
-          const data = await res.json();
-          if (data.success) {
-            if(element) element.remove();
-            fetchNotifications(); 
-          }
-        } catch (err) { console.error(err); }
-      }
-
-      async function clearAllNotifications() {
-        try {
-          const res = await fetch("/api/visitor-notifications/clear/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-            body: JSON.stringify({}) 
-          });
-          const data = await res.json();
-          if (data.success) fetchNotifications(); 
-        } catch (err) { console.error(err); }
-      }
-
-      function init() {
-        fetchNotifications();
-        if (!pollInterval) pollInterval = setInterval(fetchNotifications, POLL_DELAY);
-        
-        document.addEventListener("visibilitychange", () => {
-          if (document.hidden) clearInterval(pollInterval);
-          else { fetchNotifications(); pollInterval = setInterval(fetchNotifications, POLL_DELAY); }
-        });
-
-        if (notifBtn) {
-            notifBtn.addEventListener("click", () => {
-                setTimeout(() => { 
-                    const badge = notifBtn.querySelector(".notification-badge");
-                    if(badge && badge.dataset.count > 0) badge.style.setProperty("display", "inline-block", "important");
-                }, 50);
-            });
-        }
-      }
-
-      init();
-    })();
-    </script>
-
-    {% block extra_js %}{% endblock %}
-</body>
-</html>
-
-<script>
     document.addEventListener('DOMContentLoaded', function () {
         const body = document.body;
 
@@ -757,7 +461,6 @@
         }
 
         if (navToggle) {
-            // apply saved state on load
             applySavedNavPreference();
 
             navToggle.addEventListener("click", () => {
@@ -786,39 +489,18 @@
             });
         }
 
-        // ===== DROPDOWNS (PROFILE & NOTIFICATION) =====
-        const notifBtn = document.getElementById("notifBtn");
-        const notifDropdown = document.getElementById("notifDropdown");
+        // ===== PROFILE DROPDOWN =====
         const profileBtn = document.getElementById("profileBtn");
         const profileDropdown = document.getElementById("profileDropdown");
 
-        // Notification Toggle
-        if (notifBtn) {
-            notifBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                notifDropdown.classList.toggle("active");
-                profileDropdown.classList.remove("active");
-                
-                // RE-ASSERT BADGE VISIBILITY (Important fix)
-                const notifBadge = notifBtn.querySelector(".notification-badge");
-                if (notifBadge && notifBadge.dataset.count > 0) {
-                     notifBadge.style.setProperty("display", "inline-block", "important");
-                }
-            });
-        }
-
-        // Profile Toggle
         if (profileBtn) {
             profileBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 profileDropdown.classList.toggle("active");
-                notifDropdown.classList.remove("active");
             });
         }
 
         document.addEventListener("click", (e) => {
-            if (notifDropdown && notifBtn && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target))
-                notifDropdown.classList.remove("active");
             if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target))
                 profileDropdown.classList.remove("active");
         });
@@ -844,10 +526,21 @@
         const dropdownLogoutBtn = document.getElementById("dropdownLogoutBtn");
         const confirmLogout = document.getElementById("confirmLogout");
         const cancelLogout = document.getElementById("cancelLogout");
-        
-        if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); openModal('logoutModal'); });
-        if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ e.preventDefault(); profileDropdown.classList.remove('active'); openModal('logoutModal'); });
+
+        if(sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", e=>{ 
+            e.preventDefault(); 
+            openModal('logoutModal'); 
+        });
+        if(dropdownLogoutBtn) dropdownLogoutBtn.addEventListener("click", e=>{ 
+            e.preventDefault(); 
+            profileDropdown.classList.remove('active'); 
+            openModal('logoutModal'); 
+        });
         if(confirmLogout) confirmLogout.addEventListener("click", ()=>window.location.href="{% url 'login_app:logout' %}");
         if(cancelLogout) cancelLogout.addEventListener("click", ()=>closeModal('logoutModal'));
     });
-</script>
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
