@@ -112,8 +112,24 @@ def dashboard_view(request):
     ).update(status="Expired")
 
     # 2) Load all visits for this user
+    # 2) Load all visits for this user
     all_visits = Visit.objects.filter(user_email=user_email)
+
+    # Lifetime completed visits
     completed_visits_count = all_visits.filter(status="Completed").count()
+
+    # 🔢 Visits This Month (any status for this month)
+    first_day_of_month = today.replace(day=1)
+    # trick to get first day of next month
+    if first_day_of_month.month == 12:
+        first_day_next_month = first_day_of_month.replace(year=first_day_of_month.year + 1, month=1)
+    else:
+        first_day_next_month = first_day_of_month.replace(month=first_day_of_month.month + 1)
+
+    month_visits_count = all_visits.filter(
+        visit_date__gte=first_day_of_month,
+        visit_date__lt=first_day_next_month,
+    ).count()
 
     for visit in all_visits:
         visit_date_obj = visit.visit_date
@@ -175,6 +191,7 @@ def dashboard_view(request):
         "active_visits": active_visits,
         "upcoming_visits": upcoming_visits,
         "completed_visits_count": completed_visits_count,
+        "month_visits_count": month_visits_count,
         "notifications": user_notifications,
         "today": today,
     }

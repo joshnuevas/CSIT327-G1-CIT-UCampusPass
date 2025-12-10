@@ -274,7 +274,9 @@
         </div>
         <h3>No visits found</h3>
         <p>We couldn't find any visits matching your filters.</p>
-        <a href="{% url 'book_visit_app:book_visit' %}" class="btn-reset-empty">Book a Visit</a>
+        <a href="{% url 'book_visit_app:book_visit' %}" class="btn-empty-action">
+            Book a Visit Now
+        </a>
     </div>
 {% endif %}
 {% endblock %}
