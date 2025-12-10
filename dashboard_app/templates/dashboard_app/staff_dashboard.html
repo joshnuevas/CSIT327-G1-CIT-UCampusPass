@@ -503,6 +503,42 @@
         color: #718096;
     }
 
+        .mt-code-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .copy-code-btn {
+        border: none;
+        background: #F7FAFC;
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #4A5568;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .copy-code-btn i {
+        font-size: 11px;
+    }
+
+    .copy-code-btn:hover {
+        background: #E2E8F0;
+        color: #2D3748;
+        transform: translateY(-1px);
+    }
+
+    .copy-code-btn.copied {
+        background: #F1C40F22;
+        color: #8B1538;
+    }
+
     /* ===== Responsive ===== */
     @media (max-width: 1024px) {
         .dashboard-grid {
@@ -783,14 +819,18 @@
                     <div class="mt-stripe {{ visit.status|lower }}"></div>
                     <div class="mt-content">
                         <div class="mt-header">
-                            <span class="mt-code">{{ visit.code }}</span>
+                            <div class="mt-code-wrapper">
+                                <span class="mt-code">{{ visit.code }}</span>
+                                <button
+                                    type="button"
+                                    class="copy-code-btn"
+                                    data-code="{{ visit.code }}"
+                                    title="Copy code"
+                                >
+                                    <i class="far fa-copy"></i> Copy
+                                </button>
+                            </div>
                             <span class="mt-time">
-                                {% if visit.start_time %}
-                                    {{ visit.start_time|time:"g:i a" }}
-                                {% else %}
-                                    <span style="color:#D4AF37;">Pending</span>
-                                {% endif %}
-                            </span>
                         </div>
                         <span class="mt-visitor">{{ visit.user_email }}</span>
                         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px;">
@@ -822,140 +862,140 @@
     // 1) CODE INPUT: LOCK "CIT-" PREFIX
     // ================================
     function setupCodeInputProtection() {
-    const codeInput = document.getElementById('visitCodeInput');
-    if (!codeInput) return;
+        const codeInput = document.getElementById('visitCodeInput');
+        if (!codeInput) return;
 
-    const PREFIX = "CIT-";
+        const PREFIX = "CIT-";
 
-    // Ensure it always starts with CIT-
-    if (!codeInput.value || !codeInput.value.startsWith(PREFIX)) {
-        codeInput.value = PREFIX;
-    }
-
-    // Helper: keep cursor out of the prefix
-    function clampCursor() {
-        const start = codeInput.selectionStart;
-        const end = codeInput.selectionEnd;
-        if (start < PREFIX.length) {
-            codeInput.setSelectionRange(PREFIX.length, Math.max(end, PREFIX.length));
-        }
-    }
-
-    // On focus, put cursor at the end
-    codeInput.addEventListener('focus', function () {
-        if (!codeInput.value.startsWith(PREFIX)) {
+        // Ensure it always starts with CIT-
+        if (!codeInput.value || !codeInput.value.startsWith(PREFIX)) {
             codeInput.value = PREFIX;
         }
-        const len = codeInput.value.length;
-        codeInput.setSelectionRange(len, len);
-    });
 
-    // ✅ Allow long-press + Backspace, but never delete CIT-
-    codeInput.addEventListener('keydown', function (e) {
-        const start = codeInput.selectionStart;
-        const end = codeInput.selectionEnd;
-        const value = codeInput.value;
-
-        // BACKSPACE
-        if (e.key === 'Backspace') {
-            // Case 1: selection starts inside prefix
+        // Helper: keep cursor out of the prefix
+        function clampCursor() {
+            const start = codeInput.selectionStart;
+            const end = codeInput.selectionEnd;
             if (start < PREFIX.length) {
-                e.preventDefault();
+                codeInput.setSelectionRange(PREFIX.length, Math.max(end, PREFIX.length));
+            }
+        }
 
-                // If selection is entirely within prefix → do nothing, just move cursor
-                if (end <= PREFIX.length) {
-                    codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
-                } else {
-                    // Selection spans prefix + suffix:
-                    // delete only suffix part (everything after prefix)
-                    const after = value.slice(end); // part after selection
-                    codeInput.value = PREFIX + after;
-                    const newPos = PREFIX.length;
-                    codeInput.setSelectionRange(newPos, newPos);
+        // On focus, put cursor at the end
+        codeInput.addEventListener('focus', function () {
+            if (!codeInput.value.startsWith(PREFIX)) {
+                codeInput.value = PREFIX;
+            }
+            const len = codeInput.value.length;
+            codeInput.setSelectionRange(len, len);
+        });
+
+        // ✅ Allow long-press + Backspace, but never delete CIT-
+        codeInput.addEventListener('keydown', function (e) {
+            const start = codeInput.selectionStart;
+            const end = codeInput.selectionEnd;
+            const value = codeInput.value;
+
+            // BACKSPACE
+            if (e.key === 'Backspace') {
+                // Case 1: selection starts inside prefix
+                if (start < PREFIX.length) {
+                    e.preventDefault();
+
+                    // If selection is entirely within prefix → do nothing, just move cursor
+                    if (end <= PREFIX.length) {
+                        codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                    } else {
+                        // Selection spans prefix + suffix:
+                        // delete only suffix part (everything after prefix)
+                        const after = value.slice(end); // part after selection
+                        codeInput.value = PREFIX + after;
+                        const newPos = PREFIX.length;
+                        codeInput.setSelectionRange(newPos, newPos);
+                    }
+                    return;
                 }
-                return;
+
+                // Case 2: cursor exactly at prefix boundary with no selection → prevent deleting '-'
+                if (start === PREFIX.length && end === PREFIX.length) {
+                    // backspace would delete last char of prefix -> block
+                    e.preventDefault();
+                    codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                    return;
+                }
             }
 
-            // Case 2: cursor exactly at prefix boundary with no selection → prevent deleting '-'
-            if (start === PREFIX.length && end === PREFIX.length) {
-                // backspace would delete last char of prefix -> block
+            // DELETE
+            if (e.key === 'Delete') {
+                if (start < PREFIX.length) {
+                    e.preventDefault();
+
+                    if (end <= PREFIX.length) {
+                        // selection inside prefix only → block
+                        codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                    } else {
+                        // selection spans prefix + suffix → delete only suffix part
+                        const after = value.slice(end);
+                        codeInput.value = PREFIX + after;
+                        const newPos = PREFIX.length;
+                        codeInput.setSelectionRange(newPos, newPos);
+                    }
+                    return;
+                }
+            }
+
+            // Block ArrowLeft into prefix
+            if (e.key === 'ArrowLeft') {
+                if (start <= PREFIX.length) {
+                    e.preventDefault();
+                    codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
+                    return;
+                }
+            }
+
+            // Block Home from going before prefix
+            if (e.key === 'Home') {
                 e.preventDefault();
                 codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
                 return;
             }
-        }
+        });
 
-        // DELETE
-        if (e.key === 'Delete') {
-            if (start < PREFIX.length) {
-                e.preventDefault();
-
-                if (end <= PREFIX.length) {
-                    // selection inside prefix only → block
-                    codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
-                } else {
-                    // selection spans prefix + suffix → delete only suffix part
-                    const after = value.slice(end);
-                    codeInput.value = PREFIX + after;
-                    const newPos = PREFIX.length;
-                    codeInput.setSelectionRange(newPos, newPos);
-                }
-                return;
-            }
-        }
-
-        // Block ArrowLeft into prefix
-        if (e.key === 'ArrowLeft') {
-            if (start <= PREFIX.length) {
-                e.preventDefault();
-                codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
-                return;
-            }
-        }
-
-        // Block Home from going before prefix
-        if (e.key === 'Home') {
+        // Handle paste so prefix is preserved
+        codeInput.addEventListener('paste', function (e) {
             e.preventDefault();
-            codeInput.setSelectionRange(PREFIX.length, PREFIX.length);
-            return;
-        }
-    });
+            const clipboardData = (e.clipboardData || window.clipboardData);
+            const pasted = (clipboardData.getData('text') || "").toUpperCase();
 
-    // Handle paste so prefix is preserved
-    codeInput.addEventListener('paste', function (e) {
-        e.preventDefault();
-        const clipboardData = (e.clipboardData || window.clipboardData);
-        const pasted = (clipboardData.getData('text') || "").toUpperCase();
+            const clean = pasted.replace(/[^A-Z0-9-]/g, '');
+            const existingSuffix = codeInput.value.slice(PREFIX.length);
+            codeInput.value = PREFIX + existingSuffix + clean;
 
-        const clean = pasted.replace(/[^A-Z0-9-]/g, '');
-        const existingSuffix = codeInput.value.slice(PREFIX.length);
-        codeInput.value = PREFIX + existingSuffix + clean;
+            const len = codeInput.value.length;
+            codeInput.setSelectionRange(len, len);
+        });
 
-        const len = codeInput.value.length;
-        codeInput.setSelectionRange(len, len);
-    });
+        // Enforce prefix + uppercase + valid chars
+        codeInput.addEventListener('input', function () {
+            let value = codeInput.value;
 
-    // Enforce prefix + uppercase + valid chars
-    codeInput.addEventListener('input', function () {
-        let value = codeInput.value;
+            if (!value.startsWith(PREFIX)) {
+                value = value.replace(/cit-?/gi, '');
+                value = PREFIX + value;
+            }
 
-        if (!value.startsWith(PREFIX)) {
-            value = value.replace(/cit-?/gi, '');
-            value = PREFIX + value;
-        }
+            let suffix = value.slice(PREFIX.length).toUpperCase();
+            suffix = suffix.replace(/[^A-Z0-9-]/g, '');
 
-        let suffix = value.slice(PREFIX.length).toUpperCase();
-        suffix = suffix.replace(/[^A-Z0-9-]/g, '');
+            codeInput.value = PREFIX + suffix;
 
-        codeInput.value = PREFIX + suffix;
+            clampCursor();
+        });
 
-        clampCursor();
-    });
-
-    // Keep cursor from staying inside prefix on click/move
-    codeInput.addEventListener('click', clampCursor);
-    codeInput.addEventListener('keyup', clampCursor);
-}
+        // Keep cursor from staying inside prefix on click/move
+        codeInput.addEventListener('click', clampCursor);
+        codeInput.addEventListener('keyup', clampCursor);
+    }
 
     // =========================================
     // 2) LIVE FEED WIDGET (TIMELINE FILTERING)
@@ -1065,12 +1105,68 @@
     }
 
     // =========================================
-    // 4) INIT
+    // 4) COPY CODE BUTTONS (Today's Schedule)
+    //     → copies only the part AFTER "CIT-"
+    // =========================================
+    function setupCopyCodeButtons() {
+        const buttons = document.querySelectorAll('.copy-code-btn');
+        if (!buttons.length) return;
+
+        buttons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                const fullCode = this.getAttribute('data-code') || '';
+                // remove leading "CIT-" if present
+                const suffix = fullCode.replace(/^CIT-/, '');
+
+                if (!suffix) return;
+
+                const btn = this;
+
+                function showCopied() {
+                    btn.classList.add('copied');
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                    setTimeout(function () {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = originalHtml;
+                    }, 1200);
+                }
+
+                function fallbackCopy() {
+                    const temp = document.createElement('textarea');
+                    temp.value = suffix;
+                    temp.style.position = 'fixed';
+                    temp.style.opacity = '0';
+                    document.body.appendChild(temp);
+                    temp.select();
+                    try {
+                        document.execCommand('copy');
+                    } catch (e) {
+                        // ignore
+                    }
+                    document.body.removeChild(temp);
+                    showCopied();
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(suffix)
+                        .then(showCopied)
+                        .catch(fallbackCopy);
+                } else {
+                    fallbackCopy();
+                }
+            });
+        });
+    }
+
+    // =========================================
+    // 5) INIT
     // =========================================
     document.addEventListener('DOMContentLoaded', function () {
         setupCodeInputProtection();
         applyFeedFilters();
         applyScheduleFilters();
+        setupCopyCodeButtons();
     });
 </script>
 {% endblock %}
